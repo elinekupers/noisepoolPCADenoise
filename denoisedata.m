@@ -10,10 +10,12 @@ if ~isfield(opt,'npoolmethod'), opt.npoolmethod = {'r2',[],'n',60};  end
 if ~isfield(opt,'epochGroup'),  opt.epochGroup  = 1:nepoch;          end
 if ~isfield(opt,'npcs'),        opt.npcs        = 30;                end
 if ~isfield(opt,'verbose'),     opt.verbose     = true;              end
+if ~isfield(opt,'xvalratio'),   opt.xvalratio   = -1;                end
+if ~isfield(opt,'resampling'),  opt.resampling  = {'xval','xval'};   end
 
 % perform fit to get R^2 values
 if opt.verbose, fprintf('(denoisedata) computing evoked model ...\n'); end
-out = evalmodel(design,data,evokedfun,'xval');
+out = evalmodel(design,data,evokedfun,opt.resampling{1});
 
 % select noise pool
 if opt.verbose, fprintf('(denoisedata) selecting noise pool ...\n'); end
@@ -44,8 +46,6 @@ for rp = 1:nrep
 end
 
 % denoise in time and recompute spectral time series
-evalout = cell(1,opt.npcs+1);
-if nargout > 1, denoisedspec = cell(1,opt.npcs+1); end
 for p = 0:opt.npcs % loop through each pc
     if opt.verbose, fprintf('(denoisedata) denoising for %d pcs ...\n', p); end
     
@@ -75,8 +75,9 @@ for p = 0:opt.npcs % loop through each pc
         if rp==nrep, assert(cummnepoch(end) == nepoch); end
     end
     % compute spectral time series and evaluate 
-    [evalout{p}, denoisedst] = evalmodel(design,denoiseddata,evalfun,'xval');
-    if nargout>1, denoisedspec{p} = denoisedst; end
+    [evalout(p+1), denoisedst] = evalmodel(design,denoiseddata,evalfun,opt.resampling{2},opt);
+    % save denoised spectral time series, if requested 
+    if nargout>1, denoisedspec(p+1) = denoisedst; end
 end
 
 
@@ -98,9 +99,10 @@ function [out,datast] = evalmodel(design,data,func,how,opt)
 % check inputs
 if notDefined('how'),  how  = 'xval';   end
 if notDefined('opt'),  opt  = struct(); end
-if ~isfield(opt,'maxpolydeg'), opt.maxpolydeg = 0;   end
-if ~isfield(opt,'xvalratio'),  opt.xvalratio  = -1;  end
-if ~isfield(opt,'xvalmaxperm'),opt.xvalmaxperm =500; end
+if ~isfield(opt,'verbose'),    opt.verbose    = true; end
+if ~isfield(opt,'maxpolydeg'), opt.maxpolydeg = 0;     end
+if ~isfield(opt,'xvalratio'),  opt.xvalratio  = -1;    end
+if ~isfield(opt,'xvalmaxperm'),opt.xvalmaxperm =500;   end
 
 % datast should be dimensions [epochs x channels]
 datast = func(data);
@@ -116,6 +118,7 @@ design  = projectionmatrix(pmatrix)*design;
 
 switch how
     case 'full'
+        if opt.verbose, fprintf('\tfull fit: no resampling\n'); end
         % do glm
         beta = design \ datast;
         modelfit = design*beta;
@@ -126,14 +129,16 @@ switch how
         out = struct('r2',r2,'beta',beta,'modelfit',modelfit);
         
     case 'xval'
-        
         % figure out how to choose train and test data
         if opt.xvalratio == -1 % do n-fold cross validation
             epochs_test = (1:nepochs)';
+            if opt.verbose, fprintf('\txval: n-fold/leave-on-out\n'); end
         else % else, divide up according to opt.xvalratio
-            ntest = nepochs * opt.xvalratio;
-            % too many permutations, so we choose randomly
-            if nchoosek(nepochs,ntest) > opt.xvalmaxperm
+            ntest = round(nepochs * opt.xvalratio);
+            ntest(ntest<1) = 1; ntest(ntest>=nepochs)=nepochs-1;
+            % if too many permutations, so we choose randomly
+            % just an arbitrary definition for "too many"
+            if nchoosek(nepochs,ntest) > max(nepochs*3, opt.xvalmaxperm)
                 epochs_test = zeros(opt.xvalmaxperm,ntest);
                 for nn = 1:opt.xvalmaxperm
                     tmp = randperm(nepochs);
@@ -142,25 +147,28 @@ switch how
             else
                 epochs_test = nchoosek(1:nepochs,ntest);
             end
+            if opt.verbose
+                fprintf('\txval: ntest %d; ntrain %d (%0.2f test)\n', ntest, nepochs-ntest,opt.xvalratio); 
+            end
         end
         
         % for each train/test permutation
-        modelfit = []; beta = [];
+        modelfit = []; beta = []; r2perm = [];
         for nn = 1:size(epochs_test,1)
             curr_test = epochs_test(nn,:);
             curr_train= setdiff(1:nepochs,curr_test);
             % do glm on training data
             beta_train= design(curr_train,:)\ datast(curr_train,:);
             modelfit_test = design(curr_test,:)*beta_train;
-            % save into prediction for this epcoh
+            % save prediction for this epcoh
             modelfit = cat(1,modelfit,modelfit_test);
             beta     = cat(1,beta,    beta_train);
+            r2perm   = cat(1,r2perm,  calccod(modelfit_test,datast(curr_test,:),[],0));
         end
         r2 = calccod(modelfit,datast(vectify(epochs_test'),:),[],0);
         
         % save into output struct
-        out = struct('r2',r2,'beta',beta,'modelfit',modelfit);
-        out.epochs_test = epochs_test;
+        out = struct('r2',r2,'beta',beta,'modelfit',modelfit, 'epochs_test', epochs_test, 'r2perm', r2perm);
     
     otherwise
         error('(denoisedata:evalmodel) resampling method not parsed: %s', how);
