@@ -38,43 +38,65 @@ design(1:numepochs(1),1) = 1;
 T = 1; fmax = 150;
 freq = megGetSLandABfrequencies((0:fmax)/T, T, 12/T);
 evokedfun = @(x)getstimlocked(x,freq);
-evalfun   = @(x)getbroadband(x,freq);
+evalfun   = {@(x)getbroadband(x,freq), @(x)getbroadbandlog(x,freq)};
 
 opt.freq = freq;
-opt.npcs = 30;
-opt.xvalratio = 0.99;
+opt.npcs = 50;
+opt.xvalratio = -1;
 opt.xvalmaxperm = 100;
 opt.resampling = {'','xval'};
 % do denoising 
 % use evokedfun to do noise pool selection 
 % use evalfun   to do evaluation 
-evalout2 = denoisedata(design,sensorData,evokedfun,evalfun,opt);
+[evalout,noisepool] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
 
-%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Do some evaluations 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % look at whether broadband signal at a function of pcs
+figure('Position',[1 200 1200 600]);
+clims_ab = zeros(length(evalfun),2);
 for p = 0:opt.npcs
-    this_ab = to157chan(mean(evalout(p+1).beta,1),~badChannels, 'nans');
-    fH(3) = figure(3); clf;
-    ssm_plotOnMesh(this_ab, [], [], [],'2d');
-    colorbar; set(fH(3), 'renderer', 'zbuffer'); colormap jet;
-    tH = title(sprintf('Broadband (PC = %02d)', p));
-    cl = get(gca, 'CLim');
-    if p == 0, clims_ab = [-1, 1]*max(abs(cl)); end
-    set(gca, 'CLim', clims_ab);
+    for fh = 1:2
+        subplot(1,2,fh); cla; 
+        this_ab = to157chan(mean(evalout(p+1,fh).beta),~badChannels, 'nans');
+        
+        ssm_plotOnMesh(this_ab, [], [], [],'2d');
+        
+        colorbar% off; 
+        colormap jet;
+        tH = title(sprintf('Broadband (PC = %02d)', p));
+        cl = get(gca, 'CLim');
+        if p == 0, clims_ab(fh,:) = [-1, 1]*max(abs(cl)); end
+        set(gca, 'CLim', clims_ab(fh,:));
+    end
     pause;
 end
 
 %%
 % look at how the r^2 changes as a function of denoising 
-r2 = cat(1,evalout.r2);
-figure;
-subplot(2,1,1);
-imagesc(r2'); colorbar;
+r2 = []; % npcs x channels [x evalfuns]
+for fh = 1:length(evalfun)
+    r2 = cat(3, r2,cat(1,evalout(:,fh).r2));
+end
+
+figure('Position',[1 200 600 600]);
+fh = 1;
+subplot(2,2,[1,2]);
+imagesc(r2(:,:,fh)'); colorbar;
 xlabel('n pcs'); ylabel('channel number');
-subplot(2,1,2);
-plot(0:opt.npcs, r2,'color',[0.5,0.5,0.5]); hold on;
-plot(0:opt.npcs, mean(r2,2),'r'); hold on;
+title('R^2 as a function of denoising');
+
+subplot(2,2,3);
+plot(0:opt.npcs, r2(:,:,fh),'color',[0.5,0.5,0.5]); hold on;
+plot(0:opt.npcs, mean(r2(:,:,fh),2),'r'); hold on;
 xlabel('n pcs'); ylabel('r2');
+
+subplot(2,2,4);
+plot(0:opt.npcs, mean(r2(:,:,fh),2),'b'); hold on;
+plot(0:opt.npcs, mean(r2(:,~noisepool,fh),2),'r');
+xlabel('n pcs'); ylabel('average r2');
+legend('all channels','non-noise channels','Location','best');
 
 %%
 r2o = cat(1,evalout0.r2);

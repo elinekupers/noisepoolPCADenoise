@@ -1,4 +1,4 @@
-function [evalout, denoisedspec] = denoisedata(design,data,evokedfun,evalfun,opt)
+function [evalout, noisepool, denoisedspec] = denoisedata(design,data,evokedfun,evalfun,opt)
 
 [nchan,ntime,nepoch] = size(data); % first, get data dimensions
 
@@ -45,6 +45,7 @@ for rp = 1:nrep
     pcs{rp} = bsxfun(@rdivide,u,std(u,[],1));
 end
 
+if ~iscell(evalfun), evalfun = {evalfun}; end
 % denoise in time and recompute spectral time series
 for p = 0:opt.npcs % loop through each pc
     if opt.verbose, fprintf('(denoisedata) denoising for %d pcs ...\n', p); end
@@ -74,12 +75,13 @@ for p = 0:opt.npcs % loop through each pc
         % sanity check
         if rp==nrep, assert(cummnepoch(end) == nepoch); end
     end
-    % compute spectral time series and evaluate 
-    [evalout(p+1), denoisedst] = evalmodel(design,denoiseddata,evalfun,opt.resampling{2},opt);
-    % save denoised spectral time series, if requested 
-    if nargout>1, denoisedspec(p+1) = denoisedst; end
+    % compute spectral time series and evaluate
+    for fh = 1:length(evalfun)
+        [evalout(p+1,fh), denoisedst] = evalmodel(design,denoiseddata,evalfun{fh},opt.resampling{2},opt);
+        % save denoised spectral time series, if requested
+        if nargout>2, denoisedspec(p+1,fh) = denoisedst; end
+    end
 end
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -95,7 +97,6 @@ function [out,datast] = evalmodel(design,data,func,how,opt)
 % r2     : goodness of fit   [channels x 1]
 % beta   : betas for the fit [nperms x channels]
 
-
 % check inputs
 if notDefined('how'),  how  = 'xval';   end
 if notDefined('opt'),  opt  = struct(); end
@@ -107,14 +108,16 @@ if ~isfield(opt,'xvalmaxperm'),opt.xvalmaxperm =500;   end
 % datast should be dimensions [epochs x channels]
 datast = func(data);
 nepochs = size(datast,1);
-% sanity check
+% sanity checks
 assert(nepochs==size(design,1));
+assert(sum(isnan(datast(:)))==0 && sum(isinf(datast(:)))==0);
 
-% remove polynomial from data and design, this is usually just a constant term
+% remove polynomial from data and design
+% for now this is usually just a constant term, so we're just de-meaning
 pmatrix = constructpolynomialmatrix(nepochs,0:opt.maxpolydeg);
-datast  = projectionmatrix(pmatrix)*datast;
-design  = projectionmatrix(pmatrix)*design;
-
+pmatrix = projectionmatrix(pmatrix);
+datast  = pmatrix*datast;
+design  = pmatrix*design;
 
 switch how
     case 'full'
