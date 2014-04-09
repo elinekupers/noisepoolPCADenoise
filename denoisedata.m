@@ -50,32 +50,35 @@ if ~iscell(evalfun), evalfun = {evalfun}; end
 for p = 0:opt.npcs % loop through each pc
     if opt.verbose, fprintf('(denoisedata) denoising for %d pcs ...\n', p); end
     
-    denoiseddata = zeros(nchan,ntime,nepoch);
-    cummnepoch  = 0;
-    % project out appropriate number of pcs from each epoch or epoch group
-    for rp = 1:nrep
-        % get current time series (ntime x nchan)
-        currepochs = opt.epochGroup == rp;
-        currnepoch = sum(currepochs);
-        currsig    = data(:,:,currepochs);
-        currsig    = reshape(currsig,[nchan,ntime*currnepoch])';
-                
-        % denoised data for this epoch and this number of pcs
-        if p == 0
-            currdenoisedsig = currsig; 
-        else
+    if p == 0
+        denoiseddata = data;
+    else
+        denoiseddata = zeros(nchan,ntime,nepoch);
+        cummnepoch  = 0;
+        % project out appropriate number of pcs from each epoch or epoch group
+        for rp = 1:nrep
+            % get time series (ntime x nchan) for current epoch group
+            currepochs = opt.epochGroup == rp;
+            currnepoch = sum(currepochs);
+            currsig    = data(:,:,currepochs);
+            currsig    = reshape(currsig,[nchan,ntime*currnepoch])';
+            
+            % denoise data for this epoch and this number of pcs
             currdenoisedsig = currsig - pcs{rp}(:,1:p)*(pcs{rp}(:,1:p)\currsig);
+            
+            % reshape into ntime x nepoch x nchan
+            currdenoisedsig = reshape(currdenoisedsig,[ntime, currnepoch, nchan]);
+            % save into denoiseddata for this number of pcs [nchan x ntime x nrep]
+            denoiseddata(:,:,cummnepoch+(1:currnepoch)) = permute(currdenoisedsig, [3,1,2]);
+            cummnepoch = cummnepoch + currnepoch;
+            
+            % sanity check
+            if rp==nrep, assert(cummnepoch(end) == nepoch); end
         end
-        % reshape into ntime x nepoch x nchan
-        currdenoisedsig = reshape(currdenoisedsig,[ntime, currnepoch, nchan]);
-        % save into denoiseddata for this number of pcs - nchan x ntime x nrep
-        denoiseddata(:,:,cummnepoch+(1:currnepoch)) = permute(currdenoisedsig, [3,1,2]);
-        
-        cummnepoch = cummnepoch + currnepoch;
-        % sanity check
-        if rp==nrep, assert(cummnepoch(end) == nepoch); end
     end
-    % compute spectral time series and evaluate
+    
+    % compute spectral time series and evaluate goodness of fit (by
+    % applying evalfun we passed in)
     for fh = 1:length(evalfun)
         [evalout(p+1,fh), denoisedst] = evalmodel(design,denoiseddata,evalfun{fh},opt.resampling{2},opt);
         % save denoised spectral time series, if requested
@@ -214,4 +217,3 @@ end
 if strcmp(compmethod,'thres')
     noisepool = vals < compval;
 end
-

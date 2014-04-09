@@ -3,7 +3,7 @@
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x n] format, here n = 1
 megDataDir = '/Users/Helena/Work/EEG/MEG/data/05_SSMEG_04_04_2014/';
-conditionNames = {'ON LEFT','OFF LEFT'};
+conditionNames = {'ON FULL','OFF FULL'};
 numepochs  = zeros(1,2);
 sensorData = [];
 for ii = 1:2
@@ -38,13 +38,14 @@ design(1:numepochs(1),1) = 1;
 T = 1; fmax = 150;
 freq = megGetSLandABfrequencies((0:fmax)/T, T, 12/T);
 evokedfun = @(x)getstimlocked(x,freq);
-evalfun   = {@(x)getbroadband(x,freq), @(x)getbroadbandlog(x,freq)};
+evalfun   = {@(x)getbroadband(x,freq), @(x)getstimlocked(x,freq)};
 
 opt.freq = freq;
-opt.npcs = 50;
+opt.npcs = 30;
 opt.xvalratio = -1;
 opt.xvalmaxperm = 100;
 opt.resampling = {'','xval'};
+opt.npoolmethod = {'r2',[],'thres',0};
 % do denoising 
 % use evokedfun to do noise pool selection 
 % use evalfun   to do evaluation 
