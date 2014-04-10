@@ -2,17 +2,17 @@
 %% load data
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x n] format, here n = 1
-megDataDir = '/Users/Helena/Work/EEG/MEG/data/05_SSMEG_04_04_2014/';
-conditionNames = {'ON FULL','OFF FULL'};
-numepochs  = zeros(1,2);
+megDataDir = '/Users/Helena/Work/EEG/MEG/data/03_SSMEG_03_31_2014/';
+conditionNames = {'ON FULL','OFF FULL','ON LEFT','OFF LEFT','ON RIGHT','OFF RIGHT'};
+tepochs  = [];
 sensorData = [];
-for ii = 1:2
+for ii = 1:length(conditionNames)
     %dataName = ['ts_', lower(regexprep(conditionNames{ii},' ','_')), '_epoched'];
     dataName = ['ts_', lower(regexprep(conditionNames{ii},' ','_'))];
     disp(dataName);
     data     = load(fullfile(megDataDir,dataName));
     currdata = data.(dataName);
-    numepochs(ii) = size(currdata,2);
+    tepochs  = cat(1,tepochs,ii*ones(size(currdata,2),1));
     sensorData = cat(2,sensorData,currdata);
 end
 % format data into the right dimensions 
@@ -20,6 +20,7 @@ sensorData = permute(sensorData,[3,1,2]);
 sensorData = sensorData(1:157,:,:);
 % remove bad epochs
 [sensorData,okEpochs] = megRemoveBadEpochs({sensorData},0.5);
+tepochs = tepochs(okEpochs{1});
 % find bad channels 
 badChannels = megIdenitfyBadChannels(sensorData, 0.5);
 badChannels(98) = 1; % for now we add this in manually
@@ -30,8 +31,11 @@ sensorData = megReplaceBadEpochs(sensorData,net);
 sensorData = sensorData{1};
 sensorData = sensorData(~badChannels,:,:);
 % design matrix
-design = zeros(size(sensorData,3),1);
-design(1:numepochs(1),1) = 1;
+onConds = find(cellfun(@isempty,strfind(conditionNames,'OFF')));
+design = zeros(size(sensorData,3),length(onConds));
+for k = 1:length(onConds)
+    design(tepochs==onConds(k),k) = 1;
+end
 
 %% Denoise 
 % define some parameters for doing denoising 
@@ -42,7 +46,7 @@ evokedfun = @(x)getstimlocked(x,freq);
 evalfun   = @(x)getbroadband(x,freq);
 
 opt.freq = freq;
-opt.npcs = 45;
+opt.npcs = 50;
 opt.xvalratio = -1;
 opt.xvalmaxperm = 100;
 opt.resampling = {'','xval'};
@@ -53,6 +57,7 @@ opt.npoolmethod = {'r2',[],'thres',0};
 [finalmodel,evalout,noisepool,denoisedspec] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
 
 return;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Do some evaluations 
@@ -66,22 +71,31 @@ if printFigsToFile
     stradd = sprintf('%s', conditionNames{1}(:,4:end));
 end
 
+% compute axses 
 clims_ab = zeros(length(evalfun),2);
+for fh = 1:length(evalfun)
+    blims = cat(3,evalout(:,fh).beta); % concat across pcs
+    blims = squeeze(mean(blims));      % average across channels
+    lower = prctile(min(blims),10);    % min across channels
+    upper = prctile(max(blims),90);    % max across channels
+    clims_ab(fh,:) = [-1, 1]*max(abs([lower, upper]));
+end
+
 types = {'BroadBand','StimulusLocked'};
 if ~printFigsToFile, figure('Position',[1 200 1200 600]); end
 for p = 0:opt.npcs
-    for fh = 1:2
+    for fh = 1:length(evalfun)
         this_val = to157chan(mean(evalout(p+1,fh).beta),~badChannels, 'nans');
         
         if ~printFigsToFile, subplot(1,2,fh); cla; else clf; end
         ttl = sprintf('%s: PC = %02d', types{fh}, p);
-        fH = megPlotMap(this_val,[],[],'jet',ttl);
+        fH = megPlotMap(this_val,clims_ab(fh,:),[],'jet',ttl);
         %ssm_plotOnMesh(this_val, [], [], [],'2d');
         
         % set axes 
-        cl = get(gca, 'CLim');
-        if p == 0, clims_ab(fh,:) = [-1, 1]*max(abs(cl))*1.2; end
-        set(gca, 'CLim', clims_ab(fh,:));
+        %cl = get(gca, 'CLim');
+        %if p == 0, clims_ab(fh,:) = [-1, 1]*max(abs(cl))*1.2; end
+        %set(gca, 'CLim', clims_ab(fh,:));
         
         if printFigsToFile
             %saveas(fH,fullfile(savepth, sprintf('%s_%s_PC%02d.png',stradd,types{fh},p)),'png');
@@ -97,9 +111,9 @@ signalnoiseVec = zeros(1,size(sensorData,1));
 signalnoiseVec(noisepool)  = 1;
 signalnoiseVec = to157chan(signalnoiseVec,~badChannels,'nans');
 
-fH = megPlotMap(signalnoiseVec,[-0.2,1],[],'autumn','Noise channels');
+fH = megPlotMap(signalnoiseVec,[0,1],[],'autumn',sprintf('Noise channels: N = %d',sum(noisepool)));
 colorbar off;
-if printFigsToFile, figurewrite('noisepool',[],[],savepth); end
+if printFigsToFile, figurewrite(sprintf('%s_noisepool',stradd),[],[],savepth); end
 
 %%
 % look at how the r^2 changes as a function of denoising 
@@ -125,6 +139,7 @@ for fh = 1:length(evalfun)
     ax(3) = subplot(2,2,4);
     plot(0:opt.npcs, mean(r2(:,:,fh),2),'b'); hold on;
     plot(0:opt.npcs, mean(r2(:,~noisepool,fh),2),'r');
+    vline(finalmodel(fh).pcnum,'k');
     xlabel('n pcs'); ylabel('average r2');
     legend('all channels','non-noise channels','Location','best');
     title('mean R^2')
@@ -137,7 +152,7 @@ for fh = 1:length(evalfun)
             set(get(ax(ii),'YLabel'),'FontSize',fs);
             set(ax(ii),'box','off','tickdir','out','ticklength',[0.025 0.025]);
         end
-        figurewrite(sprintf('R2vPCs_%s',types{fh}),[],[],savepth);
+        figurewrite(sprintf('%s_R2vPCs_%s',stradd,types{fh}),[],[],savepth);
     else
         pause;
     end

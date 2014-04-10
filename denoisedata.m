@@ -15,9 +15,9 @@ if ~isfield(opt,'resampling'),  opt.resampling  = {'xval','xval'};   end
 if ~isfield(opt,'pcstop'),      opt.pcstop      = 1.05;              end
 
 if opt.verbose
-    fprintf('-----------------------------------------------------------------\n');
-    fprintf('(denoisedata) data dimenions: %d channels x %d time x %d epochs\n', nchan,ntime,nepoch);
-    fprintf('-----------------------------------------------------------------\n');
+    fprintf('---------------------------------------------------------------------\n');
+    fprintf('(denoisedata) data dimenions: %d channels x %d time samples x %d epochs\n', nchan,ntime,nepoch);
+    fprintf('---------------------------------------------------------------------\n');
 end
 
 % --------------------------------------------------------------
