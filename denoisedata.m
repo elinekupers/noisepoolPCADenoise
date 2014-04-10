@@ -1,7 +1,7 @@
-function [evalout, noisepool, denoisedspec] = denoisedata(design,data,evokedfun,evalfun,opt)
+function [finalmodel,evalout,noisepool,denoisedspec] = denoisedata(design,data,evokedfun,evalfun,opt)
 
-[nchan,ntime,nepoch] = size(data); % first, get data dimensions
-
+% first, get data dimensions 
+[nchan,ntime,nepoch] = size(data); 
 % handle inputs and options 
 if notDefined('evokedfun'), evokedfun = @(x)getstimlocked(x,opt.freq); end
 if notDefined('evalfun'),   evalfun   = @(x)getbroadband(x,opt.freq);  end
@@ -13,6 +13,12 @@ if ~isfield(opt,'verbose'),     opt.verbose     = true;              end
 if ~isfield(opt,'xvalratio'),   opt.xvalratio   = -1;                end
 if ~isfield(opt,'resampling'),  opt.resampling  = {'xval','xval'};   end
 if ~isfield(opt,'pcstop'),      opt.pcstop      = 1.05;              end
+
+if opt.verbose
+    fprintf('-----------------------------------------------------------------\n');
+    fprintf('(denoisedata) data dimenions: %d channels x %d time x %d epochs\n', nchan,ntime,nepoch);
+    fprintf('-----------------------------------------------------------------\n');
+end
 
 % --------------------------------------------------------------
 % perform fit to get R^2 values
@@ -57,6 +63,7 @@ end
 % --------------------------------------------------------------
 % evalaute each evalfun we pass in
 if ~iscell(evalfun), evalfun = {evalfun}; end
+nmodels = length(evalfun);
 % loop through each pc
 for p = 0:opt.npcs 
     if opt.verbose, fprintf('(denoisedata) denoising for %d pcs ...\n', p); end
@@ -64,36 +71,13 @@ for p = 0:opt.npcs
     if p == 0
         denoiseddata = data;
     else
-        denoiseddata = zeros(nchan,ntime,nepoch);
-        cummnepoch  = 0;
-        % project out appropriate number of pcs from each epoch or epoch group
-        for rp = 1:nrep
-            % get time series (ntime x nchan) for current epoch group
-            currepochs = opt.epochGroup == rp;
-            currnepoch = sum(currepochs);
-            currsig    = data(:,:,currepochs);
-            currsig    = reshape(currsig,[nchan,ntime*currnepoch])';
-            
-            % denoise data for this epoch and this number of pcs
-            currdenoisedsig = currsig - pcs{rp}(:,1:p)*(pcs{rp}(:,1:p)\currsig);
-            
-            % reshape into ntime x nepoch x nchan
-            currdenoisedsig = reshape(currdenoisedsig,[ntime, currnepoch, nchan]);
-            % save into denoiseddata for this number of pcs [nchan x ntime x nrep]
-            denoiseddata(:,:,cummnepoch+(1:currnepoch)) = permute(currdenoisedsig, [3,1,2]);
-            cummnepoch = cummnepoch + currnepoch;
-            
-            % sanity check
-            if rp==nrep, assert(cummnepoch(end) == nepoch); end
-        end
+        denoiseddata = denoisetimeseries(data,pcs,p,opt.epochGroup);
     end
     
     % compute spectral time series and evaluate goodness of fit (by
     % applying evalfun we passed in)
-    for fh = 1:length(evalfun)
+    for fh = 1:nmodels
         [evalout(p+1,fh), denoisedst] = evalmodel(design,denoiseddata,evalfun{fh},opt.resampling{2},opt);
-        % save denoised spectral time series, if requested
-        if nargout>2, denoisedspec(p+1,fh) = denoisedst; end
     end
 end
 
@@ -107,8 +91,8 @@ end
 % be combined across channels? now it's just an average across channels...
 if opt.verbose, fprintf('(denoisedata) choosing pcs ...\n'); end
 chosen = 0;
-pcnum = zeros(1,length(evalfun));
-for fh = 1:length(evalfun)
+pcnum = zeros(1,nmodels);
+for fh = 1:nmodels
     % npcs x channels, averaged across channels
     r2 = cat(1,evalout(:,fh).r2);
     xvaltrend = mean(r2,2);
@@ -139,7 +123,23 @@ for fh = 1:length(evalfun)
     fprintf('\tevalfunc %d: %d pcs\n', fh, pcnum(fh));
 end
 
+% --------------------------------------------------------------
+% get final model and denoised time series
+% --------------------------------------------------------------
+% pull out the final models and add pcnum to it
+for fh = 1:nmodels, finalmodel(fh) = evalout(pcnum(fh),fh); end
+for fh = 1:nmodels, finalmodel(fh).pcnum = pcnum(fh);end
+% save denoised spectral time series, if requested
+if nargout>3
+    denoisedspec = cell(1,nmodels);
+    for fh = 1:nmodels
+        denoisedspec{fh} = denoisetimeseries(data,pcs,pcnum(fh),opt.epochGroup); 
+    end
+end
 
+return;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -270,4 +270,43 @@ if strcmp(compmethod,'n')
 end
 if strcmp(compmethod,'thres')
     noisepool = vals < compval;
+end
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function denoiseddata = denoisetimeseries(data,pcs,p,epochGroup)
+% denoise time series
+% INPUTS:
+% data   : [channels x time x epochs]
+% pcs    : nrep cells; each is a matrix of [ntime x npcs]
+% p      : how many number of pcs we want to use 
+% how    : defines how epochs are grouped 
+%
+% OUTPUTS:
+% denoiseddata : [channels x time x epochs]
+%
+[nchan,ntime,nepoch] = size(data);
+nrep = max(epochGroup);
+
+denoiseddata = zeros(nchan,ntime,nepoch);
+cummnepoch   = 0;
+% project out appropriate number of pcs from each epoch or epoch group
+for rp = 1:nrep
+    % get time series (ntime x nchan) for current epoch group
+    currepochs = epochGroup == rp;
+    currnepoch = sum(currepochs);
+    currsig    = data(:,:,currepochs);
+    currsig    = reshape(currsig,[nchan,ntime*currnepoch])';
+    
+    % denoise data for this epoch and this number of pcs
+    currdenoisedsig = currsig - pcs{rp}(:,1:p)*(pcs{rp}(:,1:p)\currsig);
+    
+    % reshape into ntime x nepoch x nchan
+    currdenoisedsig = reshape(currdenoisedsig,[ntime, currnepoch, nchan]);
+    % save into denoiseddata for this number of pcs [nchan x ntime x nrep]
+    denoiseddata(:,:,cummnepoch+(1:currnepoch)) = permute(currdenoisedsig, [3,1,2]);
+    cummnepoch = cummnepoch + currnepoch;
+    
+    % sanity check
+    if rp==nrep, assert(cummnepoch(end) == nepoch); end
 end

@@ -38,10 +38,11 @@ design(1:numepochs(1),1) = 1;
 T = 1; fmax = 150;
 freq = megGetSLandABfrequencies((0:fmax)/T, T, 12/T);
 evokedfun = @(x)getstimlocked(x,freq);
-evalfun   = {@(x)getbroadband(x,freq), @(x)getstimlocked(x,freq)};
+%evalfun   = {@(x)getbroadband(x,freq), @(x)getstimlocked(x,freq)};
+evalfun   = @(x)getbroadband(x,freq);
 
 opt.freq = freq;
-opt.npcs = 50;
+opt.npcs = 45;
 opt.xvalratio = -1;
 opt.xvalmaxperm = 100;
 opt.resampling = {'','xval'};
@@ -49,7 +50,7 @@ opt.npoolmethod = {'r2',[],'thres',0};
 % do denoising 
 % use evokedfun to do noise pool selection 
 % use evalfun   to do evaluation 
-[evalout,noisepool] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
+[finalmodel,evalout,noisepool,denoisedspec] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
 
 return;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
