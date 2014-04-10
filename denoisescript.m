@@ -2,7 +2,9 @@ clear all;
 %% load data
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x n] format, here n = 1
-megDataDir = '/Users/Helena/Work/EEG/MEG/data/03_SSMEG_03_31_2014/';
+rootDir = strrep(which('setup.m'),'denoisesuite/setup.m','');
+dataset = '03_SSMEG_03_31_2014';
+megDataDir = fullfile(rootDir,'data',dataset);
 conditionNames = {'ON FULL','OFF FULL','ON LEFT','OFF LEFT','ON RIGHT','OFF RIGHT'};
 %conditionNames = {'ON LEFT','OFF LEFT'};
 tepochs  = [];
