@@ -41,7 +41,7 @@ evokedfun = @(x)getstimlocked(x,freq);
 evalfun   = {@(x)getbroadband(x,freq), @(x)getstimlocked(x,freq)};
 
 opt.freq = freq;
-opt.npcs = 30;
+opt.npcs = 50;
 opt.xvalratio = -1;
 opt.xvalmaxperm = 100;
 opt.resampling = {'','xval'};
@@ -51,28 +51,55 @@ opt.npoolmethod = {'r2',[],'thres',0};
 % use evalfun   to do evaluation 
 [evalout,noisepool] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Do some evaluations 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% look at whether broadband signal at a function of pcs
-figure('Position',[1 200 1200 600]);
+%% look at whether broadband signal as a function of pcs
+printFigsToFile = true;
+savepth = fullfile(megDataDir, 'denoisefigures0');
+if printFigsToFile
+    fprintf('Saving images to %s\n', savepth);
+    if ~exist(savepth, 'dir'), mkdir(savepth); end
+    stradd = sprintf('meg_%s', conditionNames{1}(:,4:end));
+end
+
 clims_ab = zeros(length(evalfun),2);
+types = {'BroadBand','StimulusLocked'};
+if ~printFigsToFile, figure('Position',[1 200 1200 600]); end
 for p = 0:opt.npcs
     for fh = 1:2
-        subplot(1,2,fh); cla; 
-        this_ab = to157chan(mean(evalout(p+1,fh).beta),~badChannels, 'nans');
+        this_val = to157chan(mean(evalout(p+1,fh).beta),~badChannels, 'nans');
         
-        ssm_plotOnMesh(this_ab, [], [], [],'2d');
+        if ~printFigsToFile, subplot(1,2,fh); cla; else clf; end
+        ttl = sprintf('%s: PC = %02d', types{fh}, p);
+        fH = megPlotMap(this_val,[],[],'jet',ttl);
+        %ssm_plotOnMesh(this_val, [], [], [],'2d');
         
-        colorbar% off; 
-        colormap jet;
-        tH = title(sprintf('Broadband (PC = %02d)', p));
+        % set axes 
         cl = get(gca, 'CLim');
-        if p == 0, clims_ab(fh,:) = [-1, 1]*max(abs(cl)); end
+        if p == 0, clims_ab(fh,:) = [-1, 1]*max(abs(cl))*1.2; end
         set(gca, 'CLim', clims_ab(fh,:));
+        
+        if printFigsToFile
+            %saveas(fH,fullfile(savepth, sprintf('%s_%s_PC%02d.png',stradd,types{fh},p)),'png');
+            figurewrite(sprintf('%s_%s_PC%02d.png',stradd,types{fh},p),[],[],savepth,0);
+        end
     end
-    pause;
+    if ~printFigsToFile, pause; end
 end
+
+%% look at coverage of noise channels
+
+signalnoiseVec = zeros(1,size(sensorData,1));
+signalnoiseVec(noisepool)  = 1;
+signalnoiseVec = to157chan(signalnoiseVec,~badChannels,'nans');
+
+fH = megPlotMap(signalnoiseVec,[-0.2,1],[],'autumn','Noise channels');
+colorbar off;
+if printFigsToFile, figurewrite('noisepool',[],[],savepth); end
 
 %%
 % look at how the r^2 changes as a function of denoising 
@@ -83,21 +110,34 @@ end
 
 figure('Position',[1 200 600 600]);
 fh = 1;
-subplot(2,2,[1,2]);
+ax(1) = subplot(2,2,[1,2]);
 imagesc(r2(:,:,fh)'); colorbar;
 xlabel('n pcs'); ylabel('channel number');
 title('R^2 as a function of denoising');
 
-subplot(2,2,3);
+ax(2) = subplot(2,2,3);
 plot(0:opt.npcs, r2(:,:,fh),'color',[0.5,0.5,0.5]); hold on;
 plot(0:opt.npcs, mean(r2(:,:,fh),2),'r'); hold on;
 xlabel('n pcs'); ylabel('r2');
+title('R^2 for individual channels')
 
-subplot(2,2,4);
+ax(3) = subplot(2,2,4);
 plot(0:opt.npcs, mean(r2(:,:,fh),2),'b'); hold on;
 plot(0:opt.npcs, mean(r2(:,~noisepool,fh),2),'r');
 xlabel('n pcs'); ylabel('average r2');
 legend('all channels','non-noise channels','Location','best');
+title('mean R^2')
+
+if printFigsToFile
+    fs = 14;
+    for ii = 1:3
+        set(get(ax(ii),'Title'),'FontSize',fs);
+        set(get(ax(ii),'XLabel'),'FontSize',fs);
+        set(get(ax(ii),'YLabel'),'FontSize',fs);
+        set(ax(ii),'box','off','tickdir','out','ticklength',[0.025 0.025]);
+    end
+    figurewrite('R2vPCs',[],[],savepth);
+end
 
 %%
 r2o = cat(1,evalout0.r2);
