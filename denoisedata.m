@@ -12,18 +12,25 @@ if ~isfield(opt,'npcs'),        opt.npcs        = 30;                end
 if ~isfield(opt,'verbose'),     opt.verbose     = true;              end
 if ~isfield(opt,'xvalratio'),   opt.xvalratio   = -1;                end
 if ~isfield(opt,'resampling'),  opt.resampling  = {'xval','xval'};   end
+if ~isfield(opt,'pcstop'),      opt.pcstop      = 1.05;              end
 
+% --------------------------------------------------------------
 % perform fit to get R^2 values
+% --------------------------------------------------------------
 if opt.verbose, fprintf('(denoisedata) computing evoked model ...\n'); end
 out = evalmodel(design,data,evokedfun,opt.resampling{1});
 
+% --------------------------------------------------------------
 % select noise pool
+% --------------------------------------------------------------
 if opt.verbose, fprintf('(denoisedata) selecting noise pool ...\n'); end
 noisepool = selectnoisepool(out, opt.npoolmethod);
 noisedata = data(noisepool,:,:);
 if opt.verbose, fprintf('\t%d noise channels selected ...\n', sum(noisepool)); end
 
+% --------------------------------------------------------------
 % compute PCs
+% --------------------------------------------------------------
 % pcs are stored in nrep cells; each cell is a matrix of [ntime x npcs]
 nrep = max(opt.epochGroup);
 if opt.verbose
@@ -45,9 +52,13 @@ for rp = 1:nrep
     pcs{rp} = bsxfun(@rdivide,u,std(u,[],1));
 end
 
-if ~iscell(evalfun), evalfun = {evalfun}; end
+% --------------------------------------------------------------
 % denoise in time and recompute spectral time series
-for p = 0:opt.npcs % loop through each pc
+% --------------------------------------------------------------
+% evalaute each evalfun we pass in
+if ~iscell(evalfun), evalfun = {evalfun}; end
+% loop through each pc
+for p = 0:opt.npcs 
     if opt.verbose, fprintf('(denoisedata) denoising for %d pcs ...\n', p); end
     
     if p == 0
@@ -85,6 +96,49 @@ for p = 0:opt.npcs % loop through each pc
         if nargout>2, denoisedspec(p+1,fh) = denoisedst; end
     end
 end
+
+% --------------------------------------------------------------
+% % choose number of PCs, ala Kendrick
+% --------------------------------------------------------------
+% we probably eventually want to do something fancier, like fitting a curve
+% Unlike fMRI data, EEG/MEG has fewer channels and curve is often not as
+% smooth 
+% QUESTION: how should we define xvaltrend?? in other words, how should R^2
+% be combined across channels? now it's just an average across channels...
+if opt.verbose, fprintf('(denoisedata) choosing pcs ...\n'); end
+chosen = 0;
+pcnum = zeros(1,length(evalfun));
+for fh = 1:length(evalfun)
+    % npcs x channels, averaged across channels
+    r2 = cat(1,evalout(:,fh).r2);
+    xvaltrend = mean(r2,2);
+    if opt.pcstop <= 0 % in this case, the user decides
+        chosen = -opt.pcstop;
+    else
+        % this is the performance curve that starts at 0 (corresponding to 0 PCs)
+        curve = xvaltrend - xvaltrend(1);
+        % store the maximum of the curve
+        mx = max(curve);
+        % initialize (this will hold the best performance observed thus far)
+        best = -Inf;
+        for p=0:opt.npcs
+            % if better than best so far
+            if curve(1+p) > best
+                % record this number of PCs as the best
+                chosen = p;
+                best = curve(1+p);
+                % if we are within opt.pcstop of the max, then we stop.
+                if best*opt.pcstop >= mx
+                    break;
+                end
+            end
+        end
+    end
+    % record the number of PCs
+    pcnum(fh) = chosen;
+    fprintf('\tevalfunc %d: %d pcs\n', fh, pcnum(fh));
+end
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

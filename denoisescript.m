@@ -51,8 +51,7 @@ opt.npoolmethod = {'r2',[],'thres',0};
 % use evalfun   to do evaluation 
 [evalout,noisepool] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
 
-
-
+return;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Do some evaluations 
@@ -63,7 +62,7 @@ savepth = fullfile(megDataDir, 'denoisefigures0');
 if printFigsToFile
     fprintf('Saving images to %s\n', savepth);
     if ~exist(savepth, 'dir'), mkdir(savepth); end
-    stradd = sprintf('meg_%s', conditionNames{1}(:,4:end));
+    stradd = sprintf('%s', conditionNames{1}(:,4:end));
 end
 
 clims_ab = zeros(length(evalfun),2);
@@ -108,35 +107,39 @@ for fh = 1:length(evalfun)
     r2 = cat(3, r2,cat(1,evalout(:,fh).r2));
 end
 
-figure('Position',[1 200 600 600]);
-fh = 1;
-ax(1) = subplot(2,2,[1,2]);
-imagesc(r2(:,:,fh)'); colorbar;
-xlabel('n pcs'); ylabel('channel number');
-title('R^2 as a function of denoising');
-
-ax(2) = subplot(2,2,3);
-plot(0:opt.npcs, r2(:,:,fh),'color',[0.5,0.5,0.5]); hold on;
-plot(0:opt.npcs, mean(r2(:,:,fh),2),'r'); hold on;
-xlabel('n pcs'); ylabel('r2');
-title('R^2 for individual channels')
-
-ax(3) = subplot(2,2,4);
-plot(0:opt.npcs, mean(r2(:,:,fh),2),'b'); hold on;
-plot(0:opt.npcs, mean(r2(:,~noisepool,fh),2),'r');
-xlabel('n pcs'); ylabel('average r2');
-legend('all channels','non-noise channels','Location','best');
-title('mean R^2')
-
-if printFigsToFile
-    fs = 14;
-    for ii = 1:3
-        set(get(ax(ii),'Title'),'FontSize',fs);
-        set(get(ax(ii),'XLabel'),'FontSize',fs);
-        set(get(ax(ii),'YLabel'),'FontSize',fs);
-        set(ax(ii),'box','off','tickdir','out','ticklength',[0.025 0.025]);
+for fh = 1:length(evalfun)
+    figure('Position',[1 200 600 600]);
+    
+    ax(1) = subplot(2,2,[1,2]);
+    imagesc(r2(:,:,fh)'); colorbar;
+    xlabel('n pcs'); ylabel('channel number');
+    title('R^2 as a function of denoising');
+    
+    ax(2) = subplot(2,2,3);
+    plot(0:opt.npcs, r2(:,:,fh),'color',[0.5,0.5,0.5]); hold on;
+    plot(0:opt.npcs, mean(r2(:,:,fh),2),'r'); hold on;
+    xlabel('n pcs'); ylabel('r2');
+    title('R^2 for individual channels')
+    
+    ax(3) = subplot(2,2,4);
+    plot(0:opt.npcs, mean(r2(:,:,fh),2),'b'); hold on;
+    plot(0:opt.npcs, mean(r2(:,~noisepool,fh),2),'r');
+    xlabel('n pcs'); ylabel('average r2');
+    legend('all channels','non-noise channels','Location','best');
+    title('mean R^2')
+    
+    if printFigsToFile
+        fs = 14;
+        for ii = 1:3
+            set(get(ax(ii),'Title'),'FontSize',fs);
+            set(get(ax(ii),'XLabel'),'FontSize',fs);
+            set(get(ax(ii),'YLabel'),'FontSize',fs);
+            set(ax(ii),'box','off','tickdir','out','ticklength',[0.025 0.025]);
+        end
+        figurewrite(sprintf('R2vPCs_%s',types{fh}),[],[],savepth);
+    else
+        pause;
     end
-    figurewrite('R2vPCs',[],[],savepth);
 end
 
 %%
