@@ -127,15 +127,19 @@ end
 % get final model and denoised time series
 % --------------------------------------------------------------
 % pull out the final models and add pcnum to it
-for fh = 1:nmodels, finalmodel(fh) = evalout(pcnum(fh),fh); end
-for fh = 1:nmodels, finalmodel(fh).pcnum = pcnum(fh);end
-% save denoised spectral time series, if requested
-if nargout>3
-    denoisedspec = cell(1,nmodels);
-    for fh = 1:nmodels
-        denoisedspec{fh} = denoisetimeseries(data,pcs,pcnum(fh),opt.epochGroup); 
-    end
+for fh = 1:nmodels
+    denoiseddata = denoisetimeseries(data,pcs,pcnum(fh),opt.epochGroup); 
+    [finalmodel(fh), denoisedspec{fh}] = evalmodel(design,denoiseddata,evalfun{fh},'full',opt);
 end
+for fh = 1:nmodels, finalmodel(fh).pcnum = pcnum(fh);end
+
+% % save denoised time series, if requested
+% if nargout>3
+%     denoisedspec = cell(1,nmodels);
+%     for fh = 1:nmodels
+%         denoisedspec{fh} = denoisetimeseries(data,pcs,pcnum(fh),opt.epochGroup); 
+%     end
+% end
 
 return;
 
@@ -218,13 +222,15 @@ switch how
             curr_test = epochs_test(nn,:);
             curr_train= setdiff(1:nepochs,curr_test);
             % do glm on training data
+            % beta_train = [n x channels]
             beta_train= design(curr_train,:)\ datast(curr_train,:);
             modelfit_test = design(curr_test,:)*beta_train;
             % save prediction for this epcoh
-            modelfit = cat(1,modelfit,modelfit_test);
-            beta     = cat(1,beta,    beta_train);
-            r2perm   = cat(1,r2perm,  calccod(modelfit_test,datast(curr_test,:),[],0));
+            modelfit = cat(1,modelfit,modelfit_test); %[epochs x channels]
+            beta     = cat(3,beta,    beta_train);    %[n x channels x perms]
+            r2perm   = cat(1,r2perm,  calccod(modelfit_test,datast(curr_test,:),[],0)); % [perms x 1]
         end
+        % both data and predicted are [epochs x channels]; r2 = [1 x channels]
         r2 = calccod(modelfit,datast(vectify(epochs_test'),:),[],0);
         
         % save into output struct

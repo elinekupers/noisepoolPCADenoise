@@ -45,11 +45,11 @@ end
 T = 1; fmax = 150;
 freq = megGetSLandABfrequencies((0:fmax)/T, T, 12/T);
 evokedfun = @(x)getstimlocked(x,freq);
-%evalfun   = {@(x)getbroadband(x,freq), @(x)getstimlocked(x,freq)};
-evalfun   = @(x)getbroadband(x,freq);
+evalfun   = {@(x)getbroadband(x,freq), @(x)getstimlocked(x,freq)};
+%evalfun   = @(x)getbroadband(x,freq);
 
 opt.freq = freq;
-opt.npcs = 40;
+opt.npcs = 30;
 opt.xvalratio = -1;
 opt.xvalmaxperm = 100;
 opt.resampling = {'','xval'};
@@ -66,7 +66,7 @@ return;
 %% Do some evaluations 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% look at whether broadband signal as a function of pcs
-printFigsToFile = true;
+printFigsToFile = false;
 savepth = fullfile(megDataDir, 'denoisefigures0');
 if printFigsToFile
     fprintf('Saving images to %s\n', savepth);
@@ -74,13 +74,17 @@ if printFigsToFile
     stradd = sprintf('%s', conditionNames{1}(:,4:end));
 end
 
+whichbeta = 1;
 % compute axses 
 clims_ab = zeros(length(evalfun),2);
 for fh = 1:length(evalfun)
-    blims = cat(3,evalout(:,fh).beta); % concat across pcs
-    blims = squeeze(mean(blims));      % average across channels
-    lower = prctile(min(blims),10);    % min across channels
-    upper = prctile(max(blims),90);    % max across channels
+    blims = cat(4,evalout(:,fh).beta); % concat across pcs [n x channels x perms x pcs]
+    blims = squeeze(blims(whichbeta,:,:,:)); % [channels x perms x pcs]
+    blims = squeeze(mean(blims,2));     % average across perms
+    lower = prctile(min(blims),10);    % min across channels for each pc, then prctile
+    upper = prctile(max(blims),90);    % max across channels for each pc, then prctile
+    %lower = min(min(blims));
+    %upper = max(max(blims));
     clims_ab(fh,:) = [-1, 1]*max(abs([lower, upper]));
 end
 
@@ -88,7 +92,8 @@ types = {'BroadBand','StimulusLocked'};
 if ~printFigsToFile, figure('Position',[1 200 1200 600]); end
 for p = 0:opt.npcs
     for fh = 1:length(evalfun)
-        this_val = to157chan(mean(evalout(p+1,fh).beta),~badChannels, 'nans');
+        beta = mean(evalout(p+1,fh).beta(whichbeta,:,:),3);   % [1 x channel x perms], averaged across perms
+        this_val = to157chan(beta,~badChannels, 'nans');      % map back to 157 channel space 
         
         if ~printFigsToFile, subplot(1,2,fh); cla; else clf; end
         ttl = sprintf('%s: PC = %02d', types{fh}, p);
