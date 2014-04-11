@@ -3,7 +3,7 @@ clear all;
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x n] format, here n = 1
 rootDir = strrep(which('setup.m'),'denoisesuite/setup.m','');
-dataset = '03_SSMEG_03_31_2014';
+dataset = '05_SSMEG_04_04_2014';
 megDataDir = fullfile(rootDir,'data',dataset);
 %conditionNames = {'ON FULL','OFF FULL','ON LEFT','OFF LEFT','ON RIGHT','OFF RIGHT'};
 conditionNames = {'ON RIGHT','OFF RIGHT'};
@@ -68,7 +68,7 @@ opt.npoolmethod = {'r2',[],'thres',0};
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% look at whether broadband signal as a function of pcs
 warning off
-whichbeta = 1;
+whichbeta = 3;
 printFigsToFile = true;
 
 savepth = fullfile(megDataDir, 'denoisefigures0');

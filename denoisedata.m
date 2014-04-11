@@ -1,4 +1,5 @@
-function [finalmodel,evalout,noisepool,denoisedspec] = denoisedata(design,data,evokedfun,evalfun,opt)
+function [finalmodel,evalout,noisepool,denoisedspec,denoisedts] = ...
+    denoisedata(design,data,evokedfun,evalfun,opt)
 
 % first, get data dimensions 
 [nchan,ntime,nepoch] = size(data); 
@@ -99,9 +100,9 @@ if opt.verbose, fprintf('(denoisedata) choosing pcs ...\n'); end
 chosen = 0;
 pcnum = zeros(1,nmodels);
 for fh = 1:nmodels
-    % npcs x channels, averaged across channels
+    % npcs x channels, averaged across non-noise channels
     r2 = cat(1,evalout(:,fh).r2);
-    xvaltrend = mean(r2,2);
+    xvaltrend = mean(r2(:,~noisepool),2);
     if opt.pcstop <= 0 % in this case, the user decides
         chosen = -opt.pcstop;
     else
@@ -136,6 +137,7 @@ end
 for fh = 1:nmodels
     denoiseddata = denoisetimeseries(data,pcs,pcnum(fh),opt.epochGroup); 
     [finalmodel(fh), denoisedspec{fh}] = evalmodel(design,denoiseddata,evalfun{fh},'full',opt);
+    if nargout > 4, denoisedts{fh} = denoiseddata; end
 end
 for fh = 1:nmodels, finalmodel(fh).pcnum = pcnum(fh);end
 
@@ -252,12 +254,13 @@ function noisepool = selectnoisepool(out,npoolmethod)
 % selects noise channels
 % npoolmethod is a cell array
 %   entry 1 defines what variable is used ['r2'(default) | 'beta']
-%   entry 2 (optional) defines function on out [default [] ] 
-%           can pass in a function to calculate snr, for example
+%   entry 2 (optional) defines function on 'out' [default [] ] 
+%           for example: can pass in a function to calculate snr
 %   entry 3 defines how noise channels are selected ['n' (default)|'thres']
 %           if 'n', then we choose the worst X channels 
 %           if 'thres', then we choose channels with entry1 < X
 %   entry 4 defines X 
+%   example: {'r2',[],'thres',0}
 
 % check inputs 
 var  = npoolmethod{1}; if isempty(var), var = 'r2'; end
