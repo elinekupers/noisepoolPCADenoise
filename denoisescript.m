@@ -5,8 +5,8 @@ clear all;
 rootDir = strrep(which('setup.m'),'denoisesuite/setup.m','');
 dataset = '03_SSMEG_03_31_2014';
 megDataDir = fullfile(rootDir,'data',dataset);
-conditionNames = {'ON FULL','OFF FULL','ON LEFT','OFF LEFT','ON RIGHT','OFF RIGHT'};
-%conditionNames = {'ON LEFT','OFF LEFT'};
+%conditionNames = {'ON FULL','OFF FULL','ON LEFT','OFF LEFT','ON RIGHT','OFF RIGHT'};
+conditionNames = {'ON RIGHT','OFF RIGHT'};
 tepochs  = [];
 sensorData = [];
 for ii = 1:length(conditionNames)
@@ -49,40 +49,52 @@ evalfun   = {@(x)getbroadband(x,freq), @(x)getstimlocked(x,freq)};
 %evalfun   = @(x)getbroadband(x,freq);
 
 opt.freq = freq;
-opt.npcs = 30;
+opt.npcs = 50;
 opt.xvalratio = -1;
 opt.xvalmaxperm = 100;
 opt.resampling = {'','xval'};
-opt.npoolmethod = {'r2',[],'n',60};
+%opt.npoolmethod = {'r2',[],'n',60};
+opt.npoolmethod = {'r2',[],'thres',0};
 % do denoising 
 % use evokedfun to do noise pool selection 
 % use evalfun   to do evaluation 
 [finalmodel,evalout,noisepool,denoisedspec] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
 
-return;
+%return;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Do some evaluations 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% look at whether broadband signal as a function of pcs
-printFigsToFile = false;
+warning off
+whichbeta = 1;
+printFigsToFile = true;
+
 savepth = fullfile(megDataDir, 'denoisefigures0');
 if printFigsToFile
     fprintf('Saving images to %s\n', savepth);
     if ~exist(savepth, 'dir'), mkdir(savepth); end
-    stradd = sprintf('%s', conditionNames{1}(:,4:end));
+    if length(conditionNames)>2
+        stradd = sprintf('%s_ALL', conditionNames{onConds(whichbeta)}(:,4:end));
+    else
+        stradd = sprintf('%s', conditionNames{1}(:,4:end));
+    end
 end
 
-whichbeta = 1;
 % compute axses 
 clims_ab = zeros(length(evalfun),2);
 for fh = 1:length(evalfun)
     blims = cat(4,evalout(:,fh).beta); % concat across pcs [n x channels x perms x pcs]
     blims = squeeze(blims(whichbeta,:,:,:)); % [channels x perms x pcs]
     blims = squeeze(mean(blims,2));     % average across perms
-    lower = prctile(min(blims),10);    % min across channels for each pc, then prctile
-    upper = prctile(max(blims),90);    % max across channels for each pc, then prctile
+    if fh == 1
+        lower = prctile(min(blims),15);
+        upper = prctile(max(blims),85);
+    else
+        lower = prctile(min(blims),5);     % min across channels for each pc, then prctile
+        upper = prctile(max(blims),95);    % max across channels for each pc, then prctile
+    end
     %lower = min(min(blims));
     %upper = max(max(blims));
     clims_ab(fh,:) = [-1, 1]*max(abs([lower, upper]));
@@ -107,7 +119,7 @@ for p = 0:opt.npcs
         
         if printFigsToFile
             %saveas(fH,fullfile(savepth, sprintf('%s_%s_PC%02d.png',stradd,types{fh},p)),'png');
-            figurewrite(sprintf('%s_%s_PC%02d.png',stradd,types{fh},p),[],[],savepth,0);
+            figurewrite(sprintf('%s_%s_PC%02d',stradd,types{fh},p),[],[],savepth,0);
         end
     end
     if ~printFigsToFile, pause; end
@@ -115,7 +127,7 @@ end
 
 %% look at coverage of noise channels
 
-signalnoiseVec = zeros(1,size(sensorData,1));
+signalnoiseVec = zeros(1,size(beta,2));
 signalnoiseVec(noisepool)  = 1;
 signalnoiseVec = to157chan(signalnoiseVec,~badChannels,'nans');
 
@@ -165,6 +177,8 @@ for fh = 1:length(evalfun)
         pause;
     end
 end
+
+return;
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 r2o = cat(1,evalout0.r2);

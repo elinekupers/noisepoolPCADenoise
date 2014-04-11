@@ -33,7 +33,13 @@ if opt.verbose, fprintf('(denoisedata) selecting noise pool ...\n'); end
 noisepool = selectnoisepool(out, opt.npoolmethod);
 noisedata = data(noisepool,:,:);
 if opt.verbose, fprintf('\t%d noise channels selected ...\n', sum(noisepool)); end
-
+% check that the number of pcs we request isn't greater than the size of
+% noisepool
+if opt.npcs > sum(noisepool)
+    fprintf('WARNING!!!: npcs > nnoise! Setting npcs to size of noise pool %d\n', sum(noisepool));
+    opt.npcs = sum(noisepool);
+end
+    
 % --------------------------------------------------------------
 % compute PCs
 % --------------------------------------------------------------
