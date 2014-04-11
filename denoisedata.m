@@ -1,6 +1,38 @@
 function [finalmodel,evalout,noisepool,denoisedspec,denoisedts] = ...
     denoisedata(design,data,evokedfun,evalfun,opt)
-
+% [finalmodel,evalout,noisepool,denoisedspec,denoisedts] = ...
+%         denoisedata(design,data,evokedfun,evalfun,opt)
+% ---------------------------------------------------------------- 
+% INPUTS:
+% data      : time series [channel x time samples x epoch]
+% design    : design matrix [epoch x n]
+% evokedfun : function handle (to compute evoked response for noise pool
+%             selection
+% evalfun   : function handle or a cell of function handles (to compute the
+%             output responses of interest for evaluation
+% opt       : options
+%     npoolmethod : noise pool selection method 
+%     epochGroup  : for grouping epochs together for denoising [epoch x 1] vector
+%     npcs        : number of pcs to try (default 30)
+%     xvalratio   : how to split training and test data for cross
+%                   validation. could be a number between 0 to 1, defining
+%                   the ratio of test data (relative to training data). 
+%                   or -1, which does leave-one-out (default). 
+%     resampling  : how to do resampling for noise channel selection
+%                   (cell 1) and actual evaluation (cell 2)
+%                   options: 'full' or 'xval' (default {'xval','xval'})
+%     pcstop      :  when to stop adding PCs into the model (default: 1.05)
+%     verbose     :  whether to print messages to screen (default: true)
+% 
+% OUTPUTS:
+% finalmodel      : final glm solution for the model with optimal number of pcs
+% evalout         : cross validated glm solution for each pc tried 
+% noisepool       : channels included in the noise pool (vector of booleans)
+% denoisedspec    : denoised output data with optimal number of pcs (output of evalfun)
+% denoisedts      : denoised raw data with optimal number of pcs (same dimensions
+%                   as input 'data')
+% 
+  
 % first, get data dimensions 
 [nchan,ntime,nepoch] = size(data); 
 % handle inputs and options 
@@ -10,10 +42,10 @@ if notDefined('opt'),       opt       = struct(); end
 if ~isfield(opt,'npoolmethod'), opt.npoolmethod = {'r2',[],'n',60};  end
 if ~isfield(opt,'epochGroup'),  opt.epochGroup  = 1:nepoch;          end
 if ~isfield(opt,'npcs'),        opt.npcs        = 30;                end
-if ~isfield(opt,'verbose'),     opt.verbose     = true;              end
 if ~isfield(opt,'xvalratio'),   opt.xvalratio   = -1;                end
 if ~isfield(opt,'resampling'),  opt.resampling  = {'xval','xval'};   end
 if ~isfield(opt,'pcstop'),      opt.pcstop      = 1.05;              end
+if ~isfield(opt,'verbose'),     opt.verbose     = true;              end
 
 if opt.verbose
     fprintf('---------------------------------------------------------------------\n');
@@ -84,7 +116,7 @@ for p = 0:opt.npcs
     % compute spectral time series and evaluate goodness of fit (by
     % applying evalfun we passed in)
     for fh = 1:nmodels
-        [evalout(p+1,fh), denoisedst] = evalmodel(design,denoiseddata,evalfun{fh},opt.resampling{2},opt);
+        evalout(p+1,fh) = evalmodel(design,denoiseddata,evalfun{fh},opt.resampling{2},opt);
     end
 end
 
@@ -137,17 +169,11 @@ end
 for fh = 1:nmodels
     denoiseddata = denoisetimeseries(data,pcs,pcnum(fh),opt.epochGroup); 
     [finalmodel(fh), denoisedspec{fh}] = evalmodel(design,denoiseddata,evalfun{fh},'full',opt);
+    % return denoised time series, if requested 
     if nargout > 4, denoisedts{fh} = denoiseddata; end
 end
 for fh = 1:nmodels, finalmodel(fh).pcnum = pcnum(fh);end
 
-% % save denoised time series, if requested
-% if nargout>3
-%     denoisedspec = cell(1,nmodels);
-%     for fh = 1:nmodels
-%         denoisedspec{fh} = denoisetimeseries(data,pcs,pcnum(fh),opt.epochGroup); 
-%     end
-% end
 
 return;
 

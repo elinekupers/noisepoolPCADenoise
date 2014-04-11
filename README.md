@@ -31,7 +31,7 @@ WHAT THE MAIN FUNCTION COMPUTES:
 ---
 OUTPUT:
 
-1) Final model (cross validated GLM solution denoised with the optimal number of PCs)
+1) Final model (GLM solution denoised with the optimal number of PCs)
 
 2) All Fits with different number of PCs (mostly for posthoc analyses)
 
