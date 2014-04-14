@@ -3,11 +3,11 @@ clear all;
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x n] format, here n = 1
 rootDir = strrep(which('setup.m'),'denoisesuite/setup.m','');
-dataset = '05_SSMEG_04_04_2014';
+dataset = '03_SSMEG_03_31_2014';
 megDataDir = fullfile(rootDir,'data',dataset);
-%conditionNames = {'ON FULL','OFF FULL','ON LEFT','OFF LEFT','ON RIGHT','OFF RIGHT'};
-conditionNames = {'ON RIGHT','OFF RIGHT'};
-tepochs  = [];
+conditionNames = {'ON FULL','OFF FULL','ON LEFT','OFF LEFT','ON RIGHT','OFF RIGHT'};
+%conditionNames = {'ON RIGHT','OFF RIGHT'};
+tepochs    = [];
 sensorData = [];
 for ii = 1:length(conditionNames)
     %dataName = ['ts_', lower(regexprep(conditionNames{ii},' ','_')), '_epoched'];
@@ -40,6 +40,8 @@ for k = 1:length(onConds)
     design(tepochs==onConds(k),k) = 1;
 end
 
+%save(sprintf('tmp/%s',dataset),'sensorData', 'design', 'freq', 'badChannels');
+
 %% Denoise 
 % define some parameters for doing denoising 
 T = 1; fmax = 150;
@@ -68,61 +70,72 @@ opt.npoolmethod = {'r2',[],'thres',0};
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% look at whether broadband signal as a function of pcs
 warning off
-whichbeta = 3;
 printFigsToFile = true;
 
-savepth = fullfile(megDataDir, 'denoisefigures0');
 if printFigsToFile
+    savepth = fullfile(megDataDir, 'denoisefigures0');
     fprintf('Saving images to %s\n', savepth);
     if ~exist(savepth, 'dir'), mkdir(savepth); end
-    if length(conditionNames)>2
-        stradd = sprintf('%s_ALL', conditionNames{onConds(whichbeta)}(:,4:end));
-    else
-        stradd = sprintf('%s', conditionNames{1}(:,4:end));
-    end
 end
 
 % compute axses 
-clims_ab = zeros(length(evalfun),2);
-for fh = 1:length(evalfun)
-    blims = cat(4,evalout(:,fh).beta); % concat across pcs [n x channels x perms x pcs]
-    blims = squeeze(blims(whichbeta,:,:,:)); % [channels x perms x pcs]
-    blims = squeeze(mean(blims,2));     % average across perms
-    if fh == 1
-        lower = prctile(min(blims),15);
-        upper = prctile(max(blims),85);
-    else
-        lower = prctile(min(blims),5);     % min across channels for each pc, then prctile
-        upper = prctile(max(blims),95);    % max across channels for each pc, then prctile
-    end
-    %lower = min(min(blims));
-    %upper = max(max(blims));
-    clims_ab(fh,:) = [-1, 1]*max(abs([lower, upper]));
-end
+clims = getblims(evalout,[15,85;5,95]);
 
 types = {'BroadBand','StimulusLocked'};
-if ~printFigsToFile, figure('Position',[1 200 1200 600]); end
-for p = 0:opt.npcs
-    for fh = 1:length(evalfun)
-        beta = mean(evalout(p+1,fh).beta(whichbeta,:,:),3);   % [1 x channel x perms], averaged across perms
-        this_val = to157chan(beta,~badChannels, 'nans');      % map back to 157 channel space 
-        
-        if ~printFigsToFile, subplot(1,2,fh); cla; else clf; end
-        ttl = sprintf('%s: PC = %02d', types{fh}, p);
-        fH = megPlotMap(this_val,clims_ab(fh,:),[],'jet',ttl);
-        %ssm_plotOnMesh(this_val, [], [], [],'2d');
-        
-        % set axes 
-        %cl = get(gca, 'CLim');
-        %if p == 0, clims_ab(fh,:) = [-1, 1]*max(abs(cl))*1.2; end
-        %set(gca, 'CLim', clims_ab(fh,:));
-        
-        if printFigsToFile
-            %saveas(fH,fullfile(savepth, sprintf('%s_%s_PC%02d.png',stradd,types{fh},p)),'png');
-            figurewrite(sprintf('%s_%s_PC%02d',stradd,types{fh},p),[],[],savepth,0);
+if ~printFigsToFile
+    whichbeta = 1;
+    clims_ab = squeeze(clims(whichbeta,:,:))';
+    
+    figure('Position',[1 200 1200 800]);
+    for p = 0:opt.npcs
+        for fh = 1:length(evalfun)
+            beta = mean(evalout(p+1,fh).beta(whichbeta,:,:),3); % [1 x channel x perms], averaged across perms  
+            beta = to157chan(beta,~badChannels, 'nans');          % map back to 157 channel space
+            r2   = evalout(p+1,fh).r2;
+            r2   = to157chan(r2,~badChannels,'nans');
+            
+            subplot(2,2,fh);   % plot beta weights 
+            ttl = sprintf('%s: PC = %02d', types{fh}, p);
+            fH = megPlotMap(beta,clims_ab(fh,:),[],'jet',ttl);
+            %ssm_plotOnMesh(beta, [], [], [],'2d');
+            
+            subplot(2,2,fh+2); % plot r^2 
+            ttl = sprintf('%s R2: PC = %02d', types{fh}, p);
+            fH = megPlotMap(r2,[],[],'jet',ttl);
+        end
+        pause;
+    end
+    
+else
+    for p = 0:opt.npcs
+        for fh = 1:length(evalfun)
+            % loop through each beta and plot beta weights
+%             for whichbeta = 1:3
+%                 
+%                 beta = mean(evalout(p+1,fh).beta(whichbeta,:,:),3); % [1 x channel x perms], averaged across perms
+%                 beta = to157chan(beta,~badChannels, 'nans');        % map back to 157 channel space
+%                 
+%                 ttl = sprintf('%s: PC = %02d', types{fh}, p);
+%                 fH = megPlotMap(beta,clims(whichbeta,:,fh),[],'jet',ttl);
+%                 
+%                 stradd = sprintf('ALL_%s', conditionNames{onConds(whichbeta)}(:,4:end));
+%                 %saveas(fH,fullfile(savepth, sprintf('%s_%s_PC%02d.png',stradd,types{fh},p)),'png');
+%                 figurewrite(sprintf('%s_%s_PC%02d',stradd,types{fh},p),[],[],savepth,0);
+%                 
+%             end
+            
+            if fh == 1
+                % plot r^2
+                r2   = evalout(p+1,fh).r2;
+                r2   = to157chan(r2,~badChannels,'nans');
+                ttl = sprintf('%s R2: PC = %02d', types{fh}, p);
+                fH = megPlotMap(r2,[],[],'jet',ttl);
+                
+                figurewrite(sprintf('ALL_R2_%s_PC%02d',types{fh},p),[],[],savepth,0);
+            end
         end
     end
-    if ~printFigsToFile, pause; end
+    
 end
 
 %% look at coverage of noise channels
@@ -133,10 +146,12 @@ signalnoiseVec = to157chan(signalnoiseVec,~badChannels,'nans');
 
 fH = megPlotMap(signalnoiseVec,[0,1],[],'autumn',sprintf('Noise channels: N = %d',sum(noisepool)));
 colorbar off;
+
+if length(conditionNames)==2, stradd = conditionNames{1}(:,4:end); else stradd = 'ALL'; end
 if printFigsToFile, figurewrite(sprintf('%s_noisepool',stradd),[],[],savepth); end
 
-%%
-% look at how the r^2 changes as a function of denoising 
+
+%% look at how the r^2 changes as a function of denoising 
 r2 = []; % npcs x channels [x evalfuns]
 for fh = 1:length(evalfun)
     r2 = cat(3, r2,cat(1,evalout(:,fh).r2));
