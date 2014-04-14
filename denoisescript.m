@@ -5,8 +5,8 @@ clear all;
 rootDir = strrep(which('setup.m'),'denoisesuite/setup.m','');
 dataset = '03_SSMEG_03_31_2014';
 megDataDir = fullfile(rootDir,'data',dataset);
-conditionNames = {'ON FULL','OFF FULL','ON LEFT','OFF LEFT','ON RIGHT','OFF RIGHT'};
-%conditionNames = {'ON RIGHT','OFF RIGHT'};
+%conditionNames = {'ON FULL','OFF FULL','ON LEFT','OFF LEFT','ON RIGHT','OFF RIGHT'};
+conditionNames = {'ON RIGHT','OFF RIGHT'};
 tepochs    = [];
 sensorData = [];
 for ii = 1:length(conditionNames)
@@ -57,6 +57,8 @@ opt.xvalmaxperm = 100;
 opt.resampling = {'','xval'};
 %opt.npoolmethod = {'r2',[],'n',60};
 opt.npoolmethod = {'r2',[],'thres',0};
+opt.pccontrolmode = 1;
+opt.verbose = true;
 % do denoising 
 % use evokedfun to do noise pool selection 
 % use evalfun   to do evaluation 

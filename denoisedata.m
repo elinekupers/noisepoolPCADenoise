@@ -44,6 +44,7 @@ if ~isfield(opt,'epochGroup'),  opt.epochGroup  = 1:nepoch;          end
 if ~isfield(opt,'npcs'),        opt.npcs        = 30;                end
 if ~isfield(opt,'xvalratio'),   opt.xvalratio   = -1;                end
 if ~isfield(opt,'resampling'),  opt.resampling  = {'xval','xval'};   end
+if ~isfield(opt,'pccontrolmode'), opt.pccontrolmode = 0;             end
 if ~isfield(opt,'pcstop'),      opt.pcstop      = 1.05;              end
 if ~isfield(opt,'verbose'),     opt.verbose     = true;              end
 
@@ -94,7 +95,36 @@ for rp = 1:nrep
     [coef,u,eigvals] = princomp(temp);
     u = u(:,1:opt.npcs);
     % scale so that std is 1 (ntime x npcs)
-    pcs{rp} = bsxfun(@rdivide,u,std(u,[],1));
+    pcs{rp} = bsxfun(@rdivide,u,std(u,[],1));   
+end
+
+% --------------------------------------------------------------
+% Perturb PCs, if requested
+% --------------------------------------------------------------
+switch opt.pccontrolmode
+    case 1 % phase scramble the pcs 
+        if opt.verbose
+            fprintf('(denoisedata) phase scrambling pcs for control ...\n')
+        end
+        for rp = 1:nrep
+            pc_fft = fft(pcs{rp},[],1);
+            pc_pwr = abs(pc_fft);
+            pc_ph  = angle(pc_fft);
+            nsamps = size(pcs{rp},1);
+            perminds = permutedim(repmat((1:nsamps)',1,opt.npcs),1,[],1);
+            pcs{rp} = real(ifft(pc_pwr.*exp(1i*pc_ph(perminds)),[],1));
+        end
+    case 2 % shuffle assignment of pcs to epochs
+        if opt.verbose
+            fprintf('(denoisedata) randomly assigning pcs for control ...\n')
+        end
+        while true
+            perminds = randperm(nrep);
+            if sum(perminds == (1:nrep)) == 0
+                break;
+            end
+        end
+        pcs = pcs(perminds);
 end
 
 % --------------------------------------------------------------
