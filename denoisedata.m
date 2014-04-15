@@ -108,11 +108,11 @@ switch opt.pccontrolmode
         end
         for rp = 1:nrep
             pc_fft = fft(pcs{rp},[],1);
-            pc_pwr = abs(pc_fft);
+            pc_amp = abs(pc_fft);
             pc_ph  = angle(pc_fft);
             nsamps = size(pcs{rp},1);
             perminds = permutedim(repmat((1:nsamps)',1,opt.npcs),1,[],1);
-            pcs{rp} = real(ifft(pc_pwr.*exp(1i*pc_ph(perminds)),[],1));
+            pcs{rp} = real(ifft(pc_amp.*exp(1i*pc_ph(perminds)),[],1));
         end
     case 2 % shuffle assignment of pcs to epochs
         if opt.verbose
@@ -125,6 +125,25 @@ switch opt.pccontrolmode
             end
         end
         pcs = pcs(perminds);
+    case 3 % insert random fourier amplitude but preserving fourier phase 
+        if opt.verbose
+            fprintf('(denoisedata) amplitude scrambling pcs for control ...\n')
+        end
+        for rp = 1:nrep
+            pc_fft = fft(pcs{rp},[],1);
+            white_fft = fft(randn(size(pcs{rp})),[],1);
+            pc_amp = abs(pc_fft); pc_ph  = angle(pc_fft);
+            white_amp = abs(white_fft); white_ph = angle(white_fft);
+            pcs{rp} = real(ifft(white_amp.*exp(1i*pc_ph),[],1));
+            %pcs{rp} = real(ifft(pc_amp.*exp(1i*white_ph),[],1));
+        end
+    case 4 % use random pcs 
+        if opt.verbose
+            fprintf('(denoisedata) using random pcs for control ...\n')
+        end
+        for rp = 1:nrep
+            pcs{rp} = randn(size(pcs{rp}));
+        end
 end
 
 % --------------------------------------------------------------
