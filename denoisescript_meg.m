@@ -3,15 +3,15 @@ clear all;
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x n] format, here n = 1
 rootDir = strrep(which('setup.m'),'denoisesuite/setup.m','');
-dataset = '05_SSMEG_04_04_2014';
+dataset = '02_SSMEG_02_28_2014';
 megDataDir = fullfile(rootDir,'data',dataset);
 conditionNames = {'ON FULL','OFF FULL','ON LEFT','OFF LEFT','ON RIGHT','OFF RIGHT'};
 %conditionNames = {'ON FULL','OFF FULL'};
 tepochs    = [];
 sensorData = [];
 for ii = 1:length(conditionNames)
-    %dataName = ['ts_', lower(regexprep(conditionNames{ii},' ','_')), '_epoched'];
-    dataName = ['ts_', lower(regexprep(conditionNames{ii},' ','_'))];
+    dataName = ['ts_', lower(regexprep(conditionNames{ii},' ','_')), '_epoched'];
+    %dataName = ['ts_', lower(regexprep(conditionNames{ii},' ','_'))];
     disp(dataName);
     data     = load(fullfile(megDataDir,dataName));
     currdata = data.(dataName);
@@ -81,8 +81,10 @@ if printFigsToFile
     if ~exist(savepth, 'dir'), mkdir(savepth); end
     if length(conditionNames)==2, stradd0 = conditionNames{1}(:,4:end); else stradd0 = 'ALL'; end
     if opt.pccontrolmode, stradd0 = sprintf('%s_NULL%d',stradd0,opt.pccontrolmode); end
+    disp(stradd0);
 end
 
+%%
 % compute axses 
 clims    = getblims(evalout,[15,85;5,95]);
 numconds = size(clims,1);
@@ -201,24 +203,69 @@ end
 
 return;
 
-%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-r2o = cat(1,evalout0.r2);
-r2  = cat(1,evalout2.r2);
-axismin = -40; axismax = 50;
-for p = 0:opt.npcs
-    
-    subplot(1,3,1)
-    plot(r2o(p+1,:),r2(p+1,:),'or');
-    line([axismin,axismax],[axismin,axismax],'color','k');
-    xlim([axismin,axismax]); ylim([axismin,axismax]); axis square;
-    
-    subplot(1,3,[2,3]); hold off; 
-    %plot(r2o(p+1,:)-r2(p+1,:));
-    plot(r2o(p+1,:),'b'); hold on;
-    plot(r2(p+1,:),'r');
-    ylim([axismin,axismax]);
-    
-    title(sprintf('PC = %d',p));
-    pause;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% plot the comparisons between the different kinds of null 
+
+r2 = [];
+for nn = 0:4
+    if nn == 0
+        filename = sprintf('tmp/%s_fitfull',dataset);
+    else
+        filename = sprintf('tmp/%s_fitfull_null%d',dataset,nn);
+    end
+    disp(filename); load(filename);
+    r2 = cat(3, r2, cat(1,evalout(:,1).r2)); 
 end
+
+%%
+figure('Position',[1 200 1000 500]);
+npcs = size(r2,1)-1;
+nulltypes = {'original','phase scrambled','order shuffled','amplitude scrambled','random pcs'};
+for nn = 1:5
+    subplot(2,4,nn); hold on;
+    plot(0:npcs, r2(:,:,nn)); hold on;
+    if nn == 1, ylims = get(gca,'ylim'); end
+    ylim(ylims); xlim([0,50]); xlabel('npcs'); ylabel('R^2');
+    axis square; title(nulltypes{nn});
+end
+colors = {'k','b','r','g','m'};
+%top10 = r2(end,:,1) > prctile(r2(end,:,1),90,2);
+ttls = {'mean(all)','mean(non-noise)'};
+funcs = {@(x)mean(x,2), @(x)mean(x(:,~noisepool),2)}; %@(x)prctile(x(:,:,1),90,2)
+for kk = 1:length(funcs)
+    subplot(2,4,5+kk); hold on;
+    for nn = 1:5
+        curr_r = r2(:,:,nn);
+        plot(0:npcs,funcs{kk}(curr_r),colors{nn},'linewidth',2);
+    end
+    axis square; title(ttls{kk});
+    xlim([0,50]); xlabel('npcs'); ylabel('R^2');
+    if kk == length(funcs), legend(nulltypes,'location','bestoutside'); end
+end
+
+if printFigsToFile
+    figurewrite(sprintf('ALLComparisons_R2vPCs_%s',types{1}),[],[],savepth);
+end
+
+
+%% %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% r2o = cat(1,evalout0.r2);
+% r2  = cat(1,evalout2.r2);
+% axismin = -40; axismax = 50;
+% for p = 0:opt.npcs
+%     
+%     subplot(1,3,1)
+%     plot(r2o(p+1,:),r2(p+1,:),'or');
+%     line([axismin,axismax],[axismin,axismax],'color','k');
+%     xlim([axismin,axismax]); ylim([axismin,axismax]); axis square;
+%     
+%     subplot(1,3,[2,3]); hold off; 
+%     %plot(r2o(p+1,:)-r2(p+1,:));
+%     plot(r2o(p+1,:),'b'); hold on;
+%     plot(r2(p+1,:),'r');
+%     ylim([axismin,axismax]);
+%     
+%     title(sprintf('PC = %d',p));
+%     pause;
+% end
