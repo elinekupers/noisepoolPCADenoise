@@ -222,10 +222,12 @@ for fh = 1:nmodels
     % return denoised time series, if requested 
     if nargout > 4, denoisedts{fh} = denoiseddata; end
 end
+
 results.finalmodel = finalmodel;
 results.origmodel  = origmodel;
 results.noisepool  = noisepool;
 results.pcnum      = pcnum;
+results.opt        = opt;
 
 
 return;

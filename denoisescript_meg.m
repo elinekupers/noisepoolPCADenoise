@@ -1,13 +1,21 @@
 clear all;
+ALLDATA = {'02_SSMEG_02_28_2014';...
+           '03_SSMEG_03_31_2014';...
+           '04_SSMEG_04_01_2014';...
+           '05_SSMEG_04_04_2014'};
 
-%% load data
+%% set up data conditions
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x n] format, here n = 1
 rootDir = strrep(which('setup.m'),'denoisesuite/setup.m','');
-dataset = '04_SSMEG_04_01_2014';
+dataset = ALLDATA{2};
+disp(dataset);
 megDataDir = fullfile(rootDir,'data',dataset);
-%conditionNames = {'ON FULL','OFF FULL','ON LEFT','OFF LEFT','ON RIGHT','OFF RIGHT'};
-conditionNames = {'ON FULL','OFF FULL'};
+conditionNames = {'ON FULL','OFF FULL','ON LEFT','OFF LEFT','ON RIGHT','OFF RIGHT'};
+%conditionNames = {'ON FULL','OFF FULL'};
+load(fullfile('tmp',[dataset,'_fitfull0']));
+
+%% load data 
 tepochs    = [];
 sensorData = [];
 for ii = 1:length(conditionNames)
@@ -66,22 +74,8 @@ opt.verbose = true;
 % use evokedfun to do noise pool selection 
 % use evalfun   to do evaluation 
 [results,evalout]= denoisedata(design,sensorData,evokedfun,evalfun,opt);
-noisepool = results.noisepool;
 
 %return;
-%%
-fields = {'origmodel','finalmodel'};
-snr = [];
-for k = 1:2
-    signal = max(abs(results.(fields{k})(1).beta_md),[],1);
-    noise  = mean(results.(fields{k})(1).beta_se,1);
-    snr = cat(1,snr, signal./noise);
-end
-axismin = 0; axismax = 15;
-plot(snr(1,:),snr(2,:),'ob');
-line([axismin,axismax],[axismin,axismax],'color','k');
-xlim([axismin,axismax]); ylim([axismin,axismax]); axis square;
-xlabel('orig model'); ylabel('final model');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -89,23 +83,25 @@ xlabel('orig model'); ylabel('final model');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% look at whether broadband signal as a function of pcs
 warning off
-printFigsToFile = true;
+printFigsToFile = false;
+types = {'BroadBand','StimulusLocked'};
+noisepool = results.noisepool;
+opt = results.opt;
 
-if printFigsToFile
+%if printFigsToFile
     savepth = fullfile(megDataDir, 'denoisefigures0');
     fprintf('Saving images to %s\n', savepth);
     if ~exist(savepth, 'dir'), mkdir(savepth); end
     if length(conditionNames)==2, stradd0 = conditionNames{1}(:,4:end); else stradd0 = 'ALL'; end
     if opt.pccontrolmode, stradd0 = sprintf('%s_NULL%d',stradd0,opt.pccontrolmode); end
     disp(stradd0);
-end
+%end
 
 %%
 % compute axses 
 clims    = getblims(evalout,[15,85;5,95]);
 numconds = size(clims,1);
 
-types = {'BroadBand','StimulusLocked'};
 if ~printFigsToFile
     whichbeta = 1;
     clims_ab = squeeze(clims(whichbeta,:,:))';
@@ -177,11 +173,11 @@ if printFigsToFile, figurewrite(sprintf('%s_noisepool',stradd0),[],[],savepth); 
 
 %% look at how the r^2 changes as a function of denoising 
 r2 = []; % npcs x channels [x evalfuns]
-for fh = 1:length(evalfun)
+for fh = 1:size(evalout,2)
     r2 = cat(3, r2,cat(1,evalout(:,fh).r2));
 end
 
-for fh = 1:length(evalfun)
+for fh = 1:size(evalout,2)
     figure('Position',[1 200 600 600]);
     
     ax(1) = subplot(2,2,[1,2]);
@@ -216,6 +212,36 @@ for fh = 1:length(evalfun)
         pause;
     end
 end
+
+%% Plot SNR improvement 
+
+fields = {'origmodel','finalmodel'};
+snr = [];
+for k = 1:2
+    %signal = max(abs(results.(fields{k})(1).beta_md),[],1);
+    %noise  = mean(results.(fields{k})(1).beta_se,1);
+    %snr = cat(1,snr, signal./noise);
+    signal = abs(results.(fields{k})(1).beta_md);
+    noise  = results.(fields{k})(1).beta_se;
+    snr = cat(3,snr,signal./noise);
+end
+
+axismin = 0; axismax = 20;
+%plot(snr(1,:),snr(2,:),'ob');
+c = ['b','r','g']; hold on;
+for nn = 1:3
+    plot(snr(nn,:,1),snr(nn,:,2),['o' c(nn)]);
+end
+line([axismin,axismax],[axismin,axismax],'color','k');
+xlim([axismin,axismax]); ylim([axismin,axismax]); axis square;
+xlabel('orig model SNR'); ylabel('final model SNR');
+legend('full','left','right');
+title(sprintf('BroadBand %d PCs', results.pcnum(1)));
+
+if printFigsToFile
+    figurewrite(sprintf('%s_SNR_%s',stradd0,types{1}),[],[],savepth,0);
+end
+
 
 return;
 
