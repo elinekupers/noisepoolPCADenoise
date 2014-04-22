@@ -194,7 +194,8 @@ for fh = 1:size(evalout,2)
     ax(3) = subplot(2,2,4);
     plot(0:opt.npcs, mean(r2(:,:,fh),2),'b'); hold on;
     plot(0:opt.npcs, mean(r2(:,~noisepool,fh),2),'r');
-    vline(finalmodel(fh).pcnum,'k');
+    plot(0:opt.npcs, prctile(r2(:,:,fh),95,2),'g');
+    %vline(finalmodel(fh).pcnum,'k');
     xlabel('n pcs'); ylabel('average r2');
     legend('all channels','non-noise channels','Location','best');
     title('mean R^2')
