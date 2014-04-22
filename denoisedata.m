@@ -42,6 +42,7 @@ if notDefined('opt'),       opt       = struct(); end
 if ~isfield(opt,'npoolmethod'), opt.npoolmethod = {'r2',[],'n',60};  end
 if ~isfield(opt,'epochGroup'),  opt.epochGroup  = 1:nepoch;          end
 if ~isfield(opt,'npcs'),        opt.npcs        = 30;                end
+if ~isfield(opt,'fitbaseline'), opt.fitbaseline = false;             end
 if ~isfield(opt,'xvalratio'),   opt.xvalratio   = -1;                end
 if ~isfield(opt,'resampling'),  opt.resampling  = {'xval','xval'};   end
 if ~isfield(opt,'pccontrolmode'), opt.pccontrolmode = 0;             end
@@ -58,7 +59,7 @@ end
 % perform fit to get R^2 values
 % --------------------------------------------------------------
 if opt.verbose, fprintf('(denoisedata) computing evoked model ...\n'); end
-out = evalmodel(design,data,evokedfun,opt.resampling{1});
+out = evalmodel(design,data,evokedfun,opt.resampling{1},opt);
 
 % --------------------------------------------------------------
 % select noise pool
@@ -244,10 +245,10 @@ function [out,datast] = evalmodel(design,data,func,how,opt)
 % check inputs
 if notDefined('how'),  how  = 'xval';   end
 if notDefined('opt'),  opt  = struct(); end
-if ~isfield(opt,'verbose'),    opt.verbose    = true; end
-if ~isfield(opt,'maxpolydeg'), opt.maxpolydeg = 0;     end
-if ~isfield(opt,'xvalratio'),  opt.xvalratio  = -1;    end
-if ~isfield(opt,'xvalmaxperm'),opt.xvalmaxperm =500;   end
+if ~isfield(opt,'verbose'),     opt.verbose     = true;  end
+if ~isfield(opt,'fitbaseline'), opt.fitbaseline = false; end
+if ~isfield(opt,'xvalratio'),   opt.xvalratio   = -1;    end
+if ~isfield(opt,'xvalmaxperm'), opt.xvalmaxperm = 500;   end
 
 % datast should be dimensions [epochs x channels]
 datast = func(data);
@@ -256,12 +257,15 @@ nepochs = size(datast,1);
 assert(nepochs==size(design,1));
 assert(sum(isnan(datast(:)))==0 && sum(isinf(datast(:)))==0);
 
-% remove polynomial from data and design
-% for now this is usually just a constant term, so we're just de-meaning
-pmatrix = constructpolynomialmatrix(nepochs,0:opt.maxpolydeg);
-pmatrix = projectionmatrix(pmatrix);
-datast  = pmatrix*datast;
-design  = pmatrix*design;
+if ~opt.fitbaseline % remove baseline from data and design
+    %pmatrix = projectionmatrix(constructpolynomialmatrix(nepochs,0));
+    %datast  = pmatrix*datast; design  = pmatrix*design;
+    datast = bsxfun(@minus, datast, mean(datast));
+    design = bsxfun(@minus, design, mean(design));
+else % add constant term to design matrix
+    if opt.verbose, fprintf('\tadding constant term to design matrix\n'); end
+    design = [design, ones(nepochs,1)];
+end
 
 switch how
     case 'full'
@@ -270,7 +274,7 @@ switch how
         beta = design \ datast;
         modelfit = design*beta;
         % compute goodness of fit
-        r2 = calccod(modelfit,datast,1,[],0);
+        r2 = calccod(modelfit,datast,1,[],1);
         
         % save into output struct
         out = struct('r2',r2,'beta',beta,'modelfit',modelfit);
@@ -314,7 +318,11 @@ switch how
             r2perm   = cat(1,r2perm,  calccod(modelfit_test,datast(curr_test,:),[],0)); % [perms x 1]
         end
         % both data and predicted are [epochs x channels]; r2 = [1 x channels]
-        r2 = calccod(modelfit,datast(vectify(epochs_test'),:),[],0);
+        if opt.fitbaseline
+            r2 = calccod(modelfit,datast(vectify(epochs_test'),:),[],1);
+        else
+            r2 = calccod(modelfit,datast(vectify(epochs_test'),:),[],0);
+        end
         
         % save into output struct
         out = struct('r2',r2,'beta',beta,'modelfit',modelfit, 'epochs_test', epochs_test, 'r2perm', r2perm);

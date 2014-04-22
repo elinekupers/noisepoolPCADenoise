@@ -1,17 +1,18 @@
 clear all;
+
 %% load data
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x n] format, here n = 1
 rootDir = strrep(which('setup.m'),'denoisesuite/setup.m','');
-dataset = '02_SSMEG_02_28_2014';
+dataset = '04_SSMEG_04_01_2014';
 megDataDir = fullfile(rootDir,'data',dataset);
-conditionNames = {'ON FULL','OFF FULL','ON LEFT','OFF LEFT','ON RIGHT','OFF RIGHT'};
-%conditionNames = {'ON FULL','OFF FULL'};
+%conditionNames = {'ON FULL','OFF FULL','ON LEFT','OFF LEFT','ON RIGHT','OFF RIGHT'};
+conditionNames = {'ON FULL','OFF FULL'};
 tepochs    = [];
 sensorData = [];
 for ii = 1:length(conditionNames)
-    dataName = ['ts_', lower(regexprep(conditionNames{ii},' ','_')), '_epoched'];
-    %dataName = ['ts_', lower(regexprep(conditionNames{ii},' ','_'))];
+    %dataName = ['ts_', lower(regexprep(conditionNames{ii},' ','_')), '_epoched'];
+    dataName = ['ts_', lower(regexprep(conditionNames{ii},' ','_'))];
     disp(dataName);
     data     = load(fullfile(megDataDir,dataName));
     currdata = data.(dataName);
@@ -52,18 +53,19 @@ evalfun   = {@(x)getbroadband(x,freq), @(x)getstimlocked(x,freq)};
 %evalfun   = @(x)getbroadband(x,freq);
 
 opt.freq = freq;
-opt.npcs = 50;
+opt.npcs = 40;
 opt.xvalratio = -1;
 opt.xvalmaxperm = 100;
-opt.resampling = {'','xval'};
+opt.resampling = {'xval','xval'};
 %opt.npoolmethod = {'r2',[],'n',60};
 opt.npoolmethod = {'r2',[],'thres',0};
-opt.pccontrolmode = 4;
+opt.pccontrolmode = 0;
+opt.fitbaseline = true;
 opt.verbose = true;
 % do denoising 
 % use evokedfun to do noise pool selection 
 % use evalfun   to do evaluation 
-[finalmodel,evalout,noisepool,denoisedspec] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
+[finalmodel,evalout2,noisepool] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
 
 %return;
 
@@ -250,22 +252,26 @@ end
 
 %% %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% r2o = cat(1,evalout0.r2);
-% r2  = cat(1,evalout2.r2);
-% axismin = -40; axismax = 50;
-% for p = 0:opt.npcs
-%     
-%     subplot(1,3,1)
-%     plot(r2o(p+1,:),r2(p+1,:),'or');
-%     line([axismin,axismax],[axismin,axismax],'color','k');
-%     xlim([axismin,axismax]); ylim([axismin,axismax]); axis square;
-%     
-%     subplot(1,3,[2,3]); hold off; 
-%     %plot(r2o(p+1,:)-r2(p+1,:));
-%     plot(r2o(p+1,:),'b'); hold on;
-%     plot(r2(p+1,:),'r');
-%     ylim([axismin,axismax]);
-%     
-%     title(sprintf('PC = %d',p));
-%     pause;
-% end
+r2o = cat(1,evalout(:,1).r2);
+r2  = cat(1,evalout2(:,1).r2);
+axismin = -40; axismax = 50;
+
+for p = 0:opt.npcs
+    
+    subplot(2,3,[1,4])
+    plot(r2o(p+1,:),r2(p+1,:),'or');
+    line([axismin,axismax],[axismin,axismax],'color','k');
+    xlim([axismin,axismax]); ylim([axismin,axismax]); axis square;
+    
+    subplot(2,3,[2,3]); hold off; 
+    %plot(r2o(p+1,:)-r2(p+1,:));
+    plot(r2o(p+1,:),'b'); hold on;
+    plot(r2(p+1,:),'r');
+    ylim([axismin,axismax]);
+    
+    subplot(2,3,[5,6]);
+    plot(r2(p+1,:)-r2o(p+1,:),'r'); 
+    
+    title(sprintf('PC = %d',p));
+    pause;
+end
