@@ -1,2 +1,8 @@
 *.m~
 ._*
+rsync_aliases.sh
+cleanfiles.sh
+hpc/
+junk/
+tmpeeg/
+tmpmeg/
