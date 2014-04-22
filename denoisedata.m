@@ -1,5 +1,4 @@
-function [finalmodel,evalout,noisepool,denoisedspec,denoisedts] = ...
-    denoisedata(design,data,evokedfun,evalfun,opt)
+function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evokedfun,evalfun,opt)
 % [finalmodel,evalout,noisepool,denoisedspec,denoisedts] = ...
 %         denoisedata(design,data,evokedfun,evalfun,opt)
 % ---------------------------------------------------------------- 
@@ -218,14 +217,20 @@ end
 % pull out the final models and add pcnum to it
 for fh = 1:nmodels
     denoiseddata = denoisetimeseries(data,pcs,pcnum(fh),opt.epochGroup); 
-    [finalmodel(fh), denoisedspec{fh}] = evalmodel(design,denoiseddata,evalfun{fh},'full',opt);
+    [finalmodel(fh), denoisedspec{fh}] = evalmodel(design,denoiseddata,evalfun{fh},'boot',opt);
+    [origmodel(fh)] = evalmodel(design,data,evalfun{fh},'boot',opt);
     % return denoised time series, if requested 
     if nargout > 4, denoisedts{fh} = denoiseddata; end
 end
-for fh = 1:nmodels, finalmodel(fh).pcnum = pcnum(fh);end
+results.finalmodel = finalmodel;
+results.origmodel  = origmodel;
+results.noisepool  = noisepool;
+results.pcnum      = pcnum;
 
 
 return;
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -249,6 +254,7 @@ if ~isfield(opt,'verbose'),     opt.verbose     = true;  end
 if ~isfield(opt,'fitbaseline'), opt.fitbaseline = false; end
 if ~isfield(opt,'xvalratio'),   opt.xvalratio   = -1;    end
 if ~isfield(opt,'xvalmaxperm'), opt.xvalmaxperm = 500;   end
+if ~isfield(opt,'nboot'),       opt.nboot = 100;   end
 
 % datast should be dimensions [epochs x channels]
 datast = func(data);
@@ -262,9 +268,11 @@ if ~opt.fitbaseline % remove baseline from data and design
     %datast  = pmatrix*datast; design  = pmatrix*design;
     datast = bsxfun(@minus, datast, mean(datast));
     design = bsxfun(@minus, design, mean(design));
+    r2wantmeansub = 0;
 else % add constant term to design matrix
     if opt.verbose, fprintf('\tadding constant term to design matrix\n'); end
     design = [design, ones(nepochs,1)];
+    r2wantmeansub = 1;
 end
 
 switch how
@@ -315,18 +323,37 @@ switch how
             % save prediction for this epcoh
             modelfit = cat(1,modelfit,modelfit_test); %[epochs x channels]
             beta     = cat(3,beta,    beta_train);    %[n x channels x perms]
-            r2perm   = cat(1,r2perm,  calccod(modelfit_test,datast(curr_test,:),[],0)); % [perms x 1]
+            r2perm   = cat(1,r2perm,  calccod(modelfit_test,datast(curr_test,:),[],r2wantmeansub)); % [perms x 1]
         end
         % both data and predicted are [epochs x channels]; r2 = [1 x channels]
-        if opt.fitbaseline
-            r2 = calccod(modelfit,datast(vectify(epochs_test'),:),[],1);
-        else
-            r2 = calccod(modelfit,datast(vectify(epochs_test'),:),[],0);
-        end
+        r2 = calccod(modelfit,datast(vectify(epochs_test'),:),[], r2wantmeansub);
         
         % save into output struct
         out = struct('r2',r2,'beta',beta,'modelfit',modelfit, 'epochs_test', epochs_test, 'r2perm', r2perm);
-    
+        
+    case 'boot'
+        epochs_boot = randi(nepochs,opt.nboot,nepochs);
+        % compute bootstrapped fits 
+        beta = []; r2boot = [];%modelfit = []; 
+        for nn = 1:opt.nboot
+            % do glm on randomly selected epochs 
+            curr_boot = epochs_boot(nn,:);
+            curr_design = design(curr_boot,:);
+            curr_datast = datast(curr_boot,:);
+            beta_boot = curr_design \ curr_datast;
+            modelfit_boot = curr_design * beta_boot;
+            % save predictions
+            %modelfit = cat(3,modelfit, modelfit_boot); % [epochs x channels x boot]
+            beta     = cat(3,beta,beta_boot);          % [n x channels x boot]
+            r2boot   = cat(1,r2boot,calccod(modelfit_boot,curr_datast,[],r2wantmeansub));
+        end
+        r2 = median(r2boot);
+        temp = prctile(beta,[16 50 84],3);
+        beta_md = temp(:,:,2);
+        beta_se = diff(temp(:,:,[1 3]),[],3)/2;
+        % save into output struct
+        out = struct('r2',r2,'beta',beta,'beta_md',beta_md,'beta_se',beta_se,'epochs_boot', epochs_boot, 'r2boot', r2boot);
+        
     otherwise
         error('(denoisedata:evalmodel) resampling method not parsed: %s', how);
 end

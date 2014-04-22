@@ -60,14 +60,28 @@ opt.resampling = {'xval','xval'};
 %opt.npoolmethod = {'r2',[],'n',60};
 opt.npoolmethod = {'r2',[],'thres',0};
 opt.pccontrolmode = 0;
-opt.fitbaseline = true;
+opt.fitbaseline = false;
 opt.verbose = true;
 % do denoising 
 % use evokedfun to do noise pool selection 
 % use evalfun   to do evaluation 
-[finalmodel,evalout2,noisepool] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
+[results,evalout]= denoisedata(design,sensorData,evokedfun,evalfun,opt);
+noisepool = results.noisepool;
 
 %return;
+%%
+fields = {'origmodel','finalmodel'};
+snr = [];
+for k = 1:2
+    signal = max(abs(results.(fields{k})(1).beta_md),[],1);
+    noise  = mean(results.(fields{k})(1).beta_se,1);
+    snr = cat(1,snr, signal./noise);
+end
+axismin = 0; axismax = 15;
+plot(snr(1,:),snr(2,:),'ob');
+line([axismin,axismax],[axismin,axismax],'color','k');
+xlim([axismin,axismax]); ylim([axismin,axismax]); axis square;
+xlabel('orig model'); ylabel('final model');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -252,26 +266,26 @@ end
 
 %% %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-r2o = cat(1,evalout(:,1).r2);
-r2  = cat(1,evalout2(:,1).r2);
-axismin = -40; axismax = 50;
-
-for p = 0:opt.npcs
-    
-    subplot(2,3,[1,4])
-    plot(r2o(p+1,:),r2(p+1,:),'or');
-    line([axismin,axismax],[axismin,axismax],'color','k');
-    xlim([axismin,axismax]); ylim([axismin,axismax]); axis square;
-    
-    subplot(2,3,[2,3]); hold off; 
-    %plot(r2o(p+1,:)-r2(p+1,:));
-    plot(r2o(p+1,:),'b'); hold on;
-    plot(r2(p+1,:),'r');
-    ylim([axismin,axismax]);
-    
-    subplot(2,3,[5,6]);
-    plot(r2(p+1,:)-r2o(p+1,:),'r'); 
-    
-    title(sprintf('PC = %d',p));
-    pause;
-end
+% r2o = cat(1,evalout(:,1).r2);
+% r2  = cat(1,evalout2(:,1).r2);
+% axismin = -40; axismax = 50;
+% 
+% for p = 0:opt.npcs
+%     
+%     subplot(2,3,[1,4])
+%     plot(r2o(p+1,:),r2(p+1,:),'or');
+%     line([axismin,axismax],[axismin,axismax],'color','k');
+%     xlim([axismin,axismax]); ylim([axismin,axismax]); axis square;
+%     
+%     subplot(2,3,[2,3]); hold off; 
+%     %plot(r2o(p+1,:)-r2(p+1,:));
+%     plot(r2o(p+1,:),'b'); hold on;
+%     plot(r2(p+1,:),'r');
+%     ylim([axismin,axismax]);
+%     
+%     subplot(2,3,[5,6]);
+%     plot(r2(p+1,:)-r2o(p+1,:),'r'); 
+%     
+%     title(sprintf('PC = %d',p));
+%     pause;
+% end
