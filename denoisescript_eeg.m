@@ -57,14 +57,14 @@ opt.verbose = true;
 % do denoising 
 % use evokedfun to do noise pool selection 
 % use evalfun   to do evaluation 
-%for ii = 0:4
-    %opt.pccontrolmode = ii;
+for ii = 0:4
+    opt.pccontrolmode = ii;
     tic
     [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
-    %allResults{ii+1} = results;
-    %allEval{ii+1} = evalout;
+    allResults{ii+1} = results;
+    allEval{ii+1} = evalout;
     toc    
-%end
+end
 
 %savename = fullfile('tmpeeg',[sessionDir,'_nulls']);
 %save(savename,'allResults','allEval');
@@ -78,7 +78,7 @@ opt.verbose = true;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% look at whether broadband signal as a function of pcs
 warning off
-printFigsToFile = false;
+printFigsToFile = true;
 types = {'BroadBand','StimulusLocked'};
 noisepool = results.noisepool;
 opt = results.opt;
@@ -126,7 +126,7 @@ else
                 
                 beta = mean(evalout(p+1,fh).beta(whichbeta,:,:),3); % [1 x channel x perms], averaged across perms
                 
-                eegPlotMap(beta, 1,'jet',sprintf('%s: PC = %02d', types{fh}, p),'zbuffer',clims_ab(fh,:));
+                eegPlotMap(beta, 1,'jet',sprintf('%s: PC = %02d', types{fh}, p),'zbuffer', clims(whichbeta,:,fh));
                 
                 if numconds > 1, stradd = [stradd0, '_', conditionNames{onConds(whichbeta)}(:,4:end)];
                 else stradd = stradd0; end
@@ -179,7 +179,7 @@ for fh = 1:length(evalfun)
     ax(3) = subplot(2,2,4);
     plot(0:opt.npcs, mean(r2(:,:,fh),2),'b'); hold on;
     plot(0:opt.npcs, mean(r2(:,~noisepool,fh),2),'r');
-    vline(finalmodel(fh).pcnum,'k');
+    vline(results.pcnum(fh),'k');
     xlabel('n pcs'); ylabel('average r2');
     legend('all channels','non-noise channels','Location','best');
     title('mean R^2')
@@ -200,8 +200,10 @@ end
 
 return;
 
-%% plot the comparisons between the different kinds of null 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% plot the comparisons between the different kinds of null 
+% this assumes we've computed this above 
 %load(savename);
 r2 = [];
 for nn = 1:5
