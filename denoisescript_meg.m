@@ -1,19 +1,15 @@
 clear all;
-ALLDATA = {'02_SSMEG_02_28_2014';...
-           '03_SSMEG_03_31_2014';...
-           '04_SSMEG_04_01_2014';...
-           '05_SSMEG_04_04_2014'};
 
 %% set up data conditions
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x n] format, here n = 1
-rootDir = strrep(which('setup.m'),'denoisesuite/setup.m','');
-dataset = ALLDATA{2};
+sessionum = 2;
+conditionNumbers = 1:2;
+[dataset,conditionNames,megDataDir] = megGetDataPaths(sessionum, conditionNumbers);
+megDataDir = fullfile(megDataDir,dataset);
 disp(dataset);
-megDataDir = fullfile(rootDir,'data',dataset);
-conditionNames = {'ON FULL','OFF FULL','ON LEFT','OFF LEFT','ON RIGHT','OFF RIGHT'};
-%conditionNames = {'ON FULL','OFF FULL'};
-load(fullfile('tmp',[dataset,'_fitfull0']));
+disp(conditionNames);
+%load(fullfile('tmpmeg',[dataset,'_fitfull0']));
 
 %% load data 
 tepochs    = [];
@@ -50,7 +46,7 @@ for k = 1:length(onConds)
     design(tepochs==onConds(k),k) = 1;
 end
 
-%save(sprintf('tmp/%s',dataset),'sensorData', 'design', 'freq', 'badChannels');
+%save(sprintf('tmpmeg/%s',dataset),'sensorData', 'design', 'freq', 'badChannels');
 
 %% Denoise 
 % define some parameters for doing denoising 
@@ -88,14 +84,14 @@ types = {'BroadBand','StimulusLocked'};
 noisepool = results.noisepool;
 opt = results.opt;
 
-%if printFigsToFile
+if printFigsToFile
     savepth = fullfile(megDataDir, 'denoisefigures0');
     fprintf('Saving images to %s\n', savepth);
     if ~exist(savepth, 'dir'), mkdir(savepth); end
     if length(conditionNames)==2, stradd0 = conditionNames{1}(:,4:end); else stradd0 = 'ALL'; end
     if opt.pccontrolmode, stradd0 = sprintf('%s_NULL%d',stradd0,opt.pccontrolmode); end
     disp(stradd0);
-%end
+end
 
 %%
 % compute axses 
@@ -171,7 +167,7 @@ colorbar off;
 if printFigsToFile, figurewrite(sprintf('%s_noisepool',stradd0),[],[],savepth); end
 
 
-%% look at how the r^2 changes as a function of denoising 
+%% look at how r^2 changes as a function of denoising 
 r2 = []; % npcs x channels [x evalfuns]
 for fh = 1:size(evalout,2)
     r2 = cat(3, r2,cat(1,evalout(:,fh).r2));
@@ -195,7 +191,7 @@ for fh = 1:size(evalout,2)
     plot(0:opt.npcs, mean(r2(:,:,fh),2),'b'); hold on;
     plot(0:opt.npcs, mean(r2(:,~noisepool,fh),2),'r');
     plot(0:opt.npcs, prctile(r2(:,:,fh),95,2),'g');
-    %vline(finalmodel(fh).pcnum,'k');
+    vline(results.pcnum(fh),'k');
     xlabel('n pcs'); ylabel('average r2');
     legend('all channels','non-noise channels','Location','best');
     title('mean R^2')
@@ -216,6 +212,7 @@ end
 
 %% Plot SNR improvement 
 
+% get SNR before and after 
 fields = {'origmodel','finalmodel'};
 snr = [];
 for k = 1:2
@@ -227,16 +224,17 @@ for k = 1:2
     snr = cat(3,snr,signal./noise);
 end
 
+% plot and visualize 
 axismin = 0; axismax = 20;
 %plot(snr(1,:),snr(2,:),'ob');
 c = ['b','r','g']; hold on;
-for nn = 1:3
+for nn = 1:numconds
     plot(snr(nn,:,1),snr(nn,:,2),['o' c(nn)]);
 end
 line([axismin,axismax],[axismin,axismax],'color','k');
 xlim([axismin,axismax]); ylim([axismin,axismax]); axis square;
 xlabel('orig model SNR'); ylabel('final model SNR');
-legend('full','left','right');
+legend(conditionNames(onConds));
 title(sprintf('BroadBand %d PCs', results.pcnum(1)));
 
 if printFigsToFile
@@ -249,18 +247,16 @@ return;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% plot the comparisons between the different kinds of null 
 
+% load presaved files 
 r2 = [];
 for nn = 0:4
-    if nn == 0
-        filename = sprintf('tmp/%s_fitfull',dataset);
-    else
-        filename = sprintf('tmp/%s_fitfull_null%d',dataset,nn);
-    end
+    if nn == 0, filename = sprintf('tmpmeg/%s_fitfull',dataset);
+    else filename = sprintf('tmpmeg/%s_fitfull_null%d',dataset,nn); end
     disp(filename); load(filename);
     r2 = cat(3, r2, cat(1,evalout(:,1).r2)); 
 end
 
-%%
+%% plot and visualize
 figure('Position',[1 200 1000 500]);
 npcs = size(r2,1)-1;
 nulltypes = {'original','phase scrambled','order shuffled','amplitude scrambled','random pcs'};

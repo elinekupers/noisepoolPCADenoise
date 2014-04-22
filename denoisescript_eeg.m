@@ -3,7 +3,7 @@ clear all;
 %% load data
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x n] format, here n = 1
-sessionum  = 13;
+sessionum  = 8;
 conditionNumbers = 3:4;
 T = 1;
 % Path to session, conditions
@@ -57,18 +57,18 @@ opt.verbose = true;
 % do denoising 
 % use evokedfun to do noise pool selection 
 % use evalfun   to do evaluation 
-for ii = 0:4
-    opt.pccontrolmode = ii;
+%for ii = 0:4
+    %opt.pccontrolmode = ii;
     tic
     [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
-    allResults{ii+1} = results;
-    allEval{ii+1} = evalout;
+    %allResults{ii+1} = results;
+    %allEval{ii+1} = evalout;
     toc    
-end
+%end
 
-savename = fullfile('tmpeeg',[sessionDir,'_nulls']);
-save(savename,'allResults','allEval');
-fprintf('data saved:%s\n', savename);
+%savename = fullfile('tmpeeg',[sessionDir,'_nulls']);
+%save(savename,'allResults','allEval');
+%fprintf('data saved:%s\n', savename);
 
 %return;
 
@@ -78,8 +78,10 @@ fprintf('data saved:%s\n', savename);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% look at whether broadband signal as a function of pcs
 warning off
-printFigsToFile = true;
+printFigsToFile = false;
 types = {'BroadBand','StimulusLocked'};
+noisepool = results.noisepool;
+opt = results.opt;
 
 if printFigsToFile
     savepth = fullfile(eegDataDir, 'denoisefigures0');
