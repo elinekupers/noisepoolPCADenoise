@@ -1,8 +1,9 @@
 function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evokedfun,evalfun,opt)
-% [finalmodel,evalout,noisepool,denoisedspec,denoisedts] = ...
+% [results,evalout,denoisedspec,denoisedts] = ...
 %         denoisedata(design,data,evokedfun,evalfun,opt)
 % ---------------------------------------------------------------- 
 % INPUTS:
+% -----------------
 % data      : time series [channel x time samples x epoch]
 % design    : design matrix [epoch x n]
 % evokedfun : function handle (to compute evoked response for noise pool
@@ -17,16 +18,29 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 %                   validation. could be a number between 0 to 1, defining
 %                   the ratio of test data (relative to training data). 
 %                   or -1, which does leave-one-out (default). 
+%     fitbaseline : whether to add constant term in glm 
+%                   when false, mean is projected out from design matrix and
+%                   data (default)
 %     resampling  : how to do resampling for noise channel selection
 %                   (cell 1) and actual evaluation (cell 2)
-%                   options: 'full' or 'xval' (default {'xval','xval'})
+%                   options: 'full', 'xval', or 'boot' (default {'xval','xval'})
+%     pccontrolmode: how to compute null pcs for control
+%                    0: do nothing (default). 1: permute fourier phase. 
+%                    2: permute assignment to epochs. 3: use white fourier
+%                    amplitude but keep fourier phase. 4: use random pcs      
 %     pcstop      :  when to stop adding PCs into the model (default: 1.05)
 %     verbose     :  whether to print messages to screen (default: true)
 % 
 % OUTPUTS:
-% finalmodel      : final glm solution for the model with optimal number of pcs
-% evalout         : cross validated glm solution for each pc tried 
-% noisepool       : channels included in the noise pool (vector of booleans)
+% -----------------
+% results:
+%     finalmodel  : final [bootstrapped] glm solution for the model with optimal number of pcs
+%     origmodel   : glm solution without denoising (for comparison)
+%     noisepool   : channels included in the noise pool (vector of booleans)
+%     pcnum       : optimal number of pcs for denoising
+%     opt         : options used 
+% 
+% evalout         : [cross-validated] glm solution for each pc tried
 % denoisedspec    : denoised output data with optimal number of pcs (output of evalfun)
 % denoisedts      : denoised raw data with optimal number of pcs (same dimensions
 %                   as input 'data')
