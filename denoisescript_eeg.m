@@ -3,8 +3,8 @@ clear all;
 %% load data
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x n] format, here n = 1
-sessionum  = 8;
-conditionNumbers = 3:4;
+sessionum  = 14;
+conditionNumbers = 3:6;
 T = 1;
 % Path to session, conditions
 [sessionDir, conditionNames, conditionNumbers] = eegGetDataPaths(sessionum, conditionNumbers);
@@ -46,6 +46,7 @@ freq = eegGetSLandABfrequencies(f(f<fmax), max(hdr.t), 18);
 evokedfun = @(x)getstimlocked(x,freq);
 evalfun   = {@(x)getbroadband(x,freq), @(x)getstimlocked(x,freq)};
 
+clear opt
 opt.freq = freq;
 opt.npcs = 45;
 opt.xvalratio = -1;
@@ -57,7 +58,7 @@ opt.verbose = true;
 % do denoising 
 % use evokedfun to do noise pool selection 
 % use evalfun   to do evaluation 
-for ii = 0:4
+for ii = 0 % loop through the different types of nulls 
     opt.pccontrolmode = ii;
     tic
     [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
@@ -70,7 +71,7 @@ end
 %save(savename,'allResults','allEval');
 %fprintf('data saved:%s\n', savename);
 
-%return;
+return;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -120,7 +121,7 @@ if ~printFigsToFile
     
 else
     for p = 0:opt.npcs
-        for fh = 1%:length(evalfun)
+        for fh = 1:length(evalfun)
             % loop through each beta and plot beta weights
             for whichbeta = 1:numconds
                 
@@ -128,11 +129,11 @@ else
                 
                 eegPlotMap(beta, 1,'jet',sprintf('%s: PC = %02d', types{fh}, p),'zbuffer', clims(whichbeta,:,fh));
                 
-                if numconds > 1, stradd = [stradd0, '_', conditionNames{onConds(whichbeta)}(:,4:end)];
+                if numconds > 1, stradd = [stradd0, '_', conditionNames{onConds(whichbeta)}];
                 else stradd = stradd0; end
 
                 %saveas(fH,fullfile(savepth, sprintf('%s_%s_PC%02d.png',stradd,types{fh},p)),'png');
-                %figurewrite(sprintf('%s_%s_PC%02d',stradd,types{fh},p),[],[],savepth,0);
+                figurewrite(sprintf('%s_%s_PC%02d',stradd,types{fh},p),[],[],savepth,0);
                 
             end
             
@@ -141,7 +142,7 @@ else
                 r2   = evalout(p+1,fh).r2;
                 eegPlotMap(r2,1,'jet',sprintf('%s R2: PC = %02d', types{fh}, p),'zbuffer',[]);
                 
-                figurewrite(sprintf('%s_R2_%s_PC%02d',stradd0,types{fh},p),[],[],savepth,0);
+                %figurewrite(sprintf('%s_R2_%s_PC%02d',stradd0,types{fh},p),[],[],savepth,0);
             end
         end
     end
@@ -238,11 +239,10 @@ for kk = 1:length(funcs)
     xlim([0,50]); xlabel('npcs'); ylabel('R^2');
     if kk == length(funcs), legend(nulltypes,'location','best'); end
 end
-
+%%
 if printFigsToFile
     figurewrite(sprintf('ALLComparisons_R2vPCs_%s',types{1}),[],[],savepth);
 end
-
 
 %%
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
