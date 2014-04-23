@@ -6,12 +6,12 @@ function ab = getbroadbandlog(data,freq)
 % freq   : indicies for frequencies to compute (either a vector or a
 %          struct)
 % OUTPUT
-% sl     : broadband time series [epochs x channels]
+% ab     : broadband time series [epochs x channels]
 
 % check input 
 if isnumeric(freq)
     f = freq;
-elseif isstruct(freq) && isfield(freq,'sl_i')
+elseif isstruct(freq) && isfield(freq,'ab_i')
     f = freq.ab_i;
 else
     error('input error: freq not recognized');
