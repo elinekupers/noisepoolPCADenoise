@@ -60,6 +60,7 @@ if ~isfield(opt,'xvalratio'),   opt.xvalratio   = -1;                end
 if ~isfield(opt,'resampling'),  opt.resampling  = {'xval','xval'};   end
 if ~isfield(opt,'pccontrolmode'), opt.pccontrolmode = 0;             end
 if ~isfield(opt,'pcstop'),      opt.pcstop      = 1.05;              end
+if ~isfield(opt,'pcn'),         opt.pcn         = 10;                end
 if ~isfield(opt,'verbose'),     opt.verbose     = true;              end
 
 if opt.verbose
@@ -107,7 +108,7 @@ for rp = 1:nrep
     % perform SVD and select top PCs
     %[u,s,v] = svd(temp);
     [coef,u,eigvals] = princomp(temp);
-    u = u(:,1:opt.npcs);
+    %u = u(:,1:opt.npcs);
     % scale so that std is 1 (ntime x npcs)
     pcs{rp} = bsxfun(@rdivide,u,std(u,[],1));   
 end
@@ -125,7 +126,7 @@ switch opt.pccontrolmode
             pc_amp = abs(pc_fft);
             pc_ph  = angle(pc_fft);
             nsamps = size(pcs{rp},1);
-            perminds = permutedim(repmat((1:nsamps)',1,opt.npcs),1,[],1);
+            perminds = permutedim(repmat((1:nsamps)',1,sum(noisepool)),1,[],1);
             pcs{rp} = real(ifft(pc_amp.*exp(1i*pc_ph(perminds)),[],1));
         end
     case 2 % shuffle assignment of pcs to epochs
@@ -166,21 +167,26 @@ end
 % evalaute each evalfun we pass in
 if ~iscell(evalfun), evalfun = {evalfun}; end
 nmodels = length(evalfun);
-% loop through each pc
-for p = 0:opt.npcs 
-    if opt.verbose, fprintf('(denoisedata) denoising for %d pcs ...\n', p); end
-    
-    if p == 0
-        denoiseddata = data;
-    else
-        denoiseddata = denoisetimeseries(data,pcs,p,opt.epochGroup);
+% we can skip through this step if user specifies the numbers pcs we want
+if opt.pcstop > 0 
+    % loop through each pc
+    for p = 0:opt.npcs
+        if opt.verbose, fprintf('(denoisedata) denoising for %d pcs ...\n', p); end
+        
+        if p == 0
+            denoiseddata = data;
+        else
+            denoiseddata = denoisetimeseries(data,pcs,p,opt.epochGroup);
+        end
+        
+        % compute spectral time series and evaluate goodness of fit (by
+        % applying evalfun we passed in)
+        for fh = 1:nmodels
+            evalout(p+1,fh) = evalmodel(design,denoiseddata,evalfun{fh},opt.resampling{2},opt);
+        end
     end
-    
-    % compute spectral time series and evaluate goodness of fit (by
-    % applying evalfun we passed in)
-    for fh = 1:nmodels
-        evalout(p+1,fh) = evalmodel(design,denoiseddata,evalfun{fh},opt.resampling{2},opt);
-    end
+else
+    evalout = [];
 end
 
 % --------------------------------------------------------------
@@ -192,33 +198,25 @@ end
 % QUESTION: how should we define xvaltrend?? in other words, how should R^2
 % be combined across channels? now it's just an average across channels...
 if opt.verbose, fprintf('(denoisedata) choosing pcs ...\n'); end
-chosen = 0;
 pcnum = zeros(1,nmodels);
 for fh = 1:nmodels
-    % npcs x channels, averaged across non-noise channels
-    r2 = cat(1,evalout(:,fh).r2);
-    xvaltrend = mean(r2(:,~noisepool),2);
     if opt.pcstop <= 0 % in this case, the user decides
         chosen = -opt.pcstop;
     else
-        % this is the performance curve that starts at 0 (corresponding to 0 PCs)
-        curve = xvaltrend - xvaltrend(1);
-        % store the maximum of the curve
-        mx = max(curve);
-        % initialize (this will hold the best performance observed thus far)
-        best = -Inf;
-        for p=0:opt.npcs
-            % if better than best so far
-            if curve(1+p) > best
-                % record this number of PCs as the best
-                chosen = p;
-                best = curve(1+p);
-                % if we are within opt.pcstop of the max, then we stop.
-                if best*opt.pcstop >= mx
-                    break;
-                end
-            end
-        end
+        % npcs x channels, averaged across non-noise channels
+        r2 = cat(1,evalout(:,fh).r2);
+        % max cross validation for each channel
+        maxr2 = max(r2,[],1); 
+        % sort these 
+        [~, idx] = sort(maxr2,'descend');
+        % pick the top x
+        pcchan = false(size(noisepool));
+        pcchan(idx(1:min(opt.pcn,length(idx)))) = 1;
+        % take the average of these 
+        xvaltrend = mean(r2(:,pcchan,1),2);
+        %xvaltrend = mean(r2(:,~noisepool),2);
+        % chosen the stopping point as within 95% of maximum 
+        chosen = choosepc(xvaltrend,opt.pcstop);
     end
     % record the number of PCs
     pcnum(fh) = chosen;

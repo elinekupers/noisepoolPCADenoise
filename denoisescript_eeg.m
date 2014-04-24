@@ -3,8 +3,8 @@ clear all;
 %% load data
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x n] format, here n = 1
-sessionum  = 14;
-conditionNumbers = 3:6;
+sessionum  = 8;
+conditionNumbers = 3:4;
 T = 1;
 % Path to session, conditions
 [sessionDir, conditionNames, conditionNumbers] = eegGetDataPaths(sessionum, conditionNumbers);
@@ -39,6 +39,8 @@ end
 % save file directory 
 eegDataDir = fileparts(pth);
 
+clear allResults allEval
+
 %% Denoise 
 % define some parameters for doing denoising 
 fmax = 150; f = hdr.f;
@@ -46,19 +48,21 @@ freq = eegGetSLandABfrequencies(f(f<fmax), max(hdr.t), 18);
 evokedfun = @(x)getstimlocked(x,freq);
 evalfun   = {@(x)getbroadband(x,freq), @(x)getstimlocked(x,freq)};
 
+npool = 60;
 clear opt
 opt.freq = freq;
-opt.npcs = 45;
+opt.npcs = 2;
 opt.xvalratio = -1;
 opt.resampling = {'xval','xval'};
-opt.npoolmethod = {'r2',[],'n',60};
+opt.npoolmethod = {'r2',[],'n',npool};
 %opt.npoolmethod = {'r2',[],'thres',0};
 opt.pccontrolmode = 0;
+opt.pcstop = -10;
 opt.verbose = true;
 % do denoising 
 % use evokedfun to do noise pool selection 
 % use evalfun   to do evaluation 
-for ii = 0 % loop through the different types of nulls 
+for ii = 1%:4 % loop through the different types of nulls 
     opt.pccontrolmode = ii;
     tic
     [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
@@ -67,9 +71,13 @@ for ii = 0 % loop through the different types of nulls
     toc    
 end
 
-%savename = fullfile('tmpeeg',[sessionDir,'_nulls']);
-%save(savename,'allResults','allEval');
-%fprintf('data saved:%s\n', savename);
+%%
+doSave = true;
+if doSave
+    savename = fullfile('tmpeeg',sprintf('%s_n%d_nulls',sessionDir,npool));
+    fprintf('data saved: %s\n', savename);
+    save(savename,'allResults','allEval');
+end
 
 return;
 
@@ -89,7 +97,9 @@ if printFigsToFile
     fprintf('Saving images to %s\n', savepth);
     if ~exist(savepth, 'dir'), mkdir(savepth); end
     if length(conditionNames)==2, stradd0 = conditionNames{1}; else stradd0 = 'ALL'; end
-    if opt.pccontrolmode, stradd0 = sprintf('%s_NULL%d',stradd0,opt.pccontrolmode); end
+    stradd0 = sprintf('%s_n%d',stradd0,npool);
+    %if opt.pccontrolmode, stradd0 = sprintf('%s_NULL%d',stradd0,opt.pccontrolmode); end
+    disp(stradd0)
 end
 
 %%
@@ -142,7 +152,7 @@ else
                 r2   = evalout(p+1,fh).r2;
                 eegPlotMap(r2,1,'jet',sprintf('%s R2: PC = %02d', types{fh}, p),'zbuffer',[]);
                 
-                %figurewrite(sprintf('%s_R2_%s_PC%02d',stradd0,types{fh},p),[],[],savepth,0);
+                figurewrite(sprintf('%s_R2_%s_PC%02d',stradd0,types{fh},p),[],[],savepth,0);
             end
         end
     end
@@ -213,7 +223,6 @@ for nn = 1:5
 end
 noisepool = allResults{1}.noisepool;
 
-%%
 figure('Position',[1 200 1000 500]);
 npcs = size(r2,1)-1;
 nulltypes = {'original','phase scrambled','order shuffled','amplitude scrambled','random pcs'};
@@ -239,9 +248,10 @@ for kk = 1:length(funcs)
     xlim([0,50]); xlabel('npcs'); ylabel('R^2');
     if kk == length(funcs), legend(nulltypes,'location','best'); end
 end
+
 %%
 if printFigsToFile
-    figurewrite(sprintf('ALLComparisons_R2vPCs_%s',types{1}),[],[],savepth);
+    figurewrite(sprintf('%s_Comparisons_R2vPCs_%s',stradd0,types{1}),[],[],savepth);
 end
 
 %%
