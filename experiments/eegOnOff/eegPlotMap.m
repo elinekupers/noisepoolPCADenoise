@@ -10,7 +10,9 @@ fs = 18; % font size
 
 if ~isempty(fignum), fH = figure(fignum); clf; else fH = gcf; end
 plotOnEgi(vals); 
-colorbar; colormap(cm);
+%colorbar; 
+colorbar('location','eastoutside')
+colormap(cm);
 if ~notDefined('clims'), set(gca, 'CLim', clims); end
 set(fH, 'Renderer', renderer);
 tH = title(ttl);

@@ -3,8 +3,8 @@ clear all;
 %% set up data conditions
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x n] format, here n = 1
-sessionum = 2;
-conditionNumbers = 1:2;
+sessionum = 3;
+conditionNumbers = 1:6;%1:2
 [dataset,conditionNames,megDataDir] = megGetDataPaths(sessionum, conditionNumbers);
 megDataDir = fullfile(megDataDir,dataset);
 disp(dataset);
@@ -57,20 +57,22 @@ evalfun   = {@(x)getbroadband(x,freq), @(x)getstimlocked(x,freq)};
 %evalfun   = @(x)getbroadband(x,freq);
 
 opt.freq = freq;
-opt.npcs = 40;
+opt.npcs = 50;
 opt.xvalratio = -1;
-opt.xvalmaxperm = 100;
 opt.resampling = {'xval','xval'};
 %opt.npoolmethod = {'r2',[],'n',60};
 opt.npoolmethod = {'r2',[],'thres',0};
 opt.pccontrolmode = 0;
 opt.fitbaseline = false;
 opt.verbose = true;
+
+opt.pcstop = -35;
 % do denoising 
 % use evokedfun to do noise pool selection 
 % use evalfun   to do evaluation 
 [results,evalout]= denoisedata(design,sensorData,evokedfun,evalfun,opt);
 
+%save(fullfile('megfigs',sprintf('%02d_%s',sessionum,dataset)),'results', 'badChannels');
 %return;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

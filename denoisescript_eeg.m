@@ -3,7 +3,7 @@ clear all;
 %% load data
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x n] format, here n = 1
-sessionum  = 8;
+sessionum  = 12;
 conditionNumbers = 3:4;
 T = 1;
 % Path to session, conditions
@@ -40,29 +40,31 @@ end
 eegDataDir = fileparts(pth);
 
 clear allResults allEval
-
+size(sensorData)
 %% Denoise 
 % define some parameters for doing denoising 
 fmax = 150; f = hdr.f;
 freq = eegGetSLandABfrequencies(f(f<fmax), max(hdr.t), 18);
 evokedfun = @(x)getstimlocked(x,freq);
 evalfun   = {@(x)getbroadband(x,freq), @(x)getstimlocked(x,freq)};
+%evalfun   = {@(x)getbroadband(x,freq)};
 
 npool = 60;
 clear opt
 opt.freq = freq;
-opt.npcs = 2;
+opt.npcs = 45;
 opt.xvalratio = -1;
 opt.resampling = {'xval','xval'};
 opt.npoolmethod = {'r2',[],'n',npool};
 %opt.npoolmethod = {'r2',[],'thres',0};
 opt.pccontrolmode = 0;
-opt.pcstop = -10;
+
+opt.pcstop = 1.05; %toggle here 
 opt.verbose = true;
 % do denoising 
 % use evokedfun to do noise pool selection 
 % use evalfun   to do evaluation 
-for ii = 1%:4 % loop through the different types of nulls 
+for ii = 0%:4 % loop through the different types of nulls 
     opt.pccontrolmode = ii;
     tic
     [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
@@ -70,6 +72,8 @@ for ii = 1%:4 % loop through the different types of nulls
     allEval{ii+1} = evalout;
     toc    
 end
+
+%save(fullfile('tmpeeg',sprintf('%02d_%s_n%d',sessionum,sessionDir,npool)),'results');
 
 %%
 doSave = true;
