@@ -232,7 +232,7 @@ for fh = 1:nmodels
     [finalmodel(fh), denoisedspec{fh}] = evalmodel(design,denoiseddata,evalfun{fh},'boot',opt);
     [origmodel(fh)] = evalmodel(design,data,evalfun{fh},'boot',opt);
     % return denoised time series, if requested 
-    if nargout > 4, denoisedts{fh} = denoiseddata; end
+    if nargout > 3, denoisedts{fh} = denoiseddata; end
 end
 
 results.finalmodel = finalmodel;
