@@ -3,7 +3,7 @@ clear all;
 %% set up data conditions
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x n] format, here n = 1
-sessionum = 3;
+sessionum = 5;
 conditionNumbers = 1:6;%1:2
 [dataset,conditionNames,megDataDir] = megGetDataPaths(sessionum, conditionNumbers);
 megDataDir = fullfile(megDataDir,dataset);
@@ -32,7 +32,7 @@ sensorData = sensorData(1:157,:,:);
 tepochs = tepochs(okEpochs{1});
 % find bad channels 
 badChannels = megIdenitfyBadChannels(sensorData, 0.5);
-badChannels(98) = 1; % for now we add this in manually
+%badChannels(98) = 1; % for now we add this in manually
 fprintf('badChannels : %g \n', find(badChannels)');
 % remove bad epochs and channels
 net=load('meg160xyz.mat');
@@ -66,13 +66,14 @@ opt.pccontrolmode = 0;
 opt.fitbaseline = false;
 opt.verbose = true;
 
-opt.pcstop = -35;
+opt.pcstop = -44;
 % do denoising 
 % use evokedfun to do noise pool selection 
 % use evalfun   to do evaluation 
-[results,evalout]= denoisedata(design,sensorData,evokedfun,evalfun,opt);
+[results,evalout,~,denoisedts]= denoisedata(design,sensorData,evokedfun,evalfun,opt);
 
-%save(fullfile('megfigs',sprintf('%02d_%s',sessionum,dataset)),'results', 'badChannels');
+%tmpmegdir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
+%save(fullfile(tmpmegdir,sprintf('%02d_%s_fitfull',sessionum,dataset)),'results', 'badChannels');
 %return;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -81,7 +82,7 @@ opt.pcstop = -35;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% look at whether broadband signal as a function of pcs
 warning off
-printFigsToFile = false;
+printFigsToFile = true;
 types = {'BroadBand','StimulusLocked'};
 noisepool = results.noisepool;
 opt = results.opt;
@@ -192,7 +193,7 @@ for fh = 1:size(evalout,2)
     ax(3) = subplot(2,2,4);
     plot(0:opt.npcs, mean(r2(:,:,fh),2),'b'); hold on;
     plot(0:opt.npcs, mean(r2(:,~noisepool,fh),2),'r');
-    plot(0:opt.npcs, prctile(r2(:,:,fh),95,2),'g');
+    %plot(0:opt.npcs, prctile(r2(:,:,fh),95,2),'g');
     vline(results.pcnum(fh),'k');
     xlabel('n pcs'); ylabel('average r2');
     legend('all channels','non-noise channels','Location','best');
@@ -289,6 +290,73 @@ if printFigsToFile
 end
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% plot the broadband spectra  for particular channel
+chanNum = 16;
+dodenoised = 0; % toggle here 
+
+tmp = zeros(1,157); tmp(chanNum)=1; tmp0=tmp(~badChannels); chanNum0 = find(tmp0);
+disp(chanNum0)
+condNum0=1;
+%megPlotMap(tmp,[0,1],[],'autumn',[]);
+condEpochs  = {design(:,condNum0)==1, all(design==0,2)}; %on, off
+
+spec_orig = abs(fft(squeeze(sensorData(chanNum0,:,:))))/size(sensorData,2)*2;
+spec_denoised = abs(fft(squeeze(denoisedts{1}(chanNum0,:,:))))/size(sensorData,2)*2;
+
+f = (0:999);
+%   lower and upper bound of frequencies to plot (x lim)
+xl = [8 150];
+%   lower and upper bound of amplitudes to plot (y lim)
+fok = f;
+fok(f<=xl(1) | f>=xl(2) ...
+    | mod(f,60) < 1 | mod(f,60) > 59 ...
+    ... | mod(f,72) < 1 | mod(f,72) > 71 ...
+    | abs(f-52) < 1 ...
+    ) = NaN;
+% plot colors
+colors = [0 0 0; .7 .7 .7; 1 0 0; 0 1 0];
+fH = figure('Position',[0,600,700,500]);
+set(fH, 'Color', 'w'); hold on;
+
+for ii = 1:2
+    if dodenoised
+        this_data = nanmean(spec_denoised(:,condEpochs{ii}),2).^2;
+    else
+        this_data = nanmean(spec_orig(:,condEpochs{ii}),2).^2;
+    end
+    plot(fok, this_data,  '-',  'Color', colors(ii,:), 'LineWidth', 2);
+end
+xt = [12:12:72, 96,144];
+yt = [10.^(1:5)];
+set(gca, 'XLim', [8 150], 'ylim',[10,10^5], 'XTick', xt, 'ytick',yt, 'XScale', 'log', ...
+    'YScale', 'log', 'FontSize', 20);
+xlabel('Frequency (Hz)');
+ylabel(sprintf('Power (%s)', 'µV^2'));
+title(sprintf('Channel %d', chanNum));
+% add plot lines at multiples of stimulus frequency
+ss = 12; yl = get(gca, 'YLim');
+for ii =ss:ss:180, plot([ii ii], yl, 'k--'); end
+%%
+if dodenoised
+    figurewrite(sprintf('s%d_channel%d_orig',sessionum,chanNum),[],0,'megfigs',1);
+else
+    figurewrite(sprintf('s%d_channel%d_denoised',sessionum,chanNum),[],0,'megfigs',1);
+end
+
+%% write out the stimulus locked data for an example channel 
+% sl = getstimlocked(sensorData,freq);
+% plot(sl(:,chanNum0),'k');
+% xlim([0,size(design,1)]);
+% c = 'bgr'; hold on;
+% for k = 1:3
+%     tmp = find(design(:,k)==1);
+%     plot(tmp,300*ones(size(tmp)),['.' c(k)]);
+% end
+% xlabel('Epoch'); ylabel('Amp at SL freq (µV)');
+% figurewrite(sprintf('s%d_channel%d_stimuluslockedts',sessionum,chanNum),[],0,'megfigs',1);
+
 %% %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % r2o = cat(1,evalout(:,1).r2);
@@ -314,3 +382,4 @@ end
 %     title(sprintf('PC = %d',p));
 %     pause;
 % end
+

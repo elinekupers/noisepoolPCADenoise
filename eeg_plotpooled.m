@@ -1,17 +1,17 @@
 clear all;
-sessionNums = 8:18;
+sessionNums = 8:17;
 rootDir = strrep(which('setup.m'),'denoisesuite/setup.m','');
 rootDir = fullfile(rootDir,'EEG','Data','PowerDiva');
 
-%% check for files 
-filestem = '*Comparisons_R2vPCs_BroadBand*';
-for k = 1:length(sessionNums)
-    fprintf(' session %d \n', sessionNums(k));
-    [sessionDir, conditionNames, conditionNumbers] = eegGetDataPaths(sessionNums(k));
-    denoiseDir = fullfile(rootDir,sessionDir,'denoisefigures0');
-    dir(fullfile(denoiseDir,filestem))
-    fprintf('====================\n\n');
-end
+% %% check for files 
+% filestem = '*Comparisons_R2vPCs_BroadBand*';
+% for k = 1:length(sessionNums)
+%     fprintf(' session %d \n', sessionNums(k));
+%     [sessionDir, conditionNames, conditionNumbers] = eegGetDataPaths(sessionNums(k));
+%     denoiseDir = fullfile(rootDir,sessionDir,'denoisefigures0');
+%     dir(fullfile(denoiseDir,filestem))
+%     fprintf('====================\n\n');
+% end
 
 %% plot R^2 as a function of pcs
 
@@ -28,7 +28,7 @@ for k = 1:length(sessionNums)
     [sessionDir, conditionNames, conditionNumbers] = eegGetDataPaths(sessionNums(k));
     filename = fullfile('tmpeeg',sprintf('%s*_nulls*',sessionDir));
     files = dir(filename);
-    
+    % display this file 
     thisfile = fullfile('tmpeeg',files(end).name); disp(thisfile);
     load(thisfile);
     fprintf(' done loading\n');
@@ -36,7 +36,7 @@ for k = 1:length(sessionNums)
     % look at r2 as a function of pcs 
     %-------------------------------------------
     xvaltrend = [];
-    for pcnull = 0:4
+    for pcnull = 0%:4
         results = allResults{pcnull+1};
         evalout = allEval{pcnull+1};
         opt = results.opt; noisepool = results.noisepool;
@@ -63,7 +63,7 @@ for k = 1:length(sessionNums)
     optpcs(k) = chosen;
     
     % plot
-    if plotType == 1
+    if plotType == 1 % print each subject separately 
         ax(1) = subplot(1,3,1); cla;
         plot(0:opt.npcs, r2(:,:,1));
         title('R^2 for individual channels')
@@ -88,17 +88,17 @@ for k = 1:length(sessionNums)
         end
         suptitle(sprintf('EEG Session %d : %s', sessionNums(k), sessionDir));
         
-    elseif plotType == 3
+    elseif plotType == 3 % print everything into one figure 
         
         subplot(3,4,k); cla;
         plot(0:opt.npcs,r2(:,:,1));
-        title(sprintf('s%d : %s', sessionNums(k), sessionDir));
+        title(sprintf('s%d', sessionNums(k)));
+        axis square; makeprettyaxes(gca,14,12);
         vline(chosen,'k');
-        xlim([0,50]); axis square;
-        makeprettyaxes(gca,12);
+        xlim([0,50]); tmp = get(gca,'ylim'); ylim([-5,tmp(2)]);
     end
     
-    %pause;
+    pause;
     clear allEval
     fprintf('====================\n\n');
     
@@ -135,17 +135,18 @@ if printFigsToFile
 end
 
 %% plot the spatial maps as a function of denoising 
-%figure('position',[1,600,1600 500]); fs = 16;
+figure('position',[1,600,1600 500]); fs = 16;
 printFigsToFile = true;  
+plotType = 'SNR';
 optpcs = zeros(1,length(sessionNums));
 plotSNR = true;
 
 allSNR1 = []; allSNR2 = []; allNoisepool = [];
-plotType = 'noise';
+
 for k = 1:length(sessionNums)
     fprintf(' session %d \n', sessionNums(k));
     [sessionDir, conditionNames, conditionNumbers] = eegGetDataPaths(sessionNums(k));
-    filename = fullfile('tmpeeg',sprintf('%02d_%s*',sessionNums(k),sessionDir)); 
+    filename = fullfile('tmpeeg',sprintf('%02db_%s*',sessionNums(k),sessionDir)); 
     files = dir(filename);
     
     thisfile = fullfile('tmpeeg',files(end).name); disp(thisfile);
@@ -185,7 +186,7 @@ for k = 1:length(sessionNums)
             
             %suptitle(sprintf('EEG Session %d : %s', sessionNums(k), sessionDir));
         case 'noise'
-            fH = eegPlotMap(double(noisepool),[],'autumn',sprintf('%s: N=%d',sessionDir, sum(noisepool)),[],[0,1]);
+            fH = eegPlotMap(double(noisepool),[],'autumn',sprintf('S%d: N=%d',sessionNums(k), sum(noisepool)),[],[0,1]);
             colorbar off
     end
             
@@ -196,7 +197,7 @@ for k = 1:length(sessionNums)
     if printFigsToFile
         if strcmp(plotType,'SNR')
             if plotSNR, header = 'SNR'; else header = 'R2'; end
-            figurewrite(sprintf('%sMap_%02d_%s', header, sessionNums(k), sessionDir),[],[],'eegfigs',1);
+            figurewrite(sprintf('%sMap_%02db_%s', header, sessionNums(k), sessionDir),[],[],'eegfigs',1);
         elseif strcmp(plotType,'noise')
             figurewrite(sprintf('noisepool%d_%s',sessionNums(k),sessionDir),[],[],'eegfigs',1);
         end
@@ -209,7 +210,7 @@ axismin = 0; axismax = 20;
 colors = jet(12);
 allNoisepool = logical(allNoisepool);
 hold on;
-for nn = 1:length(sessionNums)-1
+for nn = 1:length(sessionNums)
     fprintf(' session %d \n', sessionNums(nn));
     sessionDir = eegGetDataPaths(sessionNums(nn));
     
@@ -219,9 +220,9 @@ for nn = 1:length(sessionNums)-1
     axismax = max([allSNR1(nn,:),allSNR2(nn,:)])*1.2;
     line([axismin,axismax],[axismin,axismax],'color','k');
     xlim([axismin,axismax]); ylim([axismin,axismax]); axis square;
-    xlabel('orig model SNR'); ylabel('final model SNR');
-    title(sprintf('S%d : %s', sessionNums(nn), sessionDir))
-    makeprettyaxes(gca,12);
+    %xlabel('orig model SNR'); ylabel('final model SNR');
+    title(sprintf('S%d', sessionNums(nn)))
+    makeprettyaxes(gca,14,12);
 end
 
 if printFigsToFile
@@ -230,16 +231,17 @@ end
 
 %% SNR before and after, mean across good PCs
 % depends on having computed allPCchan
+clear mean_before mean_after 
 allPCchan = logical(allPCchan);
-for nn = 1:length(sessionNums)-1
+for nn = 1:length(sessionNums)
     mean_before(nn) = mean(allSNR1(nn,allPCchan(nn,:)),2);
     mean_after(nn) = mean(allSNR2(nn,allPCchan(nn,:)),2);
 end
 colors = copper(12);
 tmp = [mean_before; mean_after]';
 hold on;
-for nn = 1:length(sessionNums)-1
-    plot(1:2,tmp(nn,:),'o-','color',colors(nn,:));
+for nn = 1:length(sessionNums)
+    plot(1:2,tmp(nn,:),'o-','color',colors(nn,:),'linewidth',2);
 end
 xlim([0,3]);
 set(gca,'xtick',1:2,'xticklabel',{'Before','After'}); 

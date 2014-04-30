@@ -3,8 +3,8 @@ clear all;
 %% load data
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x n] format, here n = 1
-sessionum  = 12;
-conditionNumbers = 3:4;
+sessionum  = 16;
+conditionNumbers = 1:2;%3:4;
 T = 1;
 % Path to session, conditions
 [sessionDir, conditionNames, conditionNumbers] = eegGetDataPaths(sessionum, conditionNumbers);
@@ -39,8 +39,8 @@ end
 % save file directory 
 eegDataDir = fileparts(pth);
 
-clear allResults allEval
-size(sensorData)
+%clear allResults allEval
+%size(sensorData)
 %% Denoise 
 % define some parameters for doing denoising 
 fmax = 150; f = hdr.f;
@@ -59,7 +59,7 @@ opt.npoolmethod = {'r2',[],'n',npool};
 %opt.npoolmethod = {'r2',[],'thres',0};
 opt.pccontrolmode = 0;
 
-opt.pcstop = 1.05; %toggle here 
+%opt.pcstop = -10;
 opt.verbose = true;
 % do denoising 
 % use evokedfun to do noise pool selection 
@@ -68,20 +68,19 @@ for ii = 0%:4 % loop through the different types of nulls
     opt.pccontrolmode = ii;
     tic
     [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
-    allResults{ii+1} = results;
-    allEval{ii+1} = evalout;
+    %allResults{ii+1} = results;
+    %allEval{ii+1} = evalout;
     toc    
 end
 
 %save(fullfile('tmpeeg',sprintf('%02d_%s_n%d',sessionum,sessionDir,npool)),'results');
 
-%%
-doSave = true;
-if doSave
-    savename = fullfile('tmpeeg',sprintf('%s_n%d_nulls',sessionDir,npool));
-    fprintf('data saved: %s\n', savename);
-    save(savename,'allResults','allEval');
-end
+% doSave = true;
+% if doSave
+%     savename = fullfile('tmpeeg',sprintf('%s_n%d_nulls',sessionDir,npool));
+%     fprintf('data saved: %s\n', savename);
+%     save(savename,'allResults','allEval');
+% end
 
 return;
 
@@ -215,7 +214,6 @@ end
 
 return;
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% plot the comparisons between the different kinds of null 
 % this assumes we've computed this above 
@@ -253,7 +251,6 @@ for kk = 1:length(funcs)
     if kk == length(funcs), legend(nulltypes,'location','best'); end
 end
 
-%%
 if printFigsToFile
     figurewrite(sprintf('%s_Comparisons_R2vPCs_%s',stradd0,types{1}),[],[],savepth);
 end
