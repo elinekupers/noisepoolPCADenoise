@@ -29,6 +29,8 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 %                    2: permute assignment to epochs. 3: use white fourier
 %                    amplitude but keep fourier phase. 4: use random pcs      
 %     pcstop      :  when to stop adding PCs into the model (default: 1.05)
+%     pcn         :  top number of channels to use for determining PC
+%                    cutoff 
 %     verbose     :  whether to print messages to screen (default: true)
 % 
 % OUTPUTS:
