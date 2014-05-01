@@ -103,16 +103,18 @@ pcs = cell(nrep,1);
 for rp = 1:nrep
     % get current noise time series (ntime x nchan)
     currepochs = opt.epochGroup == rp;
-    currnoise  = noisedata(:,:,currepochs);
-    currnoise  = reshape(currnoise,[], ntime*sum(currepochs))';
-    % unit-length normalize each time-series 
-    temp = unitlengthfast(currnoise);
-    % perform SVD and select top PCs
-    %[u,s,v] = svd(temp);
-    [coef,u,eigvals] = princomp(temp);
-    %u = u(:,1:opt.npcs);
-    % scale so that std is 1 (ntime x npcs)
-    pcs{rp} = bsxfun(@rdivide,u,std(u,[],1));   
+    if nnz(currepochs)~=0
+        currnoise  = noisedata(:,:,currepochs);
+        currnoise  = reshape(currnoise,[], ntime*sum(currepochs))';
+        % unit-length normalize each time-series
+        temp = unitlengthfast(currnoise);
+        % perform SVD and select top PCs
+        %[u,s,v] = svd(temp);
+        [coef,u,eigvals] = princomp(temp);
+        %u = u(:,1:opt.npcs);
+        % scale so that std is 1 (ntime x npcs)
+        pcs{rp} = bsxfun(@rdivide,u,std(u,[],1));
+    end
 end
 
 % --------------------------------------------------------------
@@ -436,18 +438,20 @@ for rp = 1:nrep
     % get time series (ntime x nchan) for current epoch group
     currepochs = epochGroup == rp;
     currnepoch = sum(currepochs);
-    currsig    = data(:,:,currepochs);
-    currsig    = reshape(currsig,[nchan,ntime*currnepoch])';
     
-    % denoise data for this epoch and this number of pcs
-    currdenoisedsig = currsig - pcs{rp}(:,1:p)*(pcs{rp}(:,1:p)\currsig);
-    
-    % reshape into ntime x nepoch x nchan
-    currdenoisedsig = reshape(currdenoisedsig,[ntime, currnepoch, nchan]);
-    % save into denoiseddata for this number of pcs [nchan x ntime x nrep]
-    denoiseddata(:,:,cummnepoch+(1:currnepoch)) = permute(currdenoisedsig, [3,1,2]);
-    cummnepoch = cummnepoch + currnepoch;
-    
+    if currnepoch ~= 0
+        currsig    = data(:,:,currepochs);
+        currsig    = reshape(currsig,[nchan,ntime*currnepoch])';
+        
+        % denoise data for this epoch and this number of pcs
+        currdenoisedsig = currsig - pcs{rp}(:,1:p)*(pcs{rp}(:,1:p)\currsig);
+        
+        % reshape into ntime x nepoch x nchan
+        currdenoisedsig = reshape(currdenoisedsig,[ntime, currnepoch, nchan]);
+        % save into denoiseddata for this number of pcs [nchan x ntime x nrep]
+        denoiseddata(:,:,cummnepoch+(1:currnepoch)) = permute(currdenoisedsig, [3,1,2]);
+        cummnepoch = cummnepoch + currnepoch;
+    end
     % sanity check
     if rp==nrep, assert(cummnepoch(end) == nepoch); end
 end
