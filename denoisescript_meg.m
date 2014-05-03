@@ -3,15 +3,19 @@ clear all;
 %% set up data conditions
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x n] format, here n = 1
-sessionum = 5;
-conditionNumbers = 1:6;%1:2
+sessionum = 3;
+conditionNumbers = 1:2;
+removeStartEndEpochs = false;
 [dataset,conditionNames,megDataDir] = megGetDataPaths(sessionum, conditionNumbers);
 megDataDir = fullfile(megDataDir,dataset);
 disp(dataset);
 disp(conditionNames);
+
+tmpmegdir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
 %load(fullfile('tmpmeg',[dataset,'_fitfull0']));
 
 %% load data 
+
 tepochs    = [];
 sensorData = [];
 for ii = 1:length(conditionNames)
@@ -24,21 +28,63 @@ for ii = 1:length(conditionNames)
     sensorData = cat(2,sensorData,currdata);
 end
 
-% format data into the right dimensions 
+% format data into the right dimensions
 sensorData = permute(sensorData,[3,1,2]);
 sensorData = sensorData(1:157,:,:);
+% replace missing data with nan's
+sensorData(sensorData==0) = nan; 
+
+% switch into alternating conditions
+% epochinds = reshape([1:360]',6,[],2);   % group 6 epochs at a time 
+% epochinds = permute(epochinds,[1,3,2]); % 6 ON, 6 OFF
+% epochinds = epochinds(:);
+% sensorData = sensorData(:,:,epochinds);
+% tepochs = tepochs(epochinds);
+
+% group by trial
+groupEpochLen = 12;
+epochGroup = repmat(1:size(sensorData,3)/groupEpochLen,groupEpochLen,1);
+epochGroup = epochGroup(:);
+fprintf('number of epochs : %d, number of runs %d\n', size(sensorData,3), size(sensorData,3)/72);
+
+% remove epochs at the beginning and end of every stimulus presentation 
+if removeStartEndEpochs
+    kept_epochs = true(size(sensorData,3),1);
+    kept_epochs = reshape(kept_epochs,6,[]); %72 sec runs repeated 15x
+    kept_epochs([1,6],:) = false;
+    sensorData = sensorData(:,:,kept_epochs(:));
+    tepochs = tepochs(kept_epochs(:));
+    epochGroup = epochGroup(kept_epochs(:));
+end
+
 % remove bad epochs
 [sensorData,okEpochs] = megRemoveBadEpochs({sensorData},0.5);
 tepochs = tepochs(okEpochs{1});
+if exist('epochGroup','var'), epochGroup = epochGroup(okEpochs{1}); end
+
 % find bad channels 
-badChannels = megIdenitfyBadChannels(sensorData, 0.5);
-%badChannels(98) = 1; % for now we add this in manually
+badChannels = megIdenitfyBadChannels(sensorData, 0.6);
+badChannels(98) = 1; % for now we add this in manually
 fprintf('badChannels : %g \n', find(badChannels)');
+
 % remove bad epochs and channels
 net=load('meg160xyz.mat');
-sensorData = megReplaceBadEpochs(sensorData,net);
-sensorData = sensorData{1};
+sensorData = megReplaceBadEpochs(sensorData{1},net,[],6);
 sensorData = sensorData(~badChannels,:,:);
+
+% check that we have no nan's and how many zeros we have 
+[sum(vectify(sensorData==0)),sum(vectify(isnan(sensorData)))]
+% these are the epochs which averaging neighors still give you nothing 
+fprintf('number of epochs = %d\n', size(sensorData,3));
+nanepochs = squeeze(all(sensorData==0,2));
+[nr,nc] = find(nanepochs');
+nc2 = unique(nc);
+for jj = 1:length(nc2)
+    fprintf('channel %d epochs:\n', nc2(jj));
+    disp(nr(nc==nc2(jj))');
+    fprintf('\n');
+end
+
 % design matrix
 onConds = find(cellfun(@isempty,strfind(conditionNames,'OFF')));
 design = zeros(size(sensorData,3),length(onConds));
@@ -46,7 +92,16 @@ for k = 1:length(onConds)
     design(tepochs==onConds(k),k) = 1;
 end
 
-%save(sprintf('tmpmeg/%s',dataset),'sensorData', 'design', 'freq', 'badChannels');
+assert(length(epochGroup)==size(sensorData,3));
+
+%save(fullfile('megfigs/matfiles', sprintf('%sm_epochGroup4',dataset)),'epochGroup');
+% T = 1; fmax = 150;
+% freq = megGetSLandABfrequencies((0:fmax)/T, T, 12/T);
+% save(fullfile(tmpmegdir,sprintf('%sbm',dataset)),'sensorData', 'design', 'freq', 'badChannels');
+% fprintf('saved\n');
+%x2 = filterdata(sensorData,1000,60);
+
+return;
 
 %% Denoise 
 % define some parameters for doing denoising 
@@ -66,15 +121,18 @@ opt.pccontrolmode = 0;
 opt.fitbaseline = false;
 opt.verbose = true;
 
-opt.pcstop = -44;
+opt.preprocessfun = @(x)filterdata(x,1000,60);
+%opt.epochGroup = epochGroup;
+%opt.pcstop = -35;
+
 % do denoising 
 % use evokedfun to do noise pool selection 
 % use evalfun   to do evaluation 
-[results,evalout,~,denoisedts]= denoisedata(design,sensorData,evokedfun,evalfun,opt);
+[results,evalout]= denoisedata(design,sensorData,evokedfun,evalfun,opt);
 
 %tmpmegdir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
 %save(fullfile(tmpmegdir,sprintf('%02d_%s_fitfull',sessionum,dataset)),'results', 'badChannels');
-%return;
+return;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -95,7 +153,7 @@ if printFigsToFile
     if opt.pccontrolmode, stradd0 = sprintf('%s_NULL%d',stradd0,opt.pccontrolmode); end
     disp(stradd0);
 end
-
+stradd0 = [stradd0,'epoch12'];
 %%
 % compute axses 
 clims    = getblims(evalout,[15,85;5,95]);
@@ -146,7 +204,7 @@ else
             end
             
             if fh == 1
-                % plot r^2
+                % plot R^2
                 r2   = evalout(p+1,fh).r2;
                 r2   = to157chan(r2,~badChannels,'nans');
                 ttl = sprintf('%s R2: PC = %02d', types{fh}, p);
@@ -293,8 +351,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% plot the broadband spectra  for particular channel
-chanNum = 16;
-dodenoised = 0; % toggle here 
+chanNum = 25;
+%dodenoised = 0; % toggle here 
 
 tmp = zeros(1,157); tmp(chanNum)=1; tmp0=tmp(~badChannels); chanNum0 = find(tmp0);
 disp(chanNum0)
@@ -302,8 +360,9 @@ condNum0=1;
 %megPlotMap(tmp,[0,1],[],'autumn',[]);
 condEpochs  = {design(:,condNum0)==1, all(design==0,2)}; %on, off
 
-spec_orig = abs(fft(squeeze(sensorData(chanNum0,:,:))))/size(sensorData,2)*2;
-spec_denoised = abs(fft(squeeze(denoisedts{1}(chanNum0,:,:))))/size(sensorData,2)*2;
+spec_orig     = abs(fft(squeeze(sensorData(chanNum0,:,:))))/size(sensorData,2)*2;
+%spec_denoised = abs(fft(squeeze(denoisedts{1}(chanNum0,:,:))))/size(sensorData,2)*2;
+spec_denoised = abs(fft(squeeze(x2(chanNum0,:,:))))/size(sensorData,2)*2;
 
 f = (0:999);
 %   lower and upper bound of frequencies to plot (x lim)
@@ -313,37 +372,62 @@ fok = f;
 fok(f<=xl(1) | f>=xl(2) ...
     | mod(f,60) < 1 | mod(f,60) > 59 ...
     ... | mod(f,72) < 1 | mod(f,72) > 71 ...
-    | abs(f-52) < 1 ...
-    ) = NaN;
-% plot colors
-colors = [0 0 0; .7 .7 .7; 1 0 0; 0 1 0];
-fH = figure('Position',[0,600,700,500]);
-set(fH, 'Color', 'w'); hold on;
+    ... | abs(f-52) < 1 ...
+    ) = [];
 
-for ii = 1:2
-    if dodenoised
-        this_data = nanmean(spec_denoised(:,condEpochs{ii}),2).^2;
-    else
-        this_data = nanmean(spec_orig(:,condEpochs{ii}),2).^2;
+% plot colors
+colors      = [0 0 0; .6 .6 .6];
+grayshades  = [0.3 0.3 0.3; 0.6 0.6 0.6];
+
+%fH = figure('Position',[0,600,700,500]);
+fH = figure('Position',[0,600,1200,500]);
+set(fH, 'Color', 'w'); 
+
+for dodenoised = 0:1
+    subplot(1,2,dodenoised+1);
+    hold on;
+    if dodenoised, spec = spec_denoised; 
+    else spec = spec_orig; end
+    
+    mn  = zeros(2,length(fok));
+    sd  = zeros(2,length(fok));
+    for ii = 1:2
+        this_data = spec(:,condEpochs{ii}).^2;
+        
+        this_data_log = log10(this_data(fok+1,:));
+        mn(ii,:) = nanmean(this_data_log,2);
+        sd(ii,:) = std(this_data_log,[],2);
+        plot(fok,mn(ii,:)+sd(ii,:),'Color', colors(ii,:));
+        plot(fok,mn(ii,:)-sd(ii,:),'Color', colors(ii,:));
+        plot(fok, mn(ii,:), '-', 'Color', colors(ii,:), 'LineWidth', 2);
+        %shadedplot(fok, mn(ii,:)+sd(ii,:), mn(ii,:)-sd(ii,:), grayshades(ii,:));
+        %plot(fok, nanmean(this_data(fok+1,:),2),  '-',  'Color', colors(ii,:), 'LineWidth', 2);
     end
-    plot(fok, this_data,  '-',  'Color', colors(ii,:), 'LineWidth', 2);
+    % for ii = 1:2
+    %     plot(fok, mn(ii,:), '-', 'Color', colors(ii,:), 'LineWidth', 2);
+    % end
+    
+    xt = [12:12:72, 96,144];
+    yt = 0:5; yl=[yt(1),yt(end)];
+    set(gca, 'XLim', [8 150], 'XTick', xt, 'XScale', 'log', 'FontSize', 20);
+    %set(gca,'ytick',10.^yt, 'ylim',10.^yl,'YScale', 'log');
+    set(gca,'ytick',yt, 'ylim',yl); %'yticklabel',cellstr(num2str(10.^yt','%g'))
+    xlabel('Frequency (Hz)');
+    ylabel(sprintf('Log10 Power (%s)', 'µV^2'));
+    title(sprintf('Channel %d', chanNum));
+    % add plot lines at multiples of stimulus frequency
+    ss = 12; yl = get(gca, 'YLim');
+    for ii =ss:ss:180, plot([ii ii], yl, 'k--'); end
 end
-xt = [12:12:72, 96,144];
-yt = [10.^(1:5)];
-set(gca, 'XLim', [8 150], 'ylim',[10,10^5], 'XTick', xt, 'ytick',yt, 'XScale', 'log', ...
-    'YScale', 'log', 'FontSize', 20);
-xlabel('Frequency (Hz)');
-ylabel(sprintf('Power (%s)', 'µV^2'));
-title(sprintf('Channel %d', chanNum));
-% add plot lines at multiples of stimulus frequency
-ss = 12; yl = get(gca, 'YLim');
-for ii =ss:ss:180, plot([ii ii], yl, 'k--'); end
-%%
-if dodenoised
-    figurewrite(sprintf('s%d_channel%d_orig',sessionum,chanNum),[],0,'megfigs',1);
-else
-    figurewrite(sprintf('s%d_channel%d_denoised',sessionum,chanNum),[],0,'megfigs',1);
-end
+
+%figurewrite(sprintf('s%dright_channel%d_spec',sessionum,chanNum),[],0,'megfigs',1);
+
+% if dodenoised
+%     figurewrite(sprintf('s%d_channel%d_denoised',sessionum,chanNum),[],0,'megfigs',1);
+% else
+%     figurewrite(sprintf('s%d_channel%d_orig',sessionum,chanNum),[],0,'megfigs',1);
+% end
+
 
 %% write out the stimulus locked data for an example channel 
 % sl = getstimlocked(sensorData,freq);
