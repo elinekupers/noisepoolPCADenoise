@@ -63,6 +63,7 @@ if ~isfield(opt,'resampling'),  opt.resampling  = {'xval','xval'};   end
 if ~isfield(opt,'pccontrolmode'), opt.pccontrolmode = 0;             end
 if ~isfield(opt,'pcstop'),      opt.pcstop      = 1.05;              end
 if ~isfield(opt,'pcn'),         opt.pcn         = 10;                end
+if ~isfield(opt,'preprocessfun'), opt.preprocessfun = [];            end
 if ~isfield(opt,'verbose'),     opt.verbose     = true;              end
 
 if opt.verbose
@@ -180,7 +181,7 @@ if opt.pcstop > 0
         if p == 0
             denoiseddata = data;
         else
-            denoiseddata = denoisetimeseries(data,pcs,p,opt.epochGroup);
+            denoiseddata = denoisetimeseries(data,pcs,p,opt.epochGroup,opt.preprocessfun);
         end
         
         % compute spectral time series and evaluate goodness of fit (by
@@ -232,7 +233,7 @@ end
 % --------------------------------------------------------------
 % pull out the final models and add pcnum to it
 for fh = 1:nmodels
-    denoiseddata = denoisetimeseries(data,pcs,pcnum(fh),opt.epochGroup); 
+    denoiseddata = denoisetimeseries(data,pcs,pcnum(fh),opt.epochGroup,opt.preprocessfun);
     [finalmodel(fh), denoisedspec{fh}] = evalmodel(design,denoiseddata,evalfun{fh},'boot',opt);
     [origmodel(fh)] = evalmodel(design,data,evalfun{fh},'boot',opt);
     % return denoised time series, if requested 
@@ -417,7 +418,7 @@ end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function denoiseddata = denoisetimeseries(data,pcs,p,epochGroup)
+function denoiseddata = denoisetimeseries(data,pcs,p,epochGroup,preprocessfun)
 % denoise time series
 % INPUTS:
 % data   : [channels x time x epochs]
@@ -430,6 +431,9 @@ function denoiseddata = denoisetimeseries(data,pcs,p,epochGroup)
 %
 [nchan,ntime,nepoch] = size(data);
 nrep = max(epochGroup);
+
+% preprocess data, if requested 
+if ~notDefined('preprocessfun'), data = preprocessfun(data); end
 
 denoiseddata = zeros(nchan,ntime,nepoch);
 cummnepoch   = 0;
