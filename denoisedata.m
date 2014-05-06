@@ -13,7 +13,7 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 % opt       : options
 %     npoolmethod : noise pool selection method 
 %     epochGroup  : for grouping epochs together for denoising [epoch x 1] vector
-%     npcs        : number of pcs to try (default 30)
+%     npcs        : number of pcs to try (default 50)
 %     xvalratio   : how to split training and test data for cross
 %                   validation. could be a number between 0 to 1, defining
 %                   the ratio of test data (relative to training data). 
@@ -56,7 +56,7 @@ if notDefined('evalfun'),   evalfun   = @(x)getbroadband(x,opt.freq);  end
 if notDefined('opt'),       opt       = struct(); end
 if ~isfield(opt,'npoolmethod'), opt.npoolmethod = {'r2',[],'n',60};  end
 if ~isfield(opt,'epochGroup'),  opt.epochGroup  = 1:nepoch;          end
-if ~isfield(opt,'npcs'),        opt.npcs        = 30;                end
+if ~isfield(opt,'npcs'),        opt.npcs        = 50;                end
 if ~isfield(opt,'fitbaseline'), opt.fitbaseline = false;             end
 if ~isfield(opt,'xvalratio'),   opt.xvalratio   = -1;                end
 if ~isfield(opt,'resampling'),  opt.resampling  = {'xval','xval'};   end
@@ -100,6 +100,8 @@ nrep = max(opt.epochGroup);
 if opt.verbose
     fprintf('(denoisedata) computing %d pcs for %d epoch groups ...\n', opt.npcs, nrep); 
 end
+% do preprocessing before computing pcs
+if ~isempty(opt.preprocessfun), noisedata = opt.preprocessfun(noisedata); end
 pcs = cell(nrep,1);
 for rp = 1:nrep
     % get current noise time series (ntime x nchan)
