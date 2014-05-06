@@ -4,95 +4,34 @@ clear all;
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x n] format, here n = 1
 sessionum = 3;
-conditionNumbers = 1:2;
-removeStartEndEpochs = false;
+
+tmpmegdir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
+
+conditionNumbers = 0:3;
 [dataset,conditionNames,megDataDir] = megGetDataPaths(sessionum, conditionNumbers);
 megDataDir = fullfile(megDataDir,dataset);
 disp(dataset);
 disp(conditionNames);
 
-tmpmegdir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
-%load(fullfile('tmpmeg',[dataset,'_fitfull0']));
-
 %% load data 
 
-tepochs    = [];
-sensorData = [];
-for ii = 1:length(conditionNames)
-    %dataName = ['ts_', lower(regexprep(conditionNames{ii},' ','_')), '_epoched'];
-    dataName = ['ts_', lower(regexprep(conditionNames{ii},' ','_'))];
-    disp(dataName);
-    data     = load(fullfile(megDataDir,dataName));
-    currdata = data.(dataName);
-    tepochs  = cat(1,tepochs,ii*ones(size(currdata,2),1));
-    sensorData = cat(2,sensorData,currdata);
+clear loadopt
+loadopt.group_epoch = 1;
+loadopt.badepoch_avgchannum = 3;
+[sensorData, design, badChannels, epochGroup] = megLoadData(megDataDir,conditionNumbers,loadopt);
+
+%loadopt.alt_epoch = 1;
+%loadopt.remove_strtend_epoch = false;
+%loadopt.shuffle_epoch = true;
+%[sensorData, badChannels, tepochs, epochGroup] = megLoadData(megDataDir,conditionNames,loadopt);
+% onConds = find(cellfun(@isempty,strfind(conditionNames,'OFF')));
+% design = zeros(size(sensorData,3),length(onConds));
+% for k = 1:length(onConds), design(tepochs==onConds(k),k) = 1; end
+
+% sanity check 
+if ~notDefined('epochGroup')
+    assert(length(epochGroup)==size(sensorData,3));
 end
-
-% format data into the right dimensions
-sensorData = permute(sensorData,[3,1,2]);
-sensorData = sensorData(1:157,:,:);
-% replace missing data with nan's
-sensorData(sensorData==0) = nan; 
-
-% switch into alternating conditions
-% epochinds = reshape([1:360]',6,[],2);   % group 6 epochs at a time 
-% epochinds = permute(epochinds,[1,3,2]); % 6 ON, 6 OFF
-% epochinds = epochinds(:);
-% sensorData = sensorData(:,:,epochinds);
-% tepochs = tepochs(epochinds);
-
-% group by trial
-groupEpochLen = 12;
-epochGroup = repmat(1:size(sensorData,3)/groupEpochLen,groupEpochLen,1);
-epochGroup = epochGroup(:);
-fprintf('number of epochs : %d, number of runs %d\n', size(sensorData,3), size(sensorData,3)/72);
-
-% remove epochs at the beginning and end of every stimulus presentation 
-if removeStartEndEpochs
-    kept_epochs = true(size(sensorData,3),1);
-    kept_epochs = reshape(kept_epochs,6,[]); %72 sec runs repeated 15x
-    kept_epochs([1,6],:) = false;
-    sensorData = sensorData(:,:,kept_epochs(:));
-    tepochs = tepochs(kept_epochs(:));
-    epochGroup = epochGroup(kept_epochs(:));
-end
-
-% remove bad epochs
-[sensorData,okEpochs] = megRemoveBadEpochs({sensorData},0.5);
-tepochs = tepochs(okEpochs{1});
-if exist('epochGroup','var'), epochGroup = epochGroup(okEpochs{1}); end
-
-% find bad channels 
-badChannels = megIdenitfyBadChannels(sensorData, 0.6);
-badChannels(98) = 1; % for now we add this in manually
-fprintf('badChannels : %g \n', find(badChannels)');
-
-% remove bad epochs and channels
-net=load('meg160xyz.mat');
-sensorData = megReplaceBadEpochs(sensorData{1},net,[],6);
-sensorData = sensorData(~badChannels,:,:);
-
-% check that we have no nan's and how many zeros we have 
-[sum(vectify(sensorData==0)),sum(vectify(isnan(sensorData)))]
-% these are the epochs which averaging neighors still give you nothing 
-fprintf('number of epochs = %d\n', size(sensorData,3));
-nanepochs = squeeze(all(sensorData==0,2));
-[nr,nc] = find(nanepochs');
-nc2 = unique(nc);
-for jj = 1:length(nc2)
-    fprintf('channel %d epochs:\n', nc2(jj));
-    disp(nr(nc==nc2(jj))');
-    fprintf('\n');
-end
-
-% design matrix
-onConds = find(cellfun(@isempty,strfind(conditionNames,'OFF')));
-design = zeros(size(sensorData,3),length(onConds));
-for k = 1:length(onConds)
-    design(tepochs==onConds(k),k) = 1;
-end
-
-assert(length(epochGroup)==size(sensorData,3));
 
 %save(fullfile('megfigs/matfiles', sprintf('%sm_epochGroup4',dataset)),'epochGroup');
 % T = 1; fmax = 150;
@@ -100,8 +39,6 @@ assert(length(epochGroup)==size(sensorData,3));
 % save(fullfile(tmpmegdir,sprintf('%sbm',dataset)),'sensorData', 'design', 'freq', 'badChannels');
 % fprintf('saved\n');
 %x2 = filterdata(sensorData,1000,60);
-
-return;
 
 %% Denoise 
 % define some parameters for doing denoising 
@@ -111,6 +48,7 @@ evokedfun = @(x)getstimlocked(x,freq);
 evalfun   = {@(x)getbroadband(x,freq), @(x)getstimlocked(x,freq)};
 %evalfun   = @(x)getbroadband(x,freq);
 
+clear opt;
 opt.freq = freq;
 opt.npcs = 50;
 opt.xvalratio = -1;
@@ -121,9 +59,9 @@ opt.pccontrolmode = 0;
 opt.fitbaseline = false;
 opt.verbose = true;
 
-opt.preprocessfun = @(x)filterdata(x,1000,60);
+%opt.preprocessfun = @(x)filterdata(x,1000,60);
 %opt.epochGroup = epochGroup;
-%opt.pcstop = -35;
+opt.pcstop = -44;
 
 % do denoising 
 % use evokedfun to do noise pool selection 
@@ -151,9 +89,10 @@ if printFigsToFile
     if ~exist(savepth, 'dir'), mkdir(savepth); end
     if length(conditionNames)==2, stradd0 = conditionNames{1}(:,4:end); else stradd0 = 'ALL'; end
     if opt.pccontrolmode, stradd0 = sprintf('%s_NULL%d',stradd0,opt.pccontrolmode); end
+    stradd0 = [stradd0,'epoch2os'];
     disp(stradd0);
 end
-stradd0 = [stradd0,'epoch12'];
+
 %%
 % compute axses 
 clims    = getblims(evalout,[15,85;5,95]);

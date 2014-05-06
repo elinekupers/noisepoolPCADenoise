@@ -1,8 +1,4 @@
-
 path0 = strrep(which('setup.m'),'/setup.m','');
-addpath(fullfile(path0,'funcs'));
-addpath(fullfile(path0,'aux'));
-addpath(genpath(fullfile(path0,'experiments')));
 
 % EXTERNAL TOOLBOXES: please change paths accordiningly 
 % ------------------------------------------------------
@@ -31,3 +27,7 @@ for k = 1:length(eegtool)
     end
 end
 
+
+addpath(fullfile(path0,'funcs'));
+addpath(fullfile(path0,'aux'));
+addpath(genpath(fullfile(path0,'experiments')));

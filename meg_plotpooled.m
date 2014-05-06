@@ -1,11 +1,12 @@
 clear all;
-sessionNums = 1:4;
+sessionNums = 1:5;
 tmpmegdir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
 
 %% plot R^2 as a function of pcs
+
 % long loading time
 fs = 16;
-printFigsToFile = false;
+printFigsToFile = true;
 optpcs = zeros(1,length(sessionNums));
 plotType = 2;
 loadNull = false;
@@ -15,15 +16,15 @@ if plotType == 1
 elseif plotType == 2
     figure('position',[1,600,400,800]);
 end
-
+pp = '_hpf_fitfull75';
 for k = 1:length(sessionNums)
     fprintf(' session %d \n', sessionNums(k));
     [sessionDir,conditionNames,megDataDir] = megGetDataPaths(sessionNums(k), 1:6);
-    thisfile = fullfile(tmpmegdir,sprintf('%s_fitfull',sessionDir));
-    %thisfile = fullfile(tmpmegdir,sprintf('%s_fitfull75',sessionDir));
+    thisfile = fullfile(tmpmegdir,sprintf('%s%s',sessionDir,pp));
+    %thisfile = fullfile(tmpmegdir,sprintf('%s_fitperm',sessionDir));
     disp(thisfile); load(thisfile);
     fprintf(' done loading\n');
-    if exist('result','var')
+    if exist('results','var')
         noisepool = results.noisepool;
         opt = results.opt;
     end
@@ -94,23 +95,23 @@ for k = 1:length(sessionNums)
             subplot(2,1,ii);
             %xlabel('n pcs'); ylabel('R2'); 
             axis square; 
-            xlim([0,50]); %tmp = get(gca,'ylim'); ylim([-1,tmp(2)]);
+            xlim([0,70]); %tmp = get(gca,'ylim'); ylim([-1,tmp(2)]);
             makeprettyaxes(gca,14,14);
         end
         vline(chosen,'k');
         suptitle(sprintf('S%d : %s', sessionNums(k), sessionDir));
     end
     
-    %pause;
+    pause;
     clear allEval results noisepool opt 
     fprintf('====================\n\n');
     
     if printFigsToFile
-        figurewrite(sprintf('%02dn75_%s', sessionNums(k), sessionDir),[],[],'megfigs',1);
+        figurewrite(sprintf('%02d_%s%s', sessionNums(k), sessionDir, pp),[],[],'megfigs',1);
     end
 end
 
-%%
+%% Plot Comparisons with NULL
 % plot R^2 as a function of PCs, with all subjects together
 % also plot the different types of nulls 
 figure('position',[1,600,1000,400]); 
@@ -167,13 +168,13 @@ plotSNR  = true;
 
 if strcmp(plotType, 'SNR'), figure('position',[1,600,1600 500]);  end
 allSNR1 = []; allSNR2 = []; allNoisepool = [];
-whichbetas = 3;
+whichbetas = 1:3; %<--- toggle here 
 
 condNames = {'FULL','LEFT','RIGHT'};
 for k = 1:length(sessionNums)
     fprintf(' session %d \n', sessionNums(k));
     [sessionDir,conditionNames,megDataDir] = megGetDataPaths(sessionNums(k), 1:6);
-    thisfile = fullfile('megfigs',sprintf('%02d_%s',sessionNums(k),sessionDir));
+    thisfile = fullfile('megfigs/matfiles',sprintf('%02d_%s',sessionNums(k),sessionDir));
     disp(thisfile);
     load(thisfile); fprintf(' done loading\n');
     
@@ -287,4 +288,49 @@ makeprettyaxes(gca,14,14); axis square;
 
 if printFigsToFile
     figurewrite('SNRbeforeafter_allsubjs2',[],[],'megfigs',1);
+end
+
+
+%% Plot changes in Signal and Noise separately 
+
+condNames = {'FULL','LEFT','RIGHT'};
+c = ['b','r','g']; 
+figure('position',[1,600,1000,500]);
+for k = 1:length(sessionNums)
+    fprintf(' session %d \n', sessionNums(k));
+    [sessionDir,conditionNames,megDataDir] = megGetDataPaths(sessionNums(k), 1:6);
+    thisfile = fullfile('megfigs',sprintf('%02d_%s',sessionNums(k),sessionDir));
+    disp(thisfile); load(thisfile); 
+    pcchan = allPCchan{sessionNums(k)};
+    
+    ab_signal1 = abs(results.origmodel(1).beta_md(:,pcchan));
+    ab_noise1  = results.origmodel(1).beta_se(:,pcchan);
+    ab_signal2 = abs(results.finalmodel(1).beta_md(:,pcchan));
+    ab_noise2  = results.finalmodel(1).beta_se(:,pcchan);
+    
+    subplot(2,length(sessionNums),k); cla; hold on;
+    for nn = 1:3
+        plot(ab_signal1(nn,:),ab_signal2(nn,:),['o',c(nn)]);
+    end
+    axis square;
+    axismax = max([ab_signal1(nn,:),ab_signal2(nn,:)])*1.2;
+    xlim([0,axismax]); ylim([0,axismax]); line([0,axismax],[0,axismax],'color','k');
+    title(sprintf('S%d : signal', sessionNums(k)));
+    xlabel('orig model'); ylabel('final model');
+    makeprettyaxes(gca);
+    
+    subplot(2,length(sessionNums),k+length(sessionNums)); cla; hold on;
+    for nn = 1:3
+        plot(ab_noise1(nn,:),ab_noise2(nn,:),['o',c(nn)]);
+    end
+    axismax = max([ab_noise1(nn,:),ab_noise2(nn,:)])*1.2;
+    xlim([0,axismax]); ylim([0,axismax]); line([0,axismax],[0,axismax],'color','k');
+    axis square;
+    title(sprintf('S%d : noise', sessionNums(k)));
+    xlabel('orig model'); ylabel('final model');
+    makeprettyaxes(gca);
+end
+
+if printFigsToFile
+    figurewrite('SignalNoise_allsubjs',[],[],'megfigs',1);
 end

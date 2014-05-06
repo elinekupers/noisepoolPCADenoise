@@ -8,10 +8,11 @@ sessionDirsAll = {...
     '06_SSMEG_04_28_2014'...
     };
 
-conditionNamesAll = {'ON FULL','OFF FULL','ON LEFT','OFF LEFT','ON RIGHT','OFF RIGHT'};
+%conditionNamesAll = {'ON FULL','OFF FULL','ON LEFT','OFF LEFT','ON RIGHT','OFF RIGHT'};
+conditionNamesAll = {'OFF','FULL','RIGHT','LEFT'};
 
 sessionDir      = sessionDirsAll{sessionum};
-conditionNames  = conditionNamesAll(conditionNumbers);
+conditionNames  = conditionNamesAll(conditionNumbers+1);
 
 rootDir = strrep(which('setup.m'),'denoisesuite/setup.m','');
 megDataDir = fullfile(rootDir,'MEG','data');
