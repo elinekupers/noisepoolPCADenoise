@@ -1,25 +1,50 @@
-function [sensorData, design, badChannels, epochGroup] = ...
+function [sensorData, design, badChannels, epochGroup, conditionNames] = ...
     megLoadData(megDataDir,conditionNumbers,opt)
 % load meg data from data and format appropriately 
-% conditionNumbers: 1 FULL, 2 RIGHT, 3 LEFT, 0 BLANK
 
 if notDefined('opt'),    opt = struct(); end
 if ~isfield(opt,'group_epoch'),   opt.group_epoch  = 1;  end
-%if ~isfield(opt,'shuffle_epoch'), opt.shuffle_epoch = false; end
+if ~isfield(opt,'shuffle_epoch'), opt.shuffle_epoch = false; end
 if ~isfield(opt,'remove_strtend_epoch'), opt.remove_strtend_epoch = false; end
 if ~isfield(opt,'badepoch_avgchannum'),  opt.badepoch_avgchannum = 3; end
+if ~isfield(opt,'shift_epoch'),          opt.shift_epoch = 0; end
 if ~isfield(opt,'verbose'),       opt.verbose = true; end
 
-% load sensorData and conditions 
-sensorData = load(fullfile(megDataDir,'data_for_denoising'));
-sensorData = sensorData.data;
-epoch_conditions = load(fullfile(megDataDir,'epoch_conditions'));
-epoch_conditions = epoch_conditions.epochs_condition_count;
-idx = ismember(epoch_conditions(:,2),conditionNumbers); 
+% load sensorData
+% sensorData = load(fullfile(megDataDir,'data_for_denoising'));
+% sensorData = sensorData.data;
+conditionNamesAll = {'ON FULL','ON RIGHT','ON LEFT','OFF FULL','OFF RIGHT','OFF LEFT'};
+conditionNames    = conditionNamesAll(conditionNumbers);
+tepochs    = [];
+sensorData = [];
+for ii = 1:length(conditionNames)
+    dataName = ['ts_', lower(regexprep(conditionNames{ii},' ','_'))];
+    %dataName = ['ts_', lower(regexprep(conditionNames{ii},' ','_')), '_epoched'];
+    
+    if opt.verbose, fprintf('(megLoadData) loading %s\n', dataName); end
+    data     = load(fullfile(megDataDir,dataName));
+    currdata = data.(dataName);
+    tepochs  = cat(1,tepochs,ii*ones(size(currdata,2),1));
+    if opt.shuffle_epoch
+        currdata = currdata(:,randperm(size(currdata,2)),:);
+    end
+    sensorData = cat(2,sensorData,currdata);
+end
 
-% analyze only specified conditions 
-sensorData = sensorData(:,idx,:);
-epoch_conditions = epoch_conditions(idx,:);
+% load conditions
+epoch_conditions = load(fullfile(megDataDir,'epoch_conditions'));
+epoch_conditions = epoch_conditions.epochs_condition;
+epoch_conditions = [epoch_conditions, (1:size(epoch_conditions,1))'];
+epoch_conditions = epoch_conditions(ismember(epoch_conditions(:,2),conditionNumbers),:);
+data2condIdx = epoch_conditions(:,3);
+
+% sanity check
+[tmp,cond2dataIdx2] = sortrows(epoch_conditions,2);
+[~,  data2condIdx2] = sortrows(tmp,4);
+assert(sum(data2condIdx2~=data2condIdx)==0);
+
+% arrange data into the conditions as they occurred in the experiment 
+sensorData = sensorData(:,data2condIdx,:);
 
 % format data into the right dimensions - chan x time x epochs
 sensorData = permute(sensorData,[3,1,2]);
@@ -34,6 +59,9 @@ if opt.group_epoch > 1
     end
     epochGroup = repmat(1:size(sensorData,3)/opt.group_epoch,opt.group_epoch,1);
     epochGroup = epochGroup(:);
+    epochGroup = circshift(epochGroup,opt.shift_epoch);
+    epochGroup(1:opt.shift_epoch) = 0;
+    epochGroup(end-opt.shift_epoch+1:end) = 0;
 else
     epochGroup = [];
 end
@@ -55,7 +83,7 @@ end
 
 % remove bad epochs
 [sensorData,okEpochs] = megRemoveBadEpochs({sensorData},0.5);
-epoch_conditions = epoch_conditions(okEpochs{1},:);
+epoch_conditions      = epoch_conditions(okEpochs{1},:);
 if ~notDefined('epochGroup'), epochGroup = epochGroup(okEpochs{1}); end
 
 % find bad channels - those where at least 50% are nan's 
@@ -85,8 +113,8 @@ if opt.verbose
 end
 
 % design matrix
-onConds = conditionNumbers(conditionNumbers~=0);
-design = zeros(size(sensorData,3),nnz(conditionNumbers));
+onConds = find(cellfun(@isempty,strfind(conditionNames,'OFF')));
+design = zeros(size(sensorData,3),length(onConds));
 for k = 1:length(onConds)
     design(epoch_conditions(:,2)==onConds(k),k)=1;
 end

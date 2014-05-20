@@ -85,7 +85,7 @@ switch lower(plotType)
         end
         
         cfg=[];
-        
+        cfg.interpolation = 'nearest';
         cfg.layout = ft_prepare_layout(cfg, data_hdr);
         cfg.style='straight';
         % cfg.style='blank';

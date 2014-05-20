@@ -23,7 +23,7 @@ colors = [0.1 0.1 0.1; .6 .6 .6];
 fH = figure('Position',[0,600,700,500]);
 set(fH, 'Color', 'w'); hold on;
 
-for ii = 1:2
+for ii = 1:length(condEpochs)
     this_data = spec(:,condEpochs{ii}).^2;
     plot(fok, nanmean(this_data(fok+1,:),2),  '-',  'Color', colors(ii,:), 'LineWidth', 2);
 end

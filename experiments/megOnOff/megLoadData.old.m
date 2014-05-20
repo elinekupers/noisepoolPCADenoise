@@ -1,5 +1,5 @@
 function [sensorData, badChannels, tepochs, epochGroup] = ...
-    megLoadData(megDataDir,conditionNames,opt)
+    megLoadData(megDataDir,conditionNumbers,opt)
 % load meg data from data and format appropriately 
 
 if notDefined('opt'),    opt = struct(); end
@@ -10,6 +10,11 @@ if ~isfield(opt,'remove_strtend_epoch'), opt.remove_strtend_epoch = false; end
 if ~isfield(opt,'badepoch_avgchannum'),  opt.badepoch_avgchannum = 6; end
 if ~isfield(opt,'verbose'),      opt.verbose = true; end
 
+
+conditionNamesAll = {'ON FULL','ON RIGHT','ON LEFT','OFF FULL','OFF RIGHT','OFF LEFT'};
+conditionNames    = conditionNamesAll(conditionNumbers);
+
+% load sensor data 
 tepochs    = [];
 sensorData = [];
 for ii = 1:length(conditionNames)

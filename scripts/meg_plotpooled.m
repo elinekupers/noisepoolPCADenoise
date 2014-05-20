@@ -8,21 +8,25 @@ tmpmegdir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
 fs = 16;
 printFigsToFile = true;
 optpcs = zeros(1,length(sessionNums));
-plotType = 2;
+plotType = 3;
 loadNull = false;
 
 if plotType == 1
     figure('position',[1,600,800,300]);
 elseif plotType == 2
     figure('position',[1,600,400,800]);
+elseif plotType == 3
+    figure('position',[1,600,1200 400]);
 end
-pp = '_hpf_fitfull75';
+pp = 'b2_epochGroup6_fitfull75';
 for k = 1:length(sessionNums)
     fprintf(' session %d \n', sessionNums(k));
-    [sessionDir,conditionNames,megDataDir] = megGetDataPaths(sessionNums(k), 1:6);
+    [sessionDir,megDataDir,conditionNames] = megGetDataPaths(sessionNums(k), 1:6);
     thisfile = fullfile(tmpmegdir,sprintf('%s%s',sessionDir,pp));
     %thisfile = fullfile(tmpmegdir,sprintf('%s_fitperm',sessionDir));
     disp(thisfile); load(thisfile);
+    load(fullfile(tmpmegdir,sprintf('%sb2',sessionDir)));
+    
     fprintf(' done loading\n');
     if exist('results','var')
         noisepool = results.noisepool;
@@ -55,6 +59,7 @@ for k = 1:length(sessionNums)
     allPCchan{k}  = pcchan;
     optpcs(k) = chosen; 
     disp(opt.npcs); opt.npcs = size(r2,1)-1;
+    
     
     % plot
     if plotType == 1
@@ -100,14 +105,16 @@ for k = 1:length(sessionNums)
         end
         vline(chosen,'k');
         suptitle(sprintf('S%d : %s', sessionNums(k), sessionDir));
+    elseif plotType == 3
+        plotbbSNR(results,badChannels,1:3,1,gcf);
     end
     
-    pause;
+    %pause;
     clear allEval results noisepool opt 
     fprintf('====================\n\n');
     
     if printFigsToFile
-        figurewrite(sprintf('%02d_%s%s', sessionNums(k), sessionDir, pp),[],[],'megfigs',1);
+        figurewrite(sprintf('SNR%02d_%s%s', sessionNums(k), sessionDir, pp),[],[],'megfigs',1);
     end
 end
 
@@ -173,7 +180,7 @@ whichbetas = 1:3; %<--- toggle here
 condNames = {'FULL','LEFT','RIGHT'};
 for k = 1:length(sessionNums)
     fprintf(' session %d \n', sessionNums(k));
-    [sessionDir,conditionNames,megDataDir] = megGetDataPaths(sessionNums(k), 1:6);
+    [sessionDir,megDataDir,conditionNames] = megGetDataPaths(sessionNums(k), 1:6);
     thisfile = fullfile('megfigs/matfiles',sprintf('%02d_%s',sessionNums(k),sessionDir));
     disp(thisfile);
     load(thisfile); fprintf(' done loading\n');
@@ -298,7 +305,7 @@ c = ['b','r','g'];
 figure('position',[1,600,1000,500]);
 for k = 1:length(sessionNums)
     fprintf(' session %d \n', sessionNums(k));
-    [sessionDir,conditionNames,megDataDir] = megGetDataPaths(sessionNums(k), 1:6);
+    [sessionDir,megDataDir,conditionNames] = megGetDataPaths(sessionNums(k), 1:6);
     thisfile = fullfile('megfigs',sprintf('%02d_%s',sessionNums(k),sessionDir));
     disp(thisfile); load(thisfile); 
     pcchan = allPCchan{sessionNums(k)};

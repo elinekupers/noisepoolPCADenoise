@@ -1,4 +1,5 @@
-function [sessionDir, conditionNames, megDataDir] = megGetDataPaths(sessionum, conditionNumbers)
+function [sessionDir, megDataDir,conditionNames] = megGetDataPaths(sessionum,conditionNumbers)
+if notDefined('conditionNumbers'), conditionNumbers = 1:6; end
 
 sessionDirsAll = {...
     '02_SSMEG_02_28_2014';...
@@ -9,10 +10,9 @@ sessionDirsAll = {...
     };
 
 %conditionNamesAll = {'ON FULL','OFF FULL','ON LEFT','OFF LEFT','ON RIGHT','OFF RIGHT'};
-conditionNamesAll = {'OFF','FULL','RIGHT','LEFT'};
+conditionNamesAll = {'ON FULL','ON RIGHT','ON LEFT','OFF FULL','OFF RIGHT','OFF LEFT'};
+conditionNames    = conditionNamesAll(conditionNumbers);
 
 sessionDir      = sessionDirsAll{sessionum};
-conditionNames  = conditionNamesAll(conditionNumbers+1);
-
 rootDir = strrep(which('setup.m'),'denoisesuite/setup.m','');
 megDataDir = fullfile(rootDir,'MEG','data');
