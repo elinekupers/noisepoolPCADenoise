@@ -1,14 +1,12 @@
-function [sensorData, design, badChannels, epochGroup, conditionNames] = ...
+function [sensorData, design, badChannels, conditionNames, okEpochs] = ...
     megLoadData(megDataDir,conditionNumbers,opt)
 % load meg data from data and format appropriately 
 
 if notDefined('opt'),    opt = struct(); end
-if ~isfield(opt,'group_epoch'),   opt.group_epoch  = 1;  end
-if ~isfield(opt,'shuffle_epoch'), opt.shuffle_epoch = false; end
+if ~isfield(opt,'shuffle_epoch'),        opt.shuffle_epoch = false; end
 if ~isfield(opt,'remove_strtend_epoch'), opt.remove_strtend_epoch = false; end
 if ~isfield(opt,'badepoch_avgchannum'),  opt.badepoch_avgchannum = 3; end
-if ~isfield(opt,'shift_epoch'),          opt.shift_epoch = 0; end
-if ~isfield(opt,'verbose'),       opt.verbose = true; end
+if ~isfield(opt,'verbose'),              opt.verbose = true; end
 
 % load sensorData
 % sensorData = load(fullfile(megDataDir,'data_for_denoising'));
@@ -52,48 +50,32 @@ sensorData = sensorData(1:157,:,:);
 % replace missing data with nan's
 sensorData(sensorData==0) = nan; 
 
-% group by trial
-if opt.group_epoch > 1
-    if opt.verbose
-        fprintf('(megLoadData) grouping everying %d epochs for denoising\n', opt.group_epoch);
-    end
-    epochGroup = repmat(1:size(sensorData,3)/opt.group_epoch,opt.group_epoch,1);
-    epochGroup = epochGroup(:);
-    epochGroup = circshift(epochGroup,opt.shift_epoch);
-    epochGroup(1:opt.shift_epoch) = 0;
-    epochGroup(end-opt.shift_epoch+1:end) = 0;
-else
-    epochGroup = [];
-end
-
 if opt.verbose
     fprintf('number of epochs : %d, number of runs %d\n', size(sensorData,3), size(sensorData,3)/72);
 end
 
+okEpochs = true(size(sensorData,3),1);
+
 % remove epochs at the beginning and end of every stimulus presentation 
 if opt.remove_strtend_epoch
-    kept_epochs = true(size(sensorData,3),1);
-    kept_epochs = reshape(kept_epochs,6,[]); % 72 sec runs repeated 15x
-    kept_epochs([1,6],:) = false;
-    kept_epochs = kept_epochs(:);
-    sensorData = sensorData(:,:,kept_epochs);
-    epoch_conditions = epoch_conditions(:,:,kept_epochs);
-    epochGroup = epochGroup(kept_epochs);
+    okEpochs = reshape(okEpochs,6,[]); % 72 sec runs repeated 15x
+    okEpochs([1,6],:) = false;
+    okEpochs = okEpochs(:);
 end
 
 % remove bad epochs
-[sensorData,okEpochs] = megRemoveBadEpochs({sensorData},0.5);
-epoch_conditions      = epoch_conditions(okEpochs{1},:);
-if ~notDefined('epochGroup'), epochGroup = epochGroup(okEpochs{1}); end
+okEpochs = okEpochs & megIdenitfyBadEpochs(sensorData,0.5);
+sensorData = sensorData(:,:,okEpochs);
+epoch_conditions = epoch_conditions(okEpochs,:);
 
 % find bad channels - those where at least 50% are nan's 
 badChannels = megIdenitfyBadChannels(sensorData, 0.5);
 badChannels(98) = 1; % for now we add this in manually
 if opt.verbose, fprintf('\tbadChannels = %g \n', find(badChannels)'); end
 
-% remove bad epochs and channels
+% remove bad channels and replace remaining bad epochs 
 net=load('meg160xyz.mat');
-sensorData = megReplaceBadEpochs(sensorData{1},net,[],opt.badepoch_avgchannum);
+sensorData = megReplaceBadEpochs(sensorData,net,[],opt.badepoch_avgchannum);
 sensorData = sensorData(~badChannels,:,:);
 if opt.verbose, fprintf('\tnumber of epochs = %d\n', size(sensorData,3)); end
 
