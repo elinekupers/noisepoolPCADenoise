@@ -2,30 +2,34 @@ clear all;
 sessionNums = 1:5;
 tmpmegdir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
 
-%% plot R^2 as a function of pcs
+%% plot R^2 as a function of the number of PCs
+% load saved data 
+% beware of long loading time
 
-% long loading time
-fs = 16;
 printFigsToFile = true;
 optpcs = zeros(1,length(sessionNums));
 plotType = 3;
 loadNull = false;
 
-if plotType == 1
+if plotType == 1 % deprecated - compares mean of top10 to nonnoise/all
     figure('position',[1,600,800,300]);
-elseif plotType == 2
+elseif plotType == 2 % look at top 10 
     figure('position',[1,600,400,800]);
-elseif plotType == 3
+elseif plotType == 3 % look at spatial map of SNR 
     figure('position',[1,600,1200 400]);
 end
-pp = 'b2_epochGroup6_fitfull75';
+
+ppfit = '_hpf2_fitfull75';
+pp    = 'b2';
 for k = 1:length(sessionNums)
     fprintf(' session %d \n', sessionNums(k));
     [sessionDir,megDataDir,conditionNames] = megGetDataPaths(sessionNums(k), 1:6);
-    thisfile = fullfile(tmpmegdir,sprintf('%s%s',sessionDir,pp));
+    % load data file 
+    if plotType == 3, load(fullfile(tmpmegdir,sprintf('%s%s',sessionDir,pp))); end
+    % load fit file 
+    thisfile = fullfile(tmpmegdir,sprintf('%s%s%s',sessionDir,pp,ppfit));
     %thisfile = fullfile(tmpmegdir,sprintf('%s_fitperm',sessionDir));
     disp(thisfile); load(thisfile);
-    load(fullfile(tmpmegdir,sprintf('%sb2',sessionDir)));
     
     fprintf(' done loading\n');
     if exist('results','var')
@@ -60,10 +64,8 @@ for k = 1:length(sessionNums)
     optpcs(k) = chosen; 
     disp(opt.npcs); opt.npcs = size(r2,1)-1;
     
-    
     % plot
-    if plotType == 1
-        
+    if plotType == 1 % deprecated 
         ax(1) = subplot(1,3,1); cla;
         plot(0:opt.npcs, r2(:,:,1));
         title('R^2 for individual channels')
@@ -82,16 +84,17 @@ for k = 1:length(sessionNums)
             xlabel('n pcs'); ylabel('R2'); axis square;
             xlim([0,50]);
             %vline(results.pcnum(1),'r');
-            vline(finalmodel(1).pcnum,'r');
+            %vline(finalmodel(1).pcnum,'r');
             vline(chosen,'k');
             makeprettyaxes(gca,12);
         end
         suptitle(sprintf('MEG Session %d : %s', sessionNums(k), sessionDir));
         
-    elseif plotType == 2
-        
+    elseif plotType == 2 % all channels versus top 10 
+
         subplot(2,1,1);
         plot(0:opt.npcs, r2(:,:,1));
+        title('R^2 for individual channels')
         
         subplot(2,1,2);
         plot(0:opt.npcs, xvaltrend(:,1), 'k','linewidth',2);
@@ -104,9 +107,10 @@ for k = 1:length(sessionNums)
             makeprettyaxes(gca,14,14);
         end
         vline(chosen,'k');
-        suptitle(sprintf('S%d : %s', sessionNums(k), sessionDir));
-    elseif plotType == 3
-        plotbbSNR(results,badChannels,1:3,1,gcf);
+        suptitle(sprintf('N%d : %s', sessionNums(k), sessionDir));
+    
+    elseif plotType == 3 % SNR map 
+        plotbbSNR(results,badChannels,1:3,1,gcf,'SNR');
     end
     
     %pause;
@@ -114,7 +118,7 @@ for k = 1:length(sessionNums)
     fprintf('====================\n\n');
     
     if printFigsToFile
-        figurewrite(sprintf('SNR%02d_%s%s', sessionNums(k), sessionDir, pp),[],[],'megfigs',1);
+        figurewrite(sprintf('SNRa%02d_%s%s%s', sessionNums(k), sessionDir, pp, ppfit),[],[],'megfigs',1);
     end
 end
 
@@ -124,7 +128,7 @@ end
 figure('position',[1,600,1000,400]); 
 fudge = [0,3,3,3,3];
 ttls = {'Original','Phase scrambled','Order shuffled','Amplitude scrambled','Random pcs'};
-plotType = 2;
+plotType = 3;
 
 switch plotType
     case 1 % plot all subjs in each panel
@@ -162,15 +166,34 @@ switch plotType
         if printFigsToFile
             figurewrite('PCselection_allsubjs2',[],-1,'megfigs',1);
         end
+        
+    case 3
+        ppfit = 'b2_epochGroup6s_fitfull75';
+        for nn = 1:length(sessionNums)
+            [sessionDir,megDataDir] = megGetDataPaths(sessionNums(nn));
+            thisfile = fullfile(tmpmegdir,sprintf('%s%s_allnulls',sessionDir,ppfit));
+            disp(thisfile); loaded = load(thisfile);
+            
+            r2 = loaded.allR2;
+            thesechan = ~loaded.allResults{1}.noisepool;
+            subplot(2,3,nn); cla; hold on;
+            for k = 1:4
+                plot(0:size(r2,1)-1, mean(r2(:,thesechan,k),2), colors(k));
+            end
+            
+            axis square; xlim([0,75]); tmp = get(gca,'ylim'); ylim([-1,tmp(2)]);
+            title(sprintf('S%d', sessionNums(nn)));
+            makeprettyaxes(gca,14,12);
+            if nn == length(sessionNums), legend(ttls,'location','bestoutside'); end 
+        end
 end
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% plot the spatial maps as a function of denoising
 fs = 16;
 printFigsToFile = false;
 optpcs = zeros(1,length(sessionNums));
-plotType = '';
+plotType = 'SNR';
 plotSNR  = true;
 
 if strcmp(plotType, 'SNR'), figure('position',[1,600,1600 500]);  end
@@ -182,8 +205,8 @@ for k = 1:length(sessionNums)
     fprintf(' session %d \n', sessionNums(k));
     [sessionDir,megDataDir,conditionNames] = megGetDataPaths(sessionNums(k), 1:6);
     thisfile = fullfile('megfigs/matfiles',sprintf('%02d_%s',sessionNums(k),sessionDir));
-    disp(thisfile);
-    load(thisfile); fprintf(' done loading\n');
+    
+    disp(thisfile); load(thisfile); fprintf(' done loading\n');
     
     opt = results.opt; noisepool = results.noisepool;
     disp(opt.npoolmethod);
@@ -228,7 +251,7 @@ for k = 1:length(sessionNums)
             colorbar off;
     end
     
-    %pause;
+    pause;
     clear results badChannels
     fprintf('====================\n\n');
     
@@ -286,7 +309,6 @@ hold on;
 for nn = 1:length(sessionNums)
     plot(1:2,tmp(nn,:),'o-','color',colors(nn,:),'linewidth',2);
 end
-
 legend({'S1','S2','S3','S4','S5'});
 xlim([0,3]);
 set(gca,'xtick',1:2,'xticklabel',{'Before','After'}); 
@@ -297,18 +319,22 @@ if printFigsToFile
     figurewrite('SNRbeforeafter_allsubjs2',[],[],'megfigs',1);
 end
 
-
 %% Plot changes in Signal and Noise separately 
 
+ppfit = 'b2_epochGroup6s_fitfull75';
 condNames = {'FULL','LEFT','RIGHT'};
 c = ['b','r','g']; 
 figure('position',[1,600,1000,500]);
+
 for k = 1:length(sessionNums)
     fprintf(' session %d \n', sessionNums(k));
     [sessionDir,megDataDir,conditionNames] = megGetDataPaths(sessionNums(k), 1:6);
-    thisfile = fullfile('megfigs',sprintf('%02d_%s',sessionNums(k),sessionDir));
-    disp(thisfile); load(thisfile); 
-    pcchan = allPCchan{sessionNums(k)};
+    %thisfile = fullfile('megfigs/matfiles',sprintf('%02d_%s',sessionNums(k),sessionDir));
+    thisfile = fullfile(tmpmegdir,sprintf('%s%s',sessionDir,ppfit));
+    disp(thisfile); load(thisfile);
+    
+    %pcchan = allPCchan{sessionNums(k)};
+    pcchan = ~results.noisepool;
     
     ab_signal1 = abs(results.origmodel(1).beta_md(:,pcchan));
     ab_noise1  = results.origmodel(1).beta_se(:,pcchan);
@@ -336,8 +362,66 @@ for k = 1:length(sessionNums)
     title(sprintf('S%d : noise', sessionNums(k)));
     xlabel('orig model'); ylabel('final model');
     makeprettyaxes(gca);
+    drawnow;
 end
 
 if printFigsToFile
-    figurewrite('SignalNoise_allsubjs',[],[],'megfigs',1);
+    figurewrite(sprintf('SignalNoise_allsubjs%s',ppfit),[],[],'megfigs',1);
 end
+
+%% Look at the power spectrum of the PCs
+
+k = 3; % session number 
+% load data with pcs saved and corresponding design matrix 
+[sessionDir,megDataDir] = megGetDataPaths(sessionNums(k));
+thisfile = fullfile(tmpmegdir,sprintf('%sb2',sessionDir));
+disp(thisfile); load(thisfile);
+fitfile = fullfile(tmpmegdir,sprintf('%sb2_fitfull0',sessionDir));
+disp(fitfile); load(fitfile);
+% get pcs into the right format 
+pcs = catcell(3,results.pcs); 
+pcs = permute(pcs,[2,1,3]);   % npcs x time x epochs
+epoch_idx = {design(:,1)==1, design(:,2)==1, design(:,3)==1, all(design==0,2)};
+%%
+% define figure properties 
+f = (0:999);
+xl = [8 200];
+fok = f; 
+fok(f<=xl(1) | f>=xl(2) | ...
+    mod(f,60) < 1 | mod(f,60) > 59 ...
+    ) = [];
+colors = [0.1 0.1 0.9; 0.9 0.1 0.1; 0.1 0.9 0.1; .6 .6 .6];
+xt = [12:12:72, 96,144,192];
+fH = figure('Position',[0,600,700,500]); 
+for p = 1:size(pcs,1)
+    spec = abs(fft(squeeze(pcs(p,:,:))))/size(pcs,2)*2;
+    clf; hold on;
+    for ii = 1:length(epoch_idx)
+        this_data = spec(:,epoch_idx{ii}).^2;
+        plot(fok, nanmean(this_data(fok+1,:),2),  '-',  'Color', colors(ii,:), 'LineWidth', 2);
+    end
+    legend('FULL','RIGHT','LEFT','OFF');
+    set(gca, 'XLim', xl, 'XTick', xt, 'XScale', 'log', 'FontSize', 12);
+    ss = 12; yl = get(gca, 'YLim'); for ii =ss:ss:180, plot([ii ii], yl, 'k--'); end
+    title(sprintf('PC number %d', p));
+    pause;
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Look at power spectrum of a particular channel
+k = 3; % session number 
+[sessionDir,megDataDir] = megGetDataPaths(sessionNums(k));
+thisfile = fullfile(tmpmegdir,sprintf('%sb2',sessionDir));
+disp(thisfile); load(thisfile);
+fitfile = fullfile(tmpmegdir,sprintf('%sb2_hpf2_fitfull75',sessionDir));
+disp(fitfile); load(fitfile);
+
+%%
+fH = figure('Position',[0,600,1200,500]);
+epochConds = {design(:,1)==1, all(design==0,2)};
+chanNum = 32;
+ax1 = subplot(1,2,1);
+megPlotLogSpectra(sensorData,epochConds, badChannels, chanNum, ax1);
+ax2 = subplot(1,2,2);
+megPlotLogSpectra(denoisedts{1},epochConds, badChannels, chanNum, ax2);
+title(sprintf('PC = %d', results.pcnum(1)));

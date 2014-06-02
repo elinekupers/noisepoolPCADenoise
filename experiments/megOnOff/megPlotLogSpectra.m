@@ -1,9 +1,10 @@
-function fH = megPlotLogSpectra(sensorData,condEpochs,badChannels,chanNum)
+function fH = megPlotLogSpectra(sensorData,condEpochs,badChannels,chanNum,fH)
+
+% make new figure, if no handle
+if notDefined('fH'); fH = figure('Position',[0,600,700,500]); set(fH, 'Color', 'w'); end
 
 % figure out index in the vector with badChannels discarded
-tmp = zeros(1,157);
-tmp(chanNum)=1;
-chanNum0= find(tmp(~badChannels));
+chanNum0 = megGetOrigChannel(chanNum,badChannels);
 
 spec = abs(fft(squeeze(sensorData(chanNum0,:,:))))/size(sensorData,2)*2;
 
@@ -20,8 +21,7 @@ fok(f<=xl(1) | f>=xl(2) ...
 
 % plot colors
 colors = [0.1 0.1 0.1; .6 .6 .6];
-fH = figure('Position',[0,600,700,500]);
-set(fH, 'Color', 'w'); hold on;
+hold on;
 
 for ii = 1:length(condEpochs)
     this_data = spec(:,condEpochs{ii}).^2;
@@ -29,7 +29,7 @@ for ii = 1:length(condEpochs)
 end
 
 xt = [12:12:72, 96,144];
-yt = 1:5; yl=[yt(1),yt(end)];
+yt = 0:5; yl=[yt(1),yt(end)];
 set(gca, 'XLim', [8 150], 'XTick', xt, 'XScale', 'log', 'FontSize', 20);
 set(gca,'ytick',10.^yt, 'ylim',10.^yl,'YScale', 'log');
 xlabel('Frequency (Hz)');

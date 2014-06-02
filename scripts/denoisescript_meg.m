@@ -5,15 +5,18 @@ clear all;
 % create corresponding design matrix [epoch x n] format, here n = 1
 % TODO: make epoch a separate function
 
-sessionum = 2;
+sessionum = 1;
 tmpmegdir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
-
 conditionNumbers = 1:6;
 [dataset,megDataDir,conditionNames] = megGetDataPaths(sessionum,conditionNumbers);
 megDataDir = fullfile(megDataDir,dataset);
 disp(dataset);
 onConds = find(cellfun(@isempty,strfind(conditionNames,'OFF')));
 
+load(fullfile(tmpmegdir,sprintf('%sb2',dataset)));
+load(fullfile(tmpmegdir,sprintf('%sb2_hpf2_fitfull75',dataset)));
+
+%%
 clear loadopt
 loadopt.badepoch_avgchannum = 6;
 loadopt.remove_strtend_epoch = false;
@@ -55,22 +58,24 @@ opt.xvalratio = -1;
 opt.resampling = {'xval','xval'};
 opt.npoolmethod = {'r2',[],'n',75};
 %opt.npoolmethod = {'r2',[],'thres',0};
-opt.pccontrolmode = 1;
+opt.pccontrolmode = 0;
 opt.fitbaseline = false;
+opt.savepcs = false;
 opt.verbose = true;
 
 %opt.preprocessfun = @(x)filterdata(x,1000,60);
 %opt.epochGroup = epochGroup;
-%opt.pcstop = -24;
+opt.preprocessfun = @hpf;
+opt.pcstop = -results.pcnum(1);
 
 % do denoising 
 % use evokedfun to do noise pool selection 
 % use evalfun   to do evaluation 
 % denoisedts returns denoised data set 
-[results,evalout,~,denoisedts]= denoisedata(design,sensorData,evokedfun,evalfun,opt);
+[results,evalout]= denoisedata(design,sensorData,evokedfun,evalfun,opt);
 
 %tmpmegdir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
-%save(fullfile(tmpmegdir,sprintf('%02d_%s_fitfull',sessionum,dataset)),'results', 'badChannels');
+save(fullfile('megfigs/matfiles',sprintf('%sb2_hpf2_fitfull0',dataset)),'results', 'badChannels');
 return;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -366,7 +371,7 @@ chanNum = 26;
 
 tmp = zeros(1,157); tmp(chanNum)=1; tmp0=tmp(~badChannels); chanNum0 = find(tmp0);
 disp(chanNum0)
-condNum0=3;
+condNum0=1;
 %megPlotMap(tmp,[0,1],[],'autumn',[]);
 condEpochs  = {design(:,condNum0)==1, all(design==0,2)}; %on, off
 

@@ -64,6 +64,7 @@ if ~isfield(opt,'pccontrolmode'), opt.pccontrolmode = 0;             end
 if ~isfield(opt,'pcstop'),      opt.pcstop      = 1.05;              end
 if ~isfield(opt,'pcn'),         opt.pcn         = 10;                end
 if ~isfield(opt,'preprocessfun'), opt.preprocessfun = [];            end
+if ~isfield(opt,'savepcs'),     opt.savepcs     = false;             end
 if ~isfield(opt,'verbose'),     opt.verbose     = true;              end
 
 if opt.verbose
@@ -185,7 +186,8 @@ if opt.pcstop > 0
         if opt.verbose, fprintf('(denoisedata) denoising for %d pcs ...\n', p); end
         
         if p == 0
-            denoiseddata = data;
+            if ~isempty(opt.preprocessfun), denoiseddata = opt.preprocessfun(data);
+            else denoiseddata = data; end
         else
             denoiseddata = denoisetimeseries(data,pcs,p,opt.epochGroup,opt.preprocessfun);
         end
@@ -228,6 +230,7 @@ for fh = 1:nmodels
         %xvaltrend = mean(r2(:,~noisepool),2);
         % chosen the stopping point as within 95% of maximum 
         chosen = choosepc(xvaltrend,opt.pcstop);
+        pcchan2{fh} = pcchan;
     end
     % record the number of PCs
     pcnum(fh) = chosen;
@@ -250,12 +253,11 @@ results.finalmodel = finalmodel;
 results.origmodel  = origmodel;
 results.noisepool  = noisepool;
 results.pcnum      = pcnum;
+if exist('pcchan2','var'), results.pcchan = pcchan2; end
+if opt.savepcs,            results.pcs = pcs; end
 results.opt        = opt;
 
-
 return;
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
