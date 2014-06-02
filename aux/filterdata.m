@@ -1,4 +1,4 @@
-function xFiltered = filterdata(x,fs,lcutoff,ftsd)
+function [xFiltered, hipassfilter, freqs] = filterdata(x,fs,lcutoff,ftsd,excludef)
 %fs = sampling frequency
 %lcutoff = lower frequency cutoff
 if notDefined('lcutoff'), lcutoff = 60; end
@@ -15,6 +15,13 @@ hipassfilter(freqs<lcutoff) = 0;
 % create a smoothedge 
 [xtbl,ytbl] = rcosFn(ftsd,lcutoff,[0,1]);
 hipassfilter(1:length(freqs)) = interp1(xtbl,ytbl,freqs,[],'extrap');
+% also exclude certain frequencies 
+if ~notDefined('excludef')
+    excludevec = ones(1,length(freqs));
+    [~, ex_i]  = intersect(freqs, excludef);
+    excludevec(ex_i) = 0;
+    hipassfilter(1:length(freqs)) = hipassfilter(1:length(freqs)).*excludevec;
+end
 % mirror the smoothedge on the negative frequency side
 if isodd(xlen)
     hipassfilter(xlen:-1:(round(xlen/2)+1)) = hipassfilter(2:round(xlen/2));
