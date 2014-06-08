@@ -5,12 +5,13 @@ if notDefined('cm'),     cm = 'jet';    end  % colormap
 if notDefined('ttl');    ttl = '';      end  % title string
 if notDefined('fH'),     fH = gcf;      end
 
-fs = 18; % font size 
+fs = 14; % font size 
 renderer = 'zbuffer';
 
 ssm_plotOnMesh(vals, [], [], [],'2d'); 
-colorbar; colormap(cm);
+colormap(cm);
 if ~notDefined('clims'), set(gca, 'CLim', clims); end
 set(fH, 'Renderer', renderer);
 tH = title(ttl);
-set(tH, 'FontSize', fs)
+set(tH, 'FontSize', fs);
+colorbar; 

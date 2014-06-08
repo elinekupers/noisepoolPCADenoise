@@ -1,7 +1,8 @@
-function fH = megPlotLogSpectra(sensorData,condEpochs,badChannels,chanNum,fH)
+function fH = megPlotLogSpectra(sensorData,condEpochs,badChannels,chanNum,fH,lg)
 
 % make new figure, if no handle
 if notDefined('fH'); fH = figure('Position',[0,600,700,500]); set(fH, 'Color', 'w'); end
+if notDefined('lg'); lg = {'ON','OFF'}; end
 
 % figure out index in the vector with badChannels discarded
 chanNum0 = megGetOrigChannel(chanNum,badChannels);
@@ -37,5 +38,5 @@ ylabel(sprintf('Power (%s)', 'fT^2'));
 title(sprintf('Channel %d', chanNum));
 ss = 12; yl = get(gca, 'YLim');
 for ii =ss:ss:180, plot([ii ii], yl, 'k--'); end
-legend('ON','OFF');
+legend(lg);
 

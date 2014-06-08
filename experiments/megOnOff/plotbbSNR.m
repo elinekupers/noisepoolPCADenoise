@@ -7,25 +7,17 @@ if notDefined('fH')
 end
 if notDefined('type'),     type = 'SNR'; end
 
-switch type
-    case 'S'
-        ab_snr1 = max(abs(results.origmodel(whichfit).beta_md(whichbeta,:)),[],1);
-        ab_snr2 = max(abs(results.finalmodel(whichfit).beta_md(whichbeta,:)),[],1);
-    case 'N'
-        ab_snr1 = mean(results.origmodel(whichfit).beta_se(whichbeta,:),1);
-        ab_snr2 = mean(results.finalmodel(whichfit).beta_se(whichbeta,:),1);
-    case 'SNR'  
-        ab_snr1 = max(abs(results.origmodel(whichfit).beta_md(whichbeta,:)),[],1)./...
-            mean(results.origmodel(whichfit).beta_se(whichbeta,:),1);
-        ab_snr2 = max(abs(results.finalmodel(whichfit).beta_md(whichbeta,:)),[],1)./...
-            mean(results.finalmodel(whichfit).beta_se(whichbeta,:),1);
-end
+% get values 
+ab_snr1 = getsignalnoise(results.origmodel(whichfit),whichbeta,type);
+ab_snr2 = getsignalnoise(results.finalmodel(whichfit),whichbeta,type);
 
-clims_ab = [0, max([ab_snr1, ab_snr2])];
+% map into original space 
 ab_snr1a = to157chan(ab_snr1,~badChannels,'nans');
 ab_snr2a = to157chan(ab_snr2,~badChannels,'nans');
 
+% visualize
+clims_ab = [0, max([ab_snr1, ab_snr2])];
 subplot(1,2,1);
 megPlotMap(ab_snr1a,clims_ab,fH,'jet',sprintf('%s: Broadband Signal: Original',type));
 subplot(1,2,2);
-megPlotMap(ab_snr2a,clims_ab,fH,'jet',sprintf('%s: Broadband Signal: Denoised',type));
+megPlotMap(ab_snr2a,clims_ab,fH,'jet',sprintf('%s: Denoised, PC=%d',type,results.pcnum(whichfit)));

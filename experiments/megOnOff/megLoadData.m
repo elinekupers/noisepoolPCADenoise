@@ -81,8 +81,8 @@ if opt.verbose, fprintf('\tnumber of epochs = %d\n', size(sensorData,3)); end
 
 % check that we have no nan's and how many zeros we have
 if opt.verbose
-    fprintf('(megLoadData) number of chan with 0 : %d\n', sum(vectify(sensorData==0)));
-    fprintf('(megLoadData) number of chan with nans : %d\n', sum(vectify(isnan(sensorData))));
+    fprintf('(megLoadData) number of data points with 0 : %d\n', sum(vectify(sensorData==0)));
+    fprintf('(megLoadData) number of data points with nans : %d\n', sum(vectify(isnan(sensorData))));
     % these are the epochs which averaging neighors still give you nothing
     nanepochs = squeeze(all(sensorData==0,2));
     [nr,nc] = find(nanepochs');
