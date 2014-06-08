@@ -5,7 +5,7 @@ clear all;
 % create corresponding design matrix [epoch x n] format, here n = 1
 % TODO: make epoch a separate function
 
-sessionum = 1;
+sessionum = 7;
 tmpmegdir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
 conditionNumbers = 1:6;
 [dataset,megDataDir,conditionNames] = megGetDataPaths(sessionum,conditionNumbers);
@@ -13,29 +13,28 @@ megDataDir = fullfile(megDataDir,dataset);
 disp(dataset);
 onConds = find(cellfun(@isempty,strfind(conditionNames,'OFF')));
 
-load(fullfile(tmpmegdir,sprintf('%sb2',dataset)));
-load(fullfile(tmpmegdir,sprintf('%sb2_hpf2_fitfull75',dataset)));
+%load(fullfile(tmpmegdir,sprintf('%sb2',dataset)));
+%load(fullfile(tmpmegdir,sprintf('%sb2_hpf2_fitfull75',dataset)));
 
-%%
 clear loadopt
 loadopt.badepoch_avgchannum = 6;
 loadopt.remove_strtend_epoch = false;
 [sensorData, design, badChannels, conditionNames, okEpochs] ...
     = megLoadData(megDataDir,conditionNumbers,loadopt);
 
-%Group epochs
+% %Group epochs
 % group_epoch = 6;
 % shift_epoch = 3;
-% epochGroup = megEpochGroup(okEpochs,group_epoch,shift_epoch); 
+% epochGroup = megEpochGroup(okEpochs,group_epoch,shift_epoch,true); 
 % % sanity check 
 % assert(length(epochGroup)==size(sensorData,3));
+% save(fullfile(tmpmegdir, 'epochGroups', sprintf('%sb2_epochGroup6so',dataset)),'epochGroup');
 
 % [sensorData, badChannels, tepochs, epochGroup] = megLoadData(megDataDir,conditionNumbers);
 % design = zeros(size(sensorData,3),length(onConds));
 % for k = 1:length(onConds), design(tepochs==onConds(k),k) = 1; end
 disp(conditionNames);
 
-%save(fullfile(tmpmegdir, 'epochGroups', sprintf('%sb2_epochGroup6s',dataset)),'epochGroup');
 % T = 1; fmax = 150;
 % freq = megGetSLandABfrequencies((0:fmax)/T, T, 12/T);
 % save(fullfile(tmpmegdir,sprintf('%sb2',dataset)),'sensorData', 'design', 'freq', 'badChannels');
@@ -66,7 +65,7 @@ opt.verbose = true;
 %opt.preprocessfun = @(x)filterdata(x,1000,60);
 %opt.epochGroup = epochGroup;
 opt.preprocessfun = @hpf;
-opt.pcstop = -results.pcnum(1);
+%opt.pcstop = -results.pcnum(1);
 
 % do denoising 
 % use evokedfun to do noise pool selection 
@@ -75,7 +74,7 @@ opt.pcstop = -results.pcnum(1);
 [results,evalout]= denoisedata(design,sensorData,evokedfun,evalfun,opt);
 
 %tmpmegdir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
-save(fullfile('megfigs/matfiles',sprintf('%sb2_hpf2_fitfull0',dataset)),'results', 'badChannels');
+%save(fullfile('megfigs/matfiles',sprintf('%sb2_hpf2_fitfull0',dataset)),'results', 'badChannels');
 return;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
