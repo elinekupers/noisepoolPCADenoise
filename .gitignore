@@ -1,5 +1,6 @@
 *.m~
 ._*
+demo.m
 rsync_aliases.sh
 cleanfiles.sh
 hpc/
