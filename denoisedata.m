@@ -220,9 +220,11 @@ for fh = 1:nmodels
         r2 = cat(1,evalout(:,fh).r2);
         % max cross validation for each channel
         maxr2 = max(r2,[],1); 
+        % exclude those in noisepool
+        maxr2(noisepool) = -inf;
         % sort these 
         [~, idx] = sort(maxr2,'descend');
-        % pick the top x
+        % pick the top x, determined by opt.pcn
         pcchan = false(size(noisepool));
         pcchan(idx(1:min(opt.pcn,length(idx)))) = 1;
         % take the average of these 
