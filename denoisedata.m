@@ -5,7 +5,7 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 % INPUTS:
 % -----------------
 % data      : time series [channel x time samples x epoch]
-% design    : design matrix [epoch x n]
+% design    : design matrix [epoch x nconds]
 % evokedfun : function handle (to compute evoked response for noise pool
 %             selection
 % evalfun   : function handle or a cell of function handles (to compute the
