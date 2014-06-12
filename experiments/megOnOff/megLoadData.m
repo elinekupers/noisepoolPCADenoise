@@ -55,18 +55,19 @@ epoch_conditions  = epoch_conditions.epochs_condition;
 epoch_conditions  = epoch_conditions(ismember(epoch_conditions(:,2),conditionNumbers),:);
 epoch_conditions  = [epoch_conditions, (1:size(epoch_conditions,1))'];
 % indices for reordering data into experimental order
-% now that this require the full dataset loaded to index correctly as the
-% indices go up to 1080, and this would be incorrect if we only load a
-% subset of the data 
+% note that this require the full dataset loaded to index correctly as the
+% indices go up to 1080, which would be invalid if we only load a subset 
+% of the data 
 data2condIdx0     = epoch_conditions(:,3); 
 
 % another way of doing the indexing, also used for sanity check
-% first, sort by conditions, so now matching data order
+% first, sort by conditions, so now matching order in data matrix 
 [tmp,cond2dataIdx] = sortrows(epoch_conditions,2);
-% now sort by epoch order, to get indices for reordering data 
+% now sort again by epoch order, to get indices for reordering data 
 [~, data2condIdx] = sortrows(tmp,4);
 % now do our check to see these two things match
-% the assertion is only valid for full data set 
+% the assertion is only valid for full dataset, because data2condIdx
+% can index subset of data, whereas data2condIdx0 always indexes full set
 if isequal(conditionNumbers,1:6)
     assert(sum(data2condIdx~=data2condIdx0)==0);
 end

@@ -20,9 +20,8 @@ clear loadopt
 loadopt.badepoch_avgchannum  = 6;
 loadopt.remove_strtend_epoch = false;
 [sensorData, design, badChannels, conditionNames, okEpochs] ...
-    = megLoadData(megDataDir,[2,5],loadopt);
+    = megLoadData(megDataDir,[1,4:6],loadopt);
 
-%%
 % %Group epochs
 % group_epoch = 6;
 % shift_epoch = 3;
@@ -65,9 +64,9 @@ opt.savepcs = false;
 opt.verbose = true;
 
 %opt.preprocessfun = @(x)filterdata(x,1000,60);
-opt.epochGroup = epochGroup;
+%opt.epochGroup = epochGroup;
 %opt.preprocessfun = @hpf;
-%opt.pcstop = -30;
+opt.pcstop = -30;
 
 % do denoising 
 % use evokedfun to do noise pool selection 
