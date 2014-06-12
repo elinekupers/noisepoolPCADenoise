@@ -23,7 +23,8 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 %                   data (default)
 %     resampling  : how to do resampling for noise channel selection
 %                   (cell 1) and actual evaluation (cell 2)
-%                   options: 'full', 'xval', or 'boot' (default {'xval','xval'})
+%                   options: 'full', 'xval', or 'boot' (default
+%                   {'xval','xval'})
 %     pccontrolmode: how to compute null pcs for control
 %                    0: do nothing (default). 1: permute fourier phase. 
 %                    2: permute assignment to epochs. 3: use white fourier
@@ -69,8 +70,25 @@ if ~isfield(opt,'verbose'),     opt.verbose     = true;              end
 
 if opt.verbose
     fprintf('---------------------------------------------------------------------\n');
-    fprintf('(denoisedata) data dimenions: %d channels x %d time samples x %d epochs\n', nchan,ntime,nepoch);
+    fprintf('(denoisedata) data dimenions: %d channels x %d time samples x %d epochs\n', ...
+        nchan,ntime,nepoch);
     fprintf('---------------------------------------------------------------------\n');
+end
+
+% --------------------------------------------------------------
+% discard epochs for which epochGroup is undefined
+% --------------------------------------------------------------
+nepoch2 = sum(opt.epochGroup~=0);
+if nepoch2 ~= nepoch
+    if opt.verbose
+        fprintf('(denoisedata) !! discarding %d epochs with undefined epoch group!! \n', nepoch-nepoch2); 
+    end
+    opt.epochGroupOrig = opt.epochGroup;
+    discardepochs   = ~ismember(opt.epochGroup, 1:nepoch);
+    opt.epochGroup  = opt.epochGroup(~discardepochs);
+    data            = data(:,:,~discardepochs);
+    design          = design(~discardepochs,:);
+    %nepoch         = epoch2;
 end
 
 % --------------------------------------------------------------
@@ -99,7 +117,7 @@ end
 % pcs are stored in nrep cells; each cell is a matrix of [ntime x npcs]
 nrep = max(opt.epochGroup);
 if opt.verbose
-    fprintf('(denoisedata) computing %d pcs for %d epoch groups ...\n', opt.npcs, nrep); 
+    fprintf('(denoisedata) computing pcs for %d epoch groups ...\n', nrep); 
 end
 % do preprocessing before computing pcs
 if ~isempty(opt.preprocessfun), noisedata = opt.preprocessfun(noisedata); end
@@ -181,6 +199,9 @@ if ~iscell(evalfun), evalfun = {evalfun}; end
 nmodels = length(evalfun);
 % we can skip through this step if user specifies the numbers pcs we want
 if opt.pcstop > 0 
+    if opt.verbose
+        fprintf('(denoisedata) trying %d pcs \n', opt.npcs);
+    end
     % loop through each pc
     for p = 0:opt.npcs
         if opt.verbose, fprintf('(denoisedata) denoising for %d pcs ...\n', p); end
@@ -214,6 +235,9 @@ if opt.verbose, fprintf('(denoisedata) choosing pcs ...\n'); end
 pcnum = zeros(1,nmodels);
 for fh = 1:nmodels
     if opt.pcstop <= 0 % in this case, the user decides
+        if opt.verbose
+            fprintf('(denoisedata) user specified: number of pcs = %d \n', -opt.pcstop);
+        end
         chosen = -opt.pcstop;
     else
         % npcs x channels, averaged across non-noise channels
@@ -233,10 +257,11 @@ for fh = 1:nmodels
         % chosen the stopping point as within 95% of maximum 
         chosen = choosepc(xvaltrend,opt.pcstop);
         pcchan2{fh} = pcchan;
+        
+        if opt.verbose, fprintf('\tevalfunc %d: %d pcs\n', fh, chosen); end
     end
     % record the number of PCs
     pcnum(fh) = chosen;
-    fprintf('\tevalfunc %d: %d pcs\n', fh, pcnum(fh));
 end
 
 % --------------------------------------------------------------
@@ -320,7 +345,7 @@ switch how
         % figure out how to choose train and test data
         if opt.xvalratio == -1 % do n-fold cross validation
             epochs_test = (1:nepochs)';
-            if opt.verbose, fprintf('\txval: n-fold/leave-on-out\n'); end
+            if opt.verbose, fprintf('\txval: n-fold/leave-one-out\n'); end
         else % else, divide up according to opt.xvalratio
             ntest = round(nepochs * opt.xvalratio);
             ntest(ntest<1) = 1; ntest(ntest>=nepochs)=nepochs-1;
@@ -466,6 +491,5 @@ for rp = 1:nrep
         denoiseddata(:,:,cummnepoch+(1:currnepoch)) = permute(currdenoisedsig, [3,1,2]);
         cummnepoch = cummnepoch + currnepoch;
     end
-    % sanity check
-    if rp==nrep, assert(cummnepoch(end) == nepoch); end
+    %if rp==nrep, assert(cummnepoch(end) == nepoch); end % sanity check
 end
