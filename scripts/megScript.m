@@ -3,24 +3,24 @@ inputDataDir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
 outputFigDir = 'megfigs';
 sessionNums  = 1:6;
 sensorDataStr = 'b2';
-fitDataStr    = [sensorDataStr,'_fitfull0'];
+fitDataStr    = [sensorDataStr,'fSL_hpf2_fitfull75'];
 
 %%
 printFigsToFile = false;
 
 % plotting kind
-pp.plotR2     = false;
-pp.plotbbMap  = false;
-pp.plotbbMap2 = false;
+pp.plotPCselectByR2= false;
+pp.plotbbMap       = true;
+pp.plotbbMap2      = false;
     pp.plotbbType  = 'SNR';
     pp.plotbbConds = 1:3;
     
-pp.plotNoisePool = false;
-pp.plotBeforeAfter = true;
-    pp.doTop10 = true;
-pp.plotSpectrum   = false;
-pp.plotPCSpectrum = false;
-pp.plotPCWeights  = false;
+pp.plotNoisePool   = false;
+pp.plotBeforeAfter = false;
+    pp.doTop10     = true;
+pp.plotSpectrum    = false;
+pp.plotPCSpectrum  = false;
+pp.plotPCWeights   = false;
 
 pp.condNames  = {'FULL','RIGHT','LEFT','OFF'};
 pp.condColors = [0.1 0.1 0.9; 0.9 0.1 0.1; 0.1 0.9 0.1; .6 .6 .6];
@@ -32,7 +32,7 @@ for k = 1:length(sessionNums)
     % load fit file
     thisfile = fullfile(inputDataDir,sprintf('%s%s',sessionDir,fitDataStr));
     disp(thisfile); load(thisfile,'results');
-    if pp.plotR2, load(thisfile,'evalout'); end
+    if pp.plotPCselectByR2, load(thisfile,'evalout'); end
     if pp.plotSpectrum, load(thisfile,'denoisedts'); end
     % load datafile
     datafile = fullfile(inputDataDir,sprintf('%s%s',sessionDir,sensorDataStr));
@@ -46,7 +46,7 @@ for k = 1:length(sessionNums)
     %% ----------------------------------------------------
     %----------------------------------------------------
     % look at R2 as a function of PCs
-    if pp.plotR2
+    if pp.plotPCselectByR2
         
         [chosen,pcchan,xvaltrend] = getpcchan(evalout(:,1),noisepool,10,1.05);
         r2 = cat(1,evalout(:,1).r2);

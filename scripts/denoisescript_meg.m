@@ -5,7 +5,7 @@ clear all;
 % create corresponding design matrix [epoch x n] format, here n = 1
 % TODO: make epoch a separate function
 
-sessionum = 7;
+sessionum = 3;
 tmpmegdir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
 conditionNumbers = 1:6;
 [dataset,megDataDir,conditionNames] = megGetDataPaths(sessionum,conditionNumbers);
@@ -17,15 +17,17 @@ onConds = find(cellfun(@isempty,strfind(conditionNames,'OFF')));
 %load(fullfile(tmpmegdir,sprintf('%sb2_hpf2_fitfull75',dataset)));
 
 clear loadopt
-loadopt.badepoch_avgchannum = 6;
+loadopt.badepoch_avgchannum  = 6;
 loadopt.remove_strtend_epoch = false;
 [sensorData, design, badChannels, conditionNames, okEpochs] ...
-    = megLoadData(megDataDir,conditionNumbers,loadopt);
+    = megLoadData(megDataDir,[2,5],loadopt);
 
+%%
 % %Group epochs
 % group_epoch = 6;
 % shift_epoch = 3;
 % epochGroup = megEpochGroup(okEpochs,group_epoch,shift_epoch,true); 
+
 % % sanity check 
 % assert(length(epochGroup)==size(sensorData,3));
 % save(fullfile(tmpmegdir, 'epochGroups', sprintf('%sb2_epochGroup6so',dataset)),'epochGroup');
@@ -47,14 +49,14 @@ warning off;
 T = 1; fmax = 150;
 freq = megGetSLandABfrequencies((0:fmax)/T, T, 12/T);
 evokedfun = @(x)getstimlocked(x,freq);
-evalfun   = {@(x)getbroadband(x,freq), @(x)getstimlocked(x,freq)};
-%evalfun   = @(x)getbroadband(x,freq);
+%evalfun   = {@(x)getbroadband(x,freq), @(x)getstimlocked(x,freq)};
+evalfun   = @(x)getbroadband(x,freq);
 
 clear opt;
 opt.freq = freq;
-opt.npcs = 50;
+opt.npcs = 2;
 opt.xvalratio = -1;
-opt.resampling = {'xval','xval'};
+opt.resampling = {'full','xval'};
 opt.npoolmethod = {'r2',[],'n',75};
 %opt.npoolmethod = {'r2',[],'thres',0};
 opt.pccontrolmode = 0;
@@ -63,9 +65,9 @@ opt.savepcs = false;
 opt.verbose = true;
 
 %opt.preprocessfun = @(x)filterdata(x,1000,60);
-%opt.epochGroup = epochGroup;
-opt.preprocessfun = @hpf;
-%opt.pcstop = -results.pcnum(1);
+opt.epochGroup = epochGroup;
+%opt.preprocessfun = @hpf;
+%opt.pcstop = -30;
 
 % do denoising 
 % use evokedfun to do noise pool selection 
@@ -83,7 +85,7 @@ return;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Print figure directory
 warning off
-printFigsToFile = true;
+printFigsToFile = false;
 types = {'BroadBand','StimulusLocked'};
 noisepool = results.noisepool;
 opt = results.opt;
