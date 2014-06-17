@@ -15,7 +15,6 @@ disp(dataset);
 clear loadopt
 loadopt.badepoch_avgchannum  = 6;
 %loadopt.filename = 'data_no_nonphys_denoising';
-loadopt.remove_badepochs     = true;
 [sensorData, design, badChannels, conditionNames, okEpochs] ...
     = megLoadData(megDataDir,conditionNumbers,loadopt);
 
@@ -46,21 +45,17 @@ evokedfun = @(x)getstimlocked(x,freq);
 evalfun   = @(x)getbroadband(x,freq);
 
 clear opt;
-opt.freq = freq;
-opt.npcs = 70;
-opt.xvalratio = -1;
-opt.resampling = {'xval','xval'};
+opt.freq = freq;   
+opt.npcs = 70;  % number of pcs to try 
 opt.npoolmethod = {'r2',[],'n',75};
 %opt.npoolmethod = {'r2',[],'thres',0};
-opt.pccontrolmode = 0;
+opt.pccontrolmode = 0; % null method 
 opt.fitbaseline = false;
-opt.savepcs = false;
-opt.verbose = true;
+opt.savepcs = false; 
 
 %opt.epochGroup = epochGroup;
-%opt.preprocessfun = @(x)filterdata(x,1000,60);
-%opt.preprocessfun = @hpf;
-%opt.pcstop = -30; 
+opt.preprocessfun = @hpf; % high pass filter 
+%opt.pcstop = -30;        % skip to the end by specifying a number of pcs
 
 % do denoising 
 % use evokedfun to do noise pool selection 
@@ -371,6 +366,7 @@ return;
 % printFigsToFile = false;
 
 %% plot the broadband spectra for particular channel
+% depends on having denoisedts loaded 
 chanNum = 26;
 %dodenoised = 0; % toggle here 
 
