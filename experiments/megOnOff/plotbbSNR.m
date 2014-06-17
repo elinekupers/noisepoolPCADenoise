@@ -18,6 +18,6 @@ ab_snr2a = to157chan(ab_snr2,~badChannels,'nans');
 % visualize
 clims_ab = [0, max([ab_snr1, ab_snr2])];
 subplot(1,2,1);
-megPlotMap(ab_snr1a,clims_ab,fH,'jet',sprintf('%s: Broadband Signal: Original',type));
+megPlotMap(ab_snr1a,clims_ab,fH,'jet',sprintf('%s: Original',type));
 subplot(1,2,2);
 megPlotMap(ab_snr2a,clims_ab,fH,'jet',sprintf('%s: Denoised, PC=%d',type,results.pcnum(whichfit)));

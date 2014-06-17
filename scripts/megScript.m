@@ -1,26 +1,29 @@
 clear all;
 inputDataDir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
 outputFigDir = 'megfigs';
-sessionNums  = 1:6;
-sensorDataStr = 'b2';
-fitDataStr    = [sensorDataStr,'fSL_hpf2_fitfull75'];
+sessionNums  = 7:8;
+sensorDataStr = 'b2';    % input data file string 
+fitDataStr    = [sensorDataStr,'f_epochGroup6o_fitfull75']; % fit data file string
+whichfun     = 1;        % which fit (usually only 1)
 
 %%
-printFigsToFile = false;
+printFigsToFile = true;
 
-% plotting kind
-pp.plotPCselectByR2= false;
-pp.plotbbMap       = true;
-pp.plotbbMap2      = false;
-    pp.plotbbType  = 'SNR';
-    pp.plotbbConds = 1:3;
+% what to plot 
+pp.plotPCselectByR2= true;  % R^2 as a function of number of PCs
+pp.plotbbMap       = true;  % Broadband activity before and after denoising
+
+pp.plotbbMap2      = false; % same as above but slightly different format (includes SL)
+    pp.plotbbType  = 'SNR'; % specifies datatype for plotbbMap2 (options: 'S','N','SNR','R2')
+    pp.plotbbConds = 1:3;   % conditions for plotbbMap2 (1=FULL,2=RIGHT,3=LEFT,1:3=All)
     
-pp.plotNoisePool   = false;
-pp.plotBeforeAfter = false;
-    pp.doTop10     = true;
-pp.plotSpectrum    = false;
-pp.plotPCSpectrum  = false;
-pp.plotPCWeights   = false;
+pp.plotNoisePool   = false; % location of noise pool 
+pp.plotBeforeAfter = true;  % S, N, and SNR before and after denoising (all subjects togther)
+    pp.doTop10     = true;  % specify format for plotBeforeAfter (top 10 or non-noise)
+    
+pp.plotSpectrum    = false; % spectrum of each channel, before and after denoising
+pp.plotPCSpectrum  = false; % spectrum of PCs
+pp.plotPCWeights   = false; % 
 
 pp.condNames  = {'FULL','RIGHT','LEFT','OFF'};
 pp.condColors = [0.1 0.1 0.9; 0.9 0.1 0.1; 0.1 0.9 0.1; .6 .6 .6];
@@ -48,14 +51,14 @@ for k = 1:length(sessionNums)
     % look at R2 as a function of PCs
     if pp.plotPCselectByR2
         
-        [chosen,pcchan,xvaltrend] = getpcchan(evalout(:,1),noisepool,10,1.05);
-        r2 = cat(1,evalout(:,1).r2);
+        [chosen,pcchan,xvaltrend] = getpcchan(evalout(:,whichfun),noisepool,10,1.05);
+        r2 = cat(1,evalout(:,whichfun).r2);
         
         % set up figure
         if k == 1, h1 = figure('position',[1,600,400,800]); end, figure(h1);
         % plot
         subplot(2,1,1);
-        plot(0:opt.npcs, r2(:,:,1));
+        plot(0:opt.npcs, r2);
         title('R^2 for individual channels')
         
         subplot(2,1,2);
@@ -86,7 +89,7 @@ for k = 1:length(sessionNums)
     if pp.plotbbMap
         % set up figure
         if k == 1, h2 = figure('position',[1,600,1200 400]); end, figure(h2);
-        plotbbSNR(results,badChannels,pp.plotbbConds,1,h2,pp.plotbbType);
+        plotbbSNR(results, badChannels, pp.plotbbConds, whichfun, h2, pp.plotbbType);
         
         % write file
         if printFigsToFile
@@ -111,15 +114,15 @@ for k = 1:length(sessionNums)
         % plot
         switch pp.plotbbType
             case {'SNR','S','N'}
-                sl_snr1 = getsignalnoise(slresults.origmodel(1),pp.plotbbConds, pp.plotbbType);
-                ab_snr1 = getsignalnoise(results.origmodel(1),  pp.plotbbConds, pp.plotbbType);
-                ab_snr2 = getsignalnoise(results.finalmodel(1), pp.plotbbConds, pp.plotbbType);
+                sl_snr1 = getsignalnoise(slresults.origmodel(whichfun),pp.plotbbConds, pp.plotbbType);
+                ab_snr1 = getsignalnoise(results.origmodel(whichfun),  pp.plotbbConds, pp.plotbbType);
+                ab_snr2 = getsignalnoise(results.finalmodel(whichfun), pp.plotbbConds, pp.plotbbType);
                 clims_sl = [0, max(sl_snr1)];
                 clims_ab = [0, max([ab_snr1, ab_snr2])];
             case 'R2'
-                sl_snr1 = slresults.origmodel(1).r2;
-                ab_snr1 = results.origmodel(1).r2;
-                ab_snr2 = results.finalmodel(1).r2;
+                sl_snr1 = slresults.origmodel(whichfun).r2;
+                ab_snr1 = results.origmodel(whichfun).r2;
+                ab_snr2 = results.finalmodel(whichfun).r2;
                 clims_sl = [min(sl_snr1), max(sl_snr1)];
                 clims_ab = [min([ab_snr1, ab_snr2]), max([ab_snr1, ab_snr2])];
         end
@@ -167,14 +170,14 @@ for k = 1:length(sessionNums)
     % Look at SNR before and after 
     if pp.plotBeforeAfter
         if pp.doTop10
-            pcchan = results.pcchan{1}; st = 'Top 10';
+            pcchan = results.pcchan{whichfun}; st = 'Top 10';
         else
             pcchan = ~results.noisepool; st = 'Non Noise'; 
         end
-        ab_signal1 = abs(results.origmodel(1).beta_md(:,pcchan));
-        ab_noise1  = results.origmodel(1).beta_se(:,pcchan);
-        ab_signal2 = abs(results.finalmodel(1).beta_md(:,pcchan));
-        ab_noise2  = results.finalmodel(1).beta_se(:,pcchan);
+        ab_signal1 = abs(results.origmodel(whichfun).beta_md(:,pcchan));
+        ab_noise1  = results.origmodel(whichfun).beta_se(:,pcchan);
+        ab_signal2 = abs(results.finalmodel(whichfun).beta_md(:,pcchan));
+        ab_noise2  = results.finalmodel(whichfun).beta_se(:,pcchan);
         ab_snr1    = ab_signal1./ab_noise1;
         ab_snr2    = ab_signal2./ab_noise2;
          
@@ -218,7 +221,7 @@ for k = 1:length(sessionNums)
                 %xlabel('orig model'); ylabel('final model');
                 makeprettyaxes(gca,12);
             end
-            suptitle('Original versus Final Model');
+            suptitle(sprintf('Original versus Final Model : %s',st));
             if printFigsToFile
                 figurewrite(sprintf('SignalNoise_allsubjs%s',fitDataStr),[],[], outputFigDir, 1);
             end
@@ -242,7 +245,7 @@ for k = 1:length(sessionNums)
                 ax1 = subplot(1,2,1); cla;
                 megPlotLogSpectra(sensorData,epochConds, badChannels, chanNum, ax1, pp.condNames([icond,4]));
                 ax2 = subplot(1,2,2); cla;
-                megPlotLogSpectra(denoisedts{1}, epochConds, badChannels, chanNum, ax2, pp.condNames([icond,4]));
+                megPlotLogSpectra(denoisedts{whichfun}, epochConds, badChannels, chanNum, ax2, pp.condNames([icond,4]));
                 title(sprintf('PC = %d', results.pcnum(1)));
                 if printFigsToFile
                     figname = sprintf('spec%s_ch%03d_%s',sessionDir,chanNum,condNames{icond});

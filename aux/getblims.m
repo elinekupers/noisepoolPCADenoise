@@ -14,5 +14,5 @@ for fh = 1:size(evalout,2)
         
         clims(whichbeta,:) = [-1, 1]*max(abs([lower, upper]));
     end
-    clims2 = cat(3,clims2,clims); % n x [lower,upper] x nfuncs
+    clims2 = cat(3,clims2,clims); % nconds x [lower,upper] x nfuncs
 end

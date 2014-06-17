@@ -1,20 +1,46 @@
 function [sensorData, design, badChannels, conditionNames, okEpochs] = ...
     megLoadData(megDataDir,conditionNumbers,opt)
 % load meg data from data and format appropriately 
+%---------------------------------------------------------------- 
+% INPUTS:
+% -----------
 % megDataDir : directory where data are stored (6 matrices plus
 %              epoch_conditons)
 % conditionNumbers: 1:6 (should be in increasing order) 
+% opt:       : options
+%    shuffle_epoch : whether to shuffle temporary order of adjacent epochs
+%                    of the same type. for checking whether denoising
+%                    depends on doing PCA on temporally adjacent chunks
+%                    (default : false)
+%    remove_strtend_epoch : whether to remove the beginning and end of
+%                    every 6 sec chunk (default : false)
+%    remove_badepochs : whether to remove bad epochs (50% channels have no
+%                    data) (default : true)
+%    badepoch_avgchannum: millimeter neighborhood for selecting the
+%                    neighboring channels to average over for replacing 
+%                    the bad epoch values. if this number is too small,
+%                    then we end up with a lot of zeros/nans. (default: 6)
+%    filename     :  name of .mat file to load, containing the six
+%                    data matrices (ts_on_full, ts_right_full, etc)
+%                    by default, we assume these matrices are saved
+%                    separately and load them individually, unless
+%                    filename is specified, then we load that file instead
+%                    (default: '')
+%    verbose      :  whether to print stuff to screen (default true)
+% 
 %
 % TODO : do match conditionNumbers rather than sort to fix ordering
 %        requirement
-%      : add option to keep bad epochs 
-% 
+%
+ 
 
 if notDefined('opt'),    opt = struct(); end
 if ~isfield(opt,'shuffle_epoch'),        opt.shuffle_epoch = false; end
 if ~isfield(opt,'remove_strtend_epoch'), opt.remove_strtend_epoch = false; end
+if ~isfield(opt,'remove_badepochs'),     opt.remove_badepochs = true; end
 if ~isfield(opt,'badepoch_avgchannum'),  opt.badepoch_avgchannum = 6; end
 if ~isfield(opt,'verbose'),              opt.verbose = true; end
+if ~isfield(opt,'filename'),             opt.filename = ''; end
 
 if opt.verbose
     fprintf('=============================================================\n');
@@ -29,14 +55,21 @@ conditionNamesAll = {'ON FULL','ON RIGHT','ON LEFT','OFF FULL','OFF RIGHT','OFF 
 conditionNames    = conditionNamesAll(conditionNumbers);
 tepochs    = [];
 sensorData = [];
+% load one big file, if name is specified
+if ~isempty(opt.filename)
+    if opt.verbose, fprintf('(megLoadData) loading %s\n', opt.filename); end
+    data     = load(fullfile(megDataDir,opt.filename));
+end
+% otherwise load one small file at a time
 for ii = 1:length(conditionNames)
-    dataName = ['ts_', lower(regexprep(conditionNames{ii},' ','_'))];
-    %dataName = ['ts_', lower(regexprep(conditionNames{ii},' ','_')), '_epoched'];
-    
-    if opt.verbose, fprintf('(megLoadData) loading %s\n', dataName); end
-    data     = load(fullfile(megDataDir,dataName));
+    dataName = ['ts_', lower(regexprep(conditionNames{ii},' ','_'))];    
+    if isempty(opt.filename) % load data 
+        if opt.verbose, fprintf('(megLoadData) loading %s\n', dataName); end
+        data     = load(fullfile(megDataDir,dataName));
+    end
     currdata = data.(dataName);
     tepochs  = cat(1,tepochs,ii*ones(size(currdata,2),1));
+    % shuffle the temporal order, while keeping the stimulus type 
     if opt.shuffle_epoch
         currdata = currdata(:,randperm(size(currdata,2)),:);
     end
@@ -95,9 +128,11 @@ if opt.remove_strtend_epoch
 end
 
 % remove bad epochs
-okEpochs = okEpochs & megIdenitfyBadEpochs(sensorData,0.5);
-sensorData = sensorData(:,:,okEpochs);
-epoch_conditions = epoch_conditions(okEpochs,:);
+if opt.remove_badepochs
+    okEpochs = okEpochs & megIdenitfyBadEpochs(sensorData,0.5);
+    sensorData = sensorData(:,:,okEpochs);
+    epoch_conditions = epoch_conditions(okEpochs,:);
+end
 
 % find bad channels - those where at least 50% are nan's 
 badChannels = megIdenitfyBadChannels(sensorData, 0.5);

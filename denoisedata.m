@@ -491,5 +491,5 @@ for rp = 1:nrep
         denoiseddata(:,:,cummnepoch+(1:currnepoch)) = permute(currdenoisedsig, [3,1,2]);
         cummnepoch = cummnepoch + currnepoch;
     end
-    %if rp==nrep, assert(cummnepoch(end) == nepoch); end % sanity check
+    if rp==nrep, assert(cummnepoch(end) == nepoch); end % sanity check
 end

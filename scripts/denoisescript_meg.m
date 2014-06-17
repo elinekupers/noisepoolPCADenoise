@@ -2,31 +2,27 @@ clear all;
 
 %% set up data conditions and load data 
 % get data into [channel x time x epoch] format 
-% create corresponding design matrix [epoch x n] format, here n = 1
-% TODO: make epoch a separate function
+% create corresponding design matrix [epoch x nconds] format
 
-sessionum = 3;
+sessionum = 6;
 tmpmegdir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
 conditionNumbers = 1:6;
-[dataset,megDataDir,conditionNames] = megGetDataPaths(sessionum,conditionNumbers);
+[dataset,megDataDir] = megGetDataPaths(sessionum,conditionNumbers);
+%megDataDir = '/Volumes/server/Projects/MEG/SSMEG/';
 megDataDir = fullfile(megDataDir,dataset);
 disp(dataset);
-onConds = find(cellfun(@isempty,strfind(conditionNames,'OFF')));
-
-%load(fullfile(tmpmegdir,sprintf('%sb2',dataset)));
-%load(fullfile(tmpmegdir,sprintf('%sb2_hpf2_fitfull75',dataset)));
 
 clear loadopt
 loadopt.badepoch_avgchannum  = 6;
-loadopt.remove_strtend_epoch = false;
+%loadopt.filename = 'data_no_nonphys_denoising';
+loadopt.remove_badepochs     = true;
 [sensorData, design, badChannels, conditionNames, okEpochs] ...
-    = megLoadData(megDataDir,[1,4:6],loadopt);
+    = megLoadData(megDataDir,conditionNumbers,loadopt);
 
-% %Group epochs
+%Group epochs
 % group_epoch = 6;
 % shift_epoch = 3;
 % epochGroup = megEpochGroup(okEpochs,group_epoch,shift_epoch,true); 
-
 % % sanity check 
 % assert(length(epochGroup)==size(sensorData,3));
 % save(fullfile(tmpmegdir, 'epochGroups', sprintf('%sb2_epochGroup6so',dataset)),'epochGroup');
@@ -34,12 +30,10 @@ loadopt.remove_strtend_epoch = false;
 % [sensorData, badChannels, tepochs, epochGroup] = megLoadData(megDataDir,conditionNumbers);
 % design = zeros(size(sensorData,3),length(onConds));
 % for k = 1:length(onConds), design(tepochs==onConds(k),k) = 1; end
-disp(conditionNames);
 
-% T = 1; fmax = 150;
-% freq = megGetSLandABfrequencies((0:fmax)/T, T, 12/T);
-% save(fullfile(tmpmegdir,sprintf('%sb2',dataset)),'sensorData', 'design', 'freq', 'badChannels');
+% save(fullfile(tmpmegdir,sprintf('%sb3',dataset)),'sensorData', 'design', 'badChannels');
 % fprintf('saved\n');
+
 %x2 = filterdata(sensorData,1000,60);
 
 %% Denoise 
@@ -53,9 +47,9 @@ evalfun   = @(x)getbroadband(x,freq);
 
 clear opt;
 opt.freq = freq;
-opt.npcs = 2;
+opt.npcs = 70;
 opt.xvalratio = -1;
-opt.resampling = {'full','xval'};
+opt.resampling = {'xval','xval'};
 opt.npoolmethod = {'r2',[],'n',75};
 %opt.npoolmethod = {'r2',[],'thres',0};
 opt.pccontrolmode = 0;
@@ -63,10 +57,10 @@ opt.fitbaseline = false;
 opt.savepcs = false;
 opt.verbose = true;
 
-%opt.preprocessfun = @(x)filterdata(x,1000,60);
 %opt.epochGroup = epochGroup;
+%opt.preprocessfun = @(x)filterdata(x,1000,60);
 %opt.preprocessfun = @hpf;
-opt.pcstop = -30;
+%opt.pcstop = -30; 
 
 % do denoising 
 % use evokedfun to do noise pool selection 
@@ -88,6 +82,7 @@ printFigsToFile = false;
 types = {'BroadBand','StimulusLocked'};
 noisepool = results.noisepool;
 opt = results.opt;
+onConds = find(cellfun(@isempty,strfind(conditionNames,'OFF')));
 
 if printFigsToFile
     savepth = fullfile(megDataDir, 'denoisefigures0');
@@ -101,17 +96,21 @@ if printFigsToFile
 end
 
 %% look at whether broadband signal (beta/r2) as a function of pcs
-% compute axes 
+
+% compute axes
+% assumes first result is broadband, and second is stim locked
 clims    = getblims(evalout,[15,85;5,95]);
 numconds = size(clims,1);
 
 if ~printFigsToFile
-    whichbeta = 1;
-    clims_ab = squeeze(clims(whichbeta,:,:))';
+    whichbeta = 1; % which condition? 
+    
+    clims_ab = squeeze(clims(whichbeta,:,:));
+    if length(results)>1, clims_ab = clims_ab'; end
     
     figure('Position',[1 200 1200 800]);
     for p = 0:opt.npcs
-        for fh = 1:length(results)        
+        for fh = 1:length(results)
             
             beta = mean(evalout(p+1,fh).beta(whichbeta,:,:),3); % [1 x channel x perms], averaged across perms  
             beta = to157chan(beta,~badChannels, 'nans');          % map back to 157 channel space
@@ -132,8 +131,8 @@ if ~printFigsToFile
     end
     
 else
-    for p = 0:opt.npcs
-        for fh = 1:length(results)
+    for p = 0:opt.npcs  % loop through number of pcs 
+        for fh = 1:length(results) % loop through number of evalfunctions 
             % loop through each beta and plot beta weights
             for whichbeta = 1:numconds
                 
@@ -174,17 +173,20 @@ for fh = 1:size(results,2)
     
     % plot beta and SNR for each condition 
     for whichbeta = 1:numconds
+        
+        % beta values before denoising 
         beta0 = mean(evalout(1,fh).beta(whichbeta,:,:),3);
         beta0 = to157chan(beta0,~badChannels, 'nans');
-        
+        % beta values after denoising 
         beta1 = mean(evalout(pcnum+1,fh).beta(whichbeta,:,:),3);
         beta1 = to157chan(beta1,~badChannels, 'nans');
-
+        % plot these together 
         clims_ab = [-1, 1]*max(abs([beta0, beta1]))*1.2;
         subplot(1,2,1);
-        megPlotMap(beta0,clims_ab,[],'jet','BroadBand beta original');
+        megPlotMap(beta0,clims_ab,[],'jet','Beta original');
         subplot(1,2,2);
-        megPlotMap(beta1,clims_ab,[],'jet',sprintf('BroadBand beta PC %d',pcnum));
+        megPlotMap(beta1,clims_ab,[],'jet',sprintf('Beta PC %d',pcnum));
+        suptitle(conditionNames{whichbeta});
         
         if ~printFigsToFile
             pause;
@@ -194,7 +196,10 @@ for fh = 1:size(results,2)
             figurewrite(sprintf('%s_%s',stradd,types{fh}),[],[],savepth,1);
         end
         
-        plotbbSNR(results,badChannels,whichbeta,1,gcf);
+        % plot the SNR before and after denoising 
+        plotbbSNR(results,badChannels,whichbeta,fh,gcf);
+        suptitle(conditionNames{whichbeta});
+        
         if ~printFigsToFile
             pause;
         else
@@ -212,9 +217,9 @@ for fh = 1:size(results,2)
         clims_r2 = [min([r2, r2d]), max([r2, r2d])]*1.2;
         
         subplot(1,2,1);
-        megPlotMap(r2, clims_r2,[],'jet','BroadBand R^2 original');
+        megPlotMap(r2, clims_r2,[],'jet','R^2 original');
         subplot(1,2,2);
-        megPlotMap(r2d,clims_r2,[],'jet',sprintf('BroadBand R^2 PC %d',pcnum));
+        megPlotMap(r2d,clims_r2,[],'jet',sprintf('R^2 PC %d',pcnum));
         
         if ~printFigsToFile
             pause;
@@ -261,16 +266,17 @@ for fh = 1:size(evalout,2)
     ax(2) = subplot(2,2,3);
     plot(0:opt.npcs, r2(:,:,fh),'color',[0.5,0.5,0.5]); hold on;
     plot(0:opt.npcs, mean(r2(:,:,fh),2),'r'); hold on;
-    xlabel('n pcs'); ylabel('r2');
+    xlabel('n pcs'); ylabel('R^2');
     title('R^2 for individual channels')
     
     ax(3) = subplot(2,2,4);
     plot(0:opt.npcs, mean(r2(:,:,fh),2),'b'); hold on;
     plot(0:opt.npcs, mean(r2(:,~noisepool,fh),2),'r');
+    plot(0:opt.npcs, mean(r2(:,results.pcchan{fh}),2),'g');
     %plot(0:opt.npcs, prctile(r2(:,:,fh),95,2),'g');
     vline(results.pcnum(fh),'k');
-    xlabel('n pcs'); ylabel('average r2');
-    legend('all channels','non-noise channels','Location','best');
+    xlabel('n pcs'); ylabel('average R^2');
+    legend({'all channels','non-noise channels','top 10'},'Location','best');
     title('mean R^2')
     
     if printFigsToFile 
@@ -296,7 +302,7 @@ for k = 1:2
 end
 
 % plot and visualize 
-axismin = 0; axismax = 20;
+axismin = 0; axismax = max(snr(:))*1.2;
 %plot(snr(1,:),snr(2,:),'ob');
 c = ['b','r','g']; hold on;
 for nn = 1:numconds
@@ -307,6 +313,7 @@ xlim([axismin,axismax]); ylim([axismin,axismax]); axis square;
 xlabel('orig model SNR'); ylabel('final model SNR');
 legend(conditionNames(onConds));
 title(sprintf('BroadBand %d PCs', results.pcnum(1)));
+makeprettyaxes;
 
 if printFigsToFile
     figurewrite(sprintf('%s_SNR_%s',stradd0,types{1}),[],[],savepth,0);
@@ -317,46 +324,44 @@ return;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% plot the comparisons between the different kinds of null 
 
-% load presaved files 
-r2 = [];
-for nn = 0:4
-    if nn == 0, filename = sprintf('tmpmeg/%s_fitfull',dataset);
-    else filename = sprintf('tmpmeg/%s_fitfull_null%d',dataset,nn); end
-    disp(filename); load(filename);
-    r2 = cat(3, r2, cat(1,evalout(:,1).r2)); 
-end
-
-%% plot and visualize
-figure('Position',[1 200 1000 500]);
-npcs = size(r2,1)-1;
-nulltypes = {'original','phase scrambled','order shuffled','amplitude scrambled','random pcs'};
-for nn = 1:5
-    subplot(2,4,nn); hold on;
-    plot(0:npcs, r2(:,:,nn)); hold on;
-    if nn == 1, ylims = get(gca,'ylim'); end
-    ylim(ylims); xlim([0,50]); xlabel('npcs'); ylabel('R^2');
-    axis square; title(nulltypes{nn});
-end
-colors = {'k','b','r','g','m'};
-%top10 = r2(end,:,1) > prctile(r2(end,:,1),90,2);
-ttls = {'mean(all)','mean(non-noise)'};
-funcs = {@(x)mean(x,2), @(x)mean(x(:,~noisepool),2)}; %@(x)prctile(x(:,:,1),90,2)
-for kk = 1:length(funcs)
-    subplot(2,4,5+kk); hold on;
-    for nn = 1:5
-        curr_r = r2(:,:,nn);
-        plot(0:npcs,funcs{kk}(curr_r),colors{nn},'linewidth',2);
-    end
-    axis square; title(ttls{kk});
-    xlim([0,50]); xlabel('npcs'); ylabel('R^2');
-    if kk == length(funcs), legend(nulltypes,'location','bestoutside'); end
-end
-
-if printFigsToFile
-    figurewrite(sprintf('ALLComparisons_R2vPCs_%s',types{1}),[],[],savepth);
-end
-
-
+% % load presaved files 
+% r2 = [];
+% for nn = 0:4
+%     if nn == 0, filename = sprintf('tmpmeg/%s_fitfull',dataset);
+%     else filename = sprintf('tmpmeg/%s_fitfull_null%d',dataset,nn); end
+%     disp(filename); load(filename);
+%     r2 = cat(3, r2, cat(1,evalout(:,1).r2)); 
+% end
+% 
+% %% plot and visualize
+% figure('Position',[1 200 1000 500]);
+% npcs = size(r2,1)-1;
+% nulltypes = {'original','phase scrambled','order shuffled','amplitude scrambled','random pcs'};
+% for nn = 1:5
+%     subplot(2,4,nn); hold on;
+%     plot(0:npcs, r2(:,:,nn)); hold on;
+%     if nn == 1, ylims = get(gca,'ylim'); end
+%     ylim(ylims); xlim([0,50]); xlabel('npcs'); ylabel('R^2');
+%     axis square; title(nulltypes{nn});
+% end
+% colors = {'k','b','r','g','m'};
+% %top10 = r2(end,:,1) > prctile(r2(end,:,1),90,2);
+% ttls = {'mean(all)','mean(non-noise)'};
+% funcs = {@(x)mean(x,2), @(x)mean(x(:,~noisepool),2)}; %@(x)prctile(x(:,:,1),90,2)
+% for kk = 1:length(funcs)
+%     subplot(2,4,5+kk); hold on;
+%     for nn = 1:5
+%         curr_r = r2(:,:,nn);
+%         plot(0:npcs,funcs{kk}(curr_r),colors{nn},'linewidth',2);
+%     end
+%     axis square; title(ttls{kk});
+%     xlim([0,50]); xlabel('npcs'); ylabel('R^2');
+%     if kk == length(funcs), legend(nulltypes,'location','bestoutside'); end
+% end
+% 
+% if printFigsToFile
+%     figurewrite(sprintf('ALLComparisons_R2vPCs_%s',types{1}),[],[],savepth);
+% end
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -446,18 +451,18 @@ end
 % end
 
 %% write out the stimulus locked data for an example channel 
-T = 1; fmax = 150;
-freq = megGetSLandABfrequencies((0:fmax)/T, T, 12/T);
-sl = getstimlocked(sensorData,freq);
-%sl = getbroadband(sensorData,freq);
-plot(sl(:,chanNum0),'k');
-xlim([0,size(design,1)]);
-% c = 'bgr'; hold on;
-% for k = 1:3
-%     tmp = find(design(:,k)==1);
-%     plot(tmp,300*ones(size(tmp)),['.' c(k)]);
-% end
-xlabel('Epoch number'); ylabel('Amp at SL freq (fT)');
+% T = 1; fmax = 150;
+% freq = megGetSLandABfrequencies((0:fmax)/T, T, 12/T);
+% sl = getstimlocked(sensorData,freq);
+% %sl = getbroadband(sensorData,freq);
+% plot(sl(:,chanNum0),'k');
+% xlim([0,size(design,1)]);
+% % c = 'bgr'; hold on;
+% % for k = 1:3
+% %     tmp = find(design(:,k)==1);
+% %     plot(tmp,300*ones(size(tmp)),['.' c(k)]);
+% % end
+% xlabel('Epoch number'); ylabel('Amp at SL freq (fT)');
 %figurewrite(sprintf('s%d_channel%d_stimuluslockedts',sessionum,chanNum),[],0,'megfigs',1);
 
 %% %%%%%%%%%%%%
