@@ -13,7 +13,8 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 % opt       : options
 %     npoolmethod : noise pool selection method 
 %     epochGroup  : for grouping epochs together for denoising [epoch x 1] vector
-%     npcs        : number of pcs to try (default 50)
+%     npcs2try    : number of pcs to try. if empty, then trying up to the
+%                   number of channels in noisepool. (default = [])
 %     xvalratio   : how to split training and test data for cross
 %                   validation. could be a number between 0 to 1, defining
 %                   the ratio of test data (relative to training data). 
@@ -54,19 +55,20 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 % handle inputs and options 
 if notDefined('evokedfun'), evokedfun = @(x)getstimlocked(x,opt.freq); end
 if notDefined('evalfun'),   evalfun   = @(x)getbroadband(x,opt.freq);  end
-if notDefined('opt'),       opt       = struct(); end
-if ~isfield(opt,'npoolmethod'), opt.npoolmethod = {'r2',[],'n',60};  end
-if ~isfield(opt,'epochGroup'),  opt.epochGroup  = 1:nepoch;          end
-if ~isfield(opt,'npcs'),        opt.npcs        = 50;                end
-if ~isfield(opt,'fitbaseline'), opt.fitbaseline = false;             end
-if ~isfield(opt,'xvalratio'),   opt.xvalratio   = -1;                end
-if ~isfield(opt,'resampling'),  opt.resampling  = {'xval','xval'};   end
-if ~isfield(opt,'pccontrolmode'), opt.pccontrolmode = 0;             end
-if ~isfield(opt,'pcstop'),      opt.pcstop      = 1.05;              end
-if ~isfield(opt,'pcn'),         opt.pcn         = 10;                end
-if ~isfield(opt,'preprocessfun'), opt.preprocessfun = [];            end
-if ~isfield(opt,'savepcs'),     opt.savepcs     = false;             end
-if ~isfield(opt,'verbose'),     opt.verbose     = true;              end
+if notDefined('opt'),       opt       = struct();                      end
+if ~isfield(opt,'npoolmethod'),   opt.npoolmethod = {'r2','n',60};     end
+if ~isfield(opt,'epochGroup'),    opt.epochGroup  = 1:nepoch;          end
+if ~isfield(opt,'npcs2try'),      opt.npcs2try    = [];                end
+if ~isfield(opt,'fitbaseline'),   opt.fitbaseline = false;             end
+if ~isfield(opt,'xvalratio'),     opt.xvalratio   = -1;                end
+if ~isfield(opt,'resampling'),    opt.resampling  = {'xval','xval'};   end
+if ~isfield(opt,'pccontrolmode'), opt.pccontrolmode = 0;               end
+if ~isfield(opt,'pcselmethod'),   opt.pcselmethod = 'r2';              end
+if ~isfield(opt,'pcstop'),        opt.pcstop      = 1.05;              end
+if ~isfield(opt,'pcn'),           opt.pcn         = 10;                end
+if ~isfield(opt,'preprocessfun'), opt.preprocessfun = [];              end
+if ~isfield(opt,'savepcs'),       opt.savepcs     = false;             end
+if ~isfield(opt,'verbose'),       opt.verbose     = true;              end
 
 if opt.verbose
     fprintf('---------------------------------------------------------------------\n');
@@ -106,15 +108,17 @@ noisedata = data(noisepool,:,:);
 if opt.verbose, fprintf('\t%d noise channels selected ...\n', sum(noisepool)); end
 % check that the number of pcs we request isn't greater than the size of
 % noisepool
-if opt.npcs > sum(noisepool)
-    fprintf('WARNING!!!: npcs > nnoise! Setting npcs to size of noise pool %d\n', sum(noisepool));
-    opt.npcs = sum(noisepool);
+if isempty(opt.npcs2try) 
+    opt.npcs2try = sum(noisepool);
+elseif opt.npcs2try > sum(noisepool)
+    fprintf('WARNING!!!: npcs2try > nnoise! Setting npcs2try to size of noise pool %d\n', sum(noisepool));
+    opt.npcs2try = sum(noisepool);
 end
     
 % --------------------------------------------------------------
 % compute PCs
 % --------------------------------------------------------------
-% pcs are stored in nrep cells; each cell is a matrix of [ntime x npcs]
+% pcs are stored in nrep cells; each cell is a matrix of [ntime x npcs2try]
 nrep = max(opt.epochGroup);
 if opt.verbose
     fprintf('(denoisedata) computing pcs for %d epoch groups ...\n', nrep); 
@@ -133,8 +137,8 @@ for rp = 1:nrep
         % perform SVD and select top PCs
         %[u,s,v] = svd(temp);
         [coef,u,eigvals] = princomp(temp);
-        %u = u(:,1:opt.npcs);
-        % scale so that std is 1 (ntime x npcs)
+        %u = u(:,1:opt.npcs2try);
+        % scale so that std is 1 (ntime x npcs2try)
         pcs{rp} = bsxfun(@rdivide,u,std(u,[],1));
     end
 end
@@ -200,10 +204,10 @@ nmodels = length(evalfun);
 % we can skip through this step if user specifies the numbers pcs we want
 if opt.pcstop > 0 
     if opt.verbose
-        fprintf('(denoisedata) trying %d pcs \n', opt.npcs);
+        fprintf('(denoisedata) trying %d pcs \n', opt.npcs2try);
     end
     % loop through each pc
-    for p = 0:opt.npcs
+    for p = 0:opt.npcs2try
         if opt.verbose, fprintf('(denoisedata) denoising for %d pcs ...\n', p); end
         
         if p == 0
@@ -240,20 +244,21 @@ for fh = 1:nmodels
         end
         chosen = -opt.pcstop;
     else
-        % npcs x channels, averaged across non-noise channels
-        r2 = cat(1,evalout(:,fh).r2);
-        % max cross validation for each channel
-        maxr2 = max(r2,[],1); 
+        % npcs2try x channels, averaged across non-noise channels
+        metric = catcell(1,...
+            arrayfun(@(x)getfitval(x,opt.pcselmethod),evalout(:,fh),'UniformOutput',false));
+        % max value across npcs2try for each channel
+        maxmetric = max(metric,[],1); 
         % exclude those in noisepool
-        maxr2(noisepool) = -inf;
+        maxmetric(noisepool) = -inf;
         % sort these 
-        [~, idx] = sort(maxr2,'descend');
+        [~, idx] = sort(maxmetric,'descend');
         % pick the top x, determined by opt.pcn
         pcchan = false(size(noisepool));
         pcchan(idx(1:min(opt.pcn,length(idx)))) = 1;
-        % take the average of these 
-        xvaltrend = mean(r2(:,pcchan,1),2);
-        %xvaltrend = mean(r2(:,~noisepool),2);
+        % take the average of the top x 
+        xvaltrend = mean(metric(:,pcchan),2);
+        %xvaltrend = mean(metric(:,~noisepool),2);
         % chosen the stopping point as within 95% of maximum 
         chosen = choosepc(xvaltrend,opt.pcstop);
         pcchan2{fh} = pcchan;
@@ -414,36 +419,38 @@ end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function noisepool = selectnoisepool(out,npoolmethod)
+function noisepool = selectnoisepool(model,npoolmethod)
 % selects noise channels
 % npoolmethod is a cell array
-%   entry 1 defines what variable is used ['r2'(default) | 'beta']
-%   entry 2 (optional) defines function on 'out' [default [] ] 
-%           for example: can pass in a function to calculate snr
-%   entry 3 defines how noise channels are selected ['n' (default)|'thres']
+%   entry 1 defines what variable is used 
+%           ['r2'(default) | 'snr' | function on 'model']
+%             for example: can pass in a function to calculate snr
+%   entry 2 defines how noise channels are selected ['n' (default)|'thres']
 %           if 'n', then we choose the worst X channels 
 %           if 'thres', then we choose channels with entry1 < X
-%   entry 4 defines X 
-%   example: {'r2',[],'thres',0}
+%   entry 3 defines X 
+%   example: {'r2','thres',0}
 
 % check inputs 
 var  = npoolmethod{1}; if isempty(var), var = 'r2'; end
-if ~strcmp(var,'r2') && ~strcmp(var,'beta')
+if ~isa(var,'function_handle') && ~any(strcmp(var,{'r2','snr'}))
     error('(denoisedata:selectnoisepool): npoolmethod{1} not parsed: %s', var);
 end
-func = npoolmethod{2};
-compmethod = npoolmethod{3}; if isempty(compmethod), compmethod = 'n'; end
-compval    = npoolmethod{4}; 
+compmethod = npoolmethod{2}; if isempty(compmethod), compmethod = 'n'; end
+compval    = npoolmethod{3}; 
 if isempty(compval) 
     if strcmp(compmethod,'n'), compval = 60;
-    elseif strcmp(compmethod,'thres') compval = 0; end
+    elseif strcmp(compmethod,'thres'), compval = 0; end
 end
 
 % compute 
-vals = out.(var);
-if ~isempty(func), vals = func(vals); end
+if isa(var,'function_handle')
+    vals = var(model);
+else
+    vals = getfitval(model,var);
+end
 if strcmp(compmethod,'n')
-    noisepool = false(1,size(out.r2,2));
+    noisepool = false(1,size(model.r2,2));
     [~,sortedinds] = sort(vals,'ascend');
     noisepool(sortedinds(1:compval)) = true;
 end
@@ -453,11 +460,23 @@ end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function val = getfitval(model,metric)
+% gets a fitting metric from a model 
+% metric is either 'r2' or 'snr'
+switch metric
+    case 'r2'
+        val = model.r2;
+    case 'snr'
+        val = max(abs(model.beta_md),[],1) ./ mean(model.beta_se,1);
+end
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function denoiseddata = denoisetimeseries(data,pcs,p,epochGroup,preprocessfun)
 % denoise time series
 % INPUTS:
 % data   : [channels x time x epochs]
-% pcs    : nrep cells; each is a matrix of [ntime x npcs]
+% pcs    : nrep cells; each is a matrix of [ntime x npcs2try]
 % p      : how many number of pcs we want to use 
 % how    : defines how epochs are grouped 
 %
