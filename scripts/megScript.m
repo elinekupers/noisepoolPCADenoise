@@ -1,16 +1,17 @@
 clear all;
 inputDataDir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
 outputFigDir = 'megfigs';
-sessionNums  = 2;
+sessionNums  = 1:8;
 sensorDataStr = 'b2';    % input data file string 
-fitDataStr    = [sensorDataStr,'f_hpf2_fitfull75']; % fit data file string
-whichfun     = 1;        % which fit (usually only 1)
+fitDataStr    = [sensorDataStr,'fr_fitfull75']; % fit data file string
+whichfun     = 2;        % which fit (usually only 1)
 
 %%
-printFigsToFile = false;
+printFigsToFile = true;
 
 % what to plot 
-pp.plotPCselectByR2= false;  % R^2 as a function of number of PCs
+pp.plotPCselectByR2= true;  % R^2 as a function of number of PCs
+    pp.PCSelMethod = 'snr'; 
 pp.plotbbMap       = false;  % Broadband activity before and after denoising
 
 pp.plotbbMap2      = false; % same as above but slightly different format (includes SL)
@@ -21,7 +22,7 @@ pp.plotNoisePool   = false; % location of noise pool
 pp.plotBeforeAfter = false;  % S, N, and SNR before and after denoising (all subjects togther)
     pp.doTop10     = true;  % specify format for plotBeforeAfter (top 10 or non-noise)
     
-pp.plotSpectrum    = true; % spectrum of each channel, before and after denoising
+pp.plotSpectrum    = false; % spectrum of each channel, before and after denoising
 pp.plotPCSpectrum  = false; % spectrum of PCs
 pp.plotPCWeights   = false; % 
 
@@ -45,31 +46,39 @@ for k = 1:length(sessionNums)
     % some variables from the fit
     noisepool = results.noisepool;
     opt = results.opt;
-    
+    npcs2try = opt.npcs2try;
     %% ----------------------------------------------------
     %----------------------------------------------------
     % look at R2 as a function of PCs
     if pp.plotPCselectByR2
         
-        [chosen,pcchan,xvaltrend] = getpcchan(evalout(:,whichfun),noisepool,10,1.05);
-        r2 = cat(1,evalout(:,whichfun).r2);
+        %[chosen,pcchan,xvaltrend] = getpcchan(evalout(:,whichfun),noisepool,10,1.05,pp.PCSelMethod);
+        switch pp.PCSelMethod
+            case 'r2'
+                metric = cat(1,evalout(:,whichfun).r2);
+            case 'snr'
+                metric = max(abs(cat(3,evalout(:,whichfun).beta_md)),[],1) ./ mean(cat(3,evalout(:,whichfun).beta_se),1);
+                metric = squeeze(metric)';
+        end
+        chosen = results.pcnum(whichfun);
+        xvaltrend = mean(metric(:,results.pcchan{whichfun}),2);
         
         % set up figure
         if k == 1, h1 = figure('position',[1,600,400,800]); end, figure(h1);
         % plot
         subplot(2,1,1);
-        plot(0:opt.npcs, r2);
-        title('R^2 for individual channels')
+        plot(0:npcs2try, metric);
+        title(sprintf('%s for individual channels', upper(pp.PCSelMethod)))
         
         subplot(2,1,2);
-        plot(0:opt.npcs, xvaltrend(:,1), 'k','linewidth',2);
+        plot(0:npcs2try, xvaltrend(:,1), 'k','linewidth',2);
         title(sprintf('PC = %d', chosen(1)));
         
         for ii = 1:2
             subplot(2,1,ii);
             %xlabel('n pcs'); ylabel('R2');
             axis square;
-            xlim([0,opt.npcs]); %tmp = get(gca,'ylim'); ylim([-1,tmp(2)]);
+            xlim([0,npcs2try]); %tmp = get(gca,'ylim'); ylim([-1,tmp(2)]);
             makeprettyaxes(gca,14);
         end
         vline(chosen,'k');
@@ -107,20 +116,20 @@ for k = 1:length(sessionNums)
     % locked
     if pp.plotbbMap2
         % load stimulus locked
-        slresults = load(fullfile(inputDataDir,sprintf('%s%s_stimlocked',sessionDir,sensorDataStr)));
+        slresults = load(fullfile(inputDataDir,sprintf('%s%sfSL_fitfull75',sessionDir,sensorDataStr)));
         slresults = slresults.results;
         % set up figure
         if k == 1, h3 = figure('position',[1,600,1400,400]); end, figure(h3);
         % plot
         switch pp.plotbbType
             case {'SNR','S','N'}
-                sl_snr1 = getsignalnoise(slresults.origmodel(whichfun),pp.plotbbConds, pp.plotbbType);
+                sl_snr1 = getsignalnoise(slresults.origmodel(1),pp.plotbbConds, pp.plotbbType);
                 ab_snr1 = getsignalnoise(results.origmodel(whichfun),  pp.plotbbConds, pp.plotbbType);
                 ab_snr2 = getsignalnoise(results.finalmodel(whichfun), pp.plotbbConds, pp.plotbbType);
                 clims_sl = [0, max(sl_snr1)];
                 clims_ab = [0, max([ab_snr1, ab_snr2])];
             case 'R2'
-                sl_snr1 = slresults.origmodel(whichfun).r2;
+                sl_snr1 = slresults.origmodel(1).r2;
                 ab_snr1 = results.origmodel(whichfun).r2;
                 ab_snr2 = results.finalmodel(whichfun).r2;
                 clims_sl = [min(sl_snr1), max(sl_snr1)];
@@ -135,7 +144,7 @@ for k = 1:length(sessionNums)
         subplot(1,3,2);
         megPlotMap(ab_snr1a,clims_ab,h3,'jet','Broad Band Original');
         subplot(1,3,3);
-        megPlotMap(ab_snr2a,clims_ab,h3,'jet',sprintf('Broad Band PC %d',results.pcnum(1)));
+        megPlotMap(ab_snr2a,clims_ab,h3,'jet',sprintf('Broad Band PC %d',results.pcnum(whichfun)));
         
         % write file
         if printFigsToFile
@@ -250,10 +259,10 @@ for k = 1:length(sessionNums)
                 megPlotLogSpectra(denoisedts{whichfun}, epochConds, badChannels, chanNum, ax2, pp.condNames([icond,4]));
                 text(12,1e4,sprintf('beta=%0.2f',results.finalmodel.beta_md(icond,chanNum0)),'fontsize',14,'color','r')
                 
-                title(sprintf('PC = %d', results.pcnum(1)));
+                title(sprintf('PC = %d', results.pcnum(whichfun)));
                 if printFigsToFile
                     figname = sprintf('spec%s_ch%03d_%s',sessionDir,chanNum,pp.condNames{icond});
-                    figurewrite(figname,[],[],sprintf('%s/s%d',outputFigDir,k),1);
+                    figurewrite(figname,[],[],sprintf('%s/s%d',outputFigDir,sessionNums(k)),1);
                 else
                     pause;
                 end
@@ -301,7 +310,7 @@ for k = 1:length(sessionNums)
             title(sprintf('PC number %d', p));
             
             if printFigsToFile
-                figurewrite(sprintf('%s_PC%02d',sessionDir,p),[],[],sprintf('%s/s%d',outputFigDir,k),1);
+                figurewrite(sprintf('%s_PC%02d',sessionDir,p),[],[],sprintf('%s/s%d',outputFigDir,sessionNums(k)),1);
             else
                 pause;
             end
@@ -327,7 +336,7 @@ for k = 1:length(sessionNums)
         wts = [];
         for rp = 1:nepoch
             currsig = sensorData(:,:,rp)';
-            wts = cat(3,wts,results.pcs{rp}(:,1:results.pcnum(1))\currsig); % pcnum x channum
+            wts = cat(3,wts,results.pcs{rp}(:,1:results.pcnum(whichfun))\currsig); % pcnum x channum
         end
         % average across epochs per condition
         fprintf('averaging weights...\n');
@@ -357,14 +366,14 @@ for k = 1:length(sessionNums)
         subplot(3,2,[5,6]);
         hold on;
         for ii = 1:4
-            plot(1:results.pcnum(1), mean(wts_mean{ii}(:,~results.noisepool),2), ...
+            plot(1:results.pcnum(whichfun), mean(wts_mean{ii}(:,~results.noisepool),2), ...
                 'Color', pp.condColors(ii,:),'linewidth',2);
         end
         title('non noise channels'); xlabel('PC number'); ylabel('average weight');
         makeprettyaxes(gca);
         % print to file 
         if printFigsToFile
-            figurewrite(sprintf('%02d_%s_PCWeight',k,sessionDir),[],[],sprintf('%s/s%d',outputFigDir,k),1);
+            figurewrite(sprintf('%02d_%s_PCWeight',k,sessionDir),[],[],sprintf('%s/s%d',outputFigDir,sessionNums(k)),1);
         else
             pause;
         end

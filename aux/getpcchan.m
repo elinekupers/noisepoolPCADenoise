@@ -1,20 +1,27 @@
-function [pcnum,pcchan2,xvaltrend] = getpcchan(evalout,noisepool,pcn,pcstop)
+function [pcnum,pcchan,xvaltrend] = getpcchan(evalout,noisepool,pcn,pcstop,pcselmethod)
 
-% npcs x channels, averaged across non-noise channels
-r2 = cat(1,evalout.r2);
-% max cross validation for each channel
-maxr2 = max(r2,[],1);
+if notDefined('pcselmethod'), pcselmethod = 'r2'; end
+% npcs2try x channels, averaged across non-noise channels
+switch pcselmethod
+    case 'r2'
+        metric = cat(1,evalout.r2);
+    case 'snr'
+        metric = max(abs(cat(3,evalout.beta_md)),[],1) ./ mean(cat(3,evalout.beta_se),1);
+        metric = squeeze(metric)';
+end
+% max value across npcs2try for each channel
+maxmetric = max(metric,[],1);
 % exclude those in noisepool
-maxr2(noisepool) = -inf;
+maxmetric(noisepool) = -inf;
 % sort these
-[~, idx] = sort(maxr2,'descend');
+[~, idx] = sort(maxmetric,'descend');
 % pick the top x, determined by opt.pcn
 pcchan = false(size(noisepool));
 pcchan(idx(1:min(pcn,length(idx)))) = 1;
 % take the average of these
-xvaltrend = mean(r2(:,pcchan,1),2);
+xvaltrend = mean(metric(:,pcchan),2);
 %xvaltrend = mean(r2(:,~noisepool),2);
 % chosen the stopping point as within 95% of maximum
 chosen  = choosepc(xvaltrend,pcstop);
-pcchan2 = pcchan;
 pcnum   = chosen;
+

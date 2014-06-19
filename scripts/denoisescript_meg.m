@@ -52,8 +52,8 @@ opt.npoolmethod = {'snr','n',75};
 opt.pcselmethod = 'snr';
 %opt.npoolmethod = {'r2','thres',0};
 opt.pccontrolmode = 0; % null method 
-opt.fitbaseline = false;
-opt.savepcs = false; 
+opt.fitbaseline   = false;
+opt.savepcs       = false; 
 
 %opt.epochGroup = epochGroup;
 %opt.preprocessfun = @hpf; % high pass filter 
