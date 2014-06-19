@@ -1,27 +1,27 @@
 clear all;
 inputDataDir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
 outputFigDir = 'megfigs';
-sessionNums  = 7:8;
+sessionNums  = 2;
 sensorDataStr = 'b2';    % input data file string 
-fitDataStr    = [sensorDataStr,'f_epochGroup6o_fitfull75']; % fit data file string
+fitDataStr    = [sensorDataStr,'f_hpf2_fitfull75']; % fit data file string
 whichfun     = 1;        % which fit (usually only 1)
 
 %%
-printFigsToFile = true;
+printFigsToFile = false;
 
 % what to plot 
-pp.plotPCselectByR2= true;  % R^2 as a function of number of PCs
-pp.plotbbMap       = true;  % Broadband activity before and after denoising
+pp.plotPCselectByR2= false;  % R^2 as a function of number of PCs
+pp.plotbbMap       = false;  % Broadband activity before and after denoising
 
 pp.plotbbMap2      = false; % same as above but slightly different format (includes SL)
     pp.plotbbType  = 'SNR'; % specifies datatype for plotbbMap2 (options: 'S','N','SNR','R2')
     pp.plotbbConds = 1:3;   % conditions for plotbbMap2 (1=FULL,2=RIGHT,3=LEFT,1:3=All)
     
 pp.plotNoisePool   = false; % location of noise pool 
-pp.plotBeforeAfter = true;  % S, N, and SNR before and after denoising (all subjects togther)
+pp.plotBeforeAfter = false;  % S, N, and SNR before and after denoising (all subjects togther)
     pp.doTop10     = true;  % specify format for plotBeforeAfter (top 10 or non-noise)
     
-pp.plotSpectrum    = false; % spectrum of each channel, before and after denoising
+pp.plotSpectrum    = true; % spectrum of each channel, before and after denoising
 pp.plotPCSpectrum  = false; % spectrum of PCs
 pp.plotPCWeights   = false; % 
 
@@ -237,18 +237,22 @@ for k = 1:length(sessionNums)
         if k == 1, h5 = figure('Position',[0,600,1200,500]); end, figure(h5);
         for chanNum = 1:157
             chanNum0 = megGetOrigChannel(chanNum,badChannels);
-            if isempty(chanNum0), continue; end
+            if isnan(chanNum0), continue; end
             % results.origmodel.beta_md(:,chanNum0)
             % results.finalmodel.beta_md(:,chanNum0)
             for icond = 1:3
                 epochConds = {design(:,icond)==1, all(design==0,2)};
                 ax1 = subplot(1,2,1); cla;
                 megPlotLogSpectra(sensorData,epochConds, badChannels, chanNum, ax1, pp.condNames([icond,4]));
+                text(12,1e4,sprintf('beta=%0.2f',results.origmodel.beta_md(icond,chanNum0)),'fontsize',14,'color','r')
+                
                 ax2 = subplot(1,2,2); cla;
                 megPlotLogSpectra(denoisedts{whichfun}, epochConds, badChannels, chanNum, ax2, pp.condNames([icond,4]));
+                text(12,1e4,sprintf('beta=%0.2f',results.finalmodel.beta_md(icond,chanNum0)),'fontsize',14,'color','r')
+                
                 title(sprintf('PC = %d', results.pcnum(1)));
                 if printFigsToFile
-                    figname = sprintf('spec%s_ch%03d_%s',sessionDir,chanNum,condNames{icond});
+                    figname = sprintf('spec%s_ch%03d_%s',sessionDir,chanNum,pp.condNames{icond});
                     figurewrite(figname,[],[],sprintf('%s/s%d',outputFigDir,k),1);
                 else
                     pause;

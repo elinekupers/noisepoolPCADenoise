@@ -4,11 +4,13 @@ function chanNum0 = megGetOrigChannel(chanNum,badChannels,orig2new)
 if notDefined('orig2new'), orig2new = true; end
 
 if orig2new %figure out index in the vector with badChannels discarded
-    chanNum0 = zeros(size(chanNum));
+    chanNum0 = nan(size(chanNum));
     for jj = 1:length(chanNum)
         tmp = zeros(1,157);
         tmp(chanNum(jj))=1;
-        chanNum0(jj)= find(tmp(~badChannels));
+        if ~isempty(find(tmp(~badChannels), 1))
+            chanNum0(jj)= find(tmp(~badChannels));
+        end
     end
 else % figure out index in original space
     tmp = zeros(1,157);

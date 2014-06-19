@@ -16,7 +16,7 @@ clear loadopt
 loadopt.badepoch_avgchannum  = 6;
 %loadopt.filename = 'data_no_nonphys_denoising';
 [sensorData, design, badChannels, conditionNames, okEpochs] ...
-    = megLoadData(megDataDir,conditionNumbers,loadopt);
+    = megLoadData(megDataDir,[1,4],loadopt);
 
 %Group epochs
 % group_epoch = 6;
@@ -45,16 +45,18 @@ evokedfun = @(x)getstimlocked(x,freq);
 evalfun   = @(x)getbroadband(x,freq);
 
 clear opt;
-opt.freq = freq;   
-opt.npcs = 70;  % number of pcs to try 
-opt.npoolmethod = {'r2',[],'n',75};
-%opt.npoolmethod = {'r2',[],'thres',0};
+opt.freq = freq;
+opt.npcs2try    = 2; 
+opt.resampling  = {'boot','boot'};
+opt.npoolmethod = {'snr','n',75};
+opt.pcselmethod = 'snr';
+%opt.npoolmethod = {'r2','thres',0};
 opt.pccontrolmode = 0; % null method 
 opt.fitbaseline = false;
 opt.savepcs = false; 
 
 %opt.epochGroup = epochGroup;
-opt.preprocessfun = @hpf; % high pass filter 
+%opt.preprocessfun = @hpf; % high pass filter 
 %opt.pcstop = -30;        % skip to the end by specifying a number of pcs
 
 % do denoising 
