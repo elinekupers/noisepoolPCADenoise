@@ -38,6 +38,7 @@ if notDefined('opt'),    opt = struct(); end
 if ~isfield(opt,'shuffle_epoch'),        opt.shuffle_epoch = false; end
 if ~isfield(opt,'remove_strtend_epoch'), opt.remove_strtend_epoch = false; end
 if ~isfield(opt,'remove_badepochs'),     opt.remove_badepochs = true; end
+if ~isfield(opt,'replace_badepochs'),    opt.replace_badepochs = true; end
 if ~isfield(opt,'badepoch_avgchannum'),  opt.badepoch_avgchannum = 6; end
 if ~isfield(opt,'verbose'),              opt.verbose = true; end
 if ~isfield(opt,'filename'),             opt.filename = ''; end
@@ -144,8 +145,10 @@ if opt.verbose
 end
 
 % remove bad channels and replace remaining bad epochs 
-net=load('meg160xyz.mat');
-sensorData = megReplaceBadEpochs(sensorData,net,[],opt.badepoch_avgchannum);
+if opt.replace_badepochs
+    net=load('meg160xyz.mat');
+    sensorData = megReplaceBadEpochs(sensorData,net,[],opt.badepoch_avgchannum);
+end
 sensorData = sensorData(~badChannels,:,:);
 if opt.verbose, fprintf('\tnumber of final epochs = %d\n', size(sensorData,3)); end
 

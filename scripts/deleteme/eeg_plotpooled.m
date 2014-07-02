@@ -2,6 +2,7 @@ clear all;
 sessionNums = 8:17;
 rootDir = strrep(which('setup.m'),'denoisesuite/setup.m','');
 rootDir = fullfile(rootDir,'EEG','Data','PowerDiva');
+tmpDir  = 'eegfigs/tmpeeg';
 
 % %% check for files 
 % filestem = '*Comparisons_R2vPCs_BroadBand*';
@@ -18,7 +19,7 @@ rootDir = fullfile(rootDir,'EEG','Data','PowerDiva');
 %figure('position',[1,600,800,300]); 
 figure('position',[1,600,800,600]); 
 fs = 16;
-plotType = 3;
+plotType = 1;
 printFigsToFile = false;  
 optpcs = zeros(1,length(sessionNums));
 allPCchan = [];
@@ -26,10 +27,10 @@ allPCchan = [];
 for k = 1:length(sessionNums)
     fprintf(' session %d \n', sessionNums(k));
     [sessionDir, conditionNames, conditionNumbers] = eegGetDataPaths(sessionNums(k));
-    filename = fullfile('tmpeeg',sprintf('%s*_nulls*',sessionDir));
+    filename = fullfile(tmpDir,sprintf('%s*_nulls*',sessionDir));
     files = dir(filename);
     % display this file 
-    thisfile = fullfile('tmpeeg',files(end).name); disp(thisfile);
+    thisfile = fullfile(tmpDir,files(end).name); disp(thisfile);
     load(thisfile);
     fprintf(' done loading\n');
     
@@ -136,7 +137,7 @@ end
 
 %% plot the spatial maps as a function of denoising 
 figure('position',[1,600,1600 500]); fs = 16;
-printFigsToFile = true;  
+printFigsToFile = false;  
 plotType = 'SNR';
 optpcs = zeros(1,length(sessionNums));
 plotSNR = true;
@@ -146,10 +147,10 @@ allSNR1 = []; allSNR2 = []; allNoisepool = [];
 for k = 1:length(sessionNums)
     fprintf(' session %d \n', sessionNums(k));
     [sessionDir, conditionNames, conditionNumbers] = eegGetDataPaths(sessionNums(k));
-    filename = fullfile('tmpeeg',sprintf('%02db_%s*',sessionNums(k),sessionDir)); 
+    filename = fullfile(tmpDir,sprintf('%02d_%s*',sessionNums(k),sessionDir)); 
     files = dir(filename);
     
-    thisfile = fullfile('tmpeeg',files(end).name); disp(thisfile);
+    thisfile = fullfile(tmpDir,files(end).name); disp(thisfile);
     load(thisfile); fprintf(' done loading\n');
 
     opt = results.opt; noisepool = results.noisepool;

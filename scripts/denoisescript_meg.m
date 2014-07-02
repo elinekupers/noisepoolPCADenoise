@@ -4,7 +4,7 @@ clear all;
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x nconds] format
 
-sessionum = 6;
+sessionum = 2;
 tmpmegdir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
 conditionNumbers = 1:6;
 [dataset,megDataDir] = megGetDataPaths(sessionum,conditionNumbers);
@@ -16,7 +16,7 @@ clear loadopt
 loadopt.badepoch_avgchannum  = 6;
 %loadopt.filename = 'data_no_nonphys_denoising';
 [sensorData, design, badChannels, conditionNames, okEpochs] ...
-    = megLoadData(megDataDir,[1,4],loadopt);
+    = megLoadData(megDataDir,conditionNumbers,loadopt);
 
 %Group epochs
 % group_epoch = 6;
@@ -369,12 +369,12 @@ return;
 
 %% plot the broadband spectra for particular channel
 % depends on having denoisedts loaded 
-chanNum = 26;
+chanNum = 105;
 %dodenoised = 0; % toggle here 
-
-tmp = zeros(1,157); tmp(chanNum)=1; tmp0=tmp(~badChannels); chanNum0 = find(tmp0);
-disp(chanNum0)
-condNum0=1;
+%tmp = zeros(1,157); tmp(chanNum)=1; tmp0=tmp(~badChannels); chanNum0 = find(tmp0);
+%disp(chanNum0)
+chanNum0 = megGetOrigChannel(chanNum,badChannels);
+condNum0=3;
 %megPlotMap(tmp,[0,1],[],'autumn',[]);
 condEpochs  = {design(:,condNum0)==1, all(design==0,2)}; %on, off
 
@@ -413,9 +413,9 @@ for dodenoised = 0:1
         
         this_data_log = log10(this_data(fok+1,:));
         mn(ii,:) = nanmean(this_data_log,2);
-        sd(ii,:) = std(this_data_log,[],2);
-        plot(fok,mn(ii,:)+sd(ii,:),'Color', colors(ii,:));
-        plot(fok,mn(ii,:)-sd(ii,:),'Color', colors(ii,:));
+        %sd(ii,:) = std(this_data_log,[],2);
+        %plot(fok,mn(ii,:)+sd(ii,:),'Color', colors(ii,:));
+        %plot(fok,mn(ii,:)-sd(ii,:),'Color', colors(ii,:));
         plot(fok, mn(ii,:), '-', 'Color', colors(ii,:), 'LineWidth', 2);
         %shadedplot(fok, mn(ii,:)+sd(ii,:), mn(ii,:)-sd(ii,:), grayshades(ii,:));
         %plot(fok, nanmean(this_data(fok+1,:),2),  '-',  'Color', colors(ii,:), 'LineWidth', 2);

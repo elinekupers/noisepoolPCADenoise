@@ -3,11 +3,11 @@ clear all;
 %% load data
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x n] format, here n = 1
-sessionum  = 16;
-conditionNumbers = 1:2;%3:4;
+sessionnum  = 16;
+conditionNumbers = 1:4;%3:4;
 T = 1;
 % Path to session, conditions
-[sessionDir, conditionNames, conditionNumbers] = eegGetDataPaths(sessionum, conditionNumbers);
+[sessionDir, conditionNames, conditionNumbers] = eegGetDataPaths(sessionnum, conditionNumbers);
 % Paths to trials, headers
 [pth, files, Axx, subj, thedate] = eegGetTrials(sessionDir, conditionNumbers);
 % Extract trial info from a sample file
@@ -39,12 +39,15 @@ end
 % save file directory 
 eegDataDir = fileparts(pth);
 
+% save(fullfile('/arc/1.2/p3/helena/denoisesuite/eegfigs/tmpeeg/',...
+%     sprintf('%02d_%s',sessionnum,sessionDir)),'sensorData', 'design');
 %clear allResults allEval
 %size(sensorData)
 %% Denoise 
 % define some parameters for doing denoising 
 fmax = 150; f = hdr.f;
-freq = eegGetSLandABfrequencies(f(f<fmax), max(hdr.t), 18);
+%freq = eegGetSLandABfrequencies(f(f<fmax), max(hdr.t), 18);
+freq = eegGetSLandABfrequencies((0:fmax), 1, 18);
 evokedfun = @(x)getstimlocked(x,freq);
 evalfun   = {@(x)getbroadband(x,freq), @(x)getstimlocked(x,freq)};
 %evalfun   = {@(x)getbroadband(x,freq)};
@@ -55,8 +58,8 @@ opt.freq = freq;
 opt.npcs = 45;
 opt.xvalratio = -1;
 opt.resampling = {'xval','xval'};
-opt.npoolmethod = {'r2',[],'n',npool};
-%opt.npoolmethod = {'r2',[],'thres',0};
+opt.npoolmethod = {'r2','n',npool};
+%opt.npoolmethod = {'r2','thres',0};
 opt.pccontrolmode = 0;
 
 %opt.pcstop = -10;
@@ -73,7 +76,7 @@ for ii = 0%:4 % loop through the different types of nulls
     toc    
 end
 
-%save(fullfile('tmpeeg',sprintf('%02d_%s_n%d',sessionum,sessionDir,npool)),'results');
+%save(fullfile('tmpeeg',sprintf('%02d_%s_n%d',sessionnum,sessionDir,npool)),'results');
 
 % doSave = true;
 % if doSave

@@ -52,6 +52,9 @@ conditionNamesAll = { ...
 if ~exist('conditionNumbers', 'var') || isempty(conditionNumbers),     
     conditionNumbers(1) = find(strcmp(conditionNamesAll{sessionum}, 'on'));
     conditionNumbers(2) = find(strcmp(conditionNamesAll{sessionum}, 'off'));
+else
+    strcmp(conditionNumbers,'all')
+    conditionNumbers = find(~strcmp(conditionNamesAll{sessionum}, ''));
 end
 
 sessionDir     = sessionDirsAll{sessionum};

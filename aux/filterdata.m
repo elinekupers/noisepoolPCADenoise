@@ -14,11 +14,11 @@ hipassfilter = ones(1,xlen);
 hipassfilter(freqs<lcutoff) = 0;
 % create a smoothedge 
 [xtbl,ytbl] = rcosFn(ftsd,lcutoff,[0,1]);
-hipassfilter(1:length(freqs)) = interp1(xtbl,ytbl,freqs,[],'extrap');
+hipassfilter(1:length(freqs)) = interp1(xtbl,ytbl,freqs,'linear','extrap');
 % also exclude certain frequencies 
 if ~notDefined('excludef')
     excludevec = ones(1,length(freqs));
-    [~, ex_i]  = intersect(freqs, excludef);
+    [~, ex_i]  = intersect(round(freqs), excludef);
     excludevec(ex_i) = 0;
     hipassfilter(1:length(freqs)) = hipassfilter(1:length(freqs)).*excludevec;
 end

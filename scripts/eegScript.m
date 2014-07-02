@@ -1,9 +1,9 @@
 clear all;
-inputDataDir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
-outputFigDir = 'megfigs';
-sessionNums  = 2;
-sensorDataStr = 'b2';    % input data file string 
-fitDataStr    = [sensorDataStr,'f_hpf2_fitfull75']; % fit data file string
+inputDataDir = '/Volumes/HelenaBackup/denoisesuite/tmpeeg/';
+outputFigDir = 'eegfigs';
+sessionNums  = 13;
+sensorDataStr = '';    % input data file string 
+fitDataStr    = [sensorDataStr,'fr_hpf2_fitfull75']; % fit data file string
 whichfun      = 1;        % which fit (usually only 1)
 
 %%
@@ -12,44 +12,49 @@ printFigsToFile = true;
 % what to plot 
 pp.plotPCselectByR2= false;  % R^2 as a function of number of PCs
     pp.PCSelMethod = 'snr'; 
-pp.plotbbMap       = false;  % Broadband activity before and after denoising
 
 pp.plotbbMap2      = false; % same as above but slightly different format (includes SL)
+    pp.loadsl      = false;
     pp.plotbbType  = 'SNR'; % specifies datatype for plotbbMap2 (options: 'S','N','SNR','R2')
-    pp.plotbbConds = 1:3;   % conditions for plotbbMap2 (1=FULL,2=RIGHT,3=LEFT,1:3=All)
+    pp.plotbbConds = 'each';
     
 pp.plotNoisePool   = false; % location of noise pool 
+
 pp.plotBeforeAfter = false;  % S, N, and SNR before and after denoising (all subjects togther)
     pp.doTop10     = true;  % specify format for plotBeforeAfter (top 10 or non-noise)
     
 pp.plotSpectrum    = true; % spectrum of each channel, before and after denoising
-    pp.avgLogFlg   = true; 
-    pp.addBetaText = false;
+    pp.avgLogFlg   = false; 
+    pp.addBetaText = true;
     
-pp.plotPCSpectrum  = false; % spectrum of PCs
-pp.plotPCWeights   = false; % 
+pp.plotPCSpectrum  = false; % spectrum of PCs %not tested 
+pp.plotPCWeights   = false; % not tested 
 
-pp.condNames  = {'FULL','RIGHT','LEFT','OFF'};
 pp.condColors = [0.1 0.1 0.9; 0.9 0.1 0.1; 0.1 0.9 0.1; .6 .6 .6];
 
 %%
 for k = 1:length(sessionNums)
     fprintf(' session %d \n', sessionNums(k));
-    sessionDir = megGetDataPaths(sessionNums(k));
+    [sessionDir,condNames] = eegGetDataPaths(sessionNums(k),'all');
+    condNames = condNames(cellfun(@isempty,strfind(condNames,'off')));
+    
     % load fit file
-    thisfile = fullfile(inputDataDir,sprintf('%s%s',sessionDir,fitDataStr));
+    thisfile = fullfile(inputDataDir,sprintf('%02d_%s%s',sessionNums(k),sessionDir,fitDataStr));
     disp(thisfile); load(thisfile,'results');
     if pp.plotPCselectByR2, load(thisfile,'evalout'); end
     if pp.plotSpectrum, load(thisfile,'denoisedts'); end
-    % load datafile
-    datafile = fullfile(inputDataDir,sprintf('%s%s',sessionDir,sensorDataStr));
-    disp(datafile); load(datafile,'badChannels');
-    if pp.plotPCSpectrum || pp.plotSpectrum || pp.plotPCWeights, load(datafile,'sensorData','design'); end
+    % load datafile     
+    if pp.plotPCSpectrum || pp.plotSpectrum || pp.plotPCWeights
+        datafile = fullfile(inputDataDir,'inputdata',sprintf('%02d_%s%s',sessionNums(k),sessionDir,sensorDataStr));
+        disp(datafile);
+        load(datafile,'sensorData','design');
+    end
     
     % some variables from the fit
     noisepool = results.noisepool;
     opt = results.opt;
     try npcs2try = opt.npcs2try; catch npcs2try = opt.npcs; end
+    
     %% ----------------------------------------------------
     %----------------------------------------------------
     % look at R2 as a function of PCs
@@ -101,65 +106,54 @@ for k = 1:length(sessionNums)
     
     %% ----------------------------------------------------
     %----------------------------------------------------
-    % look at broadband activity on the scalp
-    if pp.plotbbMap
-        % set up figure
-        if k == 1, h2 = figure('position',[1,600,1200 400]); end, figure(h2);
-        plotbbSNR(results, badChannels, pp.plotbbConds, whichfun, h2, pp.plotbbType);
-        
-        % write file
-        if printFigsToFile
-            figname = sprintf('%s%02d_%s%s', pp.plotbbType,sessionNums(k),sessionDir,fitDataStr);
-            if length(pp.plotbbConds)==1, figname = [figname,'_', pp.condNames{pp.plotbbConds}]; end
-            figurewrite(figname,[],[],outputFigDir,1);
-        else
-            pause;
-        end
-    end
-    
-    %% ----------------------------------------------------
-    %----------------------------------------------------
     % look at broadband activity on the scalp, in comparison to stimulus
     % locked
     if pp.plotbbMap2
-        % load stimulus locked
-        slresults = load(fullfile(inputDataDir,sprintf('%s%sfSL_fitfull75',sessionDir,sensorDataStr)));
-        slresults = slresults.results;
+        % load stimulus locked for comparison 
+        if pp.loadsl
+            slresults = load(fullfile(inputDataDir,sprintf('%02d_%s%sfr_fitfull75',sessionNums(k),sessionDir,sensorDataStr)));
+            slmodel = slresults.results.origmodel(2);
+        else
+            slmodel = results.origmodel(2);
+        end
         % set up figure
         if k == 1, h3 = figure('position',[1,600,1400,400]); end, figure(h3);
-        % plot
-        switch pp.plotbbType
-            case {'SNR','S','N'}
-                sl_snr1 = getsignalnoise(slresults.origmodel(1),pp.plotbbConds, pp.plotbbType);
-                ab_snr1 = getsignalnoise(results.origmodel(whichfun),  pp.plotbbConds, pp.plotbbType);
-                ab_snr2 = getsignalnoise(results.finalmodel(whichfun), pp.plotbbConds, pp.plotbbType);
-                clims_sl = [0, max(sl_snr1)];
-                clims_ab = [0, max([ab_snr1, ab_snr2])];
-            case 'R2'
-                sl_snr1 = slresults.origmodel(1).r2;
-                ab_snr1 = results.origmodel(whichfun).r2;
-                ab_snr2 = results.finalmodel(whichfun).r2;
-                clims_sl = [min(sl_snr1), max(sl_snr1)];
-                clims_ab = [min([ab_snr1, ab_snr2]), max([ab_snr1, ab_snr2])];
-        end
-        sl_snr1a = to157chan(sl_snr1,~badChannels,'nans');
-        ab_snr1a = to157chan(ab_snr1,~badChannels,'nans');
-        ab_snr2a = to157chan(ab_snr2,~badChannels,'nans');
+        if strcmp(pp.plotbbConds,'each'), maxconds = length(condNames); else maxconds = 1; end
         
-        subplot(1,3,1);
-        megPlotMap(sl_snr1a,clims_sl,h3,'jet','Stimulus Locked Original');
-        subplot(1,3,2);
-        megPlotMap(ab_snr1a,clims_ab,h3,'jet','Broad Band Original');
-        subplot(1,3,3);
-        megPlotMap(ab_snr2a,clims_ab,h3,'jet',sprintf('Broad Band PC %d',results.pcnum(whichfun)));
-        
-        % write file
-        if printFigsToFile
-            figname = sprintf('%sMap_%02d_%s%s', pp.plotbbType,sessionNums(k),sessionDir,fitDataStr);
-            if length(pp.plotbbConds)==1, figname = [figname,'_', pp.condNames{pp.plotbbConds}]; end
-            figurewrite(figname,[],[],outputFigDir,1);
-        else
-            pause;
+        for bb = 1:maxconds
+            % plot
+            switch pp.plotbbType
+                case {'SNR','S','N'}
+                    if strcmp(pp.plotbbConds,'each'), z = bb; else z = []; end
+                    sl_snr1 = getsignalnoise(slmodel, z, pp.plotbbType);
+                    ab_snr1 = getsignalnoise(results.origmodel(whichfun),  z, pp.plotbbType);
+                    ab_snr2 = getsignalnoise(results.finalmodel(whichfun), z, pp.plotbbType);
+                    clims_sl = [0, max(sl_snr1)];
+                    clims_ab = [0, max([ab_snr1, ab_snr2])];
+                    
+                case 'R2'
+                    sl_snr1 = slmodel.r2;
+                    ab_snr1 = results.origmodel(whichfun).r2;
+                    ab_snr2 = results.finalmodel(whichfun).r2;
+                    clims_sl = [min(sl_snr1), max(sl_snr1)];
+                    clims_ab = [min([ab_snr1, ab_snr2]), max([ab_snr1, ab_snr2])];
+            end
+            
+            subplot(1,3,1);
+            eegPlotMap2(sl_snr1,clims_sl,h3,'jet','Stimulus Locked Original');
+            subplot(1,3,2);
+            eegPlotMap2(ab_snr1,clims_ab,h3,'jet','Broad Band Original');
+            subplot(1,3,3);
+            eegPlotMap2(ab_snr2,clims_ab,h3,'jet',sprintf('Broad Band PC %d',results.pcnum(whichfun)));
+            
+            % write file
+            if printFigsToFile
+                figname = sprintf('%sMap_%02d_%s%s', pp.plotbbType,sessionNums(k),sessionDir,fitDataStr);
+                if strcmp(pp.plotbbConds,'each'), figname = [figname,'_', condNames{bb}]; end
+                figurewrite(figname,[],[],outputFigDir,1);
+            else
+                pause;
+            end
         end
     end
     
@@ -168,10 +162,9 @@ for k = 1:length(sessionNums)
     % Look at the location of the noise pool
     if pp.plotNoisePool
         noisepool = results.noisepool;
-        noise2   = to157chan(noisepool,~badChannels,0);
         % plot 
         figure(100); 
-        megPlotMap(noise2,[0,1],[],'autumn',sprintf('Noise channels: N = %d',sum(noisepool)));
+        eegPlotMap2(double(noisepool),[0,1],[],'autumn',sprintf('Noise channels: N = %d',sum(noisepool)));
         colorbar off; 
         % write file 
         if printFigsToFile
@@ -199,12 +192,13 @@ for k = 1:length(sessionNums)
          
         % set up figure
         c = ['b','r','g'];
-        if k == 1, h4 = figure('position',[1,600,1200,600]); end, figure(h4);
+        if k == 1, h4 = figure('position',[1,600,1600,500]); end, figure(h4);
         
         % plot 
+        maxconds = length(condNames);
         % signal
         subplot(3,length(sessionNums),k); cla; hold on; 
-        for nn = 1:3
+        for nn = 1:maxconds
             plot(ab_signal1(nn,:),ab_signal2(nn,:),'o','color',pp.condColors(nn,:));
         end
         axis square;
@@ -213,7 +207,7 @@ for k = 1:length(sessionNums)
         title(sprintf('S%d : signal', sessionNums(k)));
         % noise
         subplot(3,length(sessionNums),k+length(sessionNums)); cla; hold on;
-        for nn = 1:3
+        for nn = 1:maxconds
             plot(ab_noise1(nn,:),ab_noise2(nn,:),'o','color',pp.condColors(nn,:));
         end
         axismax = max([ab_noise1(:); ab_noise2(:)])*1.2;
@@ -222,7 +216,7 @@ for k = 1:length(sessionNums)
         title(sprintf('S%d : noise', sessionNums(k)));
         % snr
         subplot(3,length(sessionNums),k+2*length(sessionNums)); cla; hold on;
-        for nn = 1:3
+        for nn = 1:maxconds
             plot(ab_snr1(nn,:),ab_snr2(nn,:),'o','color',pp.condColors(nn,:));
         end
         axismax = max([ab_snr1(:); ab_snr2(:)])*1.2;
@@ -251,28 +245,28 @@ for k = 1:length(sessionNums)
     if pp.plotSpectrum
         
         if k == 1, h5 = figure('Position',[0,600,1200,500]); end, figure(h5);
-        for chanNum = 1:157
-            chanNum0 = megGetOrigChannel(chanNum,badChannels);
-            if isnan(chanNum0), continue; end
+        for chanNum = 1:128
             % results.origmodel.beta_md(:,chanNum0)
             % results.finalmodel.beta_md(:,chanNum0)
-            for icond = 1:3
+            for icond = 1:length(condNames)
                 epochConds = {design(:,icond)==1, all(design==0,2)};
                 ax1 = subplot(1,2,1); cla;
-                megPlotLogSpectra(sensorData,epochConds, badChannels, chanNum, pp.avgLogFlg, ax1, pp.condNames([icond,4]));
+                eegPlotLogSpectra(sensorData,epochConds, chanNum, pp.avgLogFlg, ax1, {condNames{icond},'off'});
                 if pp.addBetaText
-                    text(12,1e4,sprintf('beta=%0.2f',results.origmodel(whichfun).beta_md(icond,chanNum0)),'fontsize',14,'color','r')
+                    text(12,1e-1,sprintf('beta=%0.2f',results.origmodel(whichfun).beta_md(icond,chanNum)),'fontsize',14,'color','r')
                 end
                 
-                ax2 = subplot(1,2,2); cla;
-                megPlotLogSpectra(denoisedts{whichfun}, epochConds, badChannels, chanNum, pp.avgLogFlg, ax2, pp.condNames([icond,4]));
-                if pp.addBetaText
-                    text(12,1e4,sprintf('beta=%0.2f',results.finalmodel(whichfun).beta_md(icond,chanNum0)),'fontsize',14,'color','r')
+                if ~notDefined('denoisedts')
+                    ax2 = subplot(1,2,2); cla;
+                    eegPlotLogSpectra(denoisedts{whichfun}, epochConds, chanNum, pp.avgLogFlg, ax2, {condNames{icond},'off'});
+                    if pp.addBetaText
+                        text(12,1e-1,sprintf('beta=%0.2f',results.finalmodel(whichfun).beta_md(icond,chanNum)),'fontsize',14,'color','r')
+                    end
                 end
                 
                 title(sprintf('PC = %d', results.pcnum(whichfun)));
                 if printFigsToFile
-                    figname = sprintf('spec%s_ch%03d_%s',sessionDir,chanNum,pp.condNames{icond});
+                    figname = sprintf('spec%s_ch%03d_%s',sessionDir,chanNum,condNames{icond});
                     figurewrite(figname,[],[],sprintf('%s/s%d',outputFigDir,sessionNums(k)),1);
                 else
                     pause;
@@ -292,7 +286,9 @@ for k = 1:length(sessionNums)
         % get pcs into the right format 
         pcs = catcell(3,results.pcs); 
         pcs = permute(pcs,[2,1,3]);   % npcs x time x epochs
-        epoch_idx = {design(:,1)==1, design(:,2)==1, design(:,3)==1, all(design==0,2)};
+        clear epoch_idx
+        for icond = 1:length(condNames), epoch_idx{icond} = design(:,icond)==1; end
+        epoch_idx{end+1} = all(design==0,2);
         
         % define figure properties
         if k == 1 
@@ -302,7 +298,7 @@ for k = 1:length(sessionNums)
             fok(f<=xl(1) | f>=xl(2) ...
                 | mod(f,60) < 1 | mod(f,60) > 59 ...
                 ) = [];
-            xt = [12:12:72, 96,144,192];
+            xt = [18:18:72,108,144];
             h6 = figure('Position',[0,600,700,500]);
         end
         

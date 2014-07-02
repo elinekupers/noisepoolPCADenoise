@@ -37,11 +37,13 @@ sl_f = f(sl_i);
 % drop the stimulus-locked frequncy and harmonics (frequencies within 3 Hz
 % of multiples of the SL frequency, close to 15 Hz)
 tmp     = (1:10)*slF;
-sl_drop  = sort([tmp-3 tmp-2 tmp-1 tmp tmp+1 tmp+2 tmp+3]);
+%sl_drop  = sort([tmp-3 tmp-2 tmp-1 tmp tmp+1 tmp+2 tmp+3]);
+sl_drop  = sort([tmp-1 tmp tmp+1]);
 
 % drop line noise(frequencies within 3 Hz of multiples of 60 Hz)
 tmp = (1:5) * 60;
-ln_drop   = sort([tmp-3 tmp-2 tmp-1 tmp tmp+1 tmp+2 tmp+3]);
+%ln_drop   = sort([tmp-3 tmp-2 tmp-1 tmp tmp+1 tmp+2 tmp+3]);
+ln_drop   = sort([tmp-1 tmp tmp+1]);
 
 % low frequency drop
 lf_drop = 0:60;

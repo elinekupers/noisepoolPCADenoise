@@ -1,14 +1,11 @@
-function fH = megPlotLogSpectra(sensorData,condEpochs,badChannels,chanNum,avgLogFlg,fH,lg)
+function fH = eegPlotLogSpectra(sensorData,condEpochs,chanNum,avgLogFlg,fH,lg)
 
 if notDefined('avgLogFlg'), avgLogFlg = false; end
 % make new figure, if no handle
 if notDefined('fH'); fH = figure('Position',[0,600,700,500]); set(fH, 'Color', 'w'); end
 if notDefined('lg'); lg = {'ON','OFF'}; end
 
-% figure out index in the vector with badChannels discarded
-chanNum0 = megGetOrigChannel(chanNum,badChannels);
-
-spec = abs(fft(squeeze(sensorData(chanNum0,:,:))))/size(sensorData,2)*2;
+spec = abs(fft(squeeze(sensorData(chanNum,:,:))))/size(sensorData,2)*2;
 
 f = (0:999);
 %   lower and upper bound of frequencies to plot (x lim)
@@ -36,8 +33,8 @@ for ii = 1:length(condEpochs)
     end
 end
 
-xt = [12:12:72, 96,144];
-yt = 0:5; yl=[yt(1),yt(end)];
+xt = [18:18:72,108,144];
+yt = -2:3; yl=[yt(1),yt(end)];
 set(gca, 'XLim', [8 150], 'XTick', xt, 'XScale', 'log', 'FontSize', 20);
 if avgLogFlg
     set(gca,'ytick',yt, 'ylim',yl);
@@ -47,7 +44,7 @@ end
 xlabel('Frequency (Hz)');
 ylabel(sprintf('Power (%s)', 'fT^2'));
 title(sprintf('Channel %d', chanNum));
-ss = 12; yl = get(gca, 'YLim');
+ss = 18; yl = get(gca, 'YLim');
 for ii =ss:ss:180, plot([ii ii], yl, 'k--'); end
 legend(lg);
 
