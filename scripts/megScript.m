@@ -1,9 +1,9 @@
 clear all;
 inputDataDir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
 outputFigDir = 'megfigs';
-sessionNums  = 2;
+sessionNums  = 1:10;
 sensorDataStr = 'b2';    % input data file string 
-fitDataStr    = [sensorDataStr,'f_hpf2_fitfull75']; % fit data file string
+fitDataStr    = [sensorDataStr,'fr_epochGroup6so_fit10']; % fit data file string
 whichfun      = 1;        % which fit (usually only 1)
 
 %%
@@ -11,19 +11,20 @@ printFigsToFile = true;
 
 % what to plot 
 pp.plotPCselectByR2= false;  % R^2 as a function of number of PCs
-    pp.PCSelMethod = 'snr'; 
-pp.plotbbMap       = false;  % Broadband activity before and after denoising
+    pp.PCSelMethod = 'r2'; 
 
-pp.plotbbMap2      = false; % same as above but slightly different format (includes SL)
+pp.plotbbMap2      = true; % Broadband activity before and after denoising
+    pp.plotsl      = false; % whether to plot stimulus locked activity 
     pp.plotbbType  = 'SNR'; % specifies datatype for plotbbMap2 (options: 'S','N','SNR','R2')
-    pp.plotbbConds = 1:3;   % conditions for plotbbMap2 (1=FULL,2=RIGHT,3=LEFT,1:3=All)
+    pp.plotbbConds = {1:3,1,2,3};   % conditions for plotbbMap2 (1=FULL,2=RIGHT,3=LEFT,1:3=All)
     
 pp.plotNoisePool   = false; % location of noise pool 
-pp.plotBeforeAfter = false;  % S, N, and SNR before and after denoising (all subjects togther)
+
+pp.plotBeforeAfter = true;  % S, N, and SNR before and after denoising (all subjects togther)
     pp.doTop10     = true;  % specify format for plotBeforeAfter (top 10 or non-noise)
     
-pp.plotSpectrum    = true; % spectrum of each channel, before and after denoising
-    pp.avgLogFlg   = true; 
+pp.plotSpectrum    = false; % spectrum of each channel, before and after denoising
+    pp.avgLogFlg   = true;  
     pp.addBetaText = false;
     
 pp.plotPCSpectrum  = false; % spectrum of PCs
@@ -39,10 +40,11 @@ for k = 1:length(sessionNums)
     % load fit file
     thisfile = fullfile(inputDataDir,sprintf('%s%s',sessionDir,fitDataStr));
     disp(thisfile); load(thisfile,'results');
+    allresults{k} = results;
     if pp.plotPCselectByR2, load(thisfile,'evalout'); end
     if pp.plotSpectrum, load(thisfile,'denoisedts'); end
     % load datafile
-    datafile = fullfile(inputDataDir,sprintf('%s%s',sessionDir,sensorDataStr));
+    datafile = fullfile(inputDataDir,'inputdata',sprintf('%s%s',sessionDir,sensorDataStr));
     disp(datafile); load(datafile,'badChannels');
     if pp.plotPCSpectrum || pp.plotSpectrum || pp.plotPCWeights, load(datafile,'sensorData','design'); end
     
@@ -89,6 +91,7 @@ for k = 1:length(sessionNums)
             makeprettyaxes(gca,14);
         end
         vline(chosen,'k');
+        vline(10,'r');
         hh = suptitle(sprintf('N%d : %s', sessionNums(k), sessionDir));
         set(hh,'interpreter','none');
         % write file
@@ -101,65 +104,66 @@ for k = 1:length(sessionNums)
     
     %% ----------------------------------------------------
     %----------------------------------------------------
-    % look at broadband activity on the scalp
-    if pp.plotbbMap
-        % set up figure
-        if k == 1, h2 = figure('position',[1,600,1200 400]); end, figure(h2);
-        plotbbSNR(results, badChannels, pp.plotbbConds, whichfun, h2, pp.plotbbType);
-        
-        % write file
-        if printFigsToFile
-            figname = sprintf('%s%02d_%s%s', pp.plotbbType,sessionNums(k),sessionDir,fitDataStr);
-            if length(pp.plotbbConds)==1, figname = [figname,'_', pp.condNames{pp.plotbbConds}]; end
-            figurewrite(figname,[],[],outputFigDir,1);
-        else
-            pause;
-        end
-    end
-    
-    %% ----------------------------------------------------
-    %----------------------------------------------------
     % look at broadband activity on the scalp, in comparison to stimulus
     % locked
     if pp.plotbbMap2
-        % load stimulus locked
-        slresults = load(fullfile(inputDataDir,sprintf('%s%sfSL_fitfull75',sessionDir,sensorDataStr)));
-        slresults = slresults.results;
-        % set up figure
-        if k == 1, h3 = figure('position',[1,600,1400,400]); end, figure(h3);
-        % plot
-        switch pp.plotbbType
-            case {'SNR','S','N'}
-                sl_snr1 = getsignalnoise(slresults.origmodel(1),pp.plotbbConds, pp.plotbbType);
-                ab_snr1 = getsignalnoise(results.origmodel(whichfun),  pp.plotbbConds, pp.plotbbType);
-                ab_snr2 = getsignalnoise(results.finalmodel(whichfun), pp.plotbbConds, pp.plotbbType);
-                clims_sl = [0, max(sl_snr1)];
-                clims_ab = [0, max([ab_snr1, ab_snr2])];
-            case 'R2'
-                sl_snr1 = slresults.origmodel(1).r2;
-                ab_snr1 = results.origmodel(whichfun).r2;
-                ab_snr2 = results.finalmodel(whichfun).r2;
-                clims_sl = [min(sl_snr1), max(sl_snr1)];
-                clims_ab = [min([ab_snr1, ab_snr2]), max([ab_snr1, ab_snr2])];
-        end
-        sl_snr1a = to157chan(sl_snr1,~badChannels,'nans');
-        ab_snr1a = to157chan(ab_snr1,~badChannels,'nans');
-        ab_snr2a = to157chan(ab_snr2,~badChannels,'nans');
-        
-        subplot(1,3,1);
-        megPlotMap(sl_snr1a,clims_sl,h3,'jet','Stimulus Locked Original');
-        subplot(1,3,2);
-        megPlotMap(ab_snr1a,clims_ab,h3,'jet','Broad Band Original');
-        subplot(1,3,3);
-        megPlotMap(ab_snr2a,clims_ab,h3,'jet',sprintf('Broad Band PC %d',results.pcnum(whichfun)));
-        
-        % write file
-        if printFigsToFile
-            figname = sprintf('%sMap_%02d_%s%s', pp.plotbbType,sessionNums(k),sessionDir,fitDataStr);
-            if length(pp.plotbbConds)==1, figname = [figname,'_', pp.condNames{pp.plotbbConds}]; end
-            figurewrite(figname,[],[],outputFigDir,1);
+        % if plotting stimulus locked
+        if pp.plotsl
+            % load stimulus locked
+            slresults = load(fullfile(inputDataDir,sprintf('%s%sfSL_fitfull75',sessionDir,sensorDataStr)));
+            slresults = slresults.results;
+            figw = 1400; figpn = 3;
         else
-            pause;
+            figw = 1200; figpn = 2; 
+        end
+        % set up figure
+        if k == 1, h3 = figure('position',[1,600,figw,400]); end, figure(h3); clf;
+        % plotbbSNR(results, badChannels, pp.plotbbConds, whichfun, h2, pp.plotbbType);
+        % plot
+        for bc = 1:length(pp.plotbbConds)
+            switch pp.plotbbType
+                case {'SNR','S','N'}
+                    if pp.plotsl
+                        sl_snr1 = getsignalnoise(slresults.origmodel(1),pp.plotbbConds{bc}, pp.plotbbType);
+                        clims_sl = [0, max(sl_snr1)];
+                    end
+                    ab_snr1 = getsignalnoise(results.origmodel(whichfun),  pp.plotbbConds{bc}, pp.plotbbType);
+                    ab_snr2 = getsignalnoise(results.finalmodel(whichfun), pp.plotbbConds{bc}, pp.plotbbType);
+                    clims_ab = [0, max([ab_snr1, ab_snr2])];
+                    
+                case 'R2'
+                    if pp.plotsl
+                        sl_snr1 = slresults.origmodel(1).r2;
+                        clims_sl = [min(sl_snr1), max(sl_snr1)];
+                    end
+                    ab_snr1 = results.origmodel(whichfun).r2;
+                    ab_snr2 = results.finalmodel(whichfun).r2;
+                    clims_ab = [min([ab_snr1, ab_snr2]), max([ab_snr1, ab_snr2])];
+            end
+            
+            ab_snr1a = to157chan(ab_snr1,~badChannels,'nans');
+            ab_snr2a = to157chan(ab_snr2,~badChannels,'nans');
+            
+            if pp.plotsl
+                sl_snr1a = to157chan(sl_snr1,~badChannels,'nans');
+                subplot(1,figpn,1);
+                megPlotMap(sl_snr1a,clims_sl,h3,'jet','Stimulus Locked Original');
+            end
+            
+            subplot(1,figpn,pp.plotsl+1);
+            megPlotMap(ab_snr1a,clims_ab,h3,'jet','Original');
+            subplot(1,figpn,pp.plotsl+2);
+            megPlotMap(ab_snr2a,clims_ab,h3,'jet',sprintf('Denoised PC %d',results.pcnum(whichfun)));
+            if length(pp.plotbbConds{bc})==1, suptitle(pp.condNames{pp.plotbbConds{bc}}); end
+                
+            % write file
+            if printFigsToFile
+                figname = sprintf('%sMap_%02d_%s%s', pp.plotbbType,sessionNums(k),sessionDir,fitDataStr);
+                if length(pp.plotbbConds{bc})==1, figname = [figname,'_', pp.condNames{pp.plotbbConds{bc}}]; end
+                figurewrite(figname,[],[],outputFigDir,1);
+            else
+                pause;
+            end
         end
     end
     
@@ -186,7 +190,18 @@ for k = 1:length(sessionNums)
     % Look at SNR before and after 
     if pp.plotBeforeAfter
         if pp.doTop10
-            pcchan = results.pcchan{whichfun}; st = 'Top 10';
+            try 
+                pcchan = results.pcchan{whichfun}; 
+            catch exception
+                disp(exception.message);
+                fprintf('setting pcchan to top10 of final model\n');
+                finalsnr = getsignalnoise(results.finalmodel(whichfun));
+                finalsnr(results.noisepool) = -inf;
+                [~,idx] = sort(finalsnr,'descend');
+                pcchan = false(size(results.noisepool));
+                pcchan(idx(1:10))= 1;
+            end
+            st = 'Top 10';
         else
             pcchan = ~results.noisepool; st = 'Non Noise'; 
         end

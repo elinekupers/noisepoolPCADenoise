@@ -1,20 +1,21 @@
 clear all;
 inputDataDir = '/Volumes/HelenaBackup/denoisesuite/tmpeeg/';
 outputFigDir = 'eegfigs';
-sessionNums  = 13;
+sessionNums  = 8:17;
 sensorDataStr = '';    % input data file string 
-fitDataStr    = [sensorDataStr,'fr_hpf2_fitfull75']; % fit data file string
+fitDataStr    = [sensorDataStr,'frlg_hpf2_fitfull30']; % fit data file string
 whichfun      = 1;        % which fit (usually only 1)
 
 %%
 printFigsToFile = true;
 
 % what to plot 
-pp.plotPCselectByR2= false;  % R^2 as a function of number of PCs
-    pp.PCSelMethod = 'snr'; 
+pp.plotPCselectByR2= true;  % R^2 as a function of number of PCs
+    pp.PCSelMethod = 'n'; 
 
 pp.plotbbMap2      = false; % same as above but slightly different format (includes SL)
     pp.loadsl      = false;
+    pp.plotsl      = false;
     pp.plotbbType  = 'SNR'; % specifies datatype for plotbbMap2 (options: 'S','N','SNR','R2')
     pp.plotbbConds = 'each';
     
@@ -23,8 +24,8 @@ pp.plotNoisePool   = false; % location of noise pool
 pp.plotBeforeAfter = false;  % S, N, and SNR before and after denoising (all subjects togther)
     pp.doTop10     = true;  % specify format for plotBeforeAfter (top 10 or non-noise)
     
-pp.plotSpectrum    = true; % spectrum of each channel, before and after denoising
-    pp.avgLogFlg   = false; 
+pp.plotSpectrum    = false; % spectrum of each channel, before and after denoising
+    pp.avgLogFlg   = true; 
     pp.addBetaText = true;
     
 pp.plotPCSpectrum  = false; % spectrum of PCs %not tested 
@@ -109,15 +110,21 @@ for k = 1:length(sessionNums)
     % look at broadband activity on the scalp, in comparison to stimulus
     % locked
     if pp.plotbbMap2
-        % load stimulus locked for comparison 
-        if pp.loadsl
-            slresults = load(fullfile(inputDataDir,sprintf('%02d_%s%sfr_fitfull75',sessionNums(k),sessionDir,sensorDataStr)));
-            slmodel = slresults.results.origmodel(2);
+        % if plotting stimulus locked
+        if pp.plotsl
+            % load stimulus locked for comparison
+            if pp.loadsl
+                slresults = load(fullfile(inputDataDir,sprintf('%02d_%s%sfr_fitfull75',sessionNums(k),sessionDir,sensorDataStr)));
+                slmodel = slresults.results.origmodel(2);
+            else
+                slmodel = results.origmodel(2);
+            end
+            figw = 1400; figpn = 3;
         else
-            slmodel = results.origmodel(2);
+            figw = 1200; figpn = 2; 
         end
         % set up figure
-        if k == 1, h3 = figure('position',[1,600,1400,400]); end, figure(h3);
+        if k == 1, h3 = figure('position',[1,600,figw,400]); end, figure(h3);
         if strcmp(pp.plotbbConds,'each'), maxconds = length(condNames); else maxconds = 1; end
         
         for bb = 1:maxconds
@@ -125,25 +132,31 @@ for k = 1:length(sessionNums)
             switch pp.plotbbType
                 case {'SNR','S','N'}
                     if strcmp(pp.plotbbConds,'each'), z = bb; else z = []; end
-                    sl_snr1 = getsignalnoise(slmodel, z, pp.plotbbType);
+                    if pp.plotsl
+                        sl_snr1 = getsignalnoise(slmodel, z, pp.plotbbType);
+                        clims_sl = [0, max(sl_snr1)];
+                    end
                     ab_snr1 = getsignalnoise(results.origmodel(whichfun),  z, pp.plotbbType);
                     ab_snr2 = getsignalnoise(results.finalmodel(whichfun), z, pp.plotbbType);
-                    clims_sl = [0, max(sl_snr1)];
                     clims_ab = [0, max([ab_snr1, ab_snr2])];
                     
                 case 'R2'
-                    sl_snr1 = slmodel.r2;
+                    if pp.plotsl
+                        sl_snr1 = slmodel.r2;
+                        clims_sl = [min(sl_snr1), max(sl_snr1)];
+                    end
                     ab_snr1 = results.origmodel(whichfun).r2;
                     ab_snr2 = results.finalmodel(whichfun).r2;
-                    clims_sl = [min(sl_snr1), max(sl_snr1)];
                     clims_ab = [min([ab_snr1, ab_snr2]), max([ab_snr1, ab_snr2])];
             end
             
-            subplot(1,3,1);
-            eegPlotMap2(sl_snr1,clims_sl,h3,'jet','Stimulus Locked Original');
-            subplot(1,3,2);
+            if pp.plotsl
+                subplot(1,figpn,1);
+                eegPlotMap2(sl_snr1,clims_sl,h3,'jet','Stimulus Locked Original');
+            end
+            subplot(1,figpn,pp.plotsl+1);
             eegPlotMap2(ab_snr1,clims_ab,h3,'jet','Broad Band Original');
-            subplot(1,3,3);
+            subplot(1,figpn,pp.plotsl+2);
             eegPlotMap2(ab_snr2,clims_ab,h3,'jet',sprintf('Broad Band PC %d',results.pcnum(whichfun)));
             
             % write file

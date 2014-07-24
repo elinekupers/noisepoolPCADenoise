@@ -8,6 +8,8 @@ switch pcselmethod
     case 'snr'
         metric = max(abs(cat(3,evalout.beta_md)),[],1) ./ mean(cat(3,evalout.beta_se),1);
         metric = squeeze(metric)';
+    case 'n'
+        metric = 1./squeeze(mean(cat(3,evalout.beta_se),1))';
 end
 % max value across npcs2try for each channel
 maxmetric = max(metric,[],1);
