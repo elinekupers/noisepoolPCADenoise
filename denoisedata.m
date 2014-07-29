@@ -103,7 +103,14 @@ out = evalmodel(design,data,evokedfun,opt.resampling{1},opt);
 % select noise pool
 % --------------------------------------------------------------
 if opt.verbose, fprintf('(denoisedata) selecting noise pool ...\n'); end
-noisepool = selectnoisepool(out, opt.npoolmethod);
+if islogical(opt.npoolmethod) && length(opt.npoolmethod) == nchan
+    if opt.verbose, fprintf('\tusing user defined noise pool!!\n'); end
+    noisepool = opt.npoolmethod;
+elseif iscell(opt.npoolmethod)
+    noisepool = selectnoisepool(out, opt.npoolmethod);
+else
+    error('(denoisedata:) opt.npoolmethod not parsed: %s', num2str(opt.npoolmethod));
+end
 noisedata = data(noisepool,:,:);
 if opt.verbose, fprintf('\t%d noise channels selected ...\n', sum(noisepool)); end
 % check that the number of pcs we request isn't greater than the size of
@@ -140,6 +147,12 @@ for rp = 1:nrep
         %u = u(:,1:opt.npcs2try);
         % scale so that std is 1 (ntime x npcs2try)
         pcs{rp} = bsxfun(@rdivide,u,std(u,[],1));
+        % check for nan's. this can happen if PC is all 0's then scaled by std of 0
+        nanpcs = isnan(pcs{rp}(1,:));
+        if sum(nanpcs)
+            warning('denoisedata: epoch %d contains %d nan pcs; replaced with eps', rp, sum(nanpcs));
+            pcs{rp}(:,nanpcs) = eps;
+        end
     end
 end
 
@@ -503,6 +516,8 @@ for rp = 1:nrep
         
         % denoise data for this epoch and this number of pcs
         currdenoisedsig = currsig - pcs{rp}(:,1:p)*(pcs{rp}(:,1:p)\currsig);
+        % sanity check 
+        %assert(sum(isnan(currdenoisedsig(:)))==0 && sum(isinf(currdenoisedsig(:)))==0);
         
         % reshape into ntime x nepoch x nchan
         currdenoisedsig = reshape(currdenoisedsig,[ntime, currnepoch, nchan]);
