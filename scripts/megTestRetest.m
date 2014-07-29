@@ -4,9 +4,9 @@ outputFigDir = 'megfigs';
 sensorDataStr = 'b2';
 fitDataStr    = [sensorDataStr,'f_hpf2_fitfull30'];
 
-sessionNums = [1,2,4,5];
+sessionNums = 6;
 maxperm = 100;
-printFigsToFile = true;
+printFigsToFile = false;
 
 %%
 for k = 1:length(sessionNums)
@@ -75,7 +75,7 @@ for k = 1:length(sessionNums)
     makeprettyaxes;
     
     if printFigsToFile
-        figurewrite(sprintf('sh%02d_%s%s', sessionNums(k), sessionDir, fitDataStr),[],[], sprintf('%s/s%d',outputFigDir,k), 1);
+        figurewrite(sprintf('sh%02d_%s%s', sessionNums(k), sessionDir, fitDataStr),[],[], sprintf('%s/s%d',outputFigDir,sessionNums(k)), 1);
     else
         pause;
     end
@@ -107,7 +107,7 @@ for k = 1:length(sessionNums)
             suptitle(sprintf('Chan %d (idx %d), Top10 freq=%0.1f',chanNum(z), sortedidx(z),sorted(z)/200));
         end
         if printFigsToFile
-            figurewrite(sprintf('sh%02d_%s%s_beta%02d', sessionNums(k), sessionDir, fitDataStr,z),[],[], sprintf('%s/s%d',outputFigDir,k), 1);
+            figurewrite(sprintf('sh%02d_%s%s_beta%02d', sessionNums(k), sessionDir, fitDataStr,z),[],[], sprintf('%s/s%d',outputFigDir,sessionNums(k)), 1);
         else
             pause;
         end
