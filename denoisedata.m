@@ -6,10 +6,19 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 % -----------------
 % data      : time series [channel x time samples x epoch]
 % design    : design matrix [epoch x nconds]
-% evokedfun : function handle (to compute evoked response for noise pool
-%             selection
+%
+% evokedfun : This can be: 
+%             1) function handle (to compute evoked response for noise pool
+%                selection
+%             2) output of evokedfun computed previously (a struct) for
+%                selecting noise pool
+%             3) A vector of booleans corresponding to the number of
+%                channels, where a 1 designates a channel to be noise
+%                Note when using this option, opt.npoolmethod has no effect
+%
 % evalfun   : function handle or a cell of function handles (to compute the
 %             output responses of interest for evaluation
+%
 % opt       : options
 %     npoolmethod : noise pool selection method 
 %     epochGroup  : for grouping epochs together for denoising [epoch x 1] vector
@@ -31,8 +40,11 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 %                    2: permute assignment to epochs. 3: use white fourier
 %                    amplitude but keep fourier phase. 4: use random pcs      
 %     pcstop      :  when to stop adding PCs into the model (default: 1.05)
+%                    Or -n, where n is the user-specified number of PCs to
+%                    use. Note if using this option, we do not go through
+%                    trying to use each number of PCs (see opt.npcs2try)
 %     pcn         :  top number of channels to use for determining PC
-%                    cutoff 
+%                    cutoff (default 10)
 %     verbose     :  whether to print messages to screen (default: true)
 % 
 % OUTPUTS:
@@ -94,23 +106,37 @@ if nepoch2 ~= nepoch
 end
 
 % --------------------------------------------------------------
-% perform fit to get R^2 values
-% --------------------------------------------------------------
-if opt.verbose, fprintf('(denoisedata) computing evoked model ...\n'); end
-out = evalmodel(design,data,evokedfun,opt.resampling{1},opt);
-
-% --------------------------------------------------------------
 % select noise pool
 % --------------------------------------------------------------
-if opt.verbose, fprintf('(denoisedata) selecting noise pool ...\n'); end
-if islogical(opt.npoolmethod) && length(opt.npoolmethod) == nchan
-    if opt.verbose, fprintf('\tusing user defined noise pool!!\n'); end
-    noisepool = opt.npoolmethod;
-elseif iscell(opt.npoolmethod)
-    noisepool = selectnoisepool(out, opt.npoolmethod);
+% A few different options here
+% 1) Perform fit for evokedfun and select based on the worst fits
+% 2) User input model (equivalent to the output of evokedfun) and select based on the worst fits 
+% 3) User specified noise pool (a vector of booleans corresponding to the number of channels)
+
+if isa(evokedfun,'function_handle')
+    % perform fit for evokedfun
+    if opt.verbose, fprintf('(denoisedata) computing evoked model ...\n'); end
+    evokedout = evalmodel(design,data,evokedfun,opt.resampling{1},opt);
+    % select noise pool
+    if opt.verbose, fprintf('(denoisedata) selecting noise pool ...\n'); end
+    noisepool = selectnoisepool(evokedout, opt.npoolmethod);
+    
+elseif isstruct(evokedfun)
+    if opt.verbose, fprintf('(denoisedata) using user defined evokedfun output ...\n'); end
+    evokedout = evokedfun;
+    % select noise pool
+    if opt.verbose, fprintf('(denoisedata) selecting noise pool ...\n'); end
+    noisepool = selectnoisepool(evokedout, opt.npoolmethod);
+    
+elseif islogical(evokedfun) && length(evokedfun) == nchan
+    if opt.verbose, fprintf('(denoisedata) using user defined noise pool ... \n'); end
+    noisepool = evokedfun;
+    
 else
-    error('(denoisedata:) opt.npoolmethod not parsed: %s', num2str(opt.npoolmethod));
+    error('(denoisedata:) evokedfun not parsed');
 end
+
+% restrict noise data 
 noisedata = data(noisepool,:,:);
 if opt.verbose, fprintf('\t%d noise channels selected ...\n', sum(noisepool)); end
 % check that the number of pcs we request isn't greater than the size of
@@ -121,7 +147,7 @@ elseif opt.npcs2try > sum(noisepool)
     fprintf('WARNING!!!: npcs2try > nnoise! Setting npcs2try to size of noise pool %d\n', sum(noisepool));
     opt.npcs2try = sum(noisepool);
 end
-    
+
 % --------------------------------------------------------------
 % compute PCs
 % --------------------------------------------------------------
@@ -150,7 +176,7 @@ for rp = 1:nrep
         % check for nan's. this can happen if PC is all 0's then scaled by std of 0
         nanpcs = isnan(pcs{rp}(1,:));
         if sum(nanpcs)
-            warning('denoisedata: epoch %d contains %d nan pcs; replaced with eps', rp, sum(nanpcs));
+            warning('(denoisedata:) epoch %d contains %d nan pcs; replaced with eps', rp, sum(nanpcs));
             pcs{rp}(:,nanpcs) = eps;
         end
     end
@@ -193,8 +219,9 @@ switch opt.pccontrolmode
             if ~isempty(pcs{rp})
                 pc_fft = fft(pcs{rp},[],1);
                 white_fft = fft(randn(size(pcs{rp})),[],1);
-                pc_amp = abs(pc_fft); pc_ph  = angle(pc_fft);
-                white_amp = abs(white_fft); white_ph = angle(white_fft);
+                %pc_amp = abs(pc_fft); 
+                pc_ph  = angle(pc_fft);
+                white_amp = abs(white_fft); %white_ph = angle(white_fft);
                 pcs{rp} = real(ifft(white_amp.*exp(1i*pc_ph),[],1));
                 %pcs{rp} = real(ifft(pc_amp.*exp(1i*white_ph),[],1));
             end
@@ -313,19 +340,14 @@ function [out,datast] = evalmodel(design,data,func,how,opt)
 % data   : [channels x time x epochs]
 % design : [epochs x nvectors]
 % func   : a function that summarizes data into [epochs x channels]
-% how    : defines how fitting is done ['full' or 'xval'(default)]
+% how    : defines how fitting is done ['full', 'xval', 'boot']
 %
 % OUTPUTS:
 % r2     : goodness of fit   [channels x 1]
 % beta   : betas for the fit [nperms x channels]
 
 % check inputs
-if notDefined('how'),  how  = 'xval';   end
-if notDefined('opt'),  opt  = struct(); end
-if ~isfield(opt,'verbose'),     opt.verbose     = true;  end
-if ~isfield(opt,'fitbaseline'), opt.fitbaseline = false; end
-if ~isfield(opt,'xvalratio'),   opt.xvalratio   = -1;    end
-if ~isfield(opt,'xvalmaxperm'), opt.xvalmaxperm = 500;   end
+if ~isfield(opt,'xvalmaxperm'), opt.xvalmaxperm = 100;   end
 if ~isfield(opt,'nboot'),       opt.nboot = 100;   end
 
 % datast should be dimensions [epochs x channels]
@@ -354,7 +376,7 @@ switch how
         beta = design \ datast;
         modelfit = design*beta;
         % compute goodness of fit
-        r2 = calccod(modelfit,datast,1,[],1);
+        r2 = calccod(modelfit,datast,1,[],r2wantmeansub);
         
         % save into output struct
         out = struct('r2',r2,'beta',beta,'modelfit',modelfit);
