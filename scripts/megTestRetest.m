@@ -4,7 +4,7 @@ outputFigDir = 'megfigs';
 sensorDataStr = 'b2';
 fitDataStr    = [sensorDataStr,'f_hpf2_fitfull30'];
 
-sessionNums = 6;
+sessionNums = 3;
 maxperm = 100;
 printFigsToFile = false;
 
@@ -14,7 +14,7 @@ for k = 1:length(sessionNums)
     sessionDir = megGetDataPaths(sessionNums(k));
     [resultsboot,r2boot] = megCombineSplithalvesHPC(fullfile(inputDataDir,'splitHalves'), sprintf('%s%s',sessionDir,fitDataStr),1:maxperm);
     % load original data 
-    datafile = fullfile(inputDataDir,sprintf('%s%s',sessionDir,sensorDataStr));
+    datafile = fullfile(inputDataDir,'inputdata',sprintf('%s%s',sessionDir,sensorDataStr));
     disp(datafile); load(datafile,'badChannels');
     
     %% plot data summary 
@@ -27,6 +27,8 @@ for k = 1:length(sessionNums)
     noisepool = false(nchan,maxperm,2);
     beta      = zeros(3,nchan,maxperm,2);
     beta0     = zeros(3,nchan,maxperm,2);
+    snrpre    = zeros(nchan,maxperm,2);
+    snrpost   = zeros(nchan,maxperm,2);
     for np = 1:maxperm
         for nn = 1:2
             % top 10 channels
@@ -39,6 +41,9 @@ for k = 1:length(sessionNums)
             % get the beta values
             beta(:,:,np,nn) = resultsboot(np,nn).finalmodel.beta_md(:,:);
             beta0(:,:,np,nn) = resultsboot(np,nn).origmodel.beta_md(:,:);
+            % get snr
+            snrpre(:,np,nn) = getsignalnoise(resultsboot(np,nn).origmodel);
+            snrpost(:,np,nn) = getsignalnoise(resultsboot(np,nn).finalmodel);
         end
     end
     
@@ -50,7 +55,19 @@ for k = 1:length(sessionNums)
     plot(0:npcs,xvaltrend(:,:,2),'r');
     xlabel('Number of PCs'); ylabel('R^2'); title('Top 10');
     makeprettyaxes;
-    
+    % calculate correlation
+    halfcorr = zeros(maxperm,1);
+    %snrdiffcorr = zeros(maxperm,1);
+    %snrdiffcorr0 = zeros(maxperm,1);
+    for np = 1:maxperm
+        halfcorr(np) = corr(squeeze(xvaltrend(:,np,1)),squeeze(xvaltrend(:,np,2)));
+        %snrdiffcorr(np) = corr(snrpost(:,np,1), snrpost(:,np,2), 'type','spearman');
+        %snrdiffcorr0(np) = corr(snrpre(:,np,1), snrpre(:,np,2), 'type','spearman');
+    end
+    mean(halfcorr)
+    %mean(snrdiffcorr)
+    %mean(snrdiffcorr0)
+
     % Number of PCs chosen
     subplot(2,2,2); cla;
     hist(optpcs);

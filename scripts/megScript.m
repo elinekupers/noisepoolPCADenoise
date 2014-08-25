@@ -1,9 +1,9 @@
 clear all;
 inputDataDir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
 outputFigDir = 'megfigs';
-sessionNums  = 1:10;
+sessionNums  = 11:12;%[1:6,9:10];
 sensorDataStr = 'b2';    % input data file string 
-fitDataStr    = [sensorDataStr,'fr_epochGroup6so_fit10']; % fit data file string
+fitDataStr    = [sensorDataStr,'fr_hpf2_fitfull75']; % fit data file string
 whichfun      = 1;        % which fit (usually only 1)
 
 %%
@@ -11,16 +11,16 @@ printFigsToFile = true;
 
 % what to plot 
 pp.plotPCselectByR2= false;  % R^2 as a function of number of PCs
-    pp.PCSelMethod = 'r2'; 
+    pp.PCSelMethod = 'snr'; 
 
 pp.plotbbMap2      = true; % Broadband activity before and after denoising
     pp.plotsl      = false; % whether to plot stimulus locked activity 
     pp.plotbbType  = 'SNR'; % specifies datatype for plotbbMap2 (options: 'S','N','SNR','R2')
-    pp.plotbbConds = {1:3,1,2,3};   % conditions for plotbbMap2 (1=FULL,2=RIGHT,3=LEFT,1:3=All)
+    pp.plotbbConds = {1,2,3};   % conditions for plotbbMap2 (1=FULL,2=RIGHT,3=LEFT,1:3=All)
     
 pp.plotNoisePool   = false; % location of noise pool 
 
-pp.plotBeforeAfter = true;  % S, N, and SNR before and after denoising (all subjects togther)
+pp.plotBeforeAfter = false;  % S, N, and SNR before and after denoising (all subjects togther)
     pp.doTop10     = true;  % specify format for plotBeforeAfter (top 10 or non-noise)
     
 pp.plotSpectrum    = false; % spectrum of each channel, before and after denoising
@@ -194,12 +194,7 @@ for k = 1:length(sessionNums)
                 pcchan = results.pcchan{whichfun}; 
             catch exception
                 disp(exception.message);
-                fprintf('setting pcchan to top10 of final model\n');
-                finalsnr = getsignalnoise(results.finalmodel(whichfun));
-                finalsnr(results.noisepool) = -inf;
-                [~,idx] = sort(finalsnr,'descend');
-                pcchan = false(size(results.noisepool));
-                pcchan(idx(1:10))= 1;
+                pcchan = getTop10(results,whichfun);
             end
             st = 'Top 10';
         else

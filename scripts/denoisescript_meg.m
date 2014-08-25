@@ -4,7 +4,7 @@ clear all;
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x nconds] format
 
-sessionum = 2;
+sessionum = 11;
 tmpmegdir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
 conditionNumbers = 1:6;
 [dataset,megDataDir] = megGetDataPaths(sessionum,conditionNumbers);
@@ -18,26 +18,27 @@ loadopt.badepoch_avgchannum  = 6;
 [sensorData, design, badChannels, conditionNames, okEpochs] ...
     = megLoadData(megDataDir,conditionNumbers,loadopt);
 
-%Group epochs
-% group_epoch = 6;
-% shift_epoch = 3;
-% epochGroup = megEpochGroup(okEpochs,group_epoch,shift_epoch,true); 
-% % sanity check 
-% assert(length(epochGroup)==size(sensorData,3));
-% save(fullfile(tmpmegdir, 'epochGroups', sprintf('%sb2_epochGroup6so',dataset)),'epochGroup');
+%% Group epochs - create files and save 
+group_epoch = 6;
+shift_epoch = 3;
+epochGroup = megEpochGroup(okEpochs,group_epoch,shift_epoch,true); 
+% sanity check 
+assert(length(epochGroup)==size(sensorData,3));
+save(fullfile(tmpmegdir, 'epochGroups', sprintf('%sb2_epochGroup6so',dataset)),'epochGroup');
 
+%%
 % [sensorData, badChannels, tepochs, epochGroup] = megLoadData(megDataDir,conditionNumbers);
 % design = zeros(size(sensorData,3),length(onConds));
 % for k = 1:length(onConds), design(tepochs==onConds(k),k) = 1; end
 
-% save(fullfile(tmpmegdir,sprintf('%sb3',dataset)),'sensorData', 'design', 'badChannels');
+% save(fullfile(tmpmegdir,'inputdata',sprintf('%sb2',dataset)),'sensorData', 'design', 'badChannels');
 % fprintf('saved\n');
 
 %x2 = filterdata(sensorData,1000,60);
 
 %% Denoise 
 % define some parameters for doing denoising 
-warning off;
+%warning off;
 T = 1; fmax = 150;
 freq = megGetSLandABfrequencies((0:fmax)/T, T, 12/T);
 evokedfun = @(x)getstimlocked(x,freq);
@@ -48,7 +49,7 @@ clear opt;
 opt.freq = freq;
 opt.npcs2try    = 2; 
 opt.resampling  = {'boot','boot'};
-opt.npoolmethod = {'snr','n',75};
+opt.npoolmethod = {'snr','n',10};
 opt.pcselmethod = 'snr';
 %opt.npoolmethod = {'r2','thres',0};
 opt.pccontrolmode = 0; % null method 
@@ -57,7 +58,7 @@ opt.savepcs       = false;
 
 %opt.epochGroup = epochGroup;
 %opt.preprocessfun = @hpf; % high pass filter 
-%opt.pcstop = -30;        % skip to the end by specifying a number of pcs
+opt.pcstop = -10;        % skip to the end by specifying a number of pcs
 
 % do denoising 
 % use evokedfun to do noise pool selection 

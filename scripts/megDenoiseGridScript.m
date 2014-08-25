@@ -1,11 +1,11 @@
 clear all;
 inputDataDir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
 outputFigDir = 'megfigs';
-sessionNums  = 1:10;
-fitDataStr    = 'b2fr_epochGroup6so_fitall';
-whichfun      = 3;        % which fit (usually only 1)
+sessionNums  = 11:12%[1:6,9:10];
+fitDataStr    = 'b2fr_hpf2_fitall';
+whichfun      = 1;        % which fit (usually only 1)
 doTop10       = true;
-plotType      = 'n';
+plotType      = 'snr';
 whichConds    = 1:3;
 funXchan      = @mean;
 
@@ -18,7 +18,7 @@ for k = 1:length(sessionNums)
     fprintf(' session %d \n', sessionNums(k));
     sessionDir = megGetDataPaths(sessionNums(k));
     thisfile = fullfile(inputDataDir,sprintf('%s%s',sessionDir,fitDataStr));
-    disp(thisfile); load(thisfile);
+    disp(thisfile); load(thisfile,'allresults','npools','npcs');
     
     allvals = getSNRgrid(allresults,npools,npcs,...
         whichfun,doTop10,plotType,whichConds,funXchan);
