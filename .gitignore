@@ -2,10 +2,10 @@
 ._*
 demo.m
 rsync_aliases.sh
-cleanfiles.sh
 hpc/
 junk/
 tmpeeg/
 tmpmeg/
 eegfigs/
 megfigs/
+manuscript_figs/

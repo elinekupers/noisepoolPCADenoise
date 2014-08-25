@@ -248,7 +248,7 @@ if opt.pcstop > 0
     end
     % loop through each pc
     for p = 0:opt.npcs2try
-        if opt.verbose, fprintf('(denoisedata) denoising for %d pcs ...\n', p); end
+        if opt.verbose, fprintf('\tdenoising for %d pcs ...\n', p); end
         
         if p == 0
             if ~isempty(opt.preprocessfun), denoiseddata = opt.preprocessfun(data);
