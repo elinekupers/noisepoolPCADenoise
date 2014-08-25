@@ -1,14 +1,14 @@
-function newArr = to157chan(currArr,inds,how)
-% newArr should be nconds x N, where is N less than 157
+function newArray = to157chan(currentArray,inds,padval)
+% currentArray should be nconds x N, where N is less than 157
 % inds is 1x157 boolean where N entries are 1's
 %
-if isnumeric(how)
-    newArr = how*ones(size(currArr,1),157);
-elseif strcmp(how,'nans')
-    newArr = nan(size(currArr,1),157);
-elseif strcmp(how,'zeros')
-    newArr = zeros(size(currArr,1),157);
+if isnumeric(padval)
+    newArray = padval*ones(size(currentArray,1),157);
+elseif strcmp(padval,'nans')
+    newArray = nan(size(currentArray,1),157);
+elseif strcmp(padval,'zeros')
+    newArray = zeros(size(currentArray,1),157);
 else
-    error('input "how" not recognized');
+    error('input "padval" not recognized');
 end
-newArr(:,inds) = currArr;
+newArray(:,inds) = currentArray;

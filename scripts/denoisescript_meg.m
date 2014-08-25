@@ -4,15 +4,15 @@ clear all;
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x nconds] format
 
-sessionum = 11;
+save_denoise_ts = false;
 tmpmegdir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
 conditionNumbers = 1:6;
 [dataset,megDataDir] = megGetDataPaths(sessionum,conditionNumbers);
 %megDataDir = '/Volumes/server/Projects/MEG/SSMEG/';
 megDataDir = fullfile(megDataDir,dataset);
+assert(exist(megDataDir, 'dir')>0)
 disp(dataset);
 
-clear loadopt
 loadopt.badepoch_avgchannum  = 6;
 %loadopt.filename = 'data_no_nonphys_denoising';
 [sensorData, design, badChannels, conditionNames, okEpochs] ...
@@ -47,7 +47,8 @@ evalfun   = @(x)getbroadband(x,freq);
 
 clear opt;
 opt.freq = freq;
-opt.npcs2try    = 2; 
+opt.npcs2try    = 10; 
+opt.pcstop      = -10; % just use 0 and 10 pcs
 opt.resampling  = {'boot','boot'};
 opt.npoolmethod = {'snr','n',10};
 opt.pcselmethod = 'snr';
@@ -64,7 +65,17 @@ opt.pcstop = -10;        % skip to the end by specifying a number of pcs
 % use evokedfun to do noise pool selection 
 % use evalfun   to do evaluation 
 % denoisedts returns denoised data set 
-[results,evalout]= denoisedata(design,sensorData,evokedfun,evalfun,opt);
+[results,evalout, ~, denoise_ts]= denoisedata(design,sensorData,evokedfun,evalfun,opt);
+
+% pad denoisedata to have 157 channels;
+tmp = denoise_ts{1};
+denoise_ts = NaN(157, size(tmp,2), size(tmp,3));
+denoise_ts(~badChannels, :, :) = tmp;
+
+% if requested, save the denoised ts
+if save_denoise_ts
+    save(fullfile(megDataDir, 'denoised_ts'), 'denoise_ts', 'design');
+end
 
 %tmpmegdir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
 %save(fullfile('megfigs/matfiles',sprintf('%sb2_hpf2_fitfull0',dataset)),'results', 'badChannels');
