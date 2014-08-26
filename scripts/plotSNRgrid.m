@@ -1,7 +1,8 @@
 function plotSNRgrid(allvals,npools,npcs, ...
     whichfun, doTop10, plotType, whichConds, funXchan)
+% plots the output of getSNRgrid.m and labels it appropriately
+% see also getSNRgrid.m and megDenoiseGridScript.m for usage
 
-% plot stuff
 figure('position',[200,200,600,600]); 
 imagesc(1:length(npcs),1:length(npools),allvals); 
 xlabel('Number of PCs removed'); 

@@ -1,12 +1,12 @@
 clear all;
-inputDataDir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
+inputDataDir = '/Volumes/server/Projects/MEG/GLMdenoised/tmpmeg';
 outputFigDir = 'megfigs';
-sessionNums  = 11:12;%[1:6,9:10];
+sessionNums  = 11;%[1:6,9:10];
 sensorDataStr = 'b2';    % input data file string 
-fitDataStr    = [sensorDataStr,'fr_hpf2_fitfull75']; % fit data file string
-whichfun      = 1;        % which fit (usually only 1)
+fitDataStr    = [sensorDataStr,'2fr_hpf2_fit10p1k']; % fit data file string
+whichfun      = 1;       % which fit (usually only 1)
 
-%%
+%% Specify plot options 
 printFigsToFile = true;
 
 % what to plot 
@@ -16,7 +16,7 @@ pp.plotPCselectByR2= false;  % R^2 as a function of number of PCs
 pp.plotbbMap2      = true; % Broadband activity before and after denoising
     pp.plotsl      = false; % whether to plot stimulus locked activity 
     pp.plotbbType  = 'SNR'; % specifies datatype for plotbbMap2 (options: 'S','N','SNR','R2')
-    pp.plotbbConds = {1,2,3};   % conditions for plotbbMap2 (1=FULL,2=RIGHT,3=LEFT,1:3=All)
+    pp.plotbbConds = {1,2,3,1:3};   % conditions for plotbbMap2 (1=FULL,2=RIGHT,3=LEFT,1:3=All)
     
 pp.plotNoisePool   = false; % location of noise pool 
 
@@ -33,7 +33,7 @@ pp.plotPCWeights   = false; %
 pp.condNames  = {'FULL','RIGHT','LEFT','OFF'};
 pp.condColors = [0.1 0.1 0.9; 0.9 0.1 0.1; 0.1 0.9 0.1; .6 .6 .6];
 
-%%
+%% Plot them
 for k = 1:length(sessionNums)
     fprintf(' session %d \n', sessionNums(k));
     sessionDir = megGetDataPaths(sessionNums(k));
@@ -130,6 +130,7 @@ for k = 1:length(sessionNums)
                     ab_snr1 = getsignalnoise(results.origmodel(whichfun),  pp.plotbbConds{bc}, pp.plotbbType);
                     ab_snr2 = getsignalnoise(results.finalmodel(whichfun), pp.plotbbConds{bc}, pp.plotbbType);
                     clims_ab = [0, max([ab_snr1, ab_snr2])];
+                    %clims_ab = [0,5];
                     
                 case 'R2'
                     if pp.plotsl

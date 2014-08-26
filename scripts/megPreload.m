@@ -43,7 +43,7 @@ for ii = sessionNums
     % this can be modified so that top directory points somewhere else
     [dataset,megDataDir] = megGetDataPaths(ii,conditionNumbers);
     % or we can hard code it like so
-    % megDataDir = '/Volumes/server/Projects/MEG/SSMEG/';
+    megDataDir = '/Volumes/server/Projects/MEG/SSMEG/';
     
     % get directory for current session
     megDataDir = fullfile(megDataDir,dataset);
@@ -57,7 +57,7 @@ for ii = sessionNums
     
     % save preprocessed data, if requested
     if saveData
-        save(fullfile(inputDataDir,'inputdata',sprintf('%s%s',dataset,sensorDataStr)),'sensorData', 'design', 'badChannels');
+        save(fullfile(inputDataDir,'inputdata',sprintf('%s%s',dataset,sensorDataStr)),'sensorData', 'design', 'badChannels','okEpochs');
         fprintf('saved : %s\n', dataset);
     end
     

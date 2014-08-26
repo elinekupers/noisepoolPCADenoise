@@ -75,7 +75,9 @@ set(gca,'xtick',1:2,'xticklabel',{'Before','After'});
 ylabel(upper(plotType));
 makeprettyaxes(gca,14,14); %axis square;
 % make title
-if length(whichConds) > 1, condName = 'all'; else condName = num2str(whichConds); end
-%if ~iscell(doTop10), if doTop10, st = 'Top 10'; else st = 'Non Noise'; end, end
-%ttl = sprintf('Cond: %s, %s across %s channels', condName, func2str(funXchan), st);
-%title(ttl);
+if ~iscell(doTop10)
+    if length(whichConds) > 1, condName = 'all'; else condName = num2str(whichConds); end
+    if doTop10, st = 'Top 10'; else st = 'Non Noise'; end
+    ttl = sprintf('Cond: %s, %s across %s channels', condName, func2str(funXchan), st);
+    title(ttl);
+end

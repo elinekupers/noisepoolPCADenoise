@@ -1,6 +1,6 @@
 clear all;
-inputDataDir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
-outputFigDir = 'megfigs';
+inputDataDir  = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
+outputFigDir  = 'megfigs';
 sensorDataStr = 'b2';
 fitDataStr    = [sensorDataStr,'f_hpf2_fitfull30'];
 
@@ -77,7 +77,7 @@ for k = 1:length(sessionNums)
     xlabel('Number of PCs'); ylabel('Frequency'); title('Chosen # PCs');
     makeprettyaxes;
     
-    % Figure the channels that consistently show the biggest improvement
+    % Figure out channels that consistently show the biggest improvement
     subplot(2,2,[3,4]); cla; hold on;
     %plot(1:nchan,pcchan(:,:,1),'b');
     %plot(1:nchan,pcchan(:,:,2),'r');

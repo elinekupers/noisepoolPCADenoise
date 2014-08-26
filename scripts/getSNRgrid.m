@@ -1,12 +1,13 @@
 function allvals = getSNRgrid(allresults,npools,npcs,...
     whichfun, doTop10, plotType, whichConds, funXchan, plotFlg)
+% see also megDenoiseGridScript for usage
 
-if notDefined('whichfun'), whichfun = 1;    end  % which function, if results contains more than one
+if notDefined('whichfun'), whichfun = 1;    end  % which evalfun, if results contains more than one
 if notDefined('doTop10'),  doTop10  = true; end  % top 10 or all non-noise
 if notDefined('plotType'), plotType = 'snr'; end % snr, s, or n
-if notDefined('whichConds'), whichConds = 1:3; end % 1:3, or 1, 2, 3 (full, right, left)
+if notDefined('whichConds'), whichConds = 1:3; end % 1:3 (max of 3), or 1, 2, 3 (full, right, left)
 if notDefined('funXchan'),  funXchan = @mean; end  % how to aggregate across chan (e.g.@mean or @median)
-if notDefined('plotFlg'),  plotFlg = true; end
+if notDefined('plotFlg'),  plotFlg = true; end  % plot?
 
 allvals = nan(length(npools),length(npcs));
 for np = 1:length(npools)
@@ -21,11 +22,12 @@ for np = 1:length(npools)
             catch exception
                 %disp(exception.message);
                 %fprintf('\tsetting pcchan to top10 of final model\n');
-                finalsnr = getsignalnoise(results.finalmodel(whichfun));
-                finalsnr(results.noisepool) = -inf;
-                [~,idx] = sort(finalsnr,'descend');
-                pcchan = false(size(results.noisepool));
-                pcchan(idx(1:10))= 1;
+%                 finalsnr = getsignalnoise(results.finalmodel(whichfun));
+%                 finalsnr(results.noisepool) = -inf;
+%                 [~,idx] = sort(finalsnr,'descend');
+%                 pcchan = false(size(results.noisepool));
+%                 pcchan(idx(1:10))= 1;
+                pcchan = getTop10(results,whichfun);
             end
         else
             pcchan = ~results.noisepool;
@@ -55,6 +57,8 @@ for np = 1:length(npools)
                 vals2 = results.finalmodel(whichfun).r2(:,pcchan);
         end
         
+        % take the median or mean across channels, and find the difference
+        % between before and after 
         allvals(np,nc) = funXchan(vals2)-funXchan(vals1);
     end
 end

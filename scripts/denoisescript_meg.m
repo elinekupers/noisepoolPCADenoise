@@ -4,10 +4,11 @@ clear all;
 % get data into [channel x time x epoch] format 
 % create corresponding design matrix [epoch x nconds] format
 
+sessionnum = 3;
 save_denoise_ts = false;
 tmpmegdir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
 conditionNumbers = 1:6;
-[dataset,megDataDir] = megGetDataPaths(sessionum,conditionNumbers);
+[dataset,megDataDir] = megGetDataPaths(sessionnum,conditionNumbers);
 %megDataDir = '/Volumes/server/Projects/MEG/SSMEG/';
 megDataDir = fullfile(megDataDir,dataset);
 assert(exist(megDataDir, 'dir')>0)
@@ -24,7 +25,7 @@ shift_epoch = 3;
 epochGroup = megEpochGroup(okEpochs,group_epoch,shift_epoch,true); 
 % sanity check 
 assert(length(epochGroup)==size(sensorData,3));
-save(fullfile(tmpmegdir, 'epochGroups', sprintf('%sb2_epochGroup6so',dataset)),'epochGroup');
+%save(fullfile(tmpmegdir, 'epochGroups', sprintf('%sb2_epochGroup6so',dataset)),'epochGroup');
 
 %%
 % [sensorData, badChannels, tepochs, epochGroup] = megLoadData(megDataDir,conditionNumbers);
@@ -55,7 +56,8 @@ opt.pcselmethod = 'snr';
 %opt.npoolmethod = {'r2','thres',0};
 opt.pccontrolmode = 0; % null method 
 opt.fitbaseline   = false;
-opt.savepcs       = false; 
+opt.savepcs       = false;
+%opt.extraregressors = rand(2,1000,1070);
 
 %opt.epochGroup = epochGroup;
 %opt.preprocessfun = @hpf; % high pass filter 
@@ -455,9 +457,9 @@ end
 %fH = megPlotLogSpectra(sensorData,{design(:,1)==1, all(design==0,2)},badChannels, chanNum);
 
 % if dodenoised
-%     figurewrite(sprintf('s%d_channel%d_denoised',sessionum,chanNum),[],0,'megfigs',1);
+%     figurewrite(sprintf('s%d_channel%d_denoised',sessionnum,chanNum),[],0,'megfigs',1);
 % else
-%     figurewrite(sprintf('s%d_channel%d_orig',sessionum,chanNum),[],0,'megfigs',1);
+%     figurewrite(sprintf('s%d_channel%d_orig',sessionnum,chanNum),[],0,'megfigs',1);
 % end
 
 %% write out the stimulus locked data for an example channel 
@@ -473,7 +475,7 @@ end
 % %     plot(tmp,300*ones(size(tmp)),['.' c(k)]);
 % % end
 % xlabel('Epoch number'); ylabel('Amp at SL freq (fT)');
-%figurewrite(sprintf('s%d_channel%d_stimuluslockedts',sessionum,chanNum),[],0,'megfigs',1);
+%figurewrite(sprintf('s%d_channel%d_stimuluslockedts',sessionnum,chanNum),[],0,'megfigs',1);
 
 %% %%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
