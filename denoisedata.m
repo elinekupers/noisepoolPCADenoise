@@ -43,8 +43,20 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 %                    Or -n, where n is the user-specified number of PCs to
 %                    use. Note if using this option, we do not go through
 %                    trying to use each number of PCs (see opt.npcs2try)
+%     preprocessfun: function handle (e.g. hpf) to apply to data before
+%                    computing pcs, removing pcs and computing evalfun 
+%                    (but not before computing stimfun)
+%                    default: [] (no preprocessing)
 %     pcn         :  top number of channels to use for determining PC
-%                    cutoff (default 10)
+%                    cutoff (default: 10)
+%     savepcs     :  whether to save pcs. if true, beware of large output
+%                    file (default: false)
+%     extraregressors: additional regressors to be projected out along with
+%                    pcs. ex: physiological channel data. must be in the
+%                    format of [m x time samples x epoch], where m is the
+%                    number of extra regressors, and time samples and epoch
+%                    are the same as the 2nd and 3rd dimensions of data
+%                    (default: [])
 %     verbose     :  whether to print messages to screen (default: true)
 % 
 % OUTPUTS:
@@ -80,6 +92,7 @@ if ~isfield(opt,'pcstop'),        opt.pcstop      = 1.05;              end
 if ~isfield(opt,'pcn'),           opt.pcn         = 10;                end
 if ~isfield(opt,'preprocessfun'), opt.preprocessfun = [];              end
 if ~isfield(opt,'savepcs'),       opt.savepcs     = false;             end
+if ~isfield(opt,'extraregressors'), opt.extraregressors = [];          end
 if ~isfield(opt,'verbose'),       opt.verbose     = true;              end
 
 if opt.verbose
@@ -88,6 +101,17 @@ if opt.verbose
         nchan,ntime,nepoch);
     fprintf('---------------------------------------------------------------------\n');
 end
+
+% --------------------------------------------------------------
+% check size of extra regressors 
+% --------------------------------------------------------------
+if ~isempty(opt.extraregressors)
+    sz = size(opt.extraregressors);
+    if sz(2) ~= ntime || sz(3) ~= nepoch
+        error('(denoisedata:) opt.extraregressors must have compatible dimensions (n x %d x %d) as data!', ntime, nepoch);
+    end
+end
+extraregressors = opt.extraregressors;
 
 % --------------------------------------------------------------
 % discard epochs for which epochGroup is undefined
@@ -102,6 +126,7 @@ if nepoch2 ~= nepoch
     opt.epochGroup  = opt.epochGroup(~discardepochs);
     data            = data(:,:,~discardepochs);
     design          = design(~discardepochs,:);
+    extraregressors = extraregressors(:,:,~discardepochs);
     %nepoch         = epoch2;
 end
 
@@ -142,10 +167,10 @@ if opt.verbose, fprintf('\t%d noise channels selected ...\n', sum(noisepool)); e
 % check that the number of pcs we request isn't greater than the size of
 % noisepool
 if isempty(opt.npcs2try) 
-    opt.npcs2try = sum(noisepool);
-elseif opt.npcs2try > sum(noisepool)
+    opt.npcs2try = sum(noisepool)+size(extraregressors,1);
+elseif opt.npcs2try > sum(noisepool)+size(extraregressors,1)
     fprintf('WARNING!!!: npcs2try > nnoise! Setting npcs2try to size of noise pool %d\n', sum(noisepool));
-    opt.npcs2try = sum(noisepool);
+    opt.npcs2try = sum(noisepool)+size(extraregressors,1);
 end
 
 % --------------------------------------------------------------
@@ -170,7 +195,13 @@ for rp = 1:nrep
         % perform SVD and select top PCs
         %[u,s,v] = svd(temp);
         [coef,u,eigvals] = princomp(temp);
-        %u = u(:,1:opt.npcs2try);
+        
+        % get extra regressors, if there are any. concatenate them along with the pcs 
+        if ~isempty(extraregressors)
+            curr_extraregressors = extraregressors(:,:,currepochs);
+            curr_extraregressors = reshape(curr_extraregressors,[], ntime*sum(currepochs))';
+            u = cat(2,u,curr_extraregressors);
+        end
         % scale so that std is 1 (ntime x npcs2try)
         pcs{rp} = bsxfun(@rdivide,u,std(u,[],1));
         % check for nan's. this can happen if PC is all 0's then scaled by std of 0
