@@ -1,18 +1,23 @@
 %% define paths and data sets
+
 plotbb = true; % true for broadband data, false for stimlocked data
-inputDataDir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
+inputDataDir = '/Volumes/server/Projects/MEG/GLMdenoised/tmpmeg';
 % fit data file string
 if plotbb
+    % noisepool selection by SNR, highpass filtered, 10 pcs removed
+    % bootstrapped 1000 x. Broadband as evalfun
     fitDataStr   = 'b2fr_hpf2_fitfull75p1k';
 else
+    % Same as above, but with stimulus locked as evalfun, and not hpf'ed
     fitDataStr   = 'b2frSL_fitfull75p1k';
 end
 whichfun     = 1;
 condColors   = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
 sessionNums  = [11,12, 3:6, 9:10];%[1:6,9,10];
-axmax = 10;
+axmax = 10; % how far to go out on the x-axis
 
 figuredir = 'manuscript_figs/figure_snrVpcs';
+savefigures  = false;
 
 %% SNR increase as a function of number of PCs removed, 3 example sessions - Fig. 6A
 exampleSessions = [5,6,9];
@@ -45,9 +50,9 @@ for k = 1:length(exampleSessions)
         makeprettyaxes(gca,9,9);
     end
 end
-
-%figurewrite(fullfile(figuredir,'figure_examples'),[],0,'.',1);
-
+if savefigures
+    figurewrite(fullfile(figuredir,'figure_examples'),[],0,'.',1);
+end
 %% SNR increase as a function of number of PCs removed for all subjects -
 %% Fig. 6B
 
@@ -91,4 +96,7 @@ for icond = 1:3
     title(ttls{icond});
     makeprettyaxes(gca,9,9);
 end
-%figurewrite(fullfile(figuredir,'figure_allsubjs_sat'),[],0,'.',1);
+
+if savefigures
+    figurewrite(fullfile(figuredir,'figure_allsubjs_sat'),[],0,'.',1);
+end

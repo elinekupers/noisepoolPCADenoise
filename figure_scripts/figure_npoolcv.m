@@ -1,6 +1,6 @@
-%% THIS IS IN PROGRESS
+%% THIS IS WORK IN PROGRESS
 
-inputDataDir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/splitHalves';
+inputDataDir = '/Volumes/server/Projects/MEG/GLMdenoised/tmpmeg/splitHalves';
 fitDataStr   = 'b2fr_hpf2_fit10'; % fit data file string
 sessionNums =  3;
 maxperm = 100;

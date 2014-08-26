@@ -1,15 +1,20 @@
 %% define paths and data sets
 plotbb = true; % true for broadband data, false for stimlocked data
 
-inputDataDir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
+inputDataDir = '/Volumes/server/Projects/MEG/GLMdenoised/tmpmeg';
 if plotbb
-    fitDataStr = 'b2fr_hpf2_fit10p1k'; % broadband snr hpf, 1000x
+    % noisepool selection by SNR, highpass filtered, 10 pcs removed
+    % bootstrapped 1000 x. Broadband as evalfun
+    fitDataStr = 'b2fr_hpf2_fit10p1k'; 
 else
-    fitDataStr = 'b2frSL_fit10p1k'; %stimulus locked snr, 1000x
+    % Same as above, but with stimulus locked as evalfun, and not highpass
+    % filtered
+    fitDataStr = 'b2frSL_fit10p1k';    
 end
 whichfun     = 1;
 condColors   = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
 figuredir = 'manuscript_figs/figure_snr';
+savefigures  = false;
 
 %% S, N, and SNR shown separately, before versus after denoising with 10
 %% PCs. For 3 example sessions - Fig. 7A,B,C
@@ -76,8 +81,10 @@ for k = 1:length(exampleSessions)
     
     drawnow;
 end
-%figurewrite(fullfile(figuredir,'figure_snrexamples'),[],0,'.',1);
 
+if savefigures
+    figurewrite(fullfile(figuredir,'figure_snrexamples'),[],0,'.',1);
+end
 
 %% Plot changes in SNR before and after denoising, showing all sessions
 %% together - Fig. 7D
@@ -111,4 +118,7 @@ for icond = 1:3
     makeprettyaxes(gca,9,9);
     if plotbb, ylim([0,12]); else ylim([0,40]); end
 end
-%figurewrite(fullfile(figuredir,'figure_snrfull_sat'),[],0,'.',1);
+
+if savefigures
+    figurewrite(fullfile(figuredir,'figure_snrfull_sat'),[],0,'.',1);
+end

@@ -1,12 +1,25 @@
 %% Define paths and data sets 
 
-inputDataDir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
-fitDataStr   = 'b2fr_hpf2_fit10p1k_Nulls'; % fit data file string
-ctrDataStr   = {'b2fr_hpf2_fit10Allnoise'};% additional controls to add 
+inputDataDir = '/Volumes/server/Projects/MEG/GLMdenoised/tmpmeg';
+
+% fit data file string
+% noisepool selection by SNR, highpass filtered, 10 pcs removed
+% bootstrapped 1000x. Broadband as evalfun
+% see denoisedata option opt.pccontrolmode -- this loops through
+% pccontrolmode 0-4 in order. see also hpc/denoisescripthpc_meg0.m
+fitDataStr   = 'b2fr_hpf2_fit10p1k_Nulls';
+
+% additional control(s) run separately. here all channels are included in
+% the noise pool. see hpc/denoisescripthpc_testnoise.m
+% can add additional control analyses in the future: will just show up 
+% as an additional bar in the figure. 
+ctrDataStr   = {'b2fr_hpf2_fit10Allnoise'};
+
 sessionNums =  [11,12, 3:6, 9:10];%[1:6,9,10];
-whichfun = 1;
+whichfun = 1; % which evalfun 
 condColors   = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
 figuredir = 'manuscript_figs/figure_controls';
+savefigures  = false;
 
 %% Plot Different types of control analyses - Fig. 10 
 
@@ -63,4 +76,6 @@ for icond = 1:3
     makeprettyaxes(gca,9,9);
 end
 
-%figurewrite(fullfile(figuredir,'figure_allconds'),[],0,'.',1);
+if savefigures
+    figurewrite(fullfile(figuredir,'figure_allconds'),[],0,'.',1);
+end

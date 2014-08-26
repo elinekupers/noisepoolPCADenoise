@@ -1,21 +1,24 @@
-%% Define paths and data sets 
-inputDataDir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
+%% Define paths and data sets
+inputDataDir = '/Volumes/server/Projects/MEG/GLMdenoised/tmpmeg';
 sessionNums  = [11:12,3:6,9:10];
+% noisepool selection by SNR, highpass filtered, bootstrapped 100x
+% Broadband as eval fun
 fitDataStr    = 'b2fr_hpf2_fitall';
-whichfun      = 1;
+whichfun      = 1; % which evalfun
 figuredir = 'manuscript_figs/figure_controls';
+savefigures = false;
 
 %% Plot difference in SNR (post-pre) as a function of number of channels in
-%% noise pool and number of PCs removed 
+%% noise pool and number of PCs removed
 
-% nchan in noisepool x npcs removed x conds x nsessions 
+% nchan in noisepool x npcs removed x conds x nsessions
 allvals2 = [];
 
 for k = 1:length(sessionNums)
     fprintf(' session %d \n', sessionNums(k));
     sessionDir = megGetDataPaths(sessionNums(k));
     
-    % load results 
+    % load results
     thisfile = fullfile(inputDataDir,sprintf('%s%s',sessionDir,fitDataStr));
     disp(thisfile); load(thisfile,'allresults','npools','npcs');
     
@@ -41,24 +44,29 @@ for k = 1:length(sessionNums)
             end
         end
     end
-    % concate across sessions 
+    % concate across sessions
     allvals2 = cat(4,allvals2,allvals);
 end
 
-%% 
-fH = figure('position',[0,300,300,600]);
+%%
+fH = figure('position',[0,300,450,900]);
 clims = [[0,4];[0,2];[0,2]];
+conditionNames = {'FULL','RIGHT','LEFT'};
 for icond = 1:3
     subplot(3,1,icond);
     imagesc(1:length(npcs),1:length(npools),mean(allvals2(:,:,icond,:),4),clims(icond,:));
     
     set(gca,'ydir','normal');
-    xlabel('Number of PCs removed'); 
+    xlabel('Number of PCs removed');
     ylabel('Number of Channels in Noise pool');
     
-    makeprettyaxes(gca,9,9); 
+    makeprettyaxes(gca,9,9);
     set(gca,'xtick',1:length(npcs),'ytick',1:length(npools),...
-    'xticklabel',cellstr(num2str(npcs','%d')),'yticklabel',cellstr(num2str(npools','%d')));
+        'xticklabel',cellstr(num2str(npcs','%d')),'yticklabel',cellstr(num2str(npools','%d')));
     axis image; ch = colorbar; makeprettyaxes(ch,9,9);
+    title(conditionNames{icond});
 end
-%figurewrite(fullfile(figuredir,'figure_grid_subjmean'),[],0,'.',1);
+
+if savefigures
+    figurewrite(fullfile(figuredir,'figure_grid_subjmean'),[],0,'.',1);
+end

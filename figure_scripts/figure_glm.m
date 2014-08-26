@@ -9,13 +9,14 @@ sessionNum = 3;
     = megLoadData(fullfile(megDataDir,sessionName),1:6);
 
 figuredir = 'manuscript_figs/figure_glm';
+savefigures  = false;
 
-%% Plot example time series - Fig 3A 
+%% Plot example time series - Fig 3A
 % note that chanNum0 does not denote actual channel number, but number in
 % the data matrix after removing bad channels
 
 %chanNum0  = [2,25,41];
-chanNum0 = 41; 
+chanNum0 = 41;
 epochNum = 1:36;
 ts_time = 0.001:0.001:epochNum(end);
 
@@ -26,20 +27,22 @@ for nch = 1:length(chanNum0)
     ts = ts(:);
     plot(ts_time,ts,'k');
     set(gca,'xtick',0:6:36,'xlim',[0,36],'ylim',3000*[-1,1],'xgrid','on');
-    xlabel('Time (s)'); 
+    xlabel('Time (s)');
     makeprettyaxes(gca,9,9);
-    % mark where 1 second of example epoch is 
-    if nch==length(chanNum0), vline([3,4],'r'); end
+    % mark where 1 second of example epoch is
+    %if nch==length(chanNum0), vline([3,4],'r'); end
 end
 % Print
-%figurewrite(fullfile(figuredir, 'figure_ts'),[],0,'.',1);
+if savefigures
+    figurewrite(fullfile(figuredir, 'figure_ts'),[],0,'.',1);
+end
 
 %% Plot power spectrum of the example time series - Fig 3B
 % chanNum0 41, epoch 4
 
 epochNum = 4;
 spec = abs(fft(squeeze(sensorData(chanNum0(end),:,:))))/size(sensorData,2)*2;
-this_data = spec(:,epochNum).^2; % calculate power 
+this_data = spec(:,epochNum).^2; % calculate power
 
 f = (0:999);
 xl = [8 150];
@@ -60,16 +63,18 @@ ylabel(sprintf('Power (%s)', 'fT^2'));
 makeprettyaxes(gca,9,9);
 
 % Print
-%figurewrite(fullfile(figuredir, 'figure_spec'),[],0,'.',1);
+if savefigures
+    figurewrite(fullfile(figuredir, 'figure_spec'),[],0,'.',1);
+end
 
 %% Plot broadband and stimulus locked time series - Fig 3C
 % chanNum0 41
 
-% define functions 
+% define functions
 T = 1; fmax = 150;
 freq = megGetSLandABfrequencies((0:fmax)/T, T, 12/T);
 funcs = {@(x)getstimlocked(x,freq), @(x)getbroadband(x,freq)};
-% define x and y axes 
+% define x and y axes
 epochNum = 1:36;
 spects_time = [1:epochNum(end)]-0.5;
 ylims = {[0,500],[0,80]};
@@ -77,26 +82,28 @@ ylims = {[0,500],[0,80]};
 fH = figure('position',[0,300,300,200]);
 for whichfun = 1:2
     subplot(2,1,whichfun);
-    % get spectrum for this channel and these epochs, and apply function 
+    % get spectrum for this channel and these epochs, and apply function
     spects = funcs{whichfun}(sensorData(chanNum0(end),:,epochNum));
-    % plot 
+    % plot
     plot(spects_time,spects,'ko-','markersize',4);
     set(gca,'xtick',0:6:36,'xlim',[0,36],'xgrid','on','ylim',ylims{whichfun});
     makeprettyaxes(gca,9,9);
 end
 
-%figurewrite(fullfile(figuredir, 'figure_sl'),[],0,'.',1);
+if savefigures
+    figurewrite(fullfile(figuredir, 'figure_sl'),[],0,'.',1);
+end
 
 %% Find channel location - Figure 3A, inset
 fprintf('original channel number is: %d\n', megGetOrigChannel(chanNum0,badChannels,false));
-
+figure;
 chanloc = zeros(1,size(sensorData,1));
 chanloc(chanNum0(end))=1;
 megPlotMap(to157chan(chanloc,~badChannels,'zeros')); colorbar off
 
 % for drawing the schematic as in Fig 3A inset, can also just make a
 % uniform surface, and draw a circle around the channel number manually. To
-% find where a particular channel is, be sure to set 
+% find where a particular channel is, be sure to set
 % cfg.electrodes ='numbers'
 % when calling topoplot. Also be sure to use the original channel number
 % and not chanNum0
@@ -114,27 +121,29 @@ design_colored(:,3) = design_colored(:,3)*3;
 imagesc(design_colored); colormap(condColors)
 makeprettyaxes(gca,9,9); axis off;
 
-%figurewrite(fullfile(figuredir, 'figure_design'),[],-1,'.',1);
+if savefigures
+    figurewrite(fullfile(figuredir, 'figure_design'),[],-1,'.',1);
+end
 
 %% calculate beta - Figure 3E
 nepochs = size(sensorData,3);
 nboot = 100;
 epochs_boot = randi(nepochs,nboot,nepochs);
 
-% define figure properties 
+% define figure properties
 ylims = {[0,150],[0,5]};
 fH = figure('position',[0,300,150,200]);
 
-% mean subtract design matrix 
+% mean subtract design matrix
 design2 = bsxfun(@minus, design, mean(design));
 
 for whichfun = 1:2 % loop through the functions (1: stimlocked, 2: broadband)
     beta = [];
-    % calculate spectrum and substract mean 
+    % calculate spectrum and substract mean
     spects = funcs{whichfun}(sensorData(chanNum0(end),:,:))';
     spects = bsxfun(@minus, spects, mean(spects));
     
-    % each iteration we get 3 betas corresponding to the three conditions 
+    % each iteration we get 3 betas corresponding to the three conditions
     % do this for 100 bootstraps to obtain a distribution: [3 x 100] matrix
     for nn = 1:nboot
         curr_boot = epochs_boot(nn,:);
@@ -143,7 +152,7 @@ for whichfun = 1:2 % loop through the functions (1: stimlocked, 2: broadband)
         beta_boot = curr_design \ curr_datast;
         beta = cat(2,beta,beta_boot);
     end
-    % calculate the median and std of bootstrapped beta 
+    % calculate the median and std of bootstrapped beta
     beta_range = prctile(beta,[16 50 84],2)';
     beta_se = diff(beta_range([1 3],:))/2;
     
@@ -155,9 +164,13 @@ for whichfun = 1:2 % loop through the functions (1: stimlocked, 2: broadband)
     makeprettyaxes(gca,9,9);
 end
 
-%figurewrite(fullfile(figuredir, 'figure_beta'),[],0,'.',1);
+if savefigures
+    figurewrite(fullfile(figuredir, 'figure_beta'),[],0,'.',1);
+end
 
 %% find noise pool
+% NEED TO REDO: bootstrap to get SNR rather than use r^2 to select noise
+% pool. Though maybe doesn't matter for this schematic? 
 
 % compute glm on stimulus-locked, using leave-one-out
 design2 = bsxfun(@minus, design, mean(design));
@@ -183,8 +196,8 @@ r2 = calccod(modelfit,datast(vectify(epochs_test'),:),[], 0);
 
 %% Get and plot noise pool time series - Fig. 4B
 
-nChan = 3; % number of channels to plot 
-plot_hpf = true; % whether to high pass filter the data 
+nChan = 3;       % number of channels to plot
+plot_hpf = true; % whether to high pass filter the data (may be slow)
 
 chanNum0  = sortedinds(1:nChan); % plot the ones with the worst fits
 epochNum = 1:36;
@@ -208,14 +221,19 @@ for nch = 1:length(chanNum0)
     %if nch==length(chanNum0), vline(1:4,'r'); end
 end
 
-%figurewrite(fullfile(figuredir, 'figure_noisets'),[],0,'.',1);
+if savefigures
+    figurewrite(fullfile(figuredir, 'figure_noisets'),[],0,'.',1);
+end
 
 %% Plot spatial map of noise pool on scalp - Fig. 4A
+figure;
 noisepool = false(1,size(sensorData,1));
 noisepool(sortedinds(1:75))=true;
 megPlotMap(to157chan(noisepool,~badChannels,'nans')); colorbar off
 
-%figurewrite(fullfile(figuredir, 'figure_noisemap'),[],0,'.',1);
+if savefigures
+    figurewrite(fullfile(figuredir, 'figure_noisemap'),[],0,'.',1);
+end
 
 %% compute PCs and plot PC time series for 3 epochs  - Fig. 4C
 
@@ -226,11 +244,11 @@ for epochNum = 1:3
     temp = unitlengthfast(noisedata);
     % do svd
     [coef,u,eigvals] = princomp(temp);
-    % make same size 
+    % make same size
     pcs = bsxfun(@rdivide,u,std(u,[],1));
     
-    % plot for each epoch  
-    fH = figure('position',[0,100+epochNum*100,200,200]);
+    % plot for each epoch
+    fH = figure('position',[0+epochNum*200,100,200,200]);
     for np = 1:3 % plot the first 3 PCs
         subplot(nChan,1,np);
         plot(1:1000,pcs(:,np),'k');
@@ -239,7 +257,9 @@ for epochNum = 1:3
         makeprettyaxes(gca,9,9);
     end
     suptitle(sprintf('Epoch %d',epochNum));
-    %figurewrite(fullfile(figuredir,sprintf('figure_noisepcs_hpf_ep%d',epochNum)),[],0,'.',1);
+    if savefigures
+        figurewrite(fullfile(figuredir,sprintf('figure_noisepcs_hpf_ep%d',epochNum)),[],0,'.',1);
+    end
 end
 
 %% plot the time series of three channnels - Fig. 4D
@@ -261,7 +281,9 @@ for epochNum = 1:3
             axis off;
             makeprettyaxes(gca,9,9);
         end
-        %figurewrite(fullfile(figuredir,sprintf('figure_denoisedts_hpf_ep%dpc%d',epochNum,npcs)),[],0,'.',0);
+        if savefigures
+            figurewrite(fullfile(figuredir,sprintf('figure_denoisedts_hpf_ep%dpc%d',epochNum,npcs)),[],0,'.',0);
+        end
     end
     suptitle(sprintf('Epoch %d',epochNum));
 end

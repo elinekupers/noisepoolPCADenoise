@@ -1,9 +1,10 @@
 %% Define paths and data sets 
-inputDataDir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
+inputDataDir = '/Volumes/server/Projects/MEG/GLMdenoised/tmpmeg';
 fitDataStr = 'b2fr_hpf2_fit10p1k';
 %fitDataStr = 'b2frSL_fit10p1k';
 whichfun   = 1;
 figuredir = 'manuscript_figs/figure_spatialmap';
+savefigures = false;
 
 %% example subject spatial map, SL: L,R, Full, Broadband: L,R, Full - Fig.8
 % Define example session 
@@ -54,7 +55,9 @@ for icond = 1:3
     makeprettyaxes(ch,9,9);
 end
 
-%figurewrite(fullfile(figuredir,'figure_s3'),[],0,'.',1);
+if savefigures
+    figurewrite(fullfile(figuredir,'figure_s3'),[],0,'.',1);
+end
 
 %% Plot all subjects - full condition, post minus pre - Fig. 9
 
@@ -80,9 +83,12 @@ for k = 1:length(sessionNums)
     makeprettyaxes(ch,9,9); 
     %keyboard
 end
-%figurewrite(fullfile(figuredir,'figure_bbdiffall'),[],0,'.',1);
 
-%% All subjects - right minus left - Fig. 9b
+if savefigures
+    figurewrite(fullfile(figuredir,'figure_bbdiffall'),[],0,'.',1);
+end
+
+%% All subjects - right minus left - Fig. 9b (before and after separately)
 
 figure('position',[1,600,1400,800]);
 %whichmodel = 'origmodel';
@@ -114,4 +120,7 @@ for k = 1:length(sessionNums)
     makeprettyaxes(ch,9,9); 
     %keyboard
 end
-%figurewrite(fullfile(figuredir,'figure_bbRightMLeft_after'),[],0,'.',1);
+
+if savefigures
+    figurewrite(fullfile(figuredir,'figure_bbRightMLeft_after'),[],0,'.',1);
+end

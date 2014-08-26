@@ -5,11 +5,14 @@ sessionNum = 3;
     = megLoadData(fullfile(megDataDir,sessionName),1:6);
 
 %% Load fits and denoised data
-inputDataDir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
+inputDataDir = '/Volumes/server/Projects/MEG/GLMdenoised/tmpmeg';
+% noisepool selection by SNR, highpass filtered, 75 channels in noisepool
+% this file contains the denoisedts
 datafile = fullfile(inputDataDir,sprintf('%sb2f_hpf2_fitfull75',sessionName));
 disp(datafile); load(datafile);
 
 figuredir = 'manuscript_figs/figure_spectrum';
+savefigures = false;
 
 %% Spectrum before and after
 chanNum = 42;%26;
@@ -30,11 +33,11 @@ chanNum0 = megGetOrigChannel(chanNum,badChannels);
 % define plot colors
 colors = [63, 121, 204; 228, 65, 69; 116,183,74; 127,127,127]/255;
 
-% full, right, left, off 
+% full, right, left, off
 condEpochs = {design(:,1)==1, design(:,2)==1, design(:,3)==1, all(design==0,2)};
-% time domain data before and after denoising 
+% time domain data before and after denoising
 data = {sensorData,denoisedts{1}};
-% whether to average in log or not 
+% whether to average in log or not
 avgLogFlg = false;
 
 % set up figure
@@ -47,7 +50,7 @@ xl = [60 150];
 fok = f;
 fok(f<=xl(1) | f>=xl(2) | mod(f,60) < 2 | mod(f,60) > 58 ) = [];
 xt = [12:12:72, 96,144];
-yt = 1:2; 
+yt = 1:2;
 yl=[yt(1),yt(end)];
 
 for dd = 1:2
@@ -89,7 +92,7 @@ for dd = 1:2
         end
         mn(abs(mn-0)<0.001)= nan;
         
-        % plot median 
+        % plot median
         plot(fok, mn(:,2),  '-',  'Color', colors(ii,:), 'LineWidth', 1);
         %plot(fok, mn(:,1),'Color', colors(ii,:));
         %plot(fok, mn(:,3),'Color', colors(ii,:));
@@ -103,7 +106,7 @@ for dd = 1:2
         set(gca,'ytick',10.^yt, 'ylim',10.^yl,'YScale', 'log');
     end
     
-    % label figure, add stimulus harmonic lines, and make it look nice 
+    % label figure, add stimulus harmonic lines, and make it look nice
     xlabel('Frequency (Hz)'); ylabel('Power (fT^2)');
     title(sprintf('Channel %d', chanNum));
     yl2 = get(gca, 'YLim');
@@ -111,7 +114,9 @@ for dd = 1:2
     makeprettyaxes(gca,9,9);
 end
 
-%figurewrite(fullfile(figuredir,'figure_spec42'),[],0,'.',1);
+if savefigures
+    figurewrite(fullfile(figuredir,'figure_spec42'),[],0,'.',1);
+end
 
 %% Bootstrap to get signal and noise - Fig 5C
 
@@ -148,12 +153,12 @@ for dd = 1:2 % for either pre and post denoising
     end
     
     % average across frequencies to get bootstrapped means for full or
-    % blank conditions 
-    meanXfreqs{dd}(1,:) = mean(epoch_vals_full);  
-    meanXfreqs{dd}(2,:) = mean(epoch_vals_blank); 
+    % blank conditions
+    meanXfreqs{dd}(1,:) = mean(epoch_vals_full);
+    meanXfreqs{dd}(2,:) = mean(epoch_vals_blank);
 end
 
-% Set up figure and plot 
+% Set up figure and plot
 fH = figure('position',[0,300,200,350]);
 for dd = 1:2
     subplot(2,1,dd);
@@ -170,4 +175,6 @@ for dd = 1:2
     makeprettyaxes(gca,9,9);
 end
 
-%figurewrite(fullfile(figuredir,'full_bootdiff'),[],0,'.',1);
+if savefigures
+    figurewrite(fullfile(figuredir,'full_bootdiff'),[],0,'.',1);
+end

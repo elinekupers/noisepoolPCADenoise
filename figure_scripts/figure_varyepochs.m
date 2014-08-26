@@ -1,11 +1,14 @@
 % define paths and data sets 
-inputDataDir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
+inputDataDir = '/Volumes/server/Projects/MEG/GLMdenoised/tmpmeg';
+% noisepool selection by SNR, highpass filtered, 10 pcs removed
+% bootstrapped 1000 x
 fitDataStr   = 'b2fr_hpf2_fit10p1k_varyEpochs';
-whichfun     = 1; %1 = broadband, 2 = broadbandlog
+whichfun     = 1; %1 = broadband, 2 = stimulus-locked, 3=broadbandlog
 condColors   = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
 sessionNums = [11:12,3:6,9:10];
 
-figuredir = 'manuscript_figs/figure_controls';
+figuredir   = 'manuscript_figs/figure_controls';
+savefigures = false;
 
 %% Plot difference in SNR (post-pre) as a function of denoising epoch duration - Fig.11 A
 
@@ -62,14 +65,22 @@ for icond = 1:3 % for each condition
     ylabel('Difference in SNR (post-pre)');
     makeprettyaxes(gca,9,9);
 end
-%figurewrite(fullfile(figuredir,'figure_epochdur'),[],0,'.',1);
 
+if savefigures
+    figurewrite(fullfile(figuredir,'figure_epochdur'),[],0,'.',1);
+end
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Plot the surface of SNR difference as a function of epoch duration and
 %% number of PCs removed. Fig. 11B 
+% noisepool selection by SNR, highpass filtered, 10 PCs removed
+% bootstrapped 100 x. This varies along one additional dimension than
+% above (number of PCs removed). Ended up bootstrapping only 100x because
+% the files were getting too huge. 
+% see hpc/denoisescripthpc_megVaryEpochDur.m
 
 fitDataStr   = 'b2fr_hpf2_fitfull75p1k_varyEpochs';
+whichfun     = 1; %1 = broadband, 2 = broadbandlog
 epochDurs = [1,3,6,12,24,36,72,1080];
 npcs      = [5,10:10:70];
 
@@ -119,4 +130,7 @@ for icond = 1:3
     %axis image; 
     ch = colorbar; makeprettyaxes(ch,9,9);
 end
-%figurewrite(fullfile(figuredir,'figure_epochdur_subjmean'),[],0,'.',1);
+
+if savefigures
+    figurewrite(fullfile(figuredir,'figure_epochdur_subjmean'),[],0,'.',1);
+end
