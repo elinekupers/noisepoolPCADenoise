@@ -28,12 +28,12 @@ badEpochAvg = [6,6,6,8,8,6,8,8,6,6,8,8];
 sensorDataStr = 'b2';
 
 % Whether to save data
-saveData = false;
+saveData = true;
 % Whether to save epoch group data
-saveEpochGroup = false;
+saveEpochGroup = true;
 
 % data directory to save things
-inputDataDir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
+inputDataDir = '/Volumes/server/Projects/MEG/GLMdenoised/tmpmeg';
 % condition Numbers
 conditionNumbers = 1:6;
 
@@ -42,8 +42,6 @@ for ii = sessionNums
     % get session name and top directory
     % this can be modified so that top directory points somewhere else
     [dataset,megDataDir] = megGetDataPaths(ii,conditionNumbers);
-    % or we can hard code it like so
-    megDataDir = '/Volumes/server/Projects/MEG/SSMEG/';
     
     % get directory for current session
     megDataDir = fullfile(megDataDir,dataset);

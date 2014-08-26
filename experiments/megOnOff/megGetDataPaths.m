@@ -26,4 +26,5 @@ conditionNames    = conditionNamesAll(conditionNumbers);
 
 sessionDir      = sessionDirsAll{sessionum};
 rootDir = strrep(which('setup.m'),'denoisesuite/setup.m','');
-megDataDir = fullfile(rootDir,'MEG','data');
+%megDataDir = fullfile(rootDir,'MEG','data');
+megDataDir = fullfile(rootDir,'HelenaDataSessions');

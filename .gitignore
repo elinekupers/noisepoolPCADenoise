@@ -1,7 +1,8 @@
 *.m~
 ._*
-demo.m
 rsync_aliases.sh
+hpcreadme.rtf
+readme.rtf
 hpc/
 junk/
 tmpeeg/
@@ -9,3 +10,4 @@ tmpmeg/
 eegfigs/
 megfigs/
 manuscript_figs/
+pbs_scripts/
