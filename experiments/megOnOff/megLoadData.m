@@ -35,13 +35,15 @@ function [sensorData, design, badChannels, conditionNames, okEpochs] = ...
  
 
 if notDefined('opt'),    opt = struct(); end
-if ~isfield(opt,'shuffle_epoch'),        opt.shuffle_epoch = false; end
+if ~isfield(opt,'shuffle_epoch'),        opt.shuffle_epoch = false; end % shuffle epochs WITHIN each condition
+if ~isfield(opt,'shuffle_conditions'),   opt.shuffle_conditions = false; end % shuffle all epochs (across conditions)
 if ~isfield(opt,'remove_strtend_epoch'), opt.remove_strtend_epoch = false; end
 if ~isfield(opt,'remove_badepochs'),     opt.remove_badepochs = true; end
 if ~isfield(opt,'replace_badepochs'),    opt.replace_badepochs = true; end
 if ~isfield(opt,'badepoch_avgchannum'),  opt.badepoch_avgchannum = 6; end
 if ~isfield(opt,'verbose'),              opt.verbose = true; end
 if ~isfield(opt,'filename'),             opt.filename = ''; end
+
 
 if opt.verbose
     fprintf('=============================================================\n');
@@ -75,6 +77,10 @@ for ii = 1:length(conditionNames)
         currdata = currdata(:,randperm(size(currdata,2)),:);
     end
     sensorData = cat(2,sensorData,currdata);
+end
+
+if opt.shuffle_conditions
+        sensorData = sensorData(:,randperm(size(sensorData,2)),:);    
 end
 
 % load conditions
