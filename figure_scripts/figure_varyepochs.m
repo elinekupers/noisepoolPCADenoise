@@ -2,6 +2,9 @@
 inputDataDir = '/Volumes/server/Projects/MEG/GLMdenoised/tmpmeg';
 % noisepool selection by SNR, highpass filtered, 10 pcs removed
 % bootstrapped 1000 x
+% this was made with a previous version of hpc/denoisescripthpc_megVaryEpochDur.m
+% which now also varies along the number of PCs removed (see the bottom
+% section of this file)
 fitDataStr   = 'b2fr_hpf2_fit10p1k_varyEpochs';
 whichfun     = 1; %1 = broadband, 2 = stimulus-locked, 3=broadbandlog
 condColors   = [63, 121, 204; 228, 65, 69; 116,183,74]/255;

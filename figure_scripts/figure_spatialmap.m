@@ -21,6 +21,8 @@ datafile = fullfile(inputDataDir,'inputdata',sprintf('%sb2',sessionDir));
 disp(datafile); load(datafile,'badChannels');
 
 %% Plot the subject 
+% the output head surface is in vector format. rasterize individually in
+% illustrator
 figure('position',[1,600,1400,800]);
 for icond = 1:3
     % get stimulus-locked snr 
@@ -60,7 +62,8 @@ if savefigures
 end
 
 %% Plot all subjects - full condition, post minus pre - Fig. 9
-
+% the output head surface is in vector format. rasterize individually in
+% illustrator
 figure('position',[1,600,1400,800]);
 sessionNums = [11,12, 3:6, 9:10];%[1:6,9,10];
 icond = 1;

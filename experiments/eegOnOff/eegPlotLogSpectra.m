@@ -34,11 +34,14 @@ for ii = 1:length(condEpochs)
 end
 
 xt = [18:18:72,108,144];
-yt = -2:3; yl=[yt(1),yt(end)];
 set(gca, 'XLim', [8 150], 'XTick', xt, 'XScale', 'log', 'FontSize', 20);
 if avgLogFlg
+    yt = -7:3;
+    yl=[yt(1),yt(end)];
     set(gca,'ytick',yt, 'ylim',yl);
 else
+    yt = -2:3;
+    yl=[yt(1),yt(end)];
     set(gca,'ytick',10.^yt, 'ylim',10.^yl,'YScale', 'log');
 end
 xlabel('Frequency (Hz)');

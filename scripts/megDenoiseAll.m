@@ -70,7 +70,7 @@ for k = sessionNums
     
     % define options
     opt.freq = freq;   % frequencies
-    opt.nboot = 100;  % how many times to bootstrap
+    opt.nboot = 1000;  % how many times to bootstrap
     opt.resampling = {'boot','boot'}; % method for evokedfun glm and evalfun glm
     opt.npoolmethod = {'snr','n',75}; % noise pool selection method
     opt.pcselmethod = 'snr';          % pc selection method
