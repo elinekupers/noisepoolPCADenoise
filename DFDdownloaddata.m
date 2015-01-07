@@ -54,9 +54,17 @@ for s = 1:length(dirSubjects)
         
         writePth = fullfile(thisdir, fnames{f});
         
+        fprintf('Downloading %s (please be patient).\n',fnames{f});
+        
         urlwrite(readPth, writePth);
+        
+        fprintf('Downloading is done!\n');
         
     end
 end
 
+clear f files;
 return
+
+
+
