@@ -7,15 +7,26 @@
 %
 
 %% Choices to make:
+
+% Script options:
 download_data = false;
 
-% These are the standard options, and can be changed here (This needs to go on top of the script):
-sessionNums         = 1:8;
-sensorDataStr       = 'b2'; % some sort of data type, we have explain the other options as well
-saveData            = true;
-saveEpochGroup      = false;
-savefigures         = false;
-conditionNumbers    = 1:6; % Full, left, right (for 'on' and 'off')
+% Denoising options:
+% Standard options are applied, and can be changed here.
+
+% TODO: Put the other options also here. Now the standard options are
+% defined within the functions itself. 
+
+sessionNums         = 1;        % Choose 1:8 if you would like all the subjects 
+%                                   (Beware: Downloading and denoising all subjects 
+%                                   can take a long time (~60 min).
+sensorDataStr       = 'b2';     % Some sort of data type. TODO: Explain and put other types here as well.
+saveData            = true;     % Separate matfiles are saved, in order to speed up the script if you only want to plot.
+saveEpochGroup      = false;    % Epochs can be grouped in a certain order, you can save this if you like.
+savefigures         = false;    % Save figures in the subject folder?
+conditionNumbers    = 1:6;      % Choose 1:6 to get all conditions: Full, left, right (for 'on' 1,2,3 and 'off' 4,5,6) conditions. 
+%                                   If you like only a certain conditions e.g.
+%                                   full on and off define this variable as [1,4]
 
 
 %% Get Root paths
@@ -98,5 +109,7 @@ figuredir = 'manuscript_figs/figure_spatialmap';
 % 1. example subject spatial map: SL(F,L,R)m Broadband: (F,R,L) = Fig.8
 % 2. Plot all subjects - full condition, post minus pre - Fig. 9
 % 3. All subjects - right minus left - Fig. 10 (?) (before and after separately)
+
+% TODO: add plotting functions to the aux folder, and not let it depend on Fieldtrip toolbox on server 
 
 DFDfigurespatialmap(sessionNums, conditionNumbers,inputDataDir, fitDataStr, whichfun, figuredir,savefigures);
