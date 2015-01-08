@@ -85,9 +85,9 @@ for k = sessionNums
     
     % now denoise!
     if saveDenoiseTs
-        [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
-    else
         [results,evalout,~,denoisedts] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
+    else
+        [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
     end
     
     % save stuff

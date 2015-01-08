@@ -62,10 +62,10 @@ inputDataDir = save_path; % all our data is stored on the Desktop for now.
 
 % In the DFDDenoiseAll function, we will conduct another preprocessing
 % step, before we actually denoise the data. This preprocessing step is schematically 
-% shown in Figure 5a,b,c of the manuscript. First, define SL and BB frequencies.
+% shown in Figure 2a,b,c of the manuscript. First, define SL and BB frequencies.
 % Second, calculate the values of these two signal types, for every channel and epoch. 
 % 
-% The next analysis steps are described in Figure 6a,b,c and are part of
+% The next analysis steps are described in Figure 3a,b,c and are part of
 % the denoisedata function:
 % First, define a noise pool with the channels having the lowest SNR values
 % for the SL signal.
@@ -81,7 +81,8 @@ inputDataDir = save_path; % all our data is stored on the Desktop for now.
 
 dohpc = true;
 evalfunToCompute = {'bb'}; % Broadband
-results_BB = DFDDenoiseAll(sessionNums, [], [], dohpc, [], [], evalfunToCompute, [], []);
+saveDenoiseTs = true; % You need denoised ts to make the spectrum figure.
+results_BB = DFDDenoiseAll(sessionNums, [], [], dohpc, [], [], evalfunToCompute, [], true);
 
 %% Denoise SL for reference
 % We can also can denoise the SL as a check, or use run the function but without 
@@ -114,3 +115,8 @@ figuredir = 'manuscript_figs/figure_spatialmap';
 % TODO: add plotting functions to the aux folder, so it will not depend on Fieldtrip toolbox on server 
 
 DFDfigurespatialmap(sessionNums, conditionNumbers,inputDataDir, fitDataStr, whichfun, figuredir,savefigures);
+
+%% Make spectrum figures: 
+% These are the same figures as 4a,b,c and make use of data from channel 42.
+
+DFDfigurespectrum(sessionNums, conditionNumbers, inputDataDir, fitDataStr, figuredir, savefigures)
