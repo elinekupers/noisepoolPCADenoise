@@ -1,4 +1,4 @@
-%% Script to make Spatialmap Figure 8, 9 and 10 
+%% Script to reproduce Figure 5 (Spatialmap) from...
 % 
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
@@ -8,9 +8,6 @@
 
 %% Choices to make:
 
-% Script options:
-download_data = false;
-
 % Denoising options:
 % Standard options are applied, and can be changed here.
 
@@ -18,8 +15,6 @@ download_data = false;
 % defined within the functions itself. 
 
 sessionNums         = 1;        % Choose 1:8 if you would like all the subjects 
-%                                   (Beware: Downloading and denoising all subjects 
-%                                   can take a long time (~60 min).
 sensorDataStr       = 'b2';     % Some sort of data type. TODO: Explain and put other types here as well.
 saveData            = true;     % Separate matfiles are saved, in order to speed up the script if you only want to plot.
 saveEpochGroup      = false;    % Epochs can be grouped in a certain order, you can save this if you like.

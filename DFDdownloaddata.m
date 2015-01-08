@@ -1,25 +1,38 @@
-function DFDdownloaddata(savePth)
+function savePth = DFDdownloaddata(savePth, whichDataSets, whichFiles)
 % Download sample MEG data sets to be denoised by the 'Denoise Field Data'
 % algorithm for the paper:
 %   AUTHORS. YEAR. TITLE. JOURNAL. VOLUME. ISSUE. DOI.
 %
-% DFDdownloaddata
+% savePth = DFDdownloaddata(savePth, whichDataSets, whichFiles)
 %
-% Example: 
-%   DFDdownloaddata('/Users/jon/tmp/')
+% Inputs
+%   savePth: Path to store data. 
+%                   [default = fullfile(DFDrootpath,'data')];
+%   whichDataSets: Vector of data sets (1 to 8) 
+%                   [default=1:8]
+%   whichFiles: Vector of file numbers (there are 7 files per subject)
+%                   [sefault = 1:7]
+%
+% Output
+%   savePth: path where data was written
+%
+% Example 1: Download file 1 from subject 1
+%   savePth = DFDdownloaddata([], 1, 1);
+% Example 2: Download all files from subject 1
+%   savePth = DFDdownloaddata([], 1);
+% Example 3: Download all files from all subjects
+%   savePth = DFDdownloaddata([]);
 
 % Argument check
-if nargin == 0, savePth = pwd; end
+if notDefined('savePth'),       savePth       = fullfile(DFDrootpath, 'data'); end
+if notDefined('whichDataSets'), whichDataSets = 1:8; end
+if notDefined('whichFiles'),    whichFiles    = 1:7; end
 
 % Site to retrieve the data
 dirProject = 'http://psych.nyu.edu/winawerlab/denoiseFieldData';
 
 % These are the subject data sets
 dirSubjects = {...
-    %'01_SSMEG_Attention_wl_subj002'...
-    %'02_SSMEG_02_28_2014'...
-    %'02_SSMEG_Attention_wl_subj010'...
-    %'03_SSMEG_03_31_2014'...
     '04_SSMEG_04_01_2014'...
     '05_SSMEG_04_04_2014'...
     '06_SSMEG_04_28_2014'...
@@ -42,15 +55,15 @@ fnames = {...
     };
 
 % Read / write the sample data
-for s = 1:length(dirSubjects)
+for s = whichDataSets
     
     thisdir = fullfile(savePth, dirSubjects{s});
     
     if ~exist(thisdir, 'dir'), mkdir(thisdir); end
     
-    fprintf('Downloading subject %s/%s (please be patient).\n',num2str(s),num2str(length(dirSubjects)));
+    fprintf('Downloading subject %d/%d (please be patient).\n',find(whichDataSets==s),length(whichDataSets));
     
-    for f = 1:length(fnames)
+    for f = whichFiles
         
         readPth  = fullfile(dirProject, dirSubjects{s}, fnames{f});
         
@@ -63,7 +76,6 @@ end
 
 fprintf('Downloading is done!\n');
 
-clear f files;
 return
 
 
