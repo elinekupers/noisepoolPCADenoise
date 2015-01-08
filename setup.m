@@ -8,9 +8,14 @@ warning on;
 path00 = fileparts(path0);
 megtool = {'fieldtrip'};
 for k = 1:length(megtool)
-    megtoolpath = fullfile(path00,'MEG',megtool{k}); %<-- UPDATE HERE
+    megtoolpath = fullfile(path00,megtool{k}); %<-- UPDATE HERE
     if ~exist(megtoolpath,'dir')
         warning('denoisesuite:setup','toolbox %s not found! required for MEG %s', megtool{k},megtoolpath),
+        megtoolpath = uigetdir(path00);
+    end
+    if strcmpi('fieldtrip', megtoolpath)
+        addpath(megtoolpath)
+        run('ft_defaults');
     else
         addpath(genpath(megtoolpath));
     end
@@ -22,8 +27,10 @@ for k = 1:length(eegtool)
     eegtoolpath = fullfile(path00,'EEG',eegtool{k}); %<-- UPDATE HERE
     if ~exist(eegtoolpath,'dir')
         warning('denoisesuite:setup','toolbox %s not found! required for EEG %s', eegtool{k},eegtoolpath),
+        eegtoolpath = uigetdir(path00);
     else
         addpath(genpath(eegtoolpath));
+        eegtoolpath = uigetdir(path00);
     end
 end
 
