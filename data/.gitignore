@@ -1,0 +1,4 @@
+# All files in this directory will be ignored by git. The purpose of this directory is to store data files to be used with the denoise code, for example the sample data for the paper describing the denoise algorithm. That data can be downloaded with the function DFDdownloaddata. By default, the data will be downloaded to the data directory.
+
+*.mat
+*.sqd
