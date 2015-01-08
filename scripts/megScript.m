@@ -1,26 +1,46 @@
 clear all;
 inputDataDir = '/Volumes/server/Projects/MEG/GLMdenoised/tmpmeg';
 outputFigDir = 'megfigs';
-sessionNums  = 11;%[1:6,9:10];
+sessionNums  = 3;%[1:6,9:10];
 sensorDataStr = 'b2';    % input data file string 
-fitDataStr    = [sensorDataStr,'2fr_hpf2_fit10p1k']; % fit data file string
+fitDataStr    = [sensorDataStr,'fr_hpf2_fit10p1k']; % fit data file string
+                    % '2fr_hpf2_fit10p1k' stands for: 
+                       % 2 is for b2: Data created by allowing fewer 0
+                       % epochs. And using a design matrix + condition
+                       % order as occured in the experiment.(Equal to
+                       % 'data_for_Helena.mat' + 'epoch_conditions.mat' in
+                       % each session folder.
+                       
+                       % f: uses new definition of ab_i for freq (includes
+                       % more points; excludes 1 pt either side rather than 3)
+                       
+                       % r: noise pool selection (and pc cutoff, if selected 
+                       % by algorithm) by SNR
+                       
+                       % hpf2: high pass filtered with a sharp cutoff at 62 
+                       % Hz and without stimulus harmonics
+                       
+                       % 10: 10 pcs rather than all 75 pcs
+                       
+                       % p1k: Bootstrapping 1000x instead of 100x
+                       
 whichfun      = 1;       % which fit (usually only 1)
 
 %% Specify plot options 
-printFigsToFile = true;
+printFigsToFile = false;
 
 % what to plot 
 pp.plotPCselectByR2= false;  % R^2 as a function of number of PCs
     pp.PCSelMethod = 'snr'; 
 
 pp.plotbbMap2      = true; % Broadband activity before and after denoising
-    pp.plotsl      = false; % whether to plot stimulus locked activity 
+    pp.plotsl      = true; % whether to plot stimulus locked activity 
     pp.plotbbType  = 'SNR'; % specifies datatype for plotbbMap2 (options: 'S','N','SNR','R2')
     pp.plotbbConds = {1,2,3,1:3};   % conditions for plotbbMap2 (1=FULL,2=RIGHT,3=LEFT,1:3=All)
     
-pp.plotNoisePool   = false; % location of noise pool 
+pp.plotNoisePool   = true; % location of noise pool 
 
-pp.plotBeforeAfter = false;  % S, N, and SNR before and after denoising (all subjects togther)
+pp.plotBeforeAfter = true;  % S, N, and SNR before and after denoising (all subjects togther)
     pp.doTop10     = true;  % specify format for plotBeforeAfter (top 10 or non-noise)
     
 pp.plotSpectrum    = false; % spectrum of each channel, before and after denoising
@@ -110,7 +130,7 @@ for k = 1:length(sessionNums)
         % if plotting stimulus locked
         if pp.plotsl
             % load stimulus locked
-            slresults = load(fullfile(inputDataDir,sprintf('%s%sfSL_fitfull75',sessionDir,sensorDataStr)));
+            slresults = load(fullfile(inputDataDir,sprintf('%s%sfrSL_fitfull75p1k',sessionDir,sensorDataStr)));
             slresults = slresults.results;
             figw = 1400; figpn = 3;
         else
