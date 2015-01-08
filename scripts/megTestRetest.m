@@ -1,5 +1,5 @@
 clear all;
-inputDataDir  = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
+inputDataDir  = '/Volumes/server/Projects/MEG/GLMDenoised/tmpmeg/';
 outputFigDir  = 'megfigs';
 sensorDataStr = 'b2';
 fitDataStr    = [sensorDataStr,'f_hpf2_fitfull30'];
