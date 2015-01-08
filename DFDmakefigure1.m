@@ -99,6 +99,7 @@ results_SL = DFDDenoiseAll(sessionNums, [], [], dohpc, [], [], evalfunToCompute,
 
 %% Plot spatial map
 
+% Predefine some variables (TODO: Bring this to the top)
 inputDataDir = '~/Desktop/';
 fitDataStr = 'b2fr_hpf2_fit10p1k'; % this string is needed to get the correct saved beta values
 %fitDataStr = 'b2frSL_fit10p1k';
@@ -110,6 +111,6 @@ figuredir = 'manuscript_figs/figure_spatialmap';
 % 2. Plot all subjects - full condition, post minus pre - Fig. 9
 % 3. All subjects - right minus left - Fig. 10 (?) (before and after separately)
 
-% TODO: add plotting functions to the aux folder, and not let it depend on Fieldtrip toolbox on server 
+% TODO: add plotting functions to the aux folder, so it will not depend on Fieldtrip toolbox on server 
 
 DFDfigurespatialmap(sessionNums, conditionNumbers,inputDataDir, fitDataStr, whichfun, figuredir,savefigures);
