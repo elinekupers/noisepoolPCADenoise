@@ -48,20 +48,20 @@ for s = 1:length(dirSubjects)
     
     if ~exist(thisdir, 'dir'), mkdir(thisdir); end
     
+    fprintf('Downloading subject %s/%s (please be patient).\n',num2str(s),num2str(length(dirSubjects)));
+    
     for f = 1:length(fnames)
         
         readPth  = fullfile(dirProject, dirSubjects{s}, fnames{f});
         
         writePth = fullfile(thisdir, fnames{f});
         
-        fprintf('Downloading %s (please be patient).\n',fnames{f});
-        
         urlwrite(readPth, writePth);
-        
-        fprintf('Downloading is done!\n');
         
     end
 end
+
+fprintf('Downloading is done!\n');
 
 clear f files;
 return
