@@ -1,5 +1,8 @@
 General purpose denoising suite that denoises EEG/MEG/ECoG data
 
+--- Add Matlab toolbox dependencies ---
+
+
 ---
 INPUT:
 

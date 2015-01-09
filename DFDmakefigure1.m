@@ -32,7 +32,8 @@ conditionNumbers    = 1:6;      % Choose 1:6 to get all conditions: Full, left, 
 % averaging the surrounding epochs of the same channel. Also, the design
 % matrix will be made, to use later on in the DFDDenoiseAll script.
 
-inputDataDir = fullfile(DFDrootpath, 'data'); % all our data will get stored in the same folder.
+% Get directory where data is saved.
+inputDataDir = fullfile(DFDrootpath, 'data'); % Note: New data matrices will also get stored in the same folder.
 
 % Preload and save data as a 'Session+preprocessing type'. Saved will get a
 % name like "04_SSMEG_04_01_2014b2.mat"
@@ -81,12 +82,10 @@ results_SL = DFDDenoiseWrapper(sessionNums, [], [], dohpc, [], [], evalfunToComp
 
 %% Plot spatial map
 
-% Predefine some variables (TODO: Bring this to the top)
-inputDataDir = '~/Desktop/';
 fitDataStr = 'b2fr_hpf2_fit10p1k'; % this string is needed to get the correct saved beta values
 %fitDataStr = 'b2frSL_fit10p1k';
 whichfun   = 1; % I don't exactly know what the difference is betweeen function 1 and 2
-figuredir = 'manuscript_figs/figure_spatialmap';
+figuredir = fullfile(DFDrootpath, 'figures');
 
 %% Make spatial map figures:
 % 1. example subject spatial map: SL(F,L,R)m Broadband: (F,R,L) = Fig.8
@@ -94,10 +93,4 @@ figuredir = 'manuscript_figs/figure_spatialmap';
 % 3. All subjects - right minus left - Fig. 10 (?) (before and after separately)
 
 % TODO: add plotting functions to the aux folder, so it will not depend on Fieldtrip toolbox on server 
-
-DFDfigurespatialmap(sessionNums, conditionNumbers,inputDataDir, fitDataStr, whichfun, figuredir,savefigures);
-
-%% Make spectrum figures: 
-% These are the same figures as 4a,b,c and make use of data from channel 42.
-
-DFDfigurespectrum(sessionNums, conditionNumbers, inputDataDir, fitDataStr, figuredir, savefigures)
+DFDfigurespatialmap(5, sessionNums, conditionNumbers,inputDataDir, fitDataStr, whichfun, figuredir,savefigures);

@@ -1,9 +1,46 @@
 function allResults = DFDDenoiseWrapper(sessionNums,dataDir,saveFlg,...
     dohpc,epochname,pcstop10,evalfunToCompute,sensorDataStr,saveDenoiseTs)
-% denoise all sessions using commonly used parameters
-% example: DFDDenoiseWrapper(1) : denoises session 1 and saves
+%% Prepare all requested sessions and denoise with predefined parameters
+%  by the 'Denoise Field Data' algorithm for the paper:
+%
+%   AUTHORS. YEAR. TITLE. JOURNAL. VOLUME. ISSUE. DOI.
+%
+% allResults = DFDDenoiseWrapper(sessionNums,dataDir,saveFlg, ...
+%    dohpc,epochname,pcstop10,evalfunToCompute,sensorDataStr,saveDenoiseTs)
+%
+% Inputs
+%   sessionNums:        Vector of data sets (1 to 8)
+%                       [default=1:8]
+%   dataDir:            String to define data directory
+%                       [default=ullfile(DFDrootpath, 'data')]
+%   saveFlg:            Boolean whether to save preprocessed datasets or not
+%                       [default=true]
+%   dohpc:              Boolean whether to highpass filter or not
+%                       [default=true]
+%   epochname:          String defining data directory to save data
+%                       [default=fullfile(DFDrootpath, 'data')]
+%   pcstop10:           Vector of conditions to use (1 to 6)
+%                       [default=1:6]
+%   evalfunToCompute:   cell to define which function to use to evaluate 
+%                       [default={'bb'}]
+%   sensorDataStr:      String to define which input sensor data set to use
+%                       [default='b2']
+%   saveDenoiseTs:      Boolean whether to save denoised time series or not
+%                       [default=false]
+%
+% Outputs
+%   allResults:         A cell containg several results:
+%                           - 'results' (...)
+%                           - 'evalout' (output of specified evaluation function) 
+%                           - 'denoisedts' (if requested)
+%
+% Example: Denoise broadband of session 1 and save data
+%   allResults = DFDDenoiseWrapper(1)
+% 
+% 
 
-% check input parameters
+
+%% check input parameters
 % ----------------------------------------------------------
 if notDefined('dataDir'), dataDir = fullfile(DFDrootpath, 'data'); end
 if notDefined('saveFlg'), saveFlg = true; end
@@ -21,16 +58,19 @@ if notDefined('evalfunToCompute'), evalfunToCompute = {'bb'}; end
 if notDefined('sensorDataStr'), sensorDataStr = 'b2'; end
 % save denoised time series
 if notDefined('saveDenoiseTs'), saveDenoiseTs = false; end
-% -----------------------------------------------------------
+%% -----------------------------------------------------------
 
-% load pre-saved frequencies
+% load pre-saved frequencies, we use a 1 second epoch and go up to 150 Hz
+% and have a 12 Hz stimulus locked signal.
+T = 1; fmax = 150; slF = 12;
+freq = megGetSLandABfrequencies((0:fmax)/T, T, slF/T);
+freq = freq.freq;
 
 % ---------- Replace these lines ----------------
-freq = load('megfreq'); %% <--- HACK: I just put the file in the folder, but we need to find where Helena defined this
-freq = freq.freq;
-% % with a call to:
-% freq = megGetSLandABfrequencies(f, T, slF)
-% ----------------------------------------------- 
+% freq = load('megfreq'); %% <--- HACK: I just put the file in the folder, but we need to find where Helena defined this
+% freq = freq.freq;
+
+%% ----------------------------------------------- 
 
 % create evoked function
 evokedfun = @(x)getstimlocked(x,freq);
@@ -50,7 +90,7 @@ for ii = 1:length(evalfunToCompute)
     end
 end
 
-% -----------------------------------------------------------
+%% -----------------------------------------------------------
 % loop through sessions
 for k = sessionNums
     % get and load input file
