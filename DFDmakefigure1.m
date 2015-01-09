@@ -24,9 +24,6 @@ conditionNumbers    = 1:6;      % Choose 1:6 to get all conditions: Full, left, 
 %                                   full on and off define this variable as [1,4]
 
 
-%% Get Root paths
-project_path = DFDrootpath; % folder with all the project functions
-
 %% Prepare for denoising (Do we want to separate more part of this preload function?)
 % For example with use of the meg_utils functions?
 
@@ -35,7 +32,7 @@ project_path = DFDrootpath; % folder with all the project functions
 % averaging the surrounding epochs of the same channel. Also, the design
 % matrix will be made, to use later on in the DFDDenoiseAll script.
 
-inputDataDir = project_path; % all our data will get stored in the same folder.
+inputDataDir = fullfile(DFDrootpath, 'data'); % all our data will get stored in the same folder.
 
 % Preload and save data as a 'Session+preprocessing type'. Saved will get a
 % name like "04_SSMEG_04_01_2014b2.mat"
@@ -67,8 +64,7 @@ inputDataDir = project_path; % all our data will get stored in the same folder.
 dohpc = true;
 evalfunToCompute = {'bb'}; % Broadband
 saveDenoiseTs = true; % You need denoised ts to make the spectrum figure.
-results_BB = DFDDenoiseAll(sessionNums, [], [], dohpc, [], [], evalfunToCompute, [], true);
-
+ 
 %% Denoise SL for reference
 % We can also can denoise the SL as a check, or use run the function but without 
 % removing any pcs from the data. (In this way you keep the original data).  
@@ -81,7 +77,7 @@ evalfunToCompute = {'sl'}; % Stimulus locked
 % want to specify any number of PCs yourself, we should change the
 % function. For the SL signal, we will just use the original GLM solution.
 
-results_SL = DFDDenoiseAll(sessionNums, [], [], dohpc, [], [], evalfunToCompute, [], []);
+results_SL = DFDDenoiseWrapper(sessionNums, [], [], dohpc, [], [], evalfunToCompute, [], []);
 
 %% Plot spatial map
 

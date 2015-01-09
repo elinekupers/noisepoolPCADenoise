@@ -1,11 +1,11 @@
-function allResults = DFDDenoiseAll(sessionNums,dataDir,saveFlg,...
+function allResults = DFDDenoiseWrapper(sessionNums,dataDir,saveFlg,...
     dohpc,epochname,pcstop10,evalfunToCompute,sensorDataStr,saveDenoiseTs)
 % denoise all sessions using commonly used parameters
-% example: megDenoiseAll(1) : denoises session 1 and saves
+% example: DFDDenoiseWrapper(1) : denoises session 1 and saves
 
 % check input parameters
 % ----------------------------------------------------------
-if notDefined('dataDir'), dataDir = '~/Desktop/'; end
+if notDefined('dataDir'), dataDir = fullfile(DFDrootpath, 'data'); end
 if notDefined('saveFlg'), saveFlg = true; end
 if notDefined('epochname') % whether to add an epoch group, if so, what the name is
     epochname = '';
@@ -24,8 +24,14 @@ if notDefined('saveDenoiseTs'), saveDenoiseTs = false; end
 % -----------------------------------------------------------
 
 % load pre-saved frequencies
-freq = load(fullfile(dataDir,'saved_proc_data','megfreq')); %% <--- HACK: I just put the file in the folder, but we need to find where Helena defined this
+
+% ---------- Replace these lines ----------------
+freq = load('megfreq'); %% <--- HACK: I just put the file in the folder, but we need to find where Helena defined this
 freq = freq.freq;
+% % with a call to:
+% freq = megGetSLandABfrequencies(f, T, slF)
+% ----------------------------------------------- 
+
 % create evoked function
 evokedfun = @(x)getstimlocked(x,freq);
 % create eval functions
