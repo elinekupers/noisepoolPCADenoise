@@ -23,6 +23,7 @@ function [sensorData, design, badChannels, conditionNames, okEpochs] = ...
 % replaced by the weighted average of its neighbors.
 % This corresponds to the values Helena used for each of the sessions for
 % majority of the analyses.
+
 % TODO: this should be replaced by a weighted average of all other
 % channels, rather than those within a neighborhood
 badEpochAvg = [6,6,6,8,8,6,8,8,6,6,8,8];

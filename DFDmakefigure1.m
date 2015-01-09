@@ -4,7 +4,7 @@
 %
 % This figure will show .. 
 %
-%
+% Data can be download with the function DFDdownloaddata.
 
 %% Choices to make:
 
@@ -27,17 +27,6 @@ conditionNumbers    = 1:6;      % Choose 1:6 to get all conditions: Full, left, 
 %% Get Root paths
 project_path = DFDrootpath; % folder with all the project functions
 
-%% Download data
-
-% Usually you want this to be saved in the project_path, but we don't want
-% to save large amounts of data in our github repository.
-
-if download_data; 
-    save_path = '/Users/winawerlab/Desktop/'; DFDdownloaddata(save_path); 
-else
-    save_path = '/Users/winawerlab/Desktop/'; 
-end
-
 %% Prepare for denoising (Do we want to separate more part of this preload function?)
 % For example with use of the meg_utils functions?
 
@@ -46,10 +35,11 @@ end
 % averaging the surrounding epochs of the same channel. Also, the design
 % matrix will be made, to use later on in the DFDDenoiseAll script.
 
-inputDataDir = save_path; % all our data is stored on the Desktop for now.
+inputDataDir = project_path; % all our data will get stored in the same folder.
 
-% Preload and save data as a 'Session+preprocessing type' 
-% (Example:04_SSMEG_04_01_2014b2.mat)
+% Preload and save data as a 'Session+preprocessing type'. Saved will get a
+% name like "04_SSMEG_04_01_2014b2.mat"
+
 [sensorData, design, badChannels, conditionNames, okEpochs] = ...
     DFDpreload(sessionNums, sensorDataStr, saveData, saveEpochGroup, inputDataDir, conditionNumbers);
 
