@@ -4,11 +4,11 @@ function DFDfigurespectrum(sessionNums, conditionNumbers, inputDataDir, fitDataS
 %% define and load example data set
 
 if notDefined('opt'),    opt = struct(); end
-if ~isfield(opt,'sessionNums'),          opt.sessionNums = 1:8; end % Do all subjects
+if ~isfield(opt,'sessionNums'),         opt.sessionNums = 1:8; end % Do all subjects
 if ~isfield(opt,'conditionNumbers'),    opt.conditionNumbers = 1:6; end % Do all conditions
-if ~isfield(opt,'inputDataDir'),        opt.inputDataDir = '~/Desktop'; end % 
+if ~isfield(opt,'inputDataDir'),        opt.inputDataDir = fullfile(DFDrootpath, 'data'); end % 
 if ~isfield(opt,'fitDataStr'),          opt.fitDataStr = 'b2fr_hpf2_fit10p1k'; end % We need to automate this / link it to the opt. 
-if ~isfield(opt,'figuredir'),           opt.figuredir = '~/Desktop/figure'; end
+if ~isfield(opt,'figuredir'),           opt.figuredir = fullfile(DFDrootpath,'figures'); end
 if ~isfield(opt,'savefigures'),         opt.savefigures = false; end
 
 
@@ -19,7 +19,7 @@ if ~isfield(opt,'savefigures'),         opt.savefigures = false; end
 %% Load fits and denoised data
 % noisepool selection by SNR, highpass filtered, 75 channels in noisepool
 % this file contains the denoisedts
-datafile = fullfile(inputDataDir,'saved_proc_data',sprintf(['%s' opt.fitDataStr],sessionName));
+datafile = fullfile(inputDataDir,'savedProcData',sprintf(['%s' opt.fitDataStr],sessionName));
 disp(datafile); load(datafile);
 
 %% Spectrum before and after
@@ -36,7 +36,7 @@ chanNum0 = megGetOrigChannel(chanNum,badChannels);
 %     [a(chanNum0),b(chanNum0)]
 % end
 
-%% plot spectrum - Figure 5B
+%% plot spectrum - Figure 4AB
 
 % define plot colors
 colors = [63, 121, 204; 228, 65, 69; 116,183,74; 127,127,127]/255;
@@ -48,16 +48,78 @@ data = {sensorData,denoisedts{1}};
 % whether to average in log or not
 avgLogFlg = false;
 
-% set up figure
-fH = figure('position',[0,300,200,350]);
-
+%% set up figure 4A
+fH = figure('position',[0,300,500,500]); clf(fH);
 % define axes
 f = (0:999);
-%xl = [8 150];
-xl = [60 150];
+xl = [8 150];
 fok = f;
 fok(f<=xl(1) | f>=xl(2) | mod(f,60) < 2 | mod(f,60) > 58 ) = [];
 xt = [12:12:72, 96,144];
+yt = 1:5;
+yl=[yt(1),yt(end)];
+
+for dd = 1
+    % compute spectrum
+    spec = abs(fft(squeeze(data{dd}(chanNum0,:,:))))/size(data{dd},2)*2;
+
+    hold on;
+    for ii = [1,4]%1:length(condEpochs)
+        % compute power for epochs corresponding to a condition and
+        % trim data to specific frequencies
+        this_data = spec(:,condEpochs{ii}).^2;
+        this_data = this_data(fok+1,:);
+
+        % compute median and confidence interval across epochs
+        if avgLogFlg
+            this_data_log = log10(this_data);
+            %this_data_log(isinf(this_data_log)) = nan;
+            mn = prctile(this_data_log,[16,50,84],2);
+        else
+            mn = prctile(this_data,[16,50,84],2);
+        end
+        mn(abs(mn-0)<0.001)= nan;
+
+        % plot median
+        plot(fok, mn(:,2),  '-',  'Color', colors(ii,:), 'LineWidth', 1);
+        %plot(fok, mn(:,1),'Color', colors(ii,:));
+        %plot(fok, mn(:,3),'Color', colors(ii,:));
+    end
+
+    % format x and y axes
+    set(gca, 'XLim', xl, 'XTick', xt, 'XScale', 'log');
+    if avgLogFlg
+        set(gca,'ytick', yt, 'ylim',yl);
+    else
+        set(gca,'ytick',10.^yt, 'ylim',10.^yl,'YScale', 'log');
+    end
+
+    % label figure, add stimulus harmonic lines, and make it look nice
+    xlabel('Frequency (Hz)'); ylabel('Power (fT^2)');
+    title(sprintf('Channel %d', chanNum));
+    yl2 = get(gca, 'YLim');
+    for ii =12:12:180, plot([ii ii], yl2, 'k--'); end
+    makeprettyaxes(gca,9,9);
+end
+
+if savefigures
+    figurewrite(fullfile(figuredir,'figure4AFullSpectrumChannel42'),[],0,'.',1);
+end
+
+
+
+
+
+%% set up figure 4B
+fH = figure('position',[0,300,200,350]); clf(fH);
+
+% define axes
+% f = (0:999);
+%xl = [8 150];
+xl = [60 150];
+% fok = f;
+% fok(f<=xl(1) | f>=xl(2) | mod(f,60) < 2 | mod(f,60) > 58 ) = [];
+% xt = [12:12:72, 96,144];
 yt = 1:2;
 yl=[yt(1),yt(end)];
 
@@ -123,7 +185,7 @@ for dd = 1:2
 end
 
 if savefigures
-    figurewrite(fullfile(figuredir,'figure_spec42'),[],0,'.',1);
+    figurewrite(fullfile(figuredir,'figure4bHighFreqSpectrumChannel42'),[],0,'.',1);
 end
 
 %% Bootstrap to get signal and noise - Fig 5C
@@ -167,7 +229,7 @@ for dd = 1:2 % for either pre and post denoising
 end
 
 % Set up figure and plot
-fH = figure('position',[0,300,200,350]);
+fH = figure('position',[0,300,200,350]); clf(fH);
 for dd = 1:2
     subplot(2,1,dd);
     %[n,x] = hist(meanXfreqs{dd}',30);
@@ -184,5 +246,5 @@ for dd = 1:2
 end
 
 if savefigures
-    figurewrite(fullfile(figuredir,'full_bootdiff'),[],0,'.',1);
+    figurewrite(fullfile(figuredir,'Figure4cFullDistributionBootDiff'),[],0,'.',1);
 end

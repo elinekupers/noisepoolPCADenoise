@@ -64,7 +64,7 @@ if notDefined('saveDenoiseTs'), saveDenoiseTs = false; end
 % and have a 12 Hz stimulus locked signal.
 T = 1; fmax = 150; slF = 12;
 freq = megGetSLandABfrequencies((0:fmax)/T, T, slF/T);
-freq = freq.freq;
+
 
 % ---------- Replace these lines ----------------
 % freq = load('megfreq'); %% <--- HACK: I just put the file in the folder, but we need to find where Helena defined this
@@ -97,7 +97,7 @@ for k = sessionNums
     [dataset,megDataDir] = DFDgetdatapaths(k,1:6,dataDir);
     filename = [dataset,sensorDataStr];
     disp(filename)
-    load(fullfile(dataDir,'saved_proc_data',filename),'sensorData','design','badChannels');
+    load(fullfile(dataDir,'savedProcData',filename),'sensorData','design','badChannels');
     
     clear opt
     
@@ -138,7 +138,7 @@ for k = sessionNums
     
     % save stuff
     if saveFlg
-        savename = fullfile(dataDir,'saved_proc_data',sprintf('%sfr%s%s%s_%sp1k',filename,slstr,epochname,hpcstr,savestr));
+        savename = fullfile(dataDir,'savedProcData',sprintf('%sfr%s%s%s_%sp1k',filename,slstr,epochname,hpcstr,savestr));
         if saveDenoiseTs
             save(savename,'results','evalout','denoisedts');
         else
