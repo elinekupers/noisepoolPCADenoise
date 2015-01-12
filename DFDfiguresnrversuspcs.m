@@ -1,4 +1,4 @@
-function DFDfiguresnrVpcs(sessionNums, conditionNumbers, plotBb, inputDataDir, whichFun, figureDir, saveFigures)
+function DFDfiguresnrversuspcs(sessionNums, conditionNumbers, plotBb, inputDataDir, whichFun, figureDir, saveFigures)
 
 %% define paths and data sets
 
@@ -16,10 +16,11 @@ if ~isfield(opt,'saveFigures'),         opt.saveFigures      = false; end
 if plotBb
     % noisepool selection by SNR, highpass filtered, 10 pcs removed
     % bootstrapped 1000 x. Broadband as evalfun
-    fitDataStr   = 'b2fr_hpf2_fitfull75p1k';
+%     fitDataStr   = 'b2fr_hpf2_fitfull75p1k';
+    fitDataStr   = 'b2fr_hpf2_fit10p1k';
 else
     % Same as above, but with stimulus locked as evalfun, and not hpf'ed
-    fitDataStr   = 'b2frSL_fitfull75p1k';
+    fitDataStr   = 'b2frSL_fit10p1k';
 end
 
 condColors   = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
