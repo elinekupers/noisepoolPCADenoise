@@ -32,16 +32,7 @@ if notDefined('whichFiles'),    whichFiles    = 1:7; end
 dirProject = 'http://psych.nyu.edu/winawerlab/denoiseFieldData';
 
 % These are the subject data sets
-dirSubjects = {...
-    '04_SSMEG_04_01_2014'...
-    '05_SSMEG_04_04_2014'...
-    '06_SSMEG_04_28_2014'...
-    '07_SSMEG_05_01_2014'...
-    '08_SSMEG_06_20_2014_subj011'...
-    '09_SSMEG_06_27_2014_subj010'...
-    '10_SSMEG_08_12_2014_wl_subj004'...
-    '11_SSMEG_08_13_2014_wl_subj005'...
-    };
+dirPrefix = 'SSMEG_Dataset_';
 
 % For each data set, there are 7 files
 fnames = {...
@@ -57,17 +48,20 @@ fnames = {...
 % Read / write the sample data
 for s = whichDataSets
     
-    thisdir = fullfile(savePth, dirSubjects{s});
+    % Note that the first data set is called data set 4. The first 3 data
+    % sets were pilots. For consistency with the naming scheme on our lab
+    % server, we preserve the data set number.
+    thisdir = sprintf('%s%02d', dirPrefix, s+3); 
     
-    if ~exist(thisdir, 'dir'), mkdir(thisdir); end
+    if ~exist(fullfile(savePth, thisdir), 'dir'), mkdir(fullfile(savePth, thisdir)); end
     
     fprintf('Downloading subject %d/%d (please be patient).\n',find(whichDataSets==s),length(whichDataSets));
     
     for f = whichFiles
         
-        readPth  = fullfile(dirProject, dirSubjects{s}, fnames{f});
+        readPth  = fullfile(dirProject, thisdir, fnames{f});
         
-        writePth = fullfile(thisdir, fnames{f});
+        writePth = fullfile(savePth, thisdir, fnames{f});
         
         urlwrite(readPth, writePth);
         
