@@ -7,4 +7,10 @@
 % Make all figures
 DFDmakefigure4;
 DFDmakefigure5;
-DFDmakefigure6; % Needs denoised data from all subjects, so takes a while
+DFDmakefigure6; % Needs denoised data up to 10 PCs removed from all subjects, so takes a while
+DFDmakefigure7;
+DFDmakefigure8;
+DFDmakefigure9;
+DFDmakefigure11;
+DFDmakefigure12;
+
