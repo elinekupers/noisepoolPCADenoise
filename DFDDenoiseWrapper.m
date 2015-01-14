@@ -17,10 +17,11 @@ function allResults = DFDDenoiseWrapper(sessionNums,dataDir,saveFlg,...
 %                       [default=true]
 %   dohpc:              Boolean whether to highpass filter or not
 %                       [default=true]
-%   epochname:          String defining data directory to save data
-%                       [default=fullfile(DFDrootpath, 'data')]
-%   pcstop10:           Vector of conditions to use (1 to 6)
-%                       [default=1:6]
+%   epochname:          String whether to add an epoch group, if so, what the name is
+%                       [default='']
+%   pcstop10:           Boolean whether to jump to 10 pcs from the start
+%                       and don't evaluate PCs in between.
+%                       [default=true]
 %   evalfunToCompute:   cell to define which function to use to evaluate 
 %                       [default={'bb'}]
 %   sensorDataStr:      String to define which input sensor data set to use
@@ -66,7 +67,7 @@ T = 1; fmax = 150; slF = 12;
 freq = megGetSLandABfrequencies((0:fmax)/T, T, slF/T);
 
 
-% ---------- Replace these lines ----------------
+% ---------- I replaced these lines with the two above ----------------
 % freq = load('megfreq'); %% <--- HACK: I just put the file in the folder, but we need to find where Helena defined this
 % freq = freq.freq;
 
@@ -126,7 +127,7 @@ for k = sessionNums
         opt.pcstop = -10;
         savestr = 'fit10';
     else
-        savestr = 'fitful75';
+        savestr = 'fitfull75';
     end
     
     % now denoise!

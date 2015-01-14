@@ -4,54 +4,90 @@
 %
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
-% This figure will show ... 
+% This figure will show 2 ways of plotting SNR values against the number of PCs
+% removed from the data. In Figure 6A, SNR values of all channels from the 
+% three example subjects (corresponding to 6,7,8) will be plotted against
+% the number of PCs removed. The median is plotted in the color of the
+% condition. In Figure 6B, only the median of all channels for SNR against
+% number of PCs removed, for all subjects, for the three conditions. This
+% script needs all 
 %
 % This script assumes that data is downloaded with the DFDdownloaddata
 % function. 
 
 %% Choices to make:
 
-sessionNums      = 1:8;     % You need all subjects for this figure 
+sessionNums        = [1:8];   % You need all subjects for this figure 
                             % Choose a particular number if you would like
                             % a specific subject
-plotBb           = true;    % True = Broadband, false = Stim locked                            
-inputDataDir     = fullfile(DFDrootpath, 'data'); % Note: New data matrices will 
-                                                  % also get stored in the same folder.
-whichFun         = 1;       % ToDo: figure out what this means..
-conditionNumbers = 1:6;     % Choose 1:6 to get all conditions: Full, 
+plotBb             = true;  % True = Broadband, false = Stim locked                            
+
+inputDataDir       = fullfile(DFDrootpath, 'data'); % Note: New data matrices will 
+                                                    % also get stored in the same folder.
+whichFun           = 1;     % ToDo: figure out what this means..
+
+conditionNumbers   = 1:6;   % Choose 1:6 to get all conditions: Full, 
                             % left, right (for 'on' 1,2,3 and 'off' 4,5,6)
                             % conditions. 
                             % If you like only a certain conditions e.g.
                             % full on and off define this variable as [1,4]
-sensorDataStr    = 'b2';
-                                              
-fitDataStrBB     = 'b2fr_hpf2_fitfull75p1k'; % this string is needed to get the correct saved beta values
-fitDataStrSL     = 'b2frSL_fitfull75p1k'; % this string is needed to get the correct saved beta values
+
+sensorDataStr      = 'b2';  % Use second version of defining data:
+                            % data created by allowing fewer 0 epochs, 
+                            % using the new data format (such that design 
+                            % matrix and condition order are as they occurred 
+                            % in the experiment)
+                            
+freqDefinition     = 'f';   % f  - uses new definition of ab_i for freq 
+                            % (includes more points; excludes 1 pt either side rather than 3)
+
+noisePoolSelection = 'r';   % r - noise pool selection (and pc cutoff, if 
+                            % selected by algorithm) by SNR rather than by R2
+
+doHPF              = 'hpf2';% hpf2 - high pass filtered with a sharp cutoff
+                            % at 62 Hz and without stimulus harmonics                        
+                            
+nrPCs              = 'fitfull75'; % fit10 - jump to 10 PCs as cutoff,
+                            % In Process: (fitfull10 - don't jump to 10, but denoise all
+                            %             channels in between 0 and 10
+                            %             PCs.)
+                            % fitfull75 - use all channels in noisepool   
+
+xBoots             = 'p1k'; % p1k - bootstrapped 1000x rather than 100x (p100)
+
+fitDataStrBB       = [sensorDataStr freqDefinition noisePoolSelection '_' ...
+                        doHPF '_' nrPCs xBoots];
+                    
+fitDataStrSL       = [sensorDataStr freqDefinition noisePoolSelection 'SL_' ...
+                        nrPCs xBoots]; 
+
 saveData         = true;    % Separate matfiles are saved, in order to 
                             % speed up the script if you only want to plot.
 saveEpochGroup   = false;   % Epochs can be grouped in a certain order, 
                             % you can save this if you like.
+                            
 figureDir        = fullfile(DFDrootpath, 'figures');
+
 saveFigures      = false;   % Save figures in the figure folder?
 
+%% Check whether we got our preprocessed data matrices
+sessionNums_tmp_BB = [];
+sessionNums_tmp_SL = [];
 
 for ii = sessionNums
     % Get session name and top directory
     % This can be modified so that top directory points somewhere else
     dataset = DFDgetdatapaths(ii,conditionNumbers,inputDataDir);
     if ~exist(fullfile(inputDataDir, 'savedProcData', [dataset fitDataStrBB '.mat']),'file');
-        preloaddataBB = true;
+        sessionNums_tmp_BB(ii) = ii; % Get sessionNumbers for those that dont exist
     end
     if ~exist(fullfile(inputDataDir, 'savedProcData', [dataset fitDataStrSL '.mat']),'file');
-        preloaddataSL = true;
-    end
-    if preloaddataBB && preloaddataSL == true
-        break
+        sessionNums_tmp_SL(ii) = ii;
     end
 end
 
-
-if preloaddataBB
+if ~isempty(sessionNums_tmp_BB)
+    sessionNums_tmp = sessionNums_tmp_BB(sessionNums_tmp_BB ~= 0);
     %% Prepare for denoising (Do we want to separate more part of this preload function?)
     % For example with use of the meg_utils functions?
 
@@ -65,7 +101,7 @@ if preloaddataBB
     % name like "04_SSMEG_04_01_2014b2.mat"
 
     [sensorData, design, badChannels, conditionNames, okEpochs] = ...
-        DFDpreload(sessionNums, sensorDataStr, saveData, saveEpochGroup, inputDataDir, conditionNumbers);
+        DFDpreload(sessionNums_tmp, sensorDataStr, saveData, saveEpochGroup, inputDataDir, conditionNumbers);
 
     %% Denoise BB
 
@@ -91,25 +127,30 @@ if preloaddataBB
     doHpc            = true; % High pass filter data 
     evalfunToCompute = {'bb'}; % Broadband
     saveDenoiseTs    = true; % You need denoised ts to make the spectrum figure.
+    pcstop10         = false; % To use all PC's in the noise pool (not just number 10)
 
-    resultsBB        = DFDDenoiseWrapper(sessionNums, [], [], doHpc, [], [], ...
+    resultsBB        = DFDDenoiseWrapper(sessionNums_tmp, [], [], doHpc, [], pcstop10, ...
                                             evalfunToCompute, [], saveDenoiseTs);
 end
 
-if preloaddataSL
+if ~isempty(sessionNums_tmp_SL)
+    sessionNums_tmp = sessionNums_tmp_SL(sessionNums_tmp_SL ~= 0);
     %% Denoise SL for reference
     % We can also can denoise the SL as a check, or use run the function but without 
     % removing any pcs from the data. (In this way you keep the original data).  
 
     doHpc            = false; % in this case you don't want to high pass the filter including the harmonics
     evalfunToCompute = {'sl'}; % Stimulus locked
+    pcstop10         = false; % use all PC's in the noise pool (not just number 10)
 
     % TODO: With this function you can only denoise with 10 or 75 PCs, if you
     % want to specify any number of PCs yourself, we should change the
     % function. For the SL signal, we will just use the original GLM solution.
 
-    resultsSL        = DFDDenoiseWrapper(sessionNums, [], [], doHpc, [], [], ...
+    resultsSL        = DFDDenoiseWrapper(sessionNums_tmp, [], [], doHpc, [], pcstop10, ...
                                             evalfunToCompute, [], []);
 end
 %% Make figure
-DFDfiguresnrversuspcs(sessionNums, plotBb, inputDataDir, whichFun, figureDir, saveFigures)
+DFDfiguresnrversuspcs(sessionNums, conditionNumbers, plotBb, inputDataDir, whichFun, figureDir, saveFigures)
+
+

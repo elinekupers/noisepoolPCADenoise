@@ -22,24 +22,50 @@ conditionNumbers    = 1:6;      % Choose 1:6 to get all conditions: Full,
                                 % conditions. 
                                 % If you like only a certain conditions e.g.
                                 % full on and off define this variable as [1,4]
-sensorDataStr       = 'b2';     % Some sort of data type. TODO: Explain and 
-                                % put other types here as well.
+sensorDataStr       = 'b2';     % Use second version of defining data:
+                                % data created by allowing fewer 0 epochs, 
+                                % using the new data format (such that design 
+                                % matrix and condition order are as they occurred 
+                                % in the experiment)
+                            
+freqDefinition      = 'f';      % f  - uses new definition of ab_i for freq 
+                                % (includes more points; excludes 1 pt either side rather than 3)
+
+noisePoolSelection  = 'r';      % r - noise pool selection (and pc cutoff, if 
+                                % selected by algorithm) by SNR rather than by R2
+
+doHPF               = 'hpf2';   % hpf2 - high pass filtered with a sharp cutoff
+                                % at 62 Hz and without stimulus harmonics                        
+                            
+nrPCs               = 'fit10';  % fit10 - always use 10 PCs as cutoff,
+                               % fitfull75 - use all channels in noisepool
+
+xBoots              = 'p1k';     % p1k - bootstrapped 1000x rather than 100x (p100)
+                          
+fitDataStrBB          = [sensorDataStr freqDefinition noisePoolSelection '_' ...
+                        doHPF '_' nrPCs xBoots]; % 'b2fr_hpf2_fit10p1k', this string is needed to get the correct saved beta values
+                    
+fitDataStrSL          = [sensorDataStr freqDefinition noisePoolSelection 'SL_' ...
+                        nrPCs xBoots];  % ''b2frSL_fit10p1k'', this string is needed to get the correct saved beta values
+                    
+                    
 saveData            = true;     % Separate matfiles are saved, in order to 
                                 % speed up the script if you only want to plot.
 saveEpochGroup      = false;    % Epochs can be grouped in a certain order, 
                                 % you can save this if you like.
-fitDataStr          = 'b2fr_hpf2_fit10p1k'; % this string is needed to get the correct saved beta values
+                                                     
 figureDir           = fullfile(DFDrootpath, 'figures');
+
 saveFigures         = false;    % Save figures in the figure folder?
 
-                                
 inputDataDir = fullfile(DFDrootpath, 'data'); % Note: New data matrices will 
                                               % also get stored in the same folder.
                                               
+% Get session dir for one subject
 [sessionDir] = DFDgetdatapaths(sessionNums,conditionNumbers,inputDataDir);
 
-
-if ~exist(fullfile(inputDataDir, 'savedProcData', [sessionDir fitDataStr '.mat']),'file');
+% Check whether the saved data mat file already exists.. Otherwise, make it 
+if ~exist(fullfile(inputDataDir, 'savedProcData', [sessionDir fitDataStrBB '.mat']),'file');
     
     %% Prepare for denoising (Do we want to separate more part of this preload function?)
     % For example with use of the meg_utils functions?
@@ -74,18 +100,18 @@ if ~exist(fullfile(inputDataDir, 'savedProcData', [sessionDir fitDataStr '.mat']
     % Denoised data and bootstrapped beta solutions will be saved in a new
     % mat-files with the corresponding options in the name.
 
-    doHpc            = true; % High pass filter data 
     evalfunToCompute = {'bb'}; % Broadband
     saveDenoiseTs    = true; % You need denoised ts to make the spectrum figure.
 
     resultsBB        = DFDDenoiseWrapper(sessionNums, [], [], doHpc, [], [], ...
                                             evalfunToCompute, [], saveDenoiseTs);
+end
 
+if ~exist(fullfile(inputDataDir, 'savedProcData', [sessionDir fitDataStrSL '.mat']),'file');
     %% Denoise SL for reference
     % We can also can denoise the SL as a check, or use run the function but without 
     % removing any pcs from the data. (In this way you keep the original data).  
 
-    doHpc            = false; % in this case you don't want to high pass the filter including the harmonics
     evalfunToCompute = {'sl'}; % Stimulus locked
 
     % TODO: With this function you can only denoise with 10 or 75 PCs, if you
@@ -97,4 +123,4 @@ if ~exist(fullfile(inputDataDir, 'savedProcData', [sessionDir fitDataStr '.mat']
 end
 
 
-DFDfigurespectrum(sessionNums, conditionNumbers, inputDataDir, fitDataStr, figureDir, saveFigures)
+DFDfigurespectrum(sessionNums, conditionNumbers, inputDataDir, fitDataStrBB, figureDir, saveFigures)

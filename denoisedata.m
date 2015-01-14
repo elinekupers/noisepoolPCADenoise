@@ -82,7 +82,7 @@ if notDefined('evalfun'),   evalfun   = @(x)getbroadband(x,opt.freq);  end
 if notDefined('opt'),       opt       = struct();                      end
 if ~isfield(opt,'npoolmethod'),   opt.npoolmethod = {'r2','n',60};     end
 if ~isfield(opt,'epochGroup'),    opt.epochGroup  = 1:nepoch;          end
-if ~isfield(opt,'npcs2try'),      opt.npcs2try    = [];                end
+if ~isfield(opt,'npcs2try'),      opt.npcs2try    = 10;                end
 if ~isfield(opt,'fitbaseline'),   opt.fitbaseline = false;             end
 if ~isfield(opt,'xvalratio'),     opt.xvalratio   = -1;                end
 if ~isfield(opt,'resampling'),    opt.resampling  = {'xval','xval'};   end
@@ -273,6 +273,7 @@ end
 if ~iscell(evalfun), evalfun = {evalfun}; end
 nmodels = length(evalfun);
 % we can skip through this step if user specifies the numbers pcs we want
+
 if opt.pcstop > 0 
     if opt.verbose
         fprintf('(denoisedata) trying %d pcs \n', opt.npcs2try);

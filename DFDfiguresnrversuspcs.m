@@ -16,11 +16,11 @@ if ~isfield(opt,'saveFigures'),         opt.saveFigures      = false; end
 if plotBb
     % noisepool selection by SNR, highpass filtered, 10 pcs removed
     % bootstrapped 1000 x. Broadband as evalfun
-%     fitDataStr   = 'b2fr_hpf2_fitfull75p1k';
-    fitDataStr   = 'b2fr_hpf2_fit10p1k';
+    fitDataStr   = 'b2fr_hpf2_fitfull75p1k';
+%     fitDataStr   = 'b2fr_hpf2_fit10p1k';  % <------ FIX THIS HARDCODED PART
 else
     % Same as above, but with stimulus locked as evalfun, and not hpf'ed
-    fitDataStr   = 'b2frSL_fit10p1k';
+    fitDataStr   = 'b2frSL_fitfull75p1k'; % <------ FIX THIS HARDCODED PART
 end
 
 condColors   = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
@@ -28,14 +28,14 @@ axmax = 10; % how far to go out on the x-axis
 
 
 %% SNR increase as a function of number of PCs removed, 3 example sessions - Fig. 6A
-exampleSessions = [6,7,8];
+exampleSessions = [3,4,5];
 linecolors = copper(157);
 
 for k = 1:length(exampleSessions)
     % get session
     sessionDir = DFDgetdatapaths(exampleSessions(k),conditionNumbers,inputDataDir);
     % load fit file
-    thisfile = fullfile(inputDataDir,sprintf('%s%s',sessionDir,fitDataStr));
+    thisfile = fullfile(inputDataDir,'savedProcData',sprintf('%s%s',sessionDir,fitDataStr));
     disp(thisfile); load(thisfile,'results','evalout');
     
     % get snr
@@ -54,7 +54,7 @@ for k = 1:length(exampleSessions)
         plot(0:axmax, xvaltrend(1:axmax+1,:), 'color', condColors(icond,:), 'linewidth',2);
         %plot(axmax+1, xvaltrend(51,:), 'o', 'color', condColors(icond,:));
         axis square; xlim([0,axmax]);
-        if plotbb, ylim([0,15]); else ylim([0,50]); end
+        if plotBb, ylim([0,15]); else ylim([0,50]); end
         makeprettyaxes(gca,9,9);
     end
 end
@@ -70,7 +70,7 @@ snr_top10 = [];
 for k = 1:length(sessionNums)
     sessionDir = DFDgetdatapaths(sessionNums(k),conditionNumbers,inputDataDir);
     % load fit file
-    thisfile = fullfile(inputDataDir,sprintf('%s%s',sessionDir,fitDataStr));
+    thisfile = fullfile(inputDataDir,'savedProcData',sprintf('%s%s',sessionDir,fitDataStr));
     disp(thisfile); load(thisfile,'results','evalout');
     
     snr = abs(cat(3,evalout(:,whichFun).beta_md)) ./ cat(3,evalout(:,whichFun).beta_se);
@@ -93,10 +93,10 @@ ttls = {'FULL','RIGHT','LEFT'};
 for icond = 1:3
     subplot(1,3,icond);hold on;
     for nn = 1:8 % for each subject
-        plot(0:75, squeeze(snr_top10(:,icond,nn)), 'color', squeeze(colorRGB(icond,nn,:)));
+        plot(0:axmax, squeeze(snr_top10(:,icond,nn)), 'color', squeeze(colorRGB(icond,nn,:)));
     end
     axis square; xlim([0,axmax]);
-    if plotbb
+    if plotBb
         ylim([0,12]); set(gca,'ytick',0:5:10);
     else
         ylim([0,40]); set(gca,'ytick',0:10:40);

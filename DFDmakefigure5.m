@@ -36,7 +36,7 @@ conditionNumbers    = 1:6;      % Choose 1:6 to get all conditions: Full,
 
 fitDataStrBB        = 'b2fr_hpf2_fit10p1k'; % this string is needed to get the correct saved beta values
 fitDataStrSL        = 'b2frSL_fit10p1k';
-%fitDataStr         = 'b2frSL_fit10p1k';
+fitDataStr         = 'b2fr_hpf2_fit10p1k';
 whichFun            = 1; % I don't exactly know what the difference is betweeen function 1 and 2
 figureDir           = fullfile(DFDrootpath, 'figures');
 
@@ -44,6 +44,7 @@ figureDir           = fullfile(DFDrootpath, 'figures');
 inputDataDir = fullfile(DFDrootpath, 'data'); % Note: New data matrices will 
                                               % also get stored in the same folder.
 
+% We only check for subject 1, since we only need this subject to reproduce plot
 [sessionDir] = DFDgetdatapaths(sessionNums,conditionNumbers,inputDataDir);
 
 if ~exist(fullfile(inputDataDir, 'savedProcData', [sessionDir fitDataStrBB '.mat']),'file');
@@ -116,8 +117,7 @@ end
 %                               pre and post denosing separately)
 
 % TODO: add plotting functions to the aux folder, so it will not depend on Fieldtrip toolbox on server 
-DFDfigurespatialmap(5, sessionNums, conditionNumbers,inputDataDir, fitDataStr, whichFun, figureDir,saveFigures);
-
+DFDfigurespatialmap(5, sessionNums, conditionNumbers,inputDataDir, fitDataStrBB, whichFun, figureDir,saveFigures);
 
 
 

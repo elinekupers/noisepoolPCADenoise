@@ -1,5 +1,34 @@
 function DFDfigurespectrum(sessionNums, conditionNumbers, inputDataDir, fitDataStr, figuredir, savefigures)
-
+%% Reproduce spectrum of example channel (Figure 4)
+%  before and after using the 'Denoise Field Data' algorithm of the paper:
+%
+%   AUTHORS. YEAR. TITLE. JOURNAL. VOLUME. ISSUE. DOI.
+%
+% DFDfigurespectrum(sessionNums, conditionNumbers, inputDataDir, ...
+%                                       fitDataStr, figuredir, savefigures)
+%
+% Inputs:
+%   sessionNums:        Vector of data sets (1 to 8)
+%                       [default=1:8]
+%   conditionNumbers:   Vector of conditions to use (1 to 6)
+%                       [default=1:6]
+%   inputDataDir:       String to define data directory
+%                       [default=ullfile(DFDrootpath, 'data')]
+%   fitDataStr:         String to define which input preproc data set to use
+%                       [default='b2fr_hpf2_fit10p1k']
+%   figuredir:          String to define where to save figures
+%                       [fullfile(DFDrootpath,'figures')]
+%   savefigures:        Boolean whether to save figures or not
+%                       [default=false]
+%
+% Outputs:
+%   Three figures containing (1) Spectrum of an example channel for
+%   stimulus signal, and baseline. (2). Zooming in on higher frequencies
+%   above 60 Hz and how spectrum looks after high pass filtering. (3)
+%   Distributions of fractions of bootstraps before and after denoising.
+%
+% Example: Spectra of channel 42, session 1 and don't save figures
+%   DFDfigurespectrum(1, 1:6, fullfile(DFDrootpath, 'data'),'b2fr_hpf2_fit10p1k', fullfile(DFDrootpath,'figures'), false)
 
 %% define and load example data set
 
