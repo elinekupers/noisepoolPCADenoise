@@ -1,3 +1,5 @@
+clear all; close all;
+
 %% Script to reproduce Figure 11A SNR against PCs removed for 3 example subjects 
 % and Figure 11b, SNR for top ten channels against PCs removed for all
 % subjects in stimulus-locked signals
@@ -68,7 +70,7 @@ saveEpochGroup   = false;   % Epochs can be grouped in a certain order,
                             
 figureDir        = fullfile(DFDrootpath, 'figures');
 
-saveFigures      = false;   % Save figures in the figure folder?
+saveFigures      = true;   % Save figures in the figure folder?
 
 %% Check whether we got our preprocessed data matrices
 sessionNums_tmp_BB = [];

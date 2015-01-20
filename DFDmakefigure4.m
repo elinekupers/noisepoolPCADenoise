@@ -1,3 +1,5 @@
+clear all; close all;
+
 %% Script to reproduce Figure 4abc (Example data set) for one channel in example subject
 %
 % AUTHORS. TITLE. JOURNAL. YEAR.
@@ -56,7 +58,7 @@ saveEpochGroup      = false;    % Epochs can be grouped in a certain order,
                                                      
 figureDir           = fullfile(DFDrootpath, 'figures');
 
-saveFigures         = false;    % Save figures in the figure folder?
+saveFigures         = true;    % Save figures in the figure folder?
 
 inputDataDir = fullfile(DFDrootpath, 'data'); % Note: New data matrices will 
                                               % also get stored in the same folder.
@@ -102,6 +104,8 @@ if ~exist(fullfile(inputDataDir, 'savedProcData', [sessionDir fitDataStrBB '.mat
 
     evalfunToCompute = {'bb'}; % Broadband
     saveDenoiseTs    = true; % You need denoised ts to make the spectrum figure.
+    doHpc            = true;
+    
 
     resultsBB        = DFDDenoiseWrapper(sessionNums, [], [], doHpc, [], [], ...
                                             evalfunToCompute, [], saveDenoiseTs);

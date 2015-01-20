@@ -1,3 +1,5 @@
+clear all; close all;
+
 %% Script to reproduce Figure 9 (Spatialmap) for right minus left denoised activations 
 %
 %
@@ -26,7 +28,7 @@ saveData            = true;     % Separate matfiles are saved, in order to
                                 % speed up the script if you only want to plot.
 saveEpochGroup      = false;    % Epochs can be grouped in a certain order, 
                                 % you can save this if you like.
-saveFigures         = false;    % Save figures in the figure folder?
+saveFigures         = true;    % Save figures in the figure folder?
 conditionNumbers    = 1:6;      % Choose 1:6 to get all conditions: Full, 
                                 % left, right (for 'on' 1,2,3 and 'off' 4,5,6)
                                 % conditions. 

@@ -28,7 +28,7 @@ condColors   = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
 %% S, N, and SNR shown separately, before versus after denoising with 10
 %% PCs. For 3 example sessions - Fig. 7A,B,C
 
-exampleSessions = [7,8,5]; % Helena's [5,6,9]
+exampleSessions = [3,4,5]; % Helena's [5,6,9]
 for k = 1:length(exampleSessions)
     fprintf(' session %d \n', exampleSessions(k));
     sessionDir = DFDgetdatapaths(exampleSessions(k),conditionNumbers,inputDataDir);
@@ -92,7 +92,11 @@ for k = 1:length(exampleSessions)
 end
 
 if saveFigures
-    figurewrite(fullfile(figureDir,'Figure7abc_snrexamples'),[],0,'.',1);
+    if plotBb
+        figurewrite(fullfile(figureDir,'Figure7abc_snrexamples'),[],0,'.',1);
+    else
+        figurewrite(fullfile(figureDir,'Figure12abc_snrexamples_SL'),[],0,'.',1);
+    end
 end
 
 %% Plot changes in SNR before and after denoising, showing all sessions
@@ -128,7 +132,11 @@ for icond = 1:3
 end
 
 if saveFigures
-    figurewrite(fullfile(figureDir,'FigureD_snrfull_sat'),[],0,'.',1);
+    if plotBb
+        figurewrite(fullfile(figureDir,'Figure7D_snrfull_sat'),[],0,'.',1);
+    else
+        figurewrite(fullfile(figureDir,'Figure12D_snrfull_sat_SL'),[],0,'.',1);
+    end
 end
 
 return

@@ -1,3 +1,5 @@
+clear all; close all;
+
 %% Script to reproduce Figure 6A SNR against PCs removed for 3 example subjects 
 % and Figure 6b, SNR for top ten channels against PCs removed for all
 % subjects.
@@ -68,15 +70,16 @@ saveEpochGroup   = false;   % Epochs can be grouped in a certain order,
                             
 figureDir        = fullfile(DFDrootpath, 'figures');
 
-saveFigures      = false;   % Save figures in the figure folder?
+saveFigures      = true;   % Save figures in the figure folder?
 
 %% Check whether we got our preprocessed data matrices
 sessionNums_tmp_BB = [];
 sessionNums_tmp_SL = [];
 
 for ii = sessionNums
-    % Get session name and top directory
-    % This can be modified so that top directory points somewhere else
+    % Get session name and see whether a saved preprocessed data matrix
+    % already exists. If not, we will do that for those sessions in the
+    % next section
     dataset = DFDgetdatapaths(ii,conditionNumbers,inputDataDir);
     if ~exist(fullfile(inputDataDir, 'savedProcData', [dataset fitDataStrBB '.mat']),'file');
         sessionNums_tmp_BB(ii) = ii; % Get sessionNumbers for those that dont exist

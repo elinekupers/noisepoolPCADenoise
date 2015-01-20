@@ -63,7 +63,8 @@ function [sensorData, design, badChannels, conditionNames, okEpochs] = ...
 
 % TODO: this should be replaced by a weighted average of all other
 % channels, rather than those within a neighborhood
-badEpochAvg = [6,6,6,8,8,6,8,8,6,6,8,8];
+% badEpochAvg = [6,6,6,8,8,6,8,8,6,6,8,8]; % Helena's order
+badEpochAvg = [6,8,8,6,6,6,8,8]; % Our datasets order
 
 % A string attached to the end of session name to distinguish the kind of
 % processing that's been done. see Readme.txt in inputDataDir

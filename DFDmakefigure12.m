@@ -1,3 +1,5 @@
+clear all; close all;
+
 %% Script to reproduce Figure 11ABCD S, N, SNR pre-post denoising SL only
 % for top ten channels of all subjects
 %
@@ -62,7 +64,7 @@ saveEpochGroup   = false;   % Epochs can be grouped in a certain order,
                             
 figureDir        = fullfile(DFDrootpath, 'figures');
 
-saveFigures      = false;   % Save figures in the figure folder?
+saveFigures      = true;   % Save figures in the figure folder?
 
 %% Check whether we got our preprocessed data matrices
 sessionNums_tmp_BB = [];

@@ -1,3 +1,5 @@
+clear all; close all;
+
 %% Script to reproduce Figure 7ABCD S, N, SNR pre-post denoising
 % for top ten channels of all subjects
 % subjects.
@@ -41,7 +43,7 @@ noisePoolSelection = 'r';   % r - noise pool selection (and pc cutoff, if
 doHPF              = 'hpf2';% hpf2 - high pass filtered with a sharp cutoff
                             % at 62 Hz and without stimulus harmonics                        
                             
-nrPCs              = 'fitfull75'; % fit10 - jump to 10 PCs as cutoff,
+nrPCs              = 'fit10'; % fit10 - jump to 10 PCs as cutoff,
                             % In Process: (fitfull10 - don't jump to 10, but denoise all
                             %             channels in between 0 and 10
                             %             PCs.)
@@ -62,7 +64,7 @@ saveEpochGroup   = false;   % Epochs can be grouped in a certain order,
                             
 figureDir        = fullfile(DFDrootpath, 'figures');
 
-saveFigures      = false;   % Save figures in the figure folder?
+saveFigures      = true;   % Save figures in the figure folder?
 
 %% Check whether we got our preprocessed data matrices
 sessionNums_tmp_BB = [];
@@ -121,7 +123,7 @@ if ~isempty(sessionNums_tmp_BB)
     doHpc            = true; % High pass filter data 
     evalfunToCompute = {'bb'}; % Broadband
     saveDenoiseTs    = true; % You need denoised ts to make the spectrum figure.
-    pcstop10         = false; % To use all PC's in the noise pool (not just number 10)
+    pcstop10         = true; % To use all PC's in the noise pool (not just number 10)
 
     resultsBB        = DFDDenoiseWrapper(sessionNums_tmp, [], [], doHpc, [], pcstop10, ...
                                             evalfunToCompute, [], saveDenoiseTs);
@@ -135,7 +137,7 @@ if ~isempty(sessionNums_tmp_SL)
 
     doHpc            = false; % in this case you don't want to high pass the filter including the harmonics
     evalfunToCompute = {'sl'}; % Stimulus locked
-    pcstop10         = false; % use all PC's in the noise pool (not just number 10)
+    pcstop10         = true; % use all PC's in the noise pool (not just number 10)
 
     % TODO: With this function you can only denoise with 10 or 75 PCs, if you
     % want to specify any number of PCs yourself, we should change the
