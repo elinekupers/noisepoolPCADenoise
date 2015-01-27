@@ -20,7 +20,7 @@ figuredir = 'manuscript_figs/figure_snrVpcs';
 savefigures  = false;
 
 %% SNR increase as a function of number of PCs removed, 3 example sessions - Fig. 6A
-exampleSessions = [5,6,9];
+exampleSessions = sessionNums; %[5,6,9]
 linecolors = copper(157);
 
 for k = 1:length(exampleSessions)
@@ -36,6 +36,7 @@ for k = 1:length(exampleSessions)
     % plot for each condition
     for icond = 1:3
         subplot(3,3,(k-1)*3+icond); hold on;
+%         subplot(8,3,(k-1)*3+icond); hold on
         this_snr = squeeze(snr(icond,:,:))';
         % plot each channel's snr as a function of number of pc's
         for ic = 1:size(this_snr,2)

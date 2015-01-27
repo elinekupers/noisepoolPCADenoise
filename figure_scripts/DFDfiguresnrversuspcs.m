@@ -28,7 +28,7 @@ axmax = 10; % how far to go out on the x-axis
 
 
 %% SNR increase as a function of number of PCs removed, 3 example sessions - Fig. 6A
-exampleSessions = [3,4,5];
+exampleSessions = [1:8];%[3,4,5];
 linecolors = copper(157);
 
 for k = 1:length(exampleSessions)
@@ -43,7 +43,7 @@ for k = 1:length(exampleSessions)
     
     % plot for each condition
     for icond = 1:3
-        subplot(4,3,(k-1)*3+icond); hold on;
+        subplot(8,3,(k-1)*3+icond); hold on;
         this_snr = squeeze(snr(icond,:,:))';
         % plot each channel's snr as a function of number of pc's
         for ic = 1:size(this_snr,2)
@@ -93,9 +93,10 @@ end
 satValues = linspace(0.1,1,8);
 colorRGB = varysat(condColors,satValues);
 ttls = {'FULL','RIGHT','LEFT'};
+
 % plot for each condition
 for icond = 1:3
-    subplot(4,3,9+icond);hold on;
+    subplot(1,3,icond);hold on;
     for nn = 1:8 % for each subject
         plot(0:axmax, squeeze(snr_top10(:,icond,nn)), 'color', squeeze(colorRGB(icond,nn,:)));
     end
