@@ -1,6 +1,13 @@
 General purpose denoising suite that denoises EEG/MEG/ECoG data
 
---- Add Matlab toolbox dependencies ---
+This denoising suite is dependent on MATLAB Version 8.4
+
+——- With the following Matlab toolbox dependencies ---
+
+Statistics Toolbox (v 9.1)
+Signal Processing Toolbox (v 6.22)
+Neural Network Toolbox (v 8.2.1)
+
 
 
 ---
