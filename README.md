@@ -1,16 +1,58 @@
+Welcome to our Denoise project code repository!
+
 General purpose denoising suite that denoises EEG/MEG/ECoG data
 
 This denoising suite is dependent on MATLAB Version 8.4
 
-——- With the following Matlab toolbox dependencies ---
+—————————————————————————————————————————————————————-
+——-——-——-——-——- Matlab toolbox dependencies ——-———————
+—————————————————————————————————————————————————————-
 
 Statistics Toolbox (v 9.1)
 Signal Processing Toolbox (v 6.22)
 Neural Network Toolbox (v 8.2.1)
 
+—————————————————————————————————————————————————————-
+——-——-——-——-——-——- Folder structure ——-——-——-——-——-——-
+—————————————————————————————————————————————————————-
+
+Data 		: Contains Folders with example data 
+		sets and a folder with saved processed 
+		data matrices, in order to reproduce 
+		figures faster after denoising.
+
+Experiments 	: Scripts and functions specific to 
+		denoise MEG or EEG data with an on/off
+		steady state stimulus paradigm.
+
+External 	: General functions from other 
+		toolboxes, repositories or researchers 
+
+Figure scripts 	: Scripts to make figures 4-12 from  
+		the manuscript.
+
+Figures		: Folder where figures will be saved
+		in .eps format, if requested.
+
+Funcs		: Functions that specify how to define
+		the ‘noise’ channel pool, signal of 
+		interest, and filtering options.
+
+Scripts		: Scripts to preload and shape the 
+		data before denoising.
+
+Denoisedata.m	: main function to denoise time series.
+
+DFDdownloaddata.m : Download example datasets from web.
+
+DFDaddpaths.m	: Add paths with functions to make 
+		this repository run smoothly.
 
 
----
+—————————————————————————————————————————————————————-
+——-——-——-——-——- General flow of scripts -——-——-——-——-—
+—————————————————————————————————————————————————————-
+
 INPUT:
 
 1) Data (channel x time x epoch)
