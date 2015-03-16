@@ -1,4 +1,4 @@
-function DFDfiguresnrversuspcs(sessionNums, conditionNumbers, plotBb, inputDataDir, whichFun, figureDir, saveFigures)
+function DFDfigure_SNRversusPCs(sessionNums, conditionNumbers, plotBb, inputDataDir, whichFun, figureDir, saveFigures)
 
 %% define paths and data sets
 

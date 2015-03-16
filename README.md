@@ -2,7 +2,7 @@ Welcome to our Denoise project code repository!
 
 General purpose denoising suite that denoises EEG/MEG/ECoG data
 
-This denoising suite is dependent on MATLAB Version 8.4
+This denoising suite is was developed on MATLAB Version 8.4
 
 —————————————————————————————————————————————————————-
 ——-——-——-——-——- Matlab toolbox dependencies ——-———————
@@ -91,3 +91,10 @@ OUTPUT:
 
 4) Denoised output data (output of evalfun)
 
+—————————————————————————————————————————————————————-
+——-——-——-——-——- Example -----------------——-——-——-——-—
+—————————————————————————————————————————————————————-
+Recreate figure 4 from manuscript. In the Matlab prompt, type:
+
+DFDaddpaths
+ok = DFDmakefigure4()

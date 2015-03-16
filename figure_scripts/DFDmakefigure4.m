@@ -1,7 +1,9 @@
-clear all; close all;
-
-%% Script to reproduce Figure 4abc (Example data set) for one channel in example subject
+function DFDmakefigure4()
+% Function to reproduce Figure 4abc (Example data set) for one channel in
+% example subject
 %
+% ok = DFDmakefigure4()
+% 
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
 % This figure will show (a) an the Fourier transformed amplitudes of an example 
@@ -12,7 +14,7 @@ clear all; close all;
 % after using the denoising algorithm. The three separate conditions (Full,
 % left, right hemifield stimulation are shown separately). 
 %
-% This script assumes that data is downloaded with the DFDdownloaddata
+% This function assumes that data is downloaded with the DFDdownloaddata
 % function. 
 
 %% Choices to make:
@@ -66,7 +68,7 @@ inputDataDir = fullfile(DFDrootpath, 'data'); % Note: New data matrices will
 % Get session dir for one subject
 [sessionDir] = DFDgetdatapaths(sessionNums,conditionNumbers,inputDataDir);
 
-% Check whether the saved data mat file already exists.. Otherwise, make it 
+% Check whether the saved data mat file already exists. Otherwise, make it. 
 if ~exist(fullfile(inputDataDir, 'savedProcData', [sessionDir fitDataStrBB '.mat']),'file');
     
     %% Prepare for denoising (Do we want to separate more part of this preload function?)
@@ -120,8 +122,8 @@ if ~exist(fullfile(inputDataDir, 'savedProcData', [sessionDir fitDataStrSL '.mat
 
     % TODO: With this function you can only denoise with 10 or 75 PCs, if you
     % want to specify any number of PCs yourself, we should change the
-    % function. For the SL signal, we will just use the original GLM solution.
-
+    % function. For the SL signal, we will just use the original GLM solution.    
+    doHpc            = false;
     resultsSL        = DFDDenoiseWrapper(sessionNums, [], [], doHpc, [], [], ...
                                             evalfunToCompute, [], []);  
 end

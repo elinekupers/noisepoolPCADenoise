@@ -32,8 +32,12 @@ function printnice(figs,mode,directory,prefix)
 
 % input
 if ~exist('figs','var') || isempty(figs)
-  figs = [gcf];
+  figs = [gcf];  
 end
+
+% Deal with matlab figure class in case we are in matlab 8.4 or later
+if ~isnumeric(figs) figs = [figs.Number]; end
+
 if ~exist('mode','var') || isempty(mode)
   mode = 0;
 end

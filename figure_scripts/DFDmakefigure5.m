@@ -1,6 +1,5 @@
-clear all; close all;
-
-%% Script to reproduce Figure 5 (Spatialmap) from example subject 
+function DFDmakefigure5()
+%% Function to reproduce Figure 5 (Spatialmap) from example subject 
 %
 %
 % AUTHORS. TITLE. JOURNAL. YEAR.
@@ -10,7 +9,7 @@ clear all; close all;
 % after using the denoising algorithm. The three separate conditions (Full,
 % left, right hemifield stimulation are shown separately). 
 %
-% This script assumes that data is downloaded with the DFDdownloaddata
+% This function assumes that data is downloaded with the DFDdownloaddata
 % function. 
 
 %% Choices to make:
@@ -26,7 +25,7 @@ sessionNums         = 1;        % Choose 1:8 if you would like all the subjects.
 sensorDataStr       = 'b2';     % Some sort of data type. TODO: Explain and 
                                 % put other types here as well.
 saveData            = true;     % Separate matfiles are saved, in order to 
-                                % speed up the script if you only want to plot.
+                                % speed up the function if you only want to plot.
 saveEpochGroup      = false;    % Epochs can be grouped in a certain order, 
                                 % you can save this if you like.
 saveFigures         = true;    % Save figures in the figure folder?
@@ -57,7 +56,7 @@ if ~exist(fullfile(inputDataDir, 'savedProcData', [sessionDir fitDataStrBB '.mat
     % This part just preprocessing and reshaping the input data. 'Bad' channels
     % and 'ok' epochs are defined, and these epochs will get a new value by
     % averaging the surrounding epochs of the same channel. Also, the design
-    % matrix will be made, to use later on in the DFDDenoiseAll script.
+    % matrix will be made, to use later on in the DFDDenoiseAll function.
     
     % Preload and save data as a 'Session+preprocessing' matlab file. Saved will get a
     % name like "04_SSMEG_04_01_2014b2.mat"

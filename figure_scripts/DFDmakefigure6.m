@@ -1,6 +1,5 @@
-clear all; close all;
-
-%% Script to reproduce Figure 6A SNR against PCs removed for 3 example subjects 
+function DFDmakefigure6()
+%% function to reproduce Figure 6A SNR against PCs removed for 3 example subjects 
 % and Figure 6b, SNR for top ten channels against PCs removed for all
 % subjects.
 %
@@ -12,20 +11,22 @@ clear all; close all;
 % the number of PCs removed. The median is plotted in the color of the
 % condition. In Figure 6B, only the median of all channels for SNR against
 % number of PCs removed, for all subjects, for the three conditions. This
-% script needs all 
+% function needs all 
 %
-% This script assumes that data is downloaded with the DFDdownloaddata
+% This function assumes that data is downloaded with the DFDdownloaddata
 % function. 
 
 %% Choices to make:
 
-sessionNums        = [1:8];   % You need all subjects for this figure 
+sessionNums        = 1:8;   % You need all subjects for this figure 
                             % Choose a particular number if you would like
                             % a specific subject
 plotBb             = true;  % True = Broadband, false = Stim locked                            
 
-inputDataDir       = fullfile(DFDrootpath, 'data'); % Note: New data matrices will 
-                                                    % also get stored in the same folder.
+% Note: inputDataDir is the source of raw data. It is also where denoised
+% data will get written
+inputDataDir       = fullfile(DFDrootpath, 'data'); 
+
 whichFun           = 1;     % ToDo: figure out what this means..
 
 conditionNumbers   = 1:6;   % Choose 1:6 to get all conditions: Full, 
@@ -64,7 +65,7 @@ fitDataStrSL       = [sensorDataStr freqDefinition noisePoolSelection 'SL_' ...
                         nrPCs xBoots]; 
 
 saveData         = true;    % Separate matfiles are saved, in order to 
-                            % speed up the script if you only want to plot.
+                            % speed up the function if you only want to plot.
 saveEpochGroup   = false;   % Epochs can be grouped in a certain order, 
                             % you can save this if you like.
                             
@@ -154,6 +155,6 @@ if ~isempty(sessionNums_tmp_SL)
                                             evalfunToCompute, [], []);
 end
 %% Make figure
-DFDfiguresnrversuspcs(sessionNums, conditionNumbers, plotBb, inputDataDir, whichFun, figureDir, saveFigures)
+DFDfigure_SNRversusPCs(sessionNums, conditionNumbers, plotBb, inputDataDir, whichFun, figureDir, saveFigures)
 
 
