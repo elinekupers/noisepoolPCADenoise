@@ -21,42 +21,37 @@ function DFDmakefigure4()
 
 sessionNums         = 1;        % Subject 1 has the example channel.
                                 % Choose 1:8 if you would like all the subjects.
-conditionNumbers    = 1:6;      % Choose 1:6 to get all conditions: Full, 
-                                % left, right (for 'on' 1,2,3 and 'off' 4,5,6)
-                                % conditions. 
-                                % If you like only a certain conditions e.g.
-                                % full on and off define this variable as [1,4]
-sensorDataStr       = 'b2';     % Use second version of defining data:
-                                % data created by allowing fewer 0 epochs, 
-                                % using the new data format (such that design 
-                                % matrix and condition order are as they occurred 
-                                % in the experiment)
+% sensorDataStr       = 'b2';   % Use second version of defining data:
+                                    % data created by allowing fewer 0 epochs, 
+                                    % using the new data format (such that design 
+                                    % matrix and condition order are as they occurred 
+                                    % in the experiment)
                             
-freqDefinition      = 'f';      % f  - uses new definition of ab_i for freq 
-                                % (includes more points; excludes 1 pt either side rather than 3)
+% freqDefinition      = 'f';      % f  - uses new definition of ab_i for freq 
+%                                 % (includes more points; excludes 1 pt either side rather than 3)
 
-noisePoolSelection  = 'r';      % r - noise pool selection (and pc cutoff, if 
-                                % selected by algorithm) by SNR rather than by R2
+% noisePoolSelection  = 'r';      % r - noise pool selection (and pc cutoff, if 
+%                                 % selected by algorithm) by SNR rather than by R2
 
-doHPF               = 'hpf2';   % hpf2 - high pass filtered with a sharp cutoff
-                                % at 62 Hz and without stimulus harmonics                        
+% doHPF               = 'hpf2';   % hpf2 - high pass filtered with a sharp cutoff
+%                                 % at 62 Hz and without stimulus harmonics                        
                             
-nrPCs               = 'fit10';  % fit10 - always use 10 PCs as cutoff,
-                               % fitfull75 - use all channels in noisepool
-
-xBoots              = 'p1k';     % p1k - bootstrapped 1000x rather than 100x (p100)
+% nrPCs               = 'fit10';  % fit10 - always use 10 PCs as cutoff,
+%                                % fitfull75 - use all channels in noisepool
+% 
+% xBoots              = 'p1k';     % p1k - bootstrapped 1000x rather than 100x (p100)
                           
-fitDataStrBB          = [sensorDataStr freqDefinition noisePoolSelection '_' ...
-                        doHPF '_' nrPCs xBoots]; % 'b2fr_hpf2_fit10p1k', this string is needed to get the correct saved beta values
+% fitDataStrBB          = [sensorDataStr freqDefinition noisePoolSelection '_' ...
+%                         doHPF '_' nrPCs xBoots]; % 'b2fr_hpf2_fit10p1k', this string is needed to get the correct saved beta values
+%                     
+% fitDataStrSL          = [sensorDataStr freqDefinition noisePoolSelection 'SL_' ...
+%                         nrPCs xBoots];  % ''b2frSL_fit10p1k'', this string is needed to get the correct saved beta values
+%                     
                     
-fitDataStrSL          = [sensorDataStr freqDefinition noisePoolSelection 'SL_' ...
-                        nrPCs xBoots];  % ''b2frSL_fit10p1k'', this string is needed to get the correct saved beta values
-                    
-                    
-saveData            = true;     % Separate matfiles are saved, in order to 
-                                % speed up the script if you only want to plot.
-saveEpochGroup      = false;    % Epochs can be grouped in a certain order, 
-                                % you can save this if you like.
+% saveData            = true;     % Separate matfiles are saved, in order to 
+%                                 % speed up the script if you only want to plot.
+% saveEpochGroup      = false;    % Epochs can be grouped in a certain order, 
+%                                 % you can save this if you like.
                                                      
 figureDir           = fullfile(DFDrootpath, 'figures');
 
@@ -64,9 +59,14 @@ saveFigures         = true;    % Save figures in the figure folder?
 
 inputDataDir = fullfile(DFDrootpath, 'data'); % Note: New data matrices will 
                                               % also get stored in the same folder.
-                                              
+
+
+% ***********************************************************************
+% ****************** START EDITING FROM HERE ****************************
+% ***********************************************************************
+
 % Get session dir for one subject
-[sessionDir] = DFDgetdatapaths(sessionNums,conditionNumbers,inputDataDir);
+[sessionDir] = DFDgetdatapaths(sessionNums,inputDataDir);
 
 % Check whether the saved data mat file already exists. Otherwise, make it. 
 if ~exist(fullfile(inputDataDir, 'savedProcData', [sessionDir fitDataStrBB '.mat']),'file');
