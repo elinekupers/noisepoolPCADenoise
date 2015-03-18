@@ -74,10 +74,10 @@ tmp = denoise_ts{1};
 denoise_ts = NaN(157, size(tmp,2), size(tmp,3));
 denoise_ts(~badChannels, :, :) = tmp;
 
-% if requested, save the denoised ts
-if save_denoise_ts
-    save(fullfile(megDataDir, 'denoised_ts'), 'denoise_ts', 'design');
-end
+% % if requested, save the denoised ts
+% if save_denoise_ts
+%     save(fullfile(megDataDir, 'denoised_ts'), 'denoise_ts', 'design');
+% end
 
 %tmpmegdir = '/Volumes/HelenaBackup/denoisesuite/tmpmeg/';
 %save(fullfile('megfigs/matfiles',sprintf('%sb2_hpf2_fitfull0',dataset)),'results', 'badChannels');

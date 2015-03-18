@@ -50,7 +50,7 @@ switch lower(montageType)
         % reshape 2d sensorDataOut into 3d data matrix (chan x time x epoch)
         sensorDataOut = reshape(sensorDataOut, sz(1), sz(2), []);
     
-    case {'neuromag306'}
+    case {'neuromag360'}
         
         % we expect 204 gradiometer channels
         assert(sz(1) == 204);
