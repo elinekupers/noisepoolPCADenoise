@@ -1,9 +1,9 @@
-function savePth = DFDdownloaddata(savePth, whichDataSets, whichFiles)
+function savePth = DFDdownloadsampledata(savePth, whichDataSets, whichFiles)
 % Download sample MEG data sets to be denoised by the 'Denoise Field Data'
 % algorithm for the paper:
 %   AUTHORS. YEAR. TITLE. JOURNAL. VOLUME. ISSUE. DOI.
 %
-% savePth = DFDdownloaddata(savePth, whichDataSets, whichFiles)
+% savePth = DFDdownloadsampledata(savePth, whichDataSets, whichFiles)
 %
 % Inputs
 %   savePth: Path to store data. 
