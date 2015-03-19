@@ -50,7 +50,8 @@ for whichSubject = subjects
     opt.remove_badepochs = true;
     
         okEpochs = true(size(sensorData,2),1);
-        okEpochs = okEpochs & dfdIdenitfyBadEpochs(sensorData(,0.5);
+        [sensorData, okEpochs] = dfdIdenitfyBadEpochs(sensorData, data_channels, 0.5);
+%         okEpochs = okEpochs & ;
         
         sensorData = sensorData(:,:,okEpochs);
         design = design(okEpochs,:);
