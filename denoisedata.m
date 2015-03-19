@@ -1,6 +1,6 @@
-function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evokedfun,evalfun,opt)
+function [results,evalout,denoisedspec,denoisedts] = denoiseData(design,data,evokedfun,evalfun,opt)
 % [results,evalout,denoisedspec,denoisedts] = ...
-%         denoisedata(design,data,evokedfun,evalfun,opt)
+%         denoiseData(design,data,evokedfun,evalfun,opt)
 % ---------------------------------------------------------------- 
 % INPUTS:
 % -----------------

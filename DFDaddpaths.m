@@ -1,2 +1,2 @@
 % Script to add DFD directory to Matlab path
-addpath(genpath(DFDrootpath));
+addpath(genpath(dfdRootPath));
