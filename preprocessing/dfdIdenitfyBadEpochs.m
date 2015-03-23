@@ -31,25 +31,46 @@ badData = squeeze(isnan(sensorData(1,:,:)));
 okEpochs = mean(badData)' < threshold;
 
 
-
-
-
-return
-
-
-function bad_epochs = meg_find_bad_epochs(ts, thresh)
-%Identify problem epochs in MEG time series. 
-%
-
-if ~exist('thresh', 'var') || isempty(thresh), 
-    thresh = [0.1 10];
-end
-
-var_matrix       = squeeze(nanvar(ts,[],1)); % var_matrix will be epochs x channels
-var_grand_median = nanmedian(var_matrix(:)); % grand median
-
-bad_epochs = var_matrix < thresh(1) * var_grand_median | ...
-    var_matrix > thresh(2) * var_grand_median;
+% % remove bad epochs
+% if opt.remove_badepochs
+%     okEpochs = okEpochs & megIdenitfyBadEpochs(sensorData,0.5);
+%     sensorData = sensorData(:,:,okEpochs);
+%     epoch_conditions = epoch_conditions(okEpochs,:);
+% end
+% 
+% % find bad channels - those where at least 50% are nan's 
+% badChannels = megIdenitfyBadChannels(sensorData, 0.5);
+% badChannels(98) = 1; % for now we add this in manually
+% if opt.verbose
+%     fprintf('\tbadChannels : '); 
+%     fprintf('%g ', find(badChannels)');
+%     fprintf('\n');
+% end
+% 
+% % remove bad channels and replace remaining bad epochs 
+% if opt.replace_badepochs
+%     net=load('meg160xyz.mat');
+%     sensorData = megReplaceBadEpochs(sensorData,net,[],opt.badepoch_avgchannum);
+% end
+% sensorData = sensorData(~badChannels,:,:);
+% 
+% 
+% return
+% 
+% 
+% function bad_epochs = meg_find_bad_epochs(ts, thresh)
+% %Identify problem epochs in MEG time series. 
+% %
+% 
+% if ~exist('thresh', 'var') || isempty(thresh), 
+%     thresh = [0.1 10];
+% end
+% 
+% var_matrix       = squeeze(nanvar(ts,[],1)); % var_matrix will be epochs x channels
+% var_grand_median = nanmedian(var_matrix(:)); % grand median
+% 
+% bad_epochs = var_matrix < thresh(1) * var_grand_median | ...
+%     var_matrix > thresh(2) * var_grand_median;
 
 return
 

@@ -47,14 +47,13 @@ for whichSubject = subjects
     %% Remove bad channels
     sensorData = data{whichSubject,1}.sensorData(:,:,1:157);
     
-    opt.remove_badepochs = true;
     
-        okEpochs = true(size(sensorData,2),1);
-        [sensorData, okEpochs] = dfdIdenitfyBadEpochs(sensorData, data_channels, 0.5);
-%         okEpochs = okEpochs & ;
-        
-        sensorData = sensorData(:,:,okEpochs);
-        design = design(okEpochs,:);
+    okEpochs = true(size(sensorData,2),1);
+    [sensorData, okEpochs] = dfdIdenitfyBadEpochs(sensorData, data_channels, 0.5);
+    %         okEpochs = okEpochs & ;
+    
+    sensorData = sensorData(:,:,okEpochs);
+    design = design(okEpochs,:);
     
     
     
