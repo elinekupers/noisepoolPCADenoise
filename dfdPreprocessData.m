@@ -6,8 +6,8 @@ function dfdPreprocessData()
 
 %% Variables
 subjects                = 1:8;
-inputDataDir            = fullfile(DFDrootpath, 'data', 'raw');
-outputDataDir           = fullfile(DFDrootpath, 'data', 'preprocessed'); 
+inputDataDir            = fullfile(dfdRootPath, 'data', 'raw');
+outputDataDir           = fullfile(dfdRootPath, 'data', 'preprocessed'); 
 sensorDataPths          = dir(fullfile(inputDataDir, '*sensorData*'));
 conditionsPths          = dir(fullfile(inputDataDir, '*conditions*'));
 opt.remove_badepochs    = true;
