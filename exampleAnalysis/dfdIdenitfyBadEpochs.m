@@ -1,13 +1,13 @@
-function [sensorData, okEpochs] = dfdIdenitfyBadEpochs(sensorDataIn, data_channels, threshold)
+function sensorData = dfdIdenitfyBadEpochs(sensorDataIn, threshold)
 %
 
-
+if notDefined('threshold'), threshold = [.05 20]; end
 %%%%%%%%%%%%%%%%%%% THIS IS SSMEG PREPROC PART %%%%%%%%%%%%%%%%%%%
 % Remove epochs with when the number of bad channels in that epoch exceeds threshold
 
 % This identifies any epochs whos variance is outside some multiple of the
 % grand variance
-bad_epochs = meg_find_bad_epochs(sensorDataIn(:,:,data_channels), [.05 20]);
+bad_epochs = meg_find_bad_epochs(sensorDataIn, threshold);
 
 % any epoch in which more than 10% of channels were bad should be removed
 % entirely
@@ -26,11 +26,10 @@ sensorData = meg_remove_bad_epochs(bad_epochs, sensorDataIn);
 
 %%%%%%%%%%%%%%%%%%% THIS IS HELENA'S PART %%%%%%%%%%%%%%%%%%%
 % sensor data is channels x time x epoch
-badData = squeeze(isnan(sensorData(1,:,:)));
 % average across channels
-okEpochs = mean(badData)' < threshold;
-
-
+% okEpochs = mean(bad_epochs,2) < threshold;
+% 
+%
 % % remove bad epochs
 % if opt.remove_badepochs
 %     okEpochs = okEpochs & megIdenitfyBadEpochs(sensorData,0.5);
