@@ -126,7 +126,7 @@ if nepoch2 ~= nepoch
     opt.epochGroup  = opt.epochGroup(~discardepochs);
     data            = data(:,:,~discardepochs);
     design          = design(~discardepochs,:);
-    extraregressors = extraregressors(:,:,~discardepochs);
+%      extraregressors = extraregressors(:,:,~discardepochs); -----> HACK:
     %nepoch         = epoch2;
 end
 
