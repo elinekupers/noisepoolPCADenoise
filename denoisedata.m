@@ -39,10 +39,15 @@ function [results,evalout,denoisedspec,denoisedts] = denoiseData(design,data,evo
 %                    0: do nothing (default). 1: permute fourier phase. 
 %                    2: permute assignment to epochs. 3: use white fourier
 %                    amplitude but keep fourier phase. 4: use random pcs      
-%     pcstop      :  when to stop adding PCs into the model (default: 1.05)
-%                    Or -n, where n is the user-specified number of PCs to
-%                    use. Note if using this option, we do not go through
-%                    trying to use each number of PCs (see opt.npcs2try)
+%     pcstop      :  how to choose the number of PCs for the denoised model 
+%                    (default: 1.05)
+%                    If positive, then choose the smallest number of PCs,
+%                    such that the median (?) r^2 for this number of PCs
+%                    times pcstop is greater than the highest median r^2 across all possible numbers of PCs tested.
+%                    If negative, then the final model will use -pcstop
+%                    PCs, and pcstop must be an integer. Note if using this
+%                    option, we do not go through trying to use each number
+%                    of PCs (see opt.npcs2try)
 %     preprocessfun: function handle (e.g. hpf) to apply to data before
 %                    computing pcs, removing pcs and computing evalfun 
 %                    (but not before computing stimfun)
@@ -190,11 +195,13 @@ for rp = 1:nrep
     if nnz(currepochs)~=0
         currnoise  = noisedata(:,:,currepochs);
         currnoise  = reshape(currnoise,[], ntime*sum(currepochs))';
+        % check for NaNs
+        badChannels = isnan(sum(currnoise));
+        currnoise = currnoise(:,~badChannels);        
         % unit-length normalize each time-series
         temp = unitlengthfast(currnoise);
         % perform SVD and select top PCs
         [u,s,v] = svd(temp);
-%         [coef,u,eigvals] = princomp(temp);
         
         % get extra regressors, if there are any. concatenate them along with the pcs 
         if ~isempty(extraregressors)
@@ -387,12 +394,12 @@ datast = func(data);
 nepochs = size(datast,1);
 % sanity checks
 assert(nepochs==size(design,1));
-assert(sum(isnan(datast(:)))==0 && sum(isinf(datast(:)))==0);
+% assert(sum(isnan(datast(:)))==0 && sum(isinf(datast(:)))==0);
 
 if ~opt.fitbaseline % remove baseline from data and design
     %pmatrix = projectionmatrix(constructpolynomialmatrix(nepochs,0));
     %datast  = pmatrix*datast; design  = pmatrix*design;
-    datast = bsxfun(@minus, datast, mean(datast));
+    datast = bsxfun(@minus, datast, nanmean(datast));
     design = bsxfun(@minus, design, mean(design));
     r2wantmeansub = 0;
 else % add constant term to design matrix

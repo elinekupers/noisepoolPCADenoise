@@ -3,10 +3,10 @@ function freq = megGetSLandABfrequencies(f, T, slF)
 % (keep_f) frequencies and their indices (sl_i, ab_i, keep_i) into f
 % (frequency vector). Broadband frequencies are all frequencies between min
 % and max excluding harmonics of the stimulus-locked and line noise
-% frequencies. Stimulus locked freuqency is twice the stimulus flicker
+% frequencies. Stimulus locked frequency is twice the stimulus flicker
 % rate. Keep frequencies are the union of AB and SL freqencies.
 %
-% freq = eegGetSLandABfrequencies(f, T, slF)
+% freq = megGetSLandABfrequencies(f, T, slF)
 %
 % Inputs:
 %   f: vector of frequencies

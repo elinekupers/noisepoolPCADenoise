@@ -3,7 +3,7 @@ function savePth = dfdDownloadSampleData(savePth, whichDataSets)
 % algorithm for the paper:
 %   AUTHORS. YEAR. TITLE. JOURNAL. VOLUME. ISSUE. DOI.
 %
-% savePth = dfdDownloadsampledata(savePth, whichDataSets, whichFiles)
+% savePth = dfdDownloadSampleData(savePth, whichDataSets, whichFiles)
 %
 % Inputs
 %   savePth: Path to store data. 
@@ -15,12 +15,12 @@ function savePth = dfdDownloadSampleData(savePth, whichDataSets)
 %   savePth: path where data was written
 %
 % Example 1: Download data from subject 1
-%   savePth = dfdDownloadsampledata([], 1);
+%   savePth = dfdDownloadSampleData([], 1);
 % Example 2: Download data from all subject
-%   savePth = dfdDownloadsampledata();
+%   savePth = dfdDownloadSampleData();
 
 % Argument check
-if notDefined('savePth'),       savePth = fullfile(dfdRootPath, 'data', 'raw'); end
+if notDefined('savePth'),       savePth = fullfile(dfdRootPath, 'data'); end
 if notDefined('whichDataSets'), whichDataSets = 1:8; end
 
 % Site to retrieve the data
