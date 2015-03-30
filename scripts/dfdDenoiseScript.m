@@ -1,11 +1,12 @@
 %% dfdDenoiseScript
 
-% Download data if needed
-%  should we check whether the data has been downloaded already?
-% dfdDownloadSampleData
+% Check for data, download data if needed
+if isempty(fullfile(dfdRootPath, 'data'));
+    error('No data were found. Use dfdDownloadSampleData')
+end
 
 % Load data
-for whichSubject = 1:8
+for whichSubject = 1%:8
     if exist(sprintf(fullfile(dfdRootPath, 'data', 's0%d_sensorData.mat'),whichSubject),'file')
         load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_sensorData.mat'),whichSubject));
     else
@@ -52,6 +53,6 @@ for whichSubject = 1:8
     evalfun             = @(x)getbroadband(x,freq);
     
     
-    [results,evalout,denoisedspec,denoisedts] = denoiseData(design,sensorData,evokedfun,evalfun,opt);
+    [results,evalout,denoisedspec,denoisedts] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
         
 end

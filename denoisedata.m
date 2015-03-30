@@ -1,4 +1,4 @@
-function [results,evalout,denoisedspec,denoisedts] = denoiseData(design,data,evokedfun,evalfun,opt)
+function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evokedfun,evalfun,opt)
 % [results,evalout,denoisedspec,denoisedts] = ...
 %         denoiseData(design,data,evokedfun,evalfun,opt)
 % ---------------------------------------------------------------- 
@@ -85,7 +85,7 @@ function [results,evalout,denoisedspec,denoisedts] = denoiseData(design,data,evo
 if notDefined('evokedfun'), evokedfun = @(x)getstimlocked(x,opt.freq); end
 if notDefined('evalfun'),   evalfun   = @(x)getbroadband(x,opt.freq);  end
 if notDefined('opt'),       opt       = struct();                      end
-if ~isfield(opt,'npoolmethod'),   opt.npoolmethod = {'r2','n',60};     end
+if ~isfield(opt,'npoolmethod'),   opt.npoolmethod = {'r2','n',75};     end
 if ~isfield(opt,'epochGroup'),    opt.epochGroup  = 1:nepoch;          end
 if ~isfield(opt,'npcs2try'),      opt.npcs2try    = 10;                end
 if ~isfield(opt,'fitbaseline'),   opt.fitbaseline = false;             end
