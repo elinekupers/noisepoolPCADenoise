@@ -20,8 +20,8 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 %             output responses of interest for evaluation
 %
 % opt       : options
-%     npoolmethod : noise pool selection method 
-%     epochGroup  : for grouping epochs together for denoising [epoch x 1] vector
+%     npoolmethod : noise pool selection method (see selectnoisepool for details)
+%     epochgroup  : for grouping epochs together for denoising [epoch x 1] vector
 %     npcs2try    : number of pcs to try. if empty, then trying up to the
 %                   number of channels in noisepool. (default = [])
 %     xvalratio   : how to split training and test data for cross
@@ -62,6 +62,10 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 %                    number of extra regressors, and time samples and epoch
 %                    are the same as the 2nd and 3rd dimensions of data
 %                    (default: [])
+%     badepochs   :  epochs to ignore. either a binary vector or a vector
+%                    of indices
+%     badchannels :  channels to ignore. either a binary vector or a vector
+%                    of indices
 %     verbose     :  whether to print messages to screen (default: true)
 % 
 % OUTPUTS:
@@ -86,7 +90,7 @@ if notDefined('evokedfun'), evokedfun = @(x)getstimlocked(x,opt.freq); end
 if notDefined('evalfun'),   evalfun   = @(x)getbroadband(x,opt.freq);  end
 if notDefined('opt'),       opt       = struct();                      end
 if ~isfield(opt,'npoolmethod'),   opt.npoolmethod = {'r2','n',75};     end
-if ~isfield(opt,'epochGroup'),    opt.epochGroup  = 1:nepoch;          end
+if ~isfield(opt,'epochgroup'),    opt.epochgroup  = 1:nepoch;          end
 if ~isfield(opt,'npcs2try'),      opt.npcs2try    = 10;                end
 if ~isfield(opt,'fitbaseline'),   opt.fitbaseline = false;             end
 if ~isfield(opt,'xvalratio'),     opt.xvalratio   = -1;                end
@@ -119,16 +123,16 @@ end
 extraregressors = opt.extraregressors;
 
 % --------------------------------------------------------------
-% discard epochs for which epochGroup is undefined
+% discard epochs for which epochgroup is undefined
 % --------------------------------------------------------------
-nepoch2 = sum(opt.epochGroup~=0);
+nepoch2 = sum(opt.epochgroup~=0);
 if nepoch2 ~= nepoch
     if opt.verbose
         fprintf('(denoisedata) !! discarding %d epochs with undefined epoch group!! \n', nepoch-nepoch2); 
     end
-    opt.epochGroupOrig = opt.epochGroup;
-    discardepochs   = ~ismember(opt.epochGroup, 1:nepoch);
-    opt.epochGroup  = opt.epochGroup(~discardepochs);
+    opt.epochGroupOrig = opt.epochgroup;
+    discardepochs   = ~ismember(opt.epochgroup, 1:nepoch);
+    opt.epochgroup  = opt.epochgroup(~discardepochs);
     data            = data(:,:,~discardepochs);
     design          = design(~discardepochs,:);
 %      extraregressors = extraregressors(:,:,~discardepochs); -----> HACK:
@@ -182,7 +186,7 @@ end
 % compute PCs
 % --------------------------------------------------------------
 % pcs are stored in nrep cells; each cell is a matrix of [ntime x npcs2try]
-nrep = max(opt.epochGroup);
+nrep = max(opt.epochgroup);
 if opt.verbose
     fprintf('(denoisedata) computing pcs for %d epoch groups ...\n', nrep); 
 end
@@ -191,7 +195,7 @@ if ~isempty(opt.preprocessfun), noisedata = opt.preprocessfun(noisedata); end
 pcs = cell(nrep,1);
 for rp = 1:nrep
     % get current noise time series (ntime x nchan)
-    currepochs = opt.epochGroup == rp;
+    currepochs = opt.epochgroup == rp;
     if nnz(currepochs)~=0
         currnoise  = noisedata(:,:,currepochs);
         currnoise  = reshape(currnoise,[], ntime*sum(currepochs))';
@@ -293,7 +297,7 @@ if opt.pcstop > 0
             if ~isempty(opt.preprocessfun), denoiseddata = opt.preprocessfun(data);
             else denoiseddata = data; end
         else
-            denoiseddata = denoisetimeseries(data,pcs,p,opt.epochGroup,opt.preprocessfun);
+            denoiseddata = denoisetimeseries(data,pcs,p,opt.epochgroup,opt.preprocessfun);
         end
         
         % compute spectral time series and evaluate goodness of fit (by
@@ -353,7 +357,7 @@ end
 % --------------------------------------------------------------
 % pull out the final models and add pcnum to it
 for fh = 1:nmodels
-    denoiseddata = denoisetimeseries(data,pcs,pcnum(fh),opt.epochGroup,opt.preprocessfun);
+    denoiseddata = denoisetimeseries(data,pcs,pcnum(fh),opt.epochgroup,opt.preprocessfun);
     [finalmodel(fh), denoisedspec{fh}] = evalmodel(design,denoiseddata,evalfun{fh},'boot',opt);
     [origmodel(fh)] = evalmodel(design,data,evalfun{fh},'boot',opt);
     % return denoised time series, if requested 
@@ -546,7 +550,7 @@ end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function denoiseddata = denoisetimeseries(data,pcs,p,epochGroup,preprocessfun)
+function denoiseddata = denoisetimeseries(data,pcs,p,epochgroup,preprocessfun)
 % denoise time series
 % INPUTS:
 % data   : [channels x time x epochs]
@@ -558,7 +562,7 @@ function denoiseddata = denoisetimeseries(data,pcs,p,epochGroup,preprocessfun)
 % denoiseddata : [channels x time x epochs]
 %
 [nchan,ntime,nepoch] = size(data);
-nrep = max(epochGroup);
+nrep = max(epochgroup);
 
 % preprocess data, if requested 
 if ~notDefined('preprocessfun'), data = preprocessfun(data); end
@@ -568,7 +572,7 @@ cummnepoch   = 0;
 % project out appropriate number of pcs from each epoch or epoch group
 for rp = 1:nrep
     % get time series (ntime x nchan) for current epoch group
-    currepochs = epochGroup == rp;
+    currepochs = epochgroup == rp;
     currnepoch = sum(currepochs);
     
     if currnepoch ~= 0
