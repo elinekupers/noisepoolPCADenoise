@@ -1,5 +1,9 @@
 %% dfdDenoiseScript
 
+% Description
+
+saveResults = true;
+
 % Check for data, download data if needed
 if isempty(fullfile(dfdRootPath, 'data'));
     error('No data were found. Use dfdDownloadSampleData')
@@ -16,7 +20,7 @@ for whichSubject = 1%:8
     badChannelThreshold = 0.2;
     badEpochThreshold   = 0.2;
     dataChannels        = 1:157;
-    [sensorData, badChannel, badEpochs] = dfdPreprocessData(sensorData(:,:,dataChannels), ...
+    [sensorData, badChannels, badEpochs] = dfdPreprocessData(sensorData(:,:,dataChannels), ...
         varThreshold, badChannelThreshold, badEpochThreshold);              
             
     %% Make design matrix
@@ -28,7 +32,7 @@ for whichSubject = 1%:8
     design(conditions==7,3) = 1; % condition 7 is left (??)    
                                  % condition 3 is blank
     
-    % Remove bad channels and bad epochs from data and codnitions
+    % Remove bad channels and bad epochs from data and conditions
     sensorData = sensorData(:,~badEpochs, ~badChannels);
     design = design(~badEpochs,:);
     
@@ -39,6 +43,9 @@ for whichSubject = 1%:8
     slF = 12;   % the stimulus flicker frequency (Hz)
     freq = megGetSLandABfrequencies((0:fmax)/T, T, slF/T);
     
+    %% Permute sensorData for denoising
+    sensorData = permute(sensorData, [3 1 2]);
+    
     %% Define denoise options for
     opt.pcstop          = -10;  % denoise with exactly 10 PCs
     opt.preprocessfun   = @hpf; % preprocess data with a high pass filter
@@ -47,7 +54,23 @@ for whichSubject = 1%:8
     opt.badchannels     = badChannels;
     evokedfun           = @(x)getstimlocked(x,freq);
     evalfun             = @(x)getbroadband(x,freq);
-        
-    [results,evalout,denoisedspec,denoisedts] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
+      
+    [bbresults,bbevalout,bbdenoisedspec,bbdenoisedts] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
+  
+    % Do it for SL as well
+    evokedfun           = @(x)getstimlocked(x,freq);
+    evalfun             = @(x)getstimlocked(x,freq);
+
+    [slresults,slevalout,sldenoisedspec,sldenoisedts] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
+    
+    if saveResults
+        save(sprintf(fullfile(dfdRootPath,'data','s0%d_preprocData.mat'),whichSubject), ...
+                'sensorData');
+        save(sprintf(fullfile(dfdRootPath,'data','s0%d_bbdenoisedData.mat'),whichSubject), ...
+                'bbresults','bbevalout','bbdenoisedspec','bbdenoisedts','badChannels','badEpochs');
+        save(sprintf(fullfile(dfdRootPath,'data','s0%d_sldenoisedData.mat'),whichSubject), ...
+                'slresults','slevalout','sldenoisedspec','sldenoisedts','badChannels','badEpochs');
+        save(sprintf(fullfile(dfdRootPath,'data','s0%d_preprocDesign.mat'),whichSubject),'design');
+    end
         
 end

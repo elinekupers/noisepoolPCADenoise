@@ -50,4 +50,3 @@ for ii = 1:length(epochsToInterpolate)
     thisdata = weightMatrix*permute(sensorDataIn(:,thisEpoch,:), [3 1 2]);
     sensorDataOut(:,thisEpoch,:) = thisdata';
 end
-            

@@ -53,20 +53,14 @@ badChannels = mean(outliers(~badEpochs,:),1)>badEpochThreshold;
 outliers(badEpochs,:)   = 1;
 outliers(:,badChannels) = 1;
 
+% Plot outiers for epochs and channels
 figure; imagesc(outliers); 
 xlabel('channel number'); ylabel('epoch number'); title('Bad channels / epochs')
 fprintf('(dfdPreprocessData): %5.2f%% of epochs removed\n', sum(sum(outliers))/(size(sensorDataIn,2)*size(sensorDataIn,3))*100);
 
+% Interpolate epochs over neighbouring channels
 sensorData = dfdChannelRepair(sensorDataIn, outliers, 'nearest');
 
-
-% sensorData = meg_remove_bad_epochs(outliers, sensorDataIn);
-% 
-% % Remove bad channels and bad epochs
-% sensorData = sensorData(:, ~badEpochs, ~badChannels);
-% 
-% % Permute sensorData for denoise code, which expects channel x time x epochs
-% sensorData = permute(sensorData, [3,1,2]); % channel x time samples x epoch
 
 return
 
@@ -96,18 +90,4 @@ ts(:, logical(outliers(:))) = NaN;
 ts = reshape(ts, [num_time_points, num_epochs, num_channels]);
 
 return
-
-% function ts = channelrepair(ts, 'method')
-
-% Use as
-%   [interp] = ft_channelrepair(cfg, data)
-%
-% The configuration must contain
-%   cfg.method         = 'nearest', 'average', 'spline' or 'slap' (default='nearest')
-%   cfg.badchannel     = cell-array, see FT_CHANNELSELECTION for details
-%   cfg.missingchannel = cell-array, see FT_CHANNELSELECTION for details
-%   cfg.neighbours     = neighbourhoodstructure, see also FT_PREPARE_NEIGHBOURS
-%   cfg.trials         = 'all' or a selection given as a 1xN vector (default = 'all')
-%   cfg.lambda         = regularisation parameter (default = 1e-5, not for method 'distance')
-%   cfg.order          = order of the polynomial interpolation (default = 4, not for method 'distance')
 
