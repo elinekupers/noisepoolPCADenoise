@@ -53,9 +53,9 @@ badChannels = mean(outliers(~badEpochs,:),1)>badEpochThreshold;
 outliers(badEpochs,:)   = 1;
 outliers(:,badChannels) = 1;
 
-figure; imagesc(outliers); xlabel('channel number'); ylabel('epoch number');
-fprintf('(dfdPreprocessData): Percentage of epochs removed is %5.2f \n', sum(sum(outliers))/(size(sensorDataIn,2)*size(sensorDataIn,3))*100);
-
+figure; imagesc(outliers); 
+xlabel('channel number'); ylabel('epoch number'); title('Bad channels / epochs')
+fprintf('(dfdPreprocessData): %5.2f%% of epochs removed\n', sum(sum(outliers))/(size(sensorDataIn,2)*size(sensorDataIn,3))*100);
 
 sensorData = dfdChannelRepair(sensorDataIn, outliers, 'nearest');
 
