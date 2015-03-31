@@ -23,4 +23,16 @@ For example
 	freqDefinition     = 'f';
 	noisePoolSelection = 'r';
 	
-9. Eliminate conditionNumbers as 
+9. Eliminate conditionNumbers 
+
+10. Deal with NaNs
+	Option 1. Preprocessing:
+	(a) Some epochs are labeled as bad for all channels. These should be eliminated from the dataset and the design matrix just before denoising (that is, delete rows from both arrays in preprocessing)
+	(b) Some channels are labeled as bad for the entire experiment. Eliminate these before running the experiment (that is, eliminate columns from the data matr
+	(c) For bad singletons (channels which have some but not all bad epochs), spatially interpolate across the array
+
+	Option 2. Allow the denoisedata code to take optional inputs with bad channels and bad epochs
+	(a) Allow opt.ignoreChannels
+	(b) Allow opt.ignoreEpochs
+	(c) For bad singletons, deal with in preprocessing
+

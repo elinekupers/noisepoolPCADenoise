@@ -7,27 +7,18 @@ end
 
 % Load data
 for whichSubject = 1%:8
-    if exist(sprintf(fullfile(dfdRootPath, 'data', 's0%d_sensorData.mat'),whichSubject),'file')
-        load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_sensorData.mat'),whichSubject));
-    else
-        error('Cannot find data file.');
-    end
+    % Load data and design
+    load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_sensorData.mat'),whichSubject));
+    load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_conditions.mat'),whichSubject));
     
     % Preprocess data
-    threshold = [0.05 20];
-    dataChannels = 1:157;
-    sensorData = dfdPreprocessData(sensorData(:,:,dataChannels), threshold);
-    
-    % Permute sensorData
-    sensorData = permute(sensorData, [3,1,2]); % channel x time samples x epoch
-    
-    % Make design
-    if exist(sprintf(fullfile(dfdRootPath, 'data',  's0%d_conditions.mat'),whichSubject),'file')
-        load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_conditions.mat'),whichSubject));
-    else
-        error('Cannot find conditions file.');
-    end
-    
+    varThreshold        = [0.05 20];
+    badChannelThreshold = 0.2;
+    badEpochThreshold   = 0.2;
+    dataChannels        = 1:157;
+    [sensorData, badChannel, badEpochs] = dfdPreprocessData(sensorData(:,:,dataChannels), ...
+        varThreshold, badChannelThreshold, badEpochThreshold);              
+            
     %% Make design matrix
     condition_numbers = unique(conditions);
     
@@ -36,6 +27,11 @@ for whichSubject = 1%:8
     design(conditions==5,2) = 1; % condition 5 is right (??)
     design(conditions==7,3) = 1; % condition 7 is left (??)    
                                  % condition 3 is blank
+    
+    % Remove bad channels and bad epochs from data and codnitions
+    sensorData = sensorData(:,~badEpochs, ~badChannels);
+    design = design(~badEpochs,:);
+    
     %% Get 'freq' struct to define stimulus locked and broadband frequencies
     %  This struct is needed as input args for getstimlocked and getbroadband
     T = 1;      % epoch length (s)
@@ -44,15 +40,14 @@ for whichSubject = 1%:8
     freq = megGetSLandABfrequencies((0:fmax)/T, T, slF/T);
     
     %% Define denoise options for
-    % opt.freq            = freq;
     opt.pcstop          = -10;  % denoise with exactly 10 PCs
     opt.preprocessfun   = @hpf; % preprocess data with a high pass filter
     opt.npcs2try        = [];   
-    opt.epochGroup      = find(~isnan(squeeze(nanmean(sensorData(:,1,:)))));
+    opt.badepochs       = badEpochs;    
+    opt.badchannels     = badChannels;
     evokedfun           = @(x)getstimlocked(x,freq);
     evalfun             = @(x)getbroadband(x,freq);
-    
-    
+        
     [results,evalout,denoisedspec,denoisedts] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
         
 end
