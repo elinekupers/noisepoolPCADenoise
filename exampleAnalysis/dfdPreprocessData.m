@@ -57,7 +57,7 @@ figure; imagesc(outliers); xlabel('channel number'); ylabel('epoch number');
 fprintf('(dfdPreprocessData): Percentage of epochs removed is %5.2f \n', sum(sum(outliers))/(size(sensorDataIn,2)*size(sensorDataIn,3))*100);
 
 
-sensorData = dfdChannelRepair(sensorDataIn, outliers, 'nearest')
+sensorData = dfdChannelRepair(sensorDataIn, outliers, 'nearest');
 
 
 % sensorData = meg_remove_bad_epochs(outliers, sensorDataIn);
@@ -97,7 +97,7 @@ ts = reshape(ts, [num_time_points, num_epochs, num_channels]);
 
 return
 
-function ts = channelrepair(ts, 'method')
+% function ts = channelrepair(ts, 'method')
 
 % Use as
 %   [interp] = ft_channelrepair(cfg, data)
