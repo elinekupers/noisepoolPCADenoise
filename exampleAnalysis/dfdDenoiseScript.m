@@ -1,5 +1,5 @@
 %% dfdDenoiseScript
-
+dfdAddPaths;
 % Description
 
 saveResults = true;
@@ -7,7 +7,7 @@ opt.verbose = false;
 
 % Check for data, download data if needed
 if isempty(fullfile(dfdRootPath, 'data'));
-    error('No data were found. Use dfdDownloadSampleData')
+%     error('No data were found. Use dfdDownloadSampleData')
 end
 
 % Load data
