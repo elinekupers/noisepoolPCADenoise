@@ -3,6 +3,7 @@
 % Description
 
 saveResults = true;
+opt.verbose = false;
 
 % Check for data, download data if needed
 if isempty(fullfile(dfdRootPath, 'data'));
@@ -21,7 +22,7 @@ for whichSubject = 1%:8
     badEpochThreshold   = 0.2;
     dataChannels        = 1:157;
     [sensorData, badChannels, badEpochs] = dfdPreprocessData(sensorData(:,:,dataChannels), ...
-        varThreshold, badChannelThreshold, badEpochThreshold);              
+        varThreshold, badChannelThreshold, badEpochThreshold, opt.verbose);              
             
     %% Make design matrix
     condition_numbers = unique(conditions);
@@ -47,30 +48,21 @@ for whichSubject = 1%:8
     sensorData = permute(sensorData, [3 1 2]);
     
     %% Define denoise options for
-    opt.pcstop          = -10;  % denoise with exactly 10 PCs
+    opt.pcstop          = 10;  % denoise with exactly 10 PCs
     opt.preprocessfun   = @hpf; % preprocess data with a high pass filter
-    opt.npcs2try        = [];   
-    opt.badepochs       = badEpochs;    
-    opt.badchannels     = badChannels;
+    opt.npcs2try        = 10;   
     evokedfun           = @(x)getstimlocked(x,freq);
-    evalfun             = @(x)getbroadband(x,freq);
+    evalfun             = {@(x)getbroadband(x,freq),@(x)getstimlocked(x,freq)};
       
-    [bbresults,bbevalout,bbdenoisedspec,bbdenoisedts] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
-  
-    % Do it for SL as well
-    evokedfun           = @(x)getstimlocked(x,freq);
-    evalfun             = @(x)getstimlocked(x,freq);
+    [results,evalout,denoisedspec,denoisedts] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
 
-    [slresults,slevalout,sldenoisedspec,sldenoisedts] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
     
     if saveResults
-        save(sprintf(fullfile(dfdRootPath,'data','s0%d_preprocData.mat'),whichSubject), ...
-                'sensorData');
-        save(sprintf(fullfile(dfdRootPath,'data','s0%d_bbdenoisedData.mat'),whichSubject), ...
-                'bbresults','bbevalout','bbdenoisedspec','bbdenoisedts','badChannels','badEpochs');
-        save(sprintf(fullfile(dfdRootPath,'data','s0%d_sldenoisedData.mat'),whichSubject), ...
-                'slresults','slevalout','sldenoisedspec','sldenoisedts','badChannels','badEpochs');
-        save(sprintf(fullfile(dfdRootPath,'data','s0%d_preprocDesign.mat'),whichSubject),'design');
+%         save(sprintf(fullfile(dfdRootPath,'data','s0%d_preprocData.mat'),whichSubject), ...
+%                 'sensorData');
+        save(sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedDatafull.mat'),whichSubject), ...
+                'results','evalout','denoisedspec','denoisedts','badChannels','badEpochs','-v7.3');
+%         save(sprintf(fullfile(dfdRootPath,'data','s0%d_preprocDesign.mat'),whichSubject),'design');
     end
         
 end

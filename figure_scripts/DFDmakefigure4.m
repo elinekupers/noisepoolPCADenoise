@@ -26,7 +26,7 @@ saveFigures     = true;     % Save figures in the figure folder?
 dataDir         = fullfile(dfdRootPath, 'data'); % Note: New data matrices will 
                                          % also get stored in the same folder.
 % Load denoised data
-load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_denoisedData.mat'),whichSubject));
+load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_denoisedDatafull.mat'),whichSubject));
 load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_preprocDesign.mat'),whichSubject));
 load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_preprocData.mat'),whichSubject));
                                          

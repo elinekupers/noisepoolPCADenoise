@@ -20,11 +20,10 @@ function dfdMakeFigure6()
 
 whichSubject        = 1:8;   % You need all subjects for this figure 
                             % Choose a particular number if you would like
-                            % a specific subject
-                            
-figureDir        = fullfile(DFDrootpath, 'figures');
+                            % a specific subject                           
+figureDir           = fullfile(DFDrootpath, 'figures');
 
-saveFigures      = true;   % Save figures in the figure folder?
+saveFigures         = true;   % Save figures in the figure folder?
 
 %% Check whether we got our preprocessed data matrices
 
