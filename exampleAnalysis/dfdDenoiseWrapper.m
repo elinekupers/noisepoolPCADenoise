@@ -1,8 +1,9 @@
-function dfdDenoiseScript(subjects)
+function dfdDenoiseWrapper(subjects)
 
-% Description: Script to denoise 8 example MEG visual steady state data
-% sets. The results of the denoising are used to make several figures for
-% the paper:
+% Description: Wrappter function to denoise multiple MEG visual steady
+% state data sets. The results of the denoising are written to file and can
+% be then be used to reproduce several of the published figures from the
+% paper the paper:
 %
 % AUTHORS. YEAR. TITLE. JOURNAL.
 
@@ -11,13 +12,11 @@ if isempty(fullfile(dfdRootPath, 'data'));
     error('No data were found. Use dfdDownloadSampleData')
 end
 
-
 % preprocessing parameters (see dfdPreprocessData)
 varThreshold        = [0.05 20];  
 badChannelThreshold = 0.2;       
 badEpochThreshold   = 0.2;
 dataChannels        = 1:157;
-
 
 % Get 'freq' struct to define stimulus locked and broadband frequencies
 %  This struct is needed as input args for getstimlocked and getbroadband

@@ -39,6 +39,7 @@ function [sensorData, badChannels, badEpochs] = dfdPreprocessData(sensorDataIn, 
 if notDefined('varThreshold'), varThreshold = [.05 20]; end
 if notDefined('badChannelThreshold'), badChannelThreshold = .2; end
 if notDefined('badEpochThreshold'), badEpochThreshold = .2; end
+if notDefined('verbose'), verbose = false; end
 
 % This identifies any epochs whos variance is outside some multiple of the
 % grand variance
