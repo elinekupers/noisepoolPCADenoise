@@ -16,3 +16,4 @@ cd /scratch/ek99/denoiseproject/exampleAnalysis
 matlab -nodisplay -r "dfdDenoiseScript; exit()"
 
 exit
+
