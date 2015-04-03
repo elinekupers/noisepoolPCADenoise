@@ -24,6 +24,16 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 %     epochgroup  : for grouping epochs together for denoising [epoch x 1] vector
 %     npcs2try    : number of pcs to try. if empty, then trying up to the
 %                   number of channels in noisepool. (default = [])
+%     pcchoose    : how to choose the number of PCs for the denoised model 
+%                    (default: 1.05)
+%                    If positive, then choose the smallest number of PCs,
+%                    such that the median (?) r^2 times pcchoose is greater
+%                    than the highest median r^2 across all possible
+%                    numbers of PCs tested. 
+%                    If negative, then the final model will use -pcchoose
+%                    PCs, and pcchoose must be an integer. Note if using this
+%                    option, we do not go through trying to use each number
+%                    of PCs (see opt.npcs2try)
 %     xvalratio   : how to split training and test data for cross
 %                   validation. could be a number between 0 to 1, defining
 %                   the ratio of test data (relative to training data). 
@@ -39,15 +49,6 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 %                    0: do nothing (default). 1: permute fourier phase. 
 %                    2: permute assignment to epochs. 3: use white fourier
 %                    amplitude but keep fourier phase. 4: use random pcs      
-%     pcstop      :  how to choose the number of PCs for the denoised model 
-%                    (default: 1.05)
-%                    If positive, then choose the smallest number of PCs,
-%                    such that the median (?) r^2 for this number of PCs
-%                    times pcstop is greater than the highest median r^2 across all possible numbers of PCs tested.
-%                    If negative, then the final model will use -pcstop
-%                    PCs, and pcstop must be an integer. Note if using this
-%                    option, we do not go through trying to use each number
-%                    of PCs (see opt.npcs2try)
 %     preprocessfun: function handle (e.g. hpf) to apply to data before
 %                    computing pcs, removing pcs and computing evalfun 
 %                    (but not before computing stimfun)
@@ -97,7 +98,7 @@ if ~isfield(opt,'xvalratio'),     opt.xvalratio   = -1;                end
 if ~isfield(opt,'resampling'),    opt.resampling  = {'xval','xval'};   end
 if ~isfield(opt,'pccontrolmode'), opt.pccontrolmode = 0;               end
 if ~isfield(opt,'pcselmethod'),   opt.pcselmethod = 'r2';              end
-if ~isfield(opt,'pcstop'),        opt.pcstop      = 1.05;              end
+if ~isfield(opt,'pcchoose'),      opt.pcchoose    = 1.05;              end
 if ~isfield(opt,'pcn'),           opt.pcn         = 10;                end
 if ~isfield(opt,'preprocessfun'), opt.preprocessfun = [];              end
 if ~isfield(opt,'savepcs'),       opt.savepcs     = false;             end
@@ -285,7 +286,7 @@ if ~iscell(evalfun), evalfun = {evalfun}; end
 nmodels = length(evalfun);
 % we can skip through this step if user specifies the numbers pcs we want
 
-if opt.pcstop > 0 
+if opt.pcchoose > 0 
     if opt.verbose
         fprintf('(denoisedata) trying %d pcs \n', opt.npcs2try);
     end
@@ -321,11 +322,11 @@ end
 if opt.verbose, fprintf('(denoisedata) choosing pcs ...\n'); end
 pcnum = zeros(1,nmodels);
 for fh = 1:nmodels
-    if opt.pcstop <= 0 % in this case, the user decides
+    if opt.pcchoose <= 0 % in this case, the user decides
         if opt.verbose
-            fprintf('(denoisedata) user specified: number of pcs = %d \n', -opt.pcstop);
+            fprintf('(denoisedata) user specified: number of pcs = %d \n', -opt.pcchoose);
         end
-        chosen = -opt.pcstop;
+        chosen = -opt.pcchoose;
     else
         % npcs2try x channels, averaged across non-noise channels
         metric = catcell(1,...
@@ -342,8 +343,8 @@ for fh = 1:nmodels
         % take the average of the top x 
         xvaltrend = mean(metric(:,pcchan),2);
         %xvaltrend = mean(metric(:,~noisepool),2);
-        % chosen the stopping point as within 95% of maximum 
-        chosen = choosepc(xvaltrend,opt.pcstop);
+        % choose the number of PCs for the final model
+        chosen = choosepc(xvaltrend,opt.pcchoose);
         pcchan2{fh} = pcchan;
         
         if opt.verbose, fprintf('\tevalfunc %d: %d pcs\n', fh, chosen); end
