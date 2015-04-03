@@ -1,12 +1,13 @@
 %% dfdDenoiseScript
-%hpc stuff
-path0 = strrep(which('dfdDenoiseScript.m'),'/exampleAnalysis/dfdDenoiseScript.m','');
-addpath(genpath(path0));
-clear path0;
-% Description
+
+% Description: Script to denoise 8 example MEG visual steady state data
+% sets. The results of the denoising are used to make several figures for
+% the paper:
+%
+% AUTHORS. YEAR. TITLE. JOURNAL.
 
 saveResults = true;
-opt.verbose = false;
+opt.verbose = true;
 
 % Check for data, download data if needed
 if isempty(fullfile(dfdRootPath, 'data'));
@@ -14,7 +15,7 @@ if isempty(fullfile(dfdRootPath, 'data'));
 end
 
 % Load data
-for whichSubject = 1:8
+for whichSubject = 1%:8
     % Load data and design
     load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_sensorData.mat'),whichSubject));
     load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_conditions.mat'),whichSubject));

@@ -1,5 +1,5 @@
 function [sensorData, badChannels, badEpochs] = dfdPreprocessData(sensorDataIn, varThreshold, ...
-    badChannelThreshold, badEpochThreshold, opt.verbose)
+    badChannelThreshold, badEpochThreshold, verbose)
 % Preprocess MEG data
 %
 %sensorData = dfdPreprocessData(sensorDataIn, varThreshold, ...
@@ -25,7 +25,7 @@ function [sensorData, badChannels, badEpochs] = dfdPreprocessData(sensorDataIn, 
 %                   label all epochs for this  channel as 'bad'
 %                       Default = 0.2
 %
-% opt.verbose:      Whether to plot debug figures and display info
+% verbose:          Whether to plot debug figures and display info
 %
 % OUTPUTS
 %   sensorData:     Same as sensorDataIn (3D array, time points x epochs x
@@ -56,7 +56,7 @@ outliers(badEpochs,:)   = 1;
 outliers(:,badChannels) = 1;
 
 % Plot outiers for epochs and channels
-if opt.verbose
+if verbose
     figure; imagesc(outliers);
     xlabel('channel number'); ylabel('epoch number'); title('Bad channels / epochs')
     fprintf('(dfdPreprocessData): %5.2f%% of epochs removed\n', sum(sum(outliers))/(size(sensorDataIn,2)*size(sensorDataIn,3))*100);
