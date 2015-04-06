@@ -1,6 +1,6 @@
 function dfdDenoiseWrapper(subjects)
 
-% Description: Wrappter function to denoise multiple MEG visual steady
+% Description: Wrapper function to denoise multiple MEG visual steady
 % state data sets. The results of the denoising are written to file and can
 % be then be used to reproduce several of the published figures from the
 % paper the paper:

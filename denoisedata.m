@@ -103,7 +103,7 @@ if ~isfield(opt,'pcn'),           opt.pcn         = 10;                end
 if ~isfield(opt,'preprocessfun'), opt.preprocessfun = [];              end
 if ~isfield(opt,'savepcs'),       opt.savepcs     = false;             end
 if ~isfield(opt,'extraregressors'), opt.extraregressors = [];          end
-if ~isfield(opt,'verbose'),       opt.verbose     = true;              end
+if ~isfield(opt,'verbose'),       opt.verbose     = false;              end
 
 if opt.verbose
     fprintf('---------------------------------------------------------------------\n');
