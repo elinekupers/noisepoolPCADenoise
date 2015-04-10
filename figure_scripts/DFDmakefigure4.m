@@ -17,6 +17,20 @@ function dfdMakeFigure4()
 % This function assumes that data is downloaded with the DFDdownloaddata
 % function. 
 
+
+%%
+
+outargs = prepareData(inputArgs);
+
+outargs = computeSpectra(inputArgs);
+
+fH(1) = plotSpectraPanelA(inputArgs);
+
+fH(2) = plotSpectraPanelB(inputArgs);
+
+fH(3) = plotBetaDistributions(inputArgs);
+
+saveFigures(fH)
 %% Choices to make:
 
 whichSubject    = 1;        % Subject 1 has the example channel.
@@ -26,15 +40,18 @@ saveFigures     = true;     % Save figures in the figure folder?
 dataDir         = fullfile(dfdRootPath, 'data'); % Note: New data matrices will 
                                          % also get stored in the same folder.
 % Load denoised data
-load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_denoisedDatafull.mat'),whichSubject));
-load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_preprocDesign.mat'),whichSubject));
-load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_preprocData.mat'),whichSubject));
+load(sprintf(fullfile(dataDir, 's0%d_denoisedData_bb.mat'),whichSubject));
+load(sprintf(fullfile(dataDir, 's0%d_conditions.mat'),whichSubject));
+load(sprintf(fullfile(dataDir, 's0%d_sensorData.mat'),whichSubject));
                                          
-%% Spectrum before and after
+%% Spectrum before and after denoising
 
-% get original channelnumber
-chanNum = 42;
-chanNum0 = megGetOrigChannel(chanNum,badChannels);
+% Because some channels were removed prior to the denoising (due to
+% excessive noise), there are fewer channels in the denoised data than in
+% the original data. We need to identify the correspondence.
+channelNumbers = find(~badChannels);
+exampleChannel = 42;
+exampleIndex   = find(channelNumbers == exampleChannel);
 
 % define plot colors
 colors = [63, 121, 204; 228, 65, 69; 116,183,74; 127,127,127]/255;
@@ -59,7 +76,7 @@ yl=[yt(1),yt(end)];
 
 for dd = 1
     % compute spectrum
-    spec = abs(fft(squeeze(data{dd}(chanNum0,:,:))))/size(data{dd},2)*2;
+    spec = abs(fft(squeeze(data{dd}(exampleIndex,:,:))))/size(data{dd},2)*2;
 
     hold on;
     for ii = [1,4]%1:length(condEpochs)
@@ -94,7 +111,7 @@ for dd = 1
 
     % label figure, add stimulus harmonic lines, and make it look nice
     xlabel('Frequency (Hz)'); ylabel('Power (fT^2)');
-    title(sprintf('Channel %d', chanNum));
+    title(sprintf('Channel %d', exampleChannel));
     yl2 = get(gca, 'YLim');
     for ii =12:12:180, plot([ii ii], yl2, 'k--'); end
     makeprettyaxes(gca,9,9);
@@ -125,7 +142,7 @@ for dd = 1:2
     subplot(2,1,dd);
     
     % compute spectrum
-    spec = abs(fft(squeeze(data{dd}(chanNum0,:,:))))/size(data{dd},2)*2;
+    spec = abs(fft(squeeze(data{dd}(exampleIndex,:,:))))/size(data{dd},2)*2;
     
     hold on;
     for ii = [1,4]%1:length(condEpochs)
@@ -176,7 +193,7 @@ for dd = 1:2
     
     % label figure, add stimulus harmonic lines, and make it look nice
     xlabel('Frequency (Hz)'); ylabel('Power (fT^2)');
-    title(sprintf('Channel %d', chanNum));
+    title(sprintf('Channel %d', exampleChannel));
     yl2 = get(gca, 'YLim');
     for ii =12:12:180, plot([ii ii], yl2, 'k--'); end
     makeprettyaxes(gca,9,9);
@@ -198,7 +215,7 @@ meanXfreqs = {zeros(2,1000),zeros(2,1000)};
 nboot = 1000;
 for dd = 1:2 % for either pre and post denoising
     % compute spectrum
-    spec = abs(fft(squeeze(data{dd}(chanNum0,:,:))))/size(data{dd},2)*2;
+    spec = abs(fft(squeeze(data{dd}(exampleIndex,:,:))))/size(data{dd},2)*2;
     
     % get power for full and blank epochs, at the specified frequencies
     this_data_full = spec(fok+1,condEpochs{1}).^2;
