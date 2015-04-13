@@ -36,6 +36,7 @@ for nn = 1:3
     title(sprintf('S%d : SNR No Denoising', whichSubject));
     xlim([0.5,3.5]); ylim([0,15]);
     makeprettyaxes(gca,9,9);
+    ylabel('SNR')
 end
 
 % SNR Denoise only with the three environmental data channels
@@ -47,6 +48,7 @@ for nn = 1:3
     title(sprintf('S%d : SNR 3 Channels', whichSubject));
     xlim([0.5,3.5]); ylim([0,15]);
     makeprettyaxes(gca,9,9);
+    ylabel('SNR')
 end
 
 % SNR Meg Denoising
@@ -58,6 +60,7 @@ for nn = 1:3
     title(sprintf('S%d : SNR Meg Denoising', whichSubject));
     xlim([0.5,3.5]); ylim([0,15]);
     makeprettyaxes(gca,9,9);
+    ylabel('SNR')
 end
 
 % SNR of combined MEG Denoise and three environmental channels
@@ -69,6 +72,7 @@ for nn = 1:3
     title(sprintf('S%d : SNR Combined', whichSubject));
     xlim([.5,3.5]); ylim([0,15]);
     makeprettyaxes(gca,9,9);
+    ylabel('SNR')
 end
 
 
