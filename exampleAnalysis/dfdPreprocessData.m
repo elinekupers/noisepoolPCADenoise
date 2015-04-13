@@ -40,6 +40,7 @@ if notDefined('varThreshold'), varThreshold = [.05 20]; end
 if notDefined('badChannelThreshold'), badChannelThreshold = .2; end
 if notDefined('badEpochThreshold'), badEpochThreshold = .2; end
 if notDefined('verbose'), verbose = false; end
+if notDefined('use3channels'), use3channels = false; end
 
 % This identifies any epochs whos variance is outside some multiple of the
 % grand variance
@@ -66,6 +67,12 @@ end
 % Interpolate epochs over neighbouring channels
 sensorData = dfdChannelRepair(sensorDataIn, outliers, 'nearest');
 
+% Denoise with three environmental channels
+if use3channels
+    environmentalChannels = 158:160;
+    dataChannels          = 1:157;
+    sensorData = dfdEnvironmentalDenoising(sensorData, environmentalChannels, dataChannels);
+end
 
 return
 
@@ -93,6 +100,27 @@ ts = reshape(ts, [num_time_points, num_epochs*num_channels]);
 ts(:, logical(outliers(:))) = NaN;
 
 ts = reshape(ts, [num_time_points, num_epochs, num_channels]);
+
+return
+
+function sensorDataDenoised = dfdEnvironmentalDenoising(sensorData,environmentalChannels, dataChannels)
+% Make empty arrays for regressed 'clean' data
+sensorDataDenoised = sensorData;
+
+warning off stats:regress:RankDefDesignMat
+
+% Start regression, keep residuals
+for channel = dataChannels; 
+    if verbose
+        fprintf('[%s]: Channel %d\n', mfilename, channel);
+    end
+    for epoch = 1:size(sensorData,2);
+        [~,~,R] = regress(sensorData(:,epoch,channel),[squeeze(sensorData(:,epoch,environmentalChannels)) ones(size(sensorData,1),1)]);
+        sensorDataDenoised(:,epoch,channel) = R;
+        clear R 
+    end
+end
+warning on stats:regress:RankDefDesignMat
 
 return
 

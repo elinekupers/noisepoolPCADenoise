@@ -17,6 +17,7 @@ varThreshold        = [0.05 20];
 badChannelThreshold = 0.2;       
 badEpochThreshold   = 0.2;
 dataChannels        = 1:157;
+use3Channels        = true;
 
 % Get 'freq' struct to define stimulus locked and broadband frequencies
 %  This struct is needed as input args for getstimlocked and getbroadband
@@ -44,7 +45,7 @@ parfor whichSubject = subjects
     
     % ******* Preprocess data **********************
     [sensorData, badChannels, badEpochs] = dfdPreprocessData(sensorData(:,:,dataChannels), ...
-        varThreshold, badChannelThreshold, badEpochThreshold);
+        varThreshold, badChannelThreshold, badEpochThreshold, use3Channels);
     
     % Remove bad channels and bad epochs from data and conditions
     sensorData = sensorData(:,~badEpochs, ~badChannels);
@@ -58,7 +59,12 @@ parfor whichSubject = subjects
     %   Denoise for broadband analysis    
     [results,evalout,denoisedspec,denoisedts] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
     
-    fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData'),whichSubject);
+    if use3Channels
+        fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_w3chan'),whichSubject);
+    else
+        fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData'),whichSubject);
+    end
+    
     parsave([fname '_bb.mat'], 'results', results, 'evalout', evalout, ...
         'denoisedspec', denoisedspec, 'denoisedts', denoisedts,...
         'badChannels', badChannels, 'badEpochs', badEpochs, 'opt', optbb)        
