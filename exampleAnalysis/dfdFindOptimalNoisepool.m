@@ -26,15 +26,15 @@ use3Channels        = false;
 freq = megGetSLandABfrequencies(0:150, 1, 12);
 
 % denoise parameters (see denoisedata.m)
-optsl.pcchoose        = -10;   % denoise with exactly 10 PCs for stimulus locked
+% optsl.pcchoose        = -10;   % denoise with exactly 10 PCs for stimulus locked
 % optbb.pcchoose        = -10;   % denoise with exactly 10 PCs for broadband
 optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
 evokedfun             = @(x)getstimlocked(x,freq); % function handle to determine noise pool
 evalfun               = @(x)getbroadband(x,freq);  % function handle to compuite broadband
 npcs                  = [5,10:10:70];
-opt.resampling        = {'boot','boot'};
-opt.pcselmethod       = 'snr';
-opt.nboot             = 100;
+optbb.resampling        = {'boot','boot'};
+optbb.pcselmethod       = 'snr';
+optbb.nboot             = 100;
 
 
 % Load and denoise data, one subject at a time
