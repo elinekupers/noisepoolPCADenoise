@@ -1,76 +1,82 @@
-function dfdCompariseDenoising(whichSubject, saveFigures, topChan, nTop)
+function dfdCompariseDenoising(whichSubjects, saveFigures, topChan, nTop)
 
 if notDefined('whichSubject'); whichSubject = 1; end
 if notDefined('saveFigures'); saveFigures = true; end
 if notDefined('topchan'); topChan = true; end
 if notDefined('nTop'); nTop = 10; end
 
-% Load results with and without 3 channel denoising
-tmp = load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_denoisedData.mat'),whichSubject)); 
-noDenoise = tmp.results.origmodel;
-megDenoise  = tmp.results.finalmodel;
-a_noisepool = tmp.results.noisepool;
+allResults = [];
 
-tmp = load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_denoisedData_w3chan_bb.mat'),whichSubject));
-threechanDenoising = tmp.results.origmodel;
-bothDenoise  = tmp.results.finalmodel;
-b_noisepool = tmp.results.noisepool;
+for whichSubject = whichSubjects
+    % Load results with and without 3 channel denoising
+    tmp = load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_denoisedData.mat'),whichSubject)); 
+    noDenoise = tmp.results.origmodel;
+    megDenoise  = tmp.results.finalmodel;
+    a_noisepool = tmp.results.noisepool;
+
+    tmp = load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_denoisedData_w3chan_bb.mat'),whichSubject));
+    threechanDenoising = tmp.results.origmodel;
+    bothDenoise  = tmp.results.finalmodel;
+    b_noisepool = tmp.results.noisepool;
 
 
 % Calculate SNR for all channels
 %%
 % figure('position',[1,600,300,800]);
-condNames    = {'Stim Full','Stim Left','Stim Right'};
-condColors   = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
-for icond = 1:3
-    % get BB snr
-    noDenoiseSNR(icond,:) = getsignalnoise(noDenoise,icond, 'SNR');
-    megDenoiseSNR(icond,:) = getsignalnoise(megDenoise,icond, 'SNR');
-    threechanDenoiseSNR(icond,:) = getsignalnoise(threechanDenoising,icond, 'SNR');
-    bothDenoiseSNR(icond,:) = getsignalnoise(bothDenoise,icond, 'SNR');
 
-end
+    for icond = 1:3
+        % get BB snr
+        noDenoiseSNR(icond,:) = getsignalnoise(noDenoise,icond, 'SNR');
+        megDenoiseSNR(icond,:) = getsignalnoise(megDenoise,icond, 'SNR');
+        threechanDenoiseSNR(icond,:) = getsignalnoise(threechanDenoising,icond, 'SNR');
+        bothDenoiseSNR(icond,:) = getsignalnoise(bothDenoise,icond, 'SNR');
+
+    end
 
 
 %% If requested to only plot the top n channels, calculate those
 
-if topChan
-    %% Get top n channels from noisepool A
-    % For noDenoise and MegDenoise first (they share the same noisepool)
-    % max across 3 conditions
-    topsnr(icond,:) = max([noDenoiseSNR(icond,:) megDenoiseSNR(icond,:)]);
-    % max across before and after
-    topsnr = max(topsnr);
-    % exclude noise pool
-    topsnr(a_noisepool) = -inf;
-    % sort
-    [~,idx] = sort(topsnr,'descend');
-    % find the top n
-    a_pcchan = false(size(a_noisepool));
-    a_pcchan(idx(1:nTop))= 1;
+    if topChan
+        %% Get top n channels from noisepool A
+        % For noDenoise and MegDenoise first (they share the same noisepool)
+        % max across 3 conditions
+        topsnr(icond,:) = max([noDenoiseSNR(icond,:) megDenoiseSNR(icond,:)]);
+        % max across before and after
+        topsnr = max(topsnr);
+        % exclude noise pool
+        topsnr(a_noisepool) = -inf;
+        % sort
+        [~,idx] = sort(topsnr,'descend');
+        % find the top n
+        a_pcchan = false(size(a_noisepool));
+        a_pcchan(idx(1:nTop))= 1;
+
+        %% Get top n channels from noisepool B
+        % For threechanDenoising and bothDenoise next (they share the same noisepool)
+        % max across 3 conditions
+        topsnr(icond,:) = max([threechanDenoiseSNR(icond,:) bothDenoiseSNR(icond,:)]);
+        % max across before and after
+        topsnr = max(topsnr);
+        % exclude noise pool
+        topsnr(b_noisepool) = -inf;
+        % sort
+        [~,idx] = sort(topsnr,'descend');
+        % find the top n
+        b_pcchan = false(size(b_noisepool));
+        b_pcchan(idx(1:nTop))= 1;
+
+
+    end
+
+    % Check whether noisepools are the same
+    assert(sum(a_pcchan==b_pcchan)==length(a_pcchan));
+    pcchan = a_pcchan;
     
-    %% Get top n channels from noisepool B
-    % For threechanDenoising and bothDenoise next (they share the same noisepool)
-    % max across 3 conditions
-    topsnr(icond,:) = max([threechanDenoiseSNR(icond,:) bothDenoiseSNR(icond,:)]);
-    % max across before and after
-    topsnr = max(topsnr);
-    % exclude noise pool
-    topsnr(b_noisepool) = -inf;
-    % sort
-    [~,idx] = sort(topsnr,'descend');
-    % find the top n
-    b_pcchan = false(size(b_noisepool));
-    b_pcchan(idx(1:nTop))= 1;
-    
-    
+    % Put everything in one array
+    allResults{whichSubject} = {noDenoiseSNR,megDenoiseSNR,threechanDenoiseSNR,bothDenoiseSNR,pcchan};
     
     
 end
-
-% Check whether noisepools are the same
-assert(sum(a_pcchan==b_pcchan)==length(a_pcchan));
-pcchan = a_pcchan;
 
 %% Compute difference in pre-post SNR
 for icond = 1:3
@@ -93,6 +99,9 @@ for icond = 1:3
     snr_diff(whichSubject,3,icond,:) = snr_post3 - snr_pre3;
 end
 
+condNames    = {'Stim Full','Stim Left','Stim Right'};
+condColors   = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
+
 fH = figure('position',[0,300,700,200]);
 % define what the different conditions are 
 types = {'No denoise vs environmental','No denoise vs MEG denoise','No Denoise vs Combined denoise'};
@@ -107,7 +116,7 @@ for icond = 1:3
     subplot(1,3,icond);
     % mean and sem across subjects 
     mn  = mean(snr_diff(:,:,icond,:),4);
-    sem = std(snr_diff(:,:,icond,:),[],4)/sqrt(length(whichSubject));
+    sem = std(snr_diff(:,:,icond,:),[],4)/sqrt(10);
     bar(1:3, mn,'EdgeColor','none','facecolor',condColors(icond,:)); hold on
     errorbar2(1:3,mn,sem,1,'-','color',condColors(icond,:));
     % format figure and make things pretty 
