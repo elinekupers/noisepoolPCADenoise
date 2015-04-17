@@ -79,6 +79,9 @@ for whichSubject = whichSubjects
 end
 
 %% Compute difference in pre-post SNR
+
+    
+
 for icond = 1:3
     % No denoise vs 3 Channel environmental denoise
     snr_pre1  = noDenoiseSNR(icond,pcchan);
