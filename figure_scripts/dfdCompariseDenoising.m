@@ -19,7 +19,7 @@ b_noisepool = tmp.results.noisepool;
 
 % Calculate SNR for all channels
 %%
-figure('position',[1,600,300,800]);
+% figure('position',[1,600,300,800]);
 condNames    = {'Stim Full','Stim Left','Stim Right'};
 condColors   = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
 for icond = 1:3
@@ -62,62 +62,118 @@ if topChan
     % find the top n
     b_pcchan = false(size(b_noisepool));
     b_pcchan(idx(1:nTop))= 1;
-
+    
+    
+    
+    
 end
 
-% SNR No Denoising
-subplot(4,1,1); cla; hold on;
-for nn = 1:3
-    plot(nn*ones(length(noDenoiseSNR(nn,a_pcchan)),1),noDenoiseSNR(nn,a_pcchan),'o','color',condColors(nn,:));
-    plot(nn*ones(1,1),mean(noDenoiseSNR(nn,a_pcchan),2),'kx');
-    axis tight;
-    title(sprintf('S%d : SNR No Denoising', whichSubject));
-    xlim([0.5,3.5]); ylim([0,15]);
+% Check whether noisepools are the same
+assert(sum(a_pcchan==b_pcchan)==length(a_pcchan));
+pcchan = a_pcchan;
+
+%% Compute difference in pre-post SNR
+for icond = 1:3
+    % No denoise vs 3 Channel environmental denoise
+    snr_pre1  = noDenoiseSNR(icond,pcchan);
+    snr_post1 = threechanDenoiseSNR(icond,pcchan);
+    
+    snr_diff(whichSubject,1,icond,:) = snr_post1 - snr_pre1;
+    
+    % No denoise vs MEG Denoise
+    snr_pre2  = noDenoiseSNR(icond,pcchan);
+    snr_post2 = megDenoiseSNR(icond,pcchan);
+    
+    snr_diff(whichSubject,2,icond,:) = snr_post2 - snr_pre2;
+    
+    % No denoise vs Combination of MEG Denoise & 3 Channel Environmental d.
+    snr_pre3  = noDenoiseSNR(icond,pcchan);
+    snr_post3 = bothDenoiseSNR(icond,pcchan);
+    
+    snr_diff(whichSubject,3,icond,:) = snr_post3 - snr_pre3;
+end
+
+fH = figure('position',[0,300,700,200]);
+% define what the different conditions are 
+types = {'No denoise vs environmental','No denoise vs MEG denoise','No Denoise vs Combined denoise'};
+% % re-arrange the order of the bars 
+% neworder = [1,2,3];
+% newtypes = types(neworder);
+% 
+% snr_diff2 = snr_diff(:,neworder,:);
+% nnull = length(types);
+% fH = figure('position',[0,300,200,200]);
+for icond = 1:3
+    subplot(1,3,icond);
+    % mean and sem across subjects 
+    mn  = mean(snr_diff(:,:,icond,:),4);
+    sem = std(snr_diff(:,:,icond,:),[],4)/sqrt(length(whichSubject));
+    bar(1:3, mn,'EdgeColor','none','facecolor',condColors(icond,:)); hold on
+    errorbar2(1:3,mn,sem,1,'-','color',condColors(icond,:));
+    % format figure and make things pretty 
+    set(gca,'xlim',[0.2,3+0.8],'ylim',[-1,5]);
     makeprettyaxes(gca,9,9);
-    ylabel('SNR')
-end
-
-% SNR Denoise only with the three environmental data channels
-subplot(4,1,2); cla; hold on;
-for nn = 1:3
-    plot(nn*ones(length(threechanDenoiseSNR(nn,b_pcchan))),threechanDenoiseSNR(nn,b_pcchan),'o','color',condColors(nn,:));
-    plot(nn*ones(1,1),mean(threechanDenoiseSNR(nn,b_pcchan),2),'kx');
-    axis tight;
-    title(sprintf('S%d : SNR 3 Channels', whichSubject));
-    xlim([0.5,3.5]); ylim([0,15]);
-    makeprettyaxes(gca,9,9);
-    ylabel('SNR')
-end
-
-% SNR Meg Denoising
-subplot(4,1,3); cla; hold on;
-for nn = 1:3
-    plot(nn*ones(length(megDenoiseSNR(nn,a_pcchan))),megDenoiseSNR(nn,a_pcchan),'o','color',condColors(nn,:));
-    plot(nn*ones(1,1),mean(megDenoiseSNR(nn,a_pcchan),2),'kx');
-    axis tight;
-    title(sprintf('S%d : SNR Meg Denoising', whichSubject));
-    xlim([0.5,3.5]); ylim([0,15]);
-    makeprettyaxes(gca,9,9);
-    ylabel('SNR')
-end
-
-% SNR of combined MEG Denoise and three environmental channels
-subplot(4,1,4); cla; hold on;
-for nn = 1:3
-    plot(nn*ones(length(bothDenoiseSNR(nn,b_pcchan))),bothDenoiseSNR(nn,b_pcchan),'o','color',condColors(nn,:));
-    plot(nn*ones(1,1),mean(bothDenoiseSNR(nn,b_pcchan),2),'kx');
-    axis tight;
-    title(sprintf('S%d : SNR Combined', whichSubject));
-    xlim([.5,3.5]); ylim([0,15]);
-    makeprettyaxes(gca,9,9);
-    ylabel('SNR')
+%     set(gca,'XLabel',types{1:3})
 end
 
 
-if saveFigures
-    if topChan
-        figurewrite(fullfile(dfdRootPath,'figures',sprintf('figureCompareDenoisingTop%d',nTop)),[],0,'.',1);
-    else
-        figurewrite(fullfile(dfdRootPath,'figures','figureCompareDenoising'),[],0,'.',1);
-    end
-end
+
+
+
+% %% Plot all channels for the three conditions w/4 different analysis
+% % SNR No Denoising
+% subplot(4,1,1); cla; hold on;
+% for nn = 1:3
+%     plot(nn*ones(length(noDenoiseSNR(nn,a_pcchan)),1),noDenoiseSNR(nn,a_pcchan),'o','color',condColors(nn,:));
+%     plot(nn*ones(1,1),mean(noDenoiseSNR(nn,a_pcchan),2),'kx');
+%     axis tight;
+%     title(sprintf('S%d : SNR No Denoising', whichSubject));
+%     xlim([0.5,3.5]); ylim([0,15]);
+%     makeprettyaxes(gca,9,9);
+%     ylabel('SNR')
+% end
+% 
+% % SNR Denoise only with the three environmental data channels
+% subplot(4,1,2); cla; hold on;
+% for nn = 1:3
+%     plot(nn*ones(length(threechanDenoiseSNR(nn,b_pcchan))),threechanDenoiseSNR(nn,b_pcchan),'o','color',condColors(nn,:));
+%     plot(nn*ones(1,1),mean(threechanDenoiseSNR(nn,b_pcchan),2),'kx');
+%     axis tight;
+%     title(sprintf('S%d : SNR 3 Channels', whichSubject));
+%     xlim([0.5,3.5]); ylim([0,15]);
+%     makeprettyaxes(gca,9,9);
+%     ylabel('SNR')
+% end
+% 
+% % SNR Meg Denoising
+% subplot(4,1,3); cla; hold on;
+% for nn = 1:3
+%     plot(nn*ones(length(megDenoiseSNR(nn,a_pcchan))),megDenoiseSNR(nn,a_pcchan),'o','color',condColors(nn,:));
+%     plot(nn*ones(1,1),mean(megDenoiseSNR(nn,a_pcchan),2),'kx');
+%     axis tight;
+%     title(sprintf('S%d : SNR Meg Denoising', whichSubject));
+%     xlim([0.5,3.5]); ylim([0,15]);
+%     makeprettyaxes(gca,9,9);
+%     ylabel('SNR')
+% end
+% 
+% % SNR of combined MEG Denoise and three environmental channels
+% subplot(4,1,4); cla; hold on;
+% for nn = 1:3
+%     plot(nn*ones(length(bothDenoiseSNR(nn,b_pcchan))),bothDenoiseSNR(nn,b_pcchan),'o','color',condColors(nn,:));
+%     plot(nn*ones(1,1),mean(bothDenoiseSNR(nn,b_pcchan),2),'kx');
+%     axis tight;
+%     title(sprintf('S%d : SNR Combined', whichSubject));
+%     xlim([.5,3.5]); ylim([0,15]);
+%     makeprettyaxes(gca,9,9);
+%     ylabel('SNR')
+% end
+% 
+% 
+% if saveFigures
+%     if topChan
+%         figurewrite(fullfile(dfdRootPath,'figures',sprintf('figureCompareDenoisingTop%d',nTop)),[],0,'.',1);
+%     else
+%         figurewrite(fullfile(dfdRootPath,'figures','figureCompareDenoising'),[],0,'.',1);
+%     end
+% end

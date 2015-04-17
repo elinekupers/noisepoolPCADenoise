@@ -24,7 +24,7 @@ use3Channels        = true;
 freq = megGetSLandABfrequencies(0:150, 1, 12);
 
 % denoise parameters (see denoisedata.m)
-optsl.pcchoose        = -10;   % denoise with exactly 10 PCs for stimulus locked
+optsl.pcchoose        = -10;   % denoise with exactly 10 PCs for stim`ulus locked
 optbb.pcchoose        = -10;   % denoise with exactly 10 PCs for broadband
 optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
 evokedfun             = @(x)getstimlocked(x,freq); % function handle to determine noise pool
