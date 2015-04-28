@@ -1,4 +1,4 @@
-function sensorDataOut = dfdChannelRepair(sensorDataIn, outliers, method)
+function sensorDataOut = dfdChannelRepair(sensorDataIn, outliers, method, sensorPositions)
 % Replace bad data with an interpolation from good channels
 %  
 %sensorDataOut = dfdChannelRepair(sensorDataIn, outliers, method)
@@ -12,12 +12,14 @@ function sensorDataOut = dfdChannelRepair(sensorDataIn, outliers, method)
 % OUTPUTS
 %   sensorDataOut: data array, same size as sensorDataIn
 
+if notDefined('sensorPositions'), sensorPositions = 'meg160xyz.mat'; end
+
 % get data sizes
 nEpochs   = size(sensorDataIn,2);
 nChannels = size(sensorDataIn,3);
 
 % load the xyz positions of the sensor
-net=load('meg160xyz.mat');
+net=load(sensorPositions);
 
 % compute distance matrix, which will be used for weighting channels for
 % interpolation

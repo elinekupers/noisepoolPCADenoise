@@ -46,7 +46,7 @@ subject_pths = dir(fullfile(project_pth,'*SSMEG_*'));
 
 % In order to get badChannels, read in sqd file and preprocess data
 data_pth = fullfile(project_pth, subject_pths(subjects).name, 'raw');
-    [ts, meg_files] = meg_load_sqd_data(data_pth, '*SSMEG_*');
+[ts, meg_files] = meg_load_sqd_data(data_pth, '*SSMEG_*');
     
 trigger = meg_fix_triggers(ts(:,trigger_channels));
 onsets = ssmeg_trigger_2_onsets(trigger, subjects);
