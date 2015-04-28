@@ -31,6 +31,14 @@ addpath(genpath('~/matlab/git/meg_utils'));
 % IMPORTANT:
 % Check: which mytrialfun_all.m  is equal to /Users/winawerlab/matlab/git/meg_utils/utils/mytrialfun_all.m
 
+% Change the private field trip function "read_trigger.m" 
+% Which is in "/Volumes/server/Projects/MEG/code/fieldtrip/fileio/private/read_trigger.m"  % Private to fileio
+% into:
+% "/Volumes/server/Projects/MEG/code/fieldtrip/fileio/private/read_trigger0.m",
+% so adding a zero at the end of the filename. That is because the private
+% functions cannot not be replaced by adding a function with addpath().
+% So next check is: which read_trigger.m is equal to Users/winawerlab/matlab/git/meg_utils/ft_development/read_trigger.m
+
 
 % Find subjects for this project
 subject_pths = dir(fullfile(project_pth,'*SSMEG_*'));
