@@ -44,11 +44,11 @@ for whichSubject = whichSubjects
         %% Get top n channels from noisepool A
         % For noDenoise and MegDenoise first (they share the same noisepool)
         % max across 3 conditions
-        topsnr(icond,:) = max([noDenoiseSNR(icond,:) megDenoiseSNR(icond,:)]);
-        % max across before and after
-        topsnr = max(topsnr);
+        topsnr = max([noDenoiseSNR; megDenoiseSNR]);
+           
         % exclude noise pool
         topsnr(a_noisepool) = -inf;
+        
         % sort
         [~,idx] = sort(topsnr,'descend');
         % find the top n
@@ -58,9 +58,8 @@ for whichSubject = whichSubjects
         %% Get top n channels from noisepool B
         % For threechanDenoising and bothDenoise next (they share the same noisepool)
         % max across 3 conditions
-        topsnr(icond,:) = max([threechanDenoiseSNR(icond,:) bothDenoiseSNR(icond,:)]);
-        % max across before and after
-        topsnr = max(topsnr);
+        topsnr = max([threechanDenoiseSNR; bothDenoiseSNR]);
+        
         % exclude noise pool
         topsnr(b_noisepool) = -inf;
         % sort
@@ -72,8 +71,8 @@ for whichSubject = whichSubjects
 
     end
 
-    % Check whether noisepools of two loaded files are the same
-    assert(sum(a_pcchan==b_pcchan)==length(a_pcchan));
+    % Check whether top n channels of two loaded files are the same
+    assert(isequal(a_pcchan, b_pcchan))
     pcchan = a_pcchan;
     
     allResults = {noDenoiseSNR,megDenoiseSNR,threechanDenoiseSNR,bothDenoiseSNR,pcchan};
@@ -108,27 +107,29 @@ snr_diff3 = []; % No denoise vs Combination of MEG Denoise & 3 Channel Environme
 
 
 % only full for now
-for icond = 1:3
-    for whichSubject = whichSubjects
+for whichSubject = whichSubjects
+    for icond = 1:3
         pcchan = find(results_null{whichSubject}(end,:));
-        snr_pre1(whichSubject,icond,:) = results_null{whichSubject}(1,pcchan);
+        
+        % Environmental denoising
+        snr_pre1(whichSubject,icond,:) = results_null{whichSubject}(icond,pcchan);
         snr_post1(whichSubject,icond,:) = results_null{whichSubject}(6+icond,pcchan);
         
         
-        
-        snr_pre2(whichSubject,icond,:) = results_null{whichSubject}(1,pcchan);
+        % MEG denoising
+        snr_pre2(whichSubject,icond,:) = results_null{whichSubject}(icond,pcchan);
         snr_post2(whichSubject,icond,:) = results_null{whichSubject}(3+icond,pcchan);
         
         
-        
-        snr_pre3(whichSubject,icond,:) = results_null{whichSubject}(1,pcchan);
+        % BOTH denoising        
+        snr_pre3(whichSubject,icond,:) = results_null{whichSubject}(icond,pcchan);
         snr_post3(whichSubject,icond,:) = results_null{whichSubject}(9+icond,pcchan);
-    
+        
         
     end
     
-
-end    
+    
+end
 
     % subjects by conditions (8*3)
     snr_diff1 = mean(snr_post1 - snr_pre1,3); %mean across diff of pre vs post for top 10 channels
