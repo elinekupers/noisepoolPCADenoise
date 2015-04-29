@@ -1,6 +1,6 @@
-function dfdCompariseDenoising(whichSubjects, saveFigures, topChan, nTop)
+function dfdCompareDenoising(whichSubjects, saveFigures, topChan, nTop)
 
-if notDefined('whichSubject'); whichSubject = 1; end
+if notDefined('whichSubject'); whichSubjects = 1:8; end
 if notDefined('saveFigures'); saveFigures = true; end
 if notDefined('topchan'); topChan = true; end
 if notDefined('nTop'); nTop = 10; end
@@ -9,7 +9,7 @@ allResults = [];
 
 for whichSubject = whichSubjects
     % Load results with and without 3 channel denoising
-    tmp = load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_denoisedData.mat'),whichSubject)); 
+    tmp = load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_denoisedData_bb.mat'),whichSubject)); 
     noDenoise = tmp.results.origmodel;
     megDenoise  = tmp.results.finalmodel;
     a_noisepool = tmp.results.noisepool;
@@ -23,7 +23,11 @@ for whichSubject = whichSubjects
 % Calculate SNR for all channels
 %%
 % figure('position',[1,600,300,800]);
-
+    noDenoiseSNR = [];
+    megDenoiseSNR = [];
+    threechanDenoiseSNR = [];
+    bothDenoiseSNR = [];
+    
     for icond = 1:3
         % get BB snr
         noDenoiseSNR(icond,:) = getsignalnoise(noDenoise,icond, 'SNR');
@@ -72,8 +76,10 @@ for whichSubject = whichSubjects
     assert(sum(a_pcchan==b_pcchan)==length(a_pcchan));
     pcchan = a_pcchan;
     
+    allResults = {noDenoiseSNR,megDenoiseSNR,threechanDenoiseSNR,bothDenoiseSNR,pcchan};
+    
     % Put everything in one array
-    allResults{whichSubject} = {noDenoiseSNR,megDenoiseSNR,threechanDenoiseSNR,bothDenoiseSNR,pcchan};
+    results_null{whichSubject} = catcell(1,allResults);
     
     
 end
@@ -81,26 +87,75 @@ end
 %% Compute difference in pre-post SNR
 
     
+    % Get the data for each kind of condition, for each subject so we can
+    % take the mean/median across subjects
+%     allsubjects_noDenoiseSNR
 
+snr_pre1  = []; % No denoise
+snr_post1 = []; % 3 Channel environmental denoise
+
+snr_diff1 = []; % No denoise vs 3 Channel environmental denoise
+
+snr_pre2  = []; % No denoise
+snr_post2 = []; % MEG Denoise
+
+snr_diff2 = []; % No denoise vs MEG Denoise
+
+snr_pre3  = []; % No denoise
+snr_post3 = []; % Combination of MEG Denoise & 3 Channel Environmental d.
+
+snr_diff3 = []; % No denoise vs Combination of MEG Denoise & 3 Channel Environmental d.
+
+
+% only full for now
 for icond = 1:3
-    % No denoise vs 3 Channel environmental denoise
-    snr_pre1  = noDenoiseSNR(icond,pcchan);
-    snr_post1 = threechanDenoiseSNR(icond,pcchan);
+    for whichSubject = whichSubjects
+        pcchan = find(results_null{whichSubject}(end,:));
+        snr_pre1(whichSubject,icond,:) = results_null{whichSubject}(1,pcchan);
+        snr_post1(whichSubject,icond,:) = results_null{whichSubject}(6+icond,pcchan);
+        
+        
+        
+        snr_pre2(whichSubject,icond,:) = results_null{whichSubject}(1,pcchan);
+        snr_post2(whichSubject,icond,:) = results_null{whichSubject}(3+icond,pcchan);
+        
+        
+        
+        snr_pre3(whichSubject,icond,:) = results_null{whichSubject}(1,pcchan);
+        snr_post3(whichSubject,icond,:) = results_null{whichSubject}(9+icond,pcchan);
     
-    snr_diff(whichSubject,1,icond,:) = snr_post1 - snr_pre1;
+        
+    end
     
-    % No denoise vs MEG Denoise
-    snr_pre2  = noDenoiseSNR(icond,pcchan);
-    snr_post2 = megDenoiseSNR(icond,pcchan);
+
+end    
+
+    % subjects by conditions (8*3)
+    snr_diff1 = mean(snr_post1 - snr_pre1,3); %mean across diff of pre vs post for top 10 channels
+    snr_diff2= mean(snr_post2 - snr_pre2,3);
+    snr_diff3 = mean(snr_post3 - snr_pre3,3);
     
-    snr_diff(whichSubject,2,icond,:) = snr_post2 - snr_pre2;
-    
-    % No denoise vs Combination of MEG Denoise & 3 Channel Environmental d.
-    snr_pre3  = noDenoiseSNR(icond,pcchan);
-    snr_post3 = bothDenoiseSNR(icond,pcchan);
-    
-    snr_diff(whichSubject,3,icond,:) = snr_post3 - snr_pre3;
-end
+% For one subject only / obsolete now
+%     % No denoise vs 3 Channel environmental denoise
+%     snr_pre1  = noDenoiseSNR(icond,pcchan);
+%     snr_post1 = threechanDenoiseSNR(icond,pcchan);
+%     
+%     snr_diff(whichSubject,1,icond,:) = snr_post1 - snr_pre1;
+%     
+%     % No denoise vs MEG Denoise
+%     snr_pre2  = noDenoiseSNR(icond,pcchan);
+%     snr_post2 = megDenoiseSNR(icond,pcchan);
+%     
+%     snr_diff(whichSubject,2,icond,:) = snr_post2 - snr_pre2;
+%     
+%     % No denoise vs Combination of MEG Denoise & 3 Channel Environmental d.
+%     snr_pre3  = noDenoiseSNR(icond,pcchan);
+%     snr_post3 = bothDenoiseSNR(icond,pcchan);
+%     
+%     snr_diff(whichSubject,3,icond,:) = snr_post3 - snr_pre3;
+
+% subjects x conditions x 
+snr_diff = cat(3,snr_diff1,snr_diff2,snr_diff3);
 
 condNames    = {'Stim Full','Stim Left','Stim Right'};
 condColors   = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
@@ -115,19 +170,32 @@ types = {'No denoise vs environmental','No denoise vs MEG denoise','No Denoise v
 % snr_diff2 = snr_diff(:,neworder,:);
 % nnull = length(types);
 % fH = figure('position',[0,300,200,200]);
+nnull = length(types);
+
 for icond = 1:3
-    subplot(1,3,icond);
-    % mean and sem across subjects 
-    mn  = mean(snr_diff(:,:,icond,:),4);
-    sem = std(snr_diff(:,:,icond,:),[],4)/sqrt(10);
-    bar(1:3, mn,'EdgeColor','none','facecolor',condColors(icond,:)); hold on
-    errorbar2(1:3,mn,sem,1,'-','color',condColors(icond,:));
-    % format figure and make things pretty 
-    set(gca,'xlim',[0.2,3+0.8],'ylim',[-1,5]);
-    makeprettyaxes(gca,9,9);
-%     set(gca,'XLabel',types{1:3})
+%     for ncontrol = 1:size(snr_diff,3)
+        subplot(1,3,icond);
+        % mean and sem across subjects
+        mn  = mean(snr_diff(:,icond,:),1);
+        sem = std(snr_diff(:,icond,:),[],1)/sqrt(length(whichSubjects));
+        bar(1:nnull, squeeze(mn),'EdgeColor','none','facecolor',condColors(icond,:)); hold on
+        errorbar2(1:nnull,squeeze(mn),squeeze(sem),1,'-','color',condColors(icond,:));
+        % format figure and make things pretty
+        set(gca,'xlim',[0.2,nnull+0.8],'ylim',[-1,5]);
+        makeprettyaxes(gca,9,9);
+        %     set(gca,'XLabel',types{1:3})
+%     end
 end
 
+
+
+if saveFigures
+    if topChan
+        figurewrite(fullfile(dfdRootPath,'figures',sprintf('figureCompareDenoisingTop%d',nTop)),[],0,'.',1);
+    else
+        figurewrite(fullfile(dfdRootPath,'figures','figureCompareDenoising'),[],0,'.',1);
+    end
+end
 
 
 
