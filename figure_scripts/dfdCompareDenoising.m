@@ -44,7 +44,7 @@ for whichSubject = whichSubjects
         %% Get top n channels from noisepool A
         % For noDenoise and MegDenoise first (they share the same noisepool)
         % max across 3 conditions
-        topsnr = max([noDenoiseSNR; megDenoiseSNR]);
+        topsnr = max([noDenoiseSNR; megDenoiseSNR; threechanDenoiseSNR; bothDenoiseSNR]);
            
         % exclude noise pool
         topsnr(a_noisepool) = -inf;
@@ -52,29 +52,19 @@ for whichSubject = whichSubjects
         % sort
         [~,idx] = sort(topsnr,'descend');
         % find the top n
-        a_pcchan = false(size(a_noisepool));
-        a_pcchan(idx(1:nTop))= 1;
+        pcchan = false(size(a_noisepool));
+        pcchan(idx(1:nTop))= 1;
 
-        %% Get top n channels from noisepool B
-        % For threechanDenoising and bothDenoise next (they share the same noisepool)
-        % max across 3 conditions
-        topsnr = max([threechanDenoiseSNR; bothDenoiseSNR]);
-        
-        % exclude noise pool
-        topsnr(b_noisepool) = -inf;
-        % sort
-        [~,idx] = sort(topsnr,'descend');
-        % find the top n
-        b_pcchan = false(size(b_noisepool));
-        b_pcchan(idx(1:nTop))= 1;
 
 
     end
-
-    % Check whether top n channels of two loaded files are the same
-    assert(isequal(a_pcchan, b_pcchan))
-    pcchan = a_pcchan;
     
+    try
+        assert(isequal(a_noisepool, b_noisepool));
+    catch
+        fprintf('Noise pools for subject %d differ for meg denoise and 3 channel denoise', whichSubject);
+        
+    end
     allResults = {noDenoiseSNR,megDenoiseSNR,threechanDenoiseSNR,bothDenoiseSNR,pcchan};
     
     % Put everything in one array (conditions by 5 times SNR beta's)
