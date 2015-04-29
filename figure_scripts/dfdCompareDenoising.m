@@ -72,13 +72,13 @@ for whichSubject = whichSubjects
 
     end
 
-    % Check whether noisepools are the same
+    % Check whether noisepools of two loaded files are the same
     assert(sum(a_pcchan==b_pcchan)==length(a_pcchan));
     pcchan = a_pcchan;
     
     allResults = {noDenoiseSNR,megDenoiseSNR,threechanDenoiseSNR,bothDenoiseSNR,pcchan};
     
-    % Put everything in one array
+    % Put everything in one array (conditions by 5 times SNR beta's)
     results_null{whichSubject} = catcell(1,allResults);
     
     
