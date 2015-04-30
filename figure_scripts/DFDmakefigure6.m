@@ -33,7 +33,7 @@ axmax = 10; % how far to go out on the x-axis
 
 
 %% SNR increase as a function of number of PCs removed, 3 example sessions - Fig. 6A
-exampleSessions = [1:8];%[3,4,5];
+exampleSessions = [3,4,5];
 linecolors = copper(157);
 
 for k = 1:length(exampleSessions)
@@ -65,9 +65,9 @@ for k = 1:length(exampleSessions)
 end
 if saveFigures
     if plotBb
-        figurewrite(fullfile(figureDir,'Figure6SNRvPCsExampleSubjects'),[],0,'.',1);
+        figurewrite(fullfile(figureDir,'Figure6SNRvPCsExampleSubjectsBB'),[],0,'.',1);
     else 
-        figurewrite(fullfile(figureDir,'Figure11SNRvPCsExampleSubjects_SL'),[],0,'.',1);
+        figurewrite(fullfile(figureDir,'Figure11SNRvPCsExampleSubjectsSL'),[],0,'.',1);
     end
 end
 %% SNR increase as a function of number of PCs removed for all subjects -
@@ -117,9 +117,9 @@ end
 
 if saveFigures
     if plotBb
-        figurewrite(fullfile(figureDir,'Figure6BAllSubjs_sat_BB'),[],0,'.',1);
+        figurewrite(fullfile(figureDir,'Figure6BSNRvPCsAllSubjsBB'),[],0,'.',1);
     else
-        figurewrite(fullfile(figureDir,'Figure11BAllSubjs_sat_stimlocked'),[],0,'.',1);
+        figurewrite(fullfile(figureDir,'Figure11BSNRvPCsAllSubjsSL'),[],0,'.',1);
     end
 end
 

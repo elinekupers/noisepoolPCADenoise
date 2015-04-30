@@ -13,32 +13,32 @@ function dfdMakeFigure5()
 % function. 
 
 %% Choices to make:                                              
-whichSubject    = 1;        % Subject 1 has the example channel.
-figureDir       = fullfile(dfdRootPath, 'figures');
+whichSubject    = 1;        % Subject 1 is the example subject.
+figureDir       = fullfile(dfdRootPath, 'figures'); % Where to save images?
 saveFigures     = true;     % Save figures in the figure folder?
 
 % Load denoised data
-load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_bbdenoisedData.mat'),whichSubject)); 
-load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_sldenoisedData.mat'),whichSubject)); 
+bb = load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_denoisedData_bb.mat'),whichSubject)); 
+sl = load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_denoisedData_sl.mat'),whichSubject)); 
 
 %%
 figure('position',[1,600,1400,800]);
 condNames = {'Stim Full','Stim Left','Stim Right'};
 for icond = 1:3
     % get stimulus-locked snr
-    sl_snr1 = getsignalnoise(slresults.origmodel(1),icond, 'SNR');
+    sl_snr1 = getsignalnoise(sl.results.origmodel(1),icond, 'SNR');
     %clims_sl = [0, max(sl_snr1)];
     clims_sl = [0,25.6723];
     % get broadband snr for before and after denoising
-    ab_snr1 = getsignalnoise(bbresults.origmodel(1),  icond, 'SNR');
-    ab_snr2 = getsignalnoise(bbresults.finalmodel(1), icond, 'SNR');
+    ab_snr1 = getsignalnoise(bb.results.origmodel(1),  icond, 'SNR');
+    ab_snr2 = getsignalnoise(bb.results.finalmodel(1), icond, 'SNR');
     clims_ab = [0, max([ab_snr1, 12.4445])];
     %clims_ab = [0, max([ab_snr1, ab_snr2])];
     
     % convert back into 157-channel space
-    ab_snr1a = to157chan(ab_snr1,~badChannels,'nans');
-    ab_snr2a = to157chan(ab_snr2,~badChannels,'nans');
-    sl_snr1a = to157chan(sl_snr1,~badChannels,'nans');
+    ab_snr1a = to157chan(ab_snr1,~bb.badChannels,'nans');
+    ab_snr2a = to157chan(ab_snr2,~bb.badChannels,'nans');
+    sl_snr1a = to157chan(sl_snr1,~sl.badChannels,'nans');
     
     % plot spatial maps
     subplot(3,3,(icond-1)*3+1)
@@ -54,13 +54,13 @@ for icond = 1:3
     title(sprintf('Broadband Pre %s', condNames{icond}))
     
     subplot(3,3,(icond-1)*3+3)
-    [~,ch] = megPlotMap(ab_snr2a,clims_ab,gcf,'jet',sprintf('%s : Denoised PC %d',condNames{icond}, bbresults.pcnum(1)));
+    [~,ch] = megPlotMap(ab_snr2a,clims_ab,gcf,'jet',sprintf('%s : Denoised PC %d',condNames{icond}, bb.results.pcnum(1)));
     makeprettyaxes(gca,9,9);
     makeprettyaxes(ch,9,9);
     title(sprintf('Broadband Post %s', condNames{icond}))
 end
 
 if saveFigures
-    figurewrite(fullfile(figureDir,'figure5_examplesubject3'),[],0,'.',1);
+    figurewrite(sprintf(fullfile(figureDir,'figure5_examplesubject%d'),whichSubject),[],0,'.',1);
 end
 
