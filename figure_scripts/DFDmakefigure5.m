@@ -42,19 +42,19 @@ for icond = 1:3
     
     % plot spatial maps
     subplot(3,3,(icond-1)*3+1)
-    [~,ch] = megPlotMap(sl_snr1a,clims_sl,gcf,'jet',sprintf('%s : Stimulus Locked Original', condNames{icond}));
+    [~,ch] = megPlotMap(sl_snr1a,clims_sl,gcf,'parula',sprintf('%s : Stimulus Locked Original', condNames{icond}));
     makeprettyaxes(gca,9,9);
     makeprettyaxes(ch,9,9);
     title(sprintf('SL no DN %s', condNames{icond}))
     
     subplot(3,3,(icond-1)*3+2)
-    [~,ch] = megPlotMap(ab_snr1a,clims_ab,gcf,'jet',sprintf('%s Original', condNames{icond}));
+    [~,ch] = megPlotMap(ab_snr1a,clims_ab,gcf,'parula',sprintf('%s Original', condNames{icond}));
     makeprettyaxes(gca,9,9);
     makeprettyaxes(ch,9,9);
     title(sprintf('Broadband Pre %s', condNames{icond}))
     
     subplot(3,3,(icond-1)*3+3)
-    [~,ch] = megPlotMap(ab_snr2a,clims_ab,gcf,'jet',sprintf('%s : Denoised PC %d',condNames{icond}, bb.results.pcnum(1)));
+    [~,ch] = megPlotMap(ab_snr2a,clims_ab,gcf,'parula',sprintf('%s : Denoised PC %d',condNames{icond}, bb.results.pcnum(1)));
     makeprettyaxes(gca,9,9);
     makeprettyaxes(ch,9,9);
     title(sprintf('Broadband Post %s', condNames{icond}))
