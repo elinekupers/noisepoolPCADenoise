@@ -32,7 +32,7 @@ colors          = [63, 121, 204; 228, 65, 69; 116,183,74; 127,127,127]/255;
 avgLogFlg       = false;
 
 % Load data, design, and get example subject
-[data,design,exampleIndex] = prepareData(dataDir,whichSubject);
+[data,design,exampleIndex] = prepareData(dataDir,whichSubject,4);
 
 % Define conditions: Full, right, left, off
 condEpochs1 = {design{1}(:,1)==1, design{1}(:,2)==1, design{1}(:,3)==1, all(design{1}==0,2)};

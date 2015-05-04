@@ -18,58 +18,35 @@ function dfdMakeFigure6()
 
 %% Choices to make:
 
-whichSubject        = 1:8;   % You need all subjects for this figure 
-                            % Choose a particular number if you would like
-                            % a specific subject                           
-figureDir           = fullfile(DFDrootpath, 'figures');
+whichSubjects        = 1:8;             
+figureDir           = fullfile(dfdRootPath, 'figures');
+dataDir           = fullfile(dfdRootPath, 'data');
 
-saveFigures         = true;   % Save figures in the figure folder?
+saveFigures         = true;
+exampleSessions     = [3,4,5];
 
-%% Check whether we got our preprocessed data matrices
+condColors          = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
+linecolors          = copper(157);
+axmax               = 10; % how far to go out on the x-axis
 
-%% Make figure
-condColors   = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
-axmax = 10; % how far to go out on the x-axis
 
 
 %% SNR increase as a function of number of PCs removed, 3 example sessions - Fig. 6A
-exampleSessions = [3,4,5];
-linecolors = copper(157);
 
-for k = 1:length(exampleSessions)
-    % get session
-    sessionDir = DFDgetdatapaths(exampleSessions(k),conditionNumbers,inputDataDir);
-    % load fit file
-    thisfile = fullfile(inputDataDir,'savedProcData',sprintf('%s%s',sessionDir,fitDataStr));
-    disp(thisfile); load(thisfile,'results','evalout');
+for whichSubject = whichSubjects
+    fprintf(' Load subject %d \n', whichSubject);
+
+    [data,design,exampleIndex] = prepareData(dataDir,whichSubject,6);
     
-    % get snr
-    snr = abs(cat(3,evalout(:,whichFun).beta_md)) ./ cat(3,evalout(:,whichFun).beta_se);
-    
-    % plot for each condition
-    for icond = 1:3
-        subplot(8,3,(k-1)*3+icond); hold on;
-        this_snr = squeeze(snr(icond,:,:))';
-        % plot each channel's snr as a function of number of pc's
-        for ic = 1:size(this_snr,2)
-            plot(0:axmax,this_snr(1:axmax+1,ic),'color',linecolors(ic,:));
-        end
-        % plot snr change for top10 channels
-        xvaltrend = mean(this_snr(:,results.pcchan{whichFun}),2);
-        plot(0:axmax, xvaltrend(1:axmax+1,:), 'color', condColors(icond,:), 'linewidth',2);
-        %plot(axmax+1, xvaltrend(51,:), 'o', 'color', condColors(icond,:));
-        axis square; xlim([0,axmax]);
-        if plotBb, ylim([0,15]); else ylim([0,50]); end
-        makeprettyaxes(gca,9,9);
-    end
+    dataAll{whichSubject} = {data,design,exampleIndex};  
 end
-if saveFigures
-    if plotBb
-        figurewrite(fullfile(figureDir,'Figure6SNRvPCsExampleSubjectsBB'),[],0,'.',1);
-    else 
-        figurewrite(fullfile(figureDir,'Figure11SNRvPCsExampleSubjectsSL'),[],0,'.',1);
-    end
-end
+
+
+%%
+fH = plotSNRvsPCsExampleSubjectsPanel6A(dataAll,exampleSessions,condColors,axmax,figureDir,saveFigures)
+
+
+
 %% SNR increase as a function of number of PCs removed for all subjects -
 %% Fig. 6B
 

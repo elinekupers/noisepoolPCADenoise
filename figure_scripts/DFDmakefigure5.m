@@ -18,8 +18,10 @@ figureDir       = fullfile(dfdRootPath, 'figures'); % Where to save images?
 saveFigures     = true;     % Save figures in the figure folder?
 
 % Load denoised data
-bb = load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_denoisedData_bb.mat'),whichSubject)); 
-sl = load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_denoisedData_sl.mat'),whichSubject)); 
+[data] = prepareData(dataDir,whichSubject,5);
+bb = data.bb;
+sl = data.sl;
+badEpochs = data.badChannels
 
 %%
 figure('position',[1,600,1400,800]);
