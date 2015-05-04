@@ -21,7 +21,6 @@ saveFigures     = true;     % Save figures in the figure folder?
 [data] = prepareData(dataDir,whichSubject,5);
 bb = data.bb;
 sl = data.sl;
-badEpochs = data.badChannels
 
 %%
 figure('position',[1,600,1400,800]);

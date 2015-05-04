@@ -27,17 +27,17 @@ for whichSubject = whichSubjects
 
     [data,design,exampleIndex] = prepareData(dataDir,whichSubject,7);
     
-    dataAll{whichSubject} = {data,design,exampleIndex};
+    dataAll{whichSubject} = {data,design,exampleIndex}; %#ok<AGROW>
     
     
 end
 %% S, N, and SNR shown separately, before versus after denoising with 10
 %% PCs. For 3 example sessions - Fig. 7A,B,C
 
-fH = plotSNRPrePostPanel7ABC(dataAll, exampleSessions, condColors,figureDir,saveFigures)
+fH = plotSNRPrePostPanel7ABC(dataAll, exampleSessions, condColors,figureDir,saveFigures); %#ok<NASGU>
 
 
 %% Plot changes in SNR before and after denoising, showing all sessions
 %% together - Fig. 7D
-fH = plotSNRPrePostPanel7D(dataAll,whichSubjects,condColors,figureDir,saveFigures)
+fH = plotSNRPrePostPanel7D(dataAll,whichSubjects,condColors,figureDir,saveFigures); %#ok<NASGU>
 
