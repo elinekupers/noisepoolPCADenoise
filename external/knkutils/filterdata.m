@@ -7,8 +7,11 @@ if notDefined('ftsd'),    ftsd = lcutoff; end
 % get dimensions of data 
 [nchan, xlen, nepochs] = size(x);
 % create frequency axis
-inds = 1:floor(xlen/2)+1;
-freqs= fs/2*linspace(0,1,length(inds));
+inds = 1:xlen; % inds = 1:floor(xlen/2)+1;
+freqs= fs*linspace(0,1,length(inds)+1); 
+inds = inds(1:round(end/2));
+freqs = freqs(1:length(inds));
+
 % create filter
 hipassfilter = ones(1,xlen);
 hipassfilter(freqs<lcutoff) = 0;
@@ -18,11 +21,11 @@ hipassfilter(1:length(freqs)) = interp1(xtbl,ytbl,freqs,'linear','extrap');
 % also exclude certain frequencies 
 if ~notDefined('excludef')
     excludevec = ones(1,length(freqs));
-    [~, ex_i]  = intersect(round(freqs), excludef);
+    [~, ex_i]  = intersect(round(freqs), round(excludef));
     excludevec(ex_i) = 0;
     hipassfilter(1:length(freqs)) = hipassfilter(1:length(freqs)).*excludevec;
 end
-% mirror the smoothedge on the negative frequency side
+% mirror the smooth edge on the negative frequency side
 if isodd(xlen)
     hipassfilter(xlen:-1:(round(xlen/2)+1)) = hipassfilter(2:round(xlen/2));
 else
