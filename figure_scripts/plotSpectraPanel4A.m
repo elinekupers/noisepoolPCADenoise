@@ -13,7 +13,7 @@ yl=[yt(1),yt(end)];
 
 exampleChannel = 42;
 
-for dd = 1
+for dd = 2
     % compute spectrum
     spec = abs(fft(squeeze(data{dd}(exampleIndex,:,:))))/size(data{dd},2)*2;
 
@@ -57,5 +57,5 @@ for dd = 1
 end
 
 if saveFigures
-    figurewrite(fullfile(figureDir,'figure4AFullSpectrumChannel42'),[],0,'.',1);
+    figurewrite(sprintf(fullfile(figureDir,'figure4AFullSpectrumChannel%d'),exampleIndex),[],0,'.',1);
 end

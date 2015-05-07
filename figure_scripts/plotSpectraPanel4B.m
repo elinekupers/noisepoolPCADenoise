@@ -12,7 +12,7 @@ xt = [12:12:72, 96,144];
 yt = 1:2;
 yl=[yt(1),yt(end)];
 
-exampleChannel = 42;
+exampleChannel = 1;
 
 for dd = 1:2
     subplot(2,1,dd);
@@ -76,5 +76,5 @@ for dd = 1:2
 end
 
 if saveFigures
-    figurewrite(fullfile(figureDir,'figure4bHighFreqSpectrumChannel42'),[],0,'.',1);
+    figurewrite(sprintf(fullfile(figureDir,'figure4bHighFreqSpectrumChannel%d'),exampleIndex),[],0,'.',1);
 end
