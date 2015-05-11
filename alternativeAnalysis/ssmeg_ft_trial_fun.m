@@ -19,6 +19,8 @@ for j = 1:length(trigger);
     Events(j).trigger = trigger(j);
 %     Events(j).channel = trigger(j).type; % I don't think we need this..
     Events(j).value   = conditions(j);
+    Events(j).sample = 'trial';
+    Events(j).type = 'trial';
 end
 
 
