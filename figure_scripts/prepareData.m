@@ -15,6 +15,8 @@ switch whichFigure
     case 5
         bb = load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_denoisedData_bb.mat'),whichSubject)); 
         sl = load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_denoisedData_sl.mat'),whichSubject));
+        load(sprintf(fullfile(dataDir, 's0%d_conditions.mat'),whichSubject));
+
         data = {bb,sl};
     
     case 6 
@@ -43,7 +45,7 @@ if ~exist('exampleChannel','var')
     design(conditions == 5,2) = 1; % Right
     design(conditions == 7,3) = 1; % Left
     
-    design = design(~data.badEpochs,:);
+    design = design(~data{1}.badEpochs,:);
     
 else
     channelNumbers = find(~badChannels);

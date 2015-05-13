@@ -169,11 +169,12 @@ dummy        = ft_rejectvisual(cfg,data);
 for ii = 1:length(dummy.label)
     goodChannels(ii) = str2num(dummy.label{ii}(3:end));
 end
+ % insteaad of 19 or 74)
+index69 = find(goodChannels==69)
+index99 = find(goodChannels==99)
 
-index19 = find(goodChannels==19)
-index74 = find(goodChannels==74)
-goodChannels(index19)= []
-goodChannels(index74) = []
+goodChannels(index69)= []
+goodChannels(index99) = []
 
 cfg = [];
 cfg.dataset      = fullfile(data_pth,meg_files(subjects).name);
@@ -205,7 +206,7 @@ cfg.layout = ft_prepare_layout(cfg, data_hdr);
 % plot the components for visual inspection
 figure
 cfg = [];
-cfg.component = [41:60];       % specify the component(s) that should be plotted
+cfg.component = [1:20];       % specify the component(s) that should be plotted
 cfg.comment   = 'no';
 ft_topoplotIC(cfg, comp)
 
@@ -224,5 +225,10 @@ data = ft_rejectcomponent(cfg, comp, data);
 fname = fullfile(dfdRootPath, 'data', sprintf('s0%d_dataAfterICA',subjects));
 save([fname '.mat'], 'data');
 
+fname = fullfile(dfdRootPath, 'data', sprintf('s0%d_dataAfterICA_conditions',subjects));
+save([fname '.mat'], ['trl', 'onsets']);
+
+fname = fullfile(dfdRootPath, 'data', sprintf('s0%d_dataAfterICA_cfg',subjects));
+save([fname '.mat'], 'cfg');
 
 
