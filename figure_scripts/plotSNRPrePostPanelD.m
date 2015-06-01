@@ -1,4 +1,4 @@
-function fH = plotSNRPrePostPanel7D(dataAll,whichSubjects,condColors,figureDir,saveFigures)
+function fH = plotSNRPrePostPanelD(dataAll,whichSubjects,condColors,figureDir,saveFigures,figureNumber)
 
 
 
@@ -20,9 +20,14 @@ fH = figure('position',[0,300,500,200]);
         plotBeforeAfter(allresults,1,allpcchan,'snr',icond,[],squeeze(colorRGB(icond,:,:)));
         xlim([0.5,2.5]);
         makeprettyaxes(gca,9,9);
-        ylim([0,12]); % for SL plot, take ylim([0,40])
+        if isequal(figureNumber,7);  ylim([0,12]);
+        else ylim([0,40]); end;
     end
 
 if saveFigures
-    figurewrite(fullfile(figureDir,'Figure7D_snrfull_sat'),[],0,'.',1);
+    if isequal(figureNumber,7)
+        figurewrite(fullfile(figureDir,'Figure7D_snrfull_sat'),[],0,'.',1);
+    elseif isequal(figureNumber,11)
+        figurewrite(fullfile(figureDir,'Figure11D_snrfull_sat'),[],0,'.',1);
+    end
 end

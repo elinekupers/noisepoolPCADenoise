@@ -1,6 +1,6 @@
-function fH = plotSNRPrePostPanel7ABC(dataAll,exampleSessions,condColors,figureDir,saveFigures)
+function fH = plotSNRPrePostPanelABC(dataAll,exampleSessions,condColors,figureDir,saveFigures,figurenumber)
 
-fH = figure(7);
+fH = figure;
 
 for k = 1:numel(exampleSessions)
 
@@ -59,5 +59,9 @@ for k = 1:numel(exampleSessions)
 end
 
 if saveFigures
-    figurewrite(fullfile(figureDir,'Figure7abc_snrexamples'),[],0,'.',1);
+    if isequal(figurenumber,7)
+        figurewrite(fullfile(figureDir,'Figure7abc_snrexamples'),[],0,'.',1);
+    elseif isequal(figurenumber,11)
+        figurewrite(fullfile(figureDir,'Figure11abc_snrexamples'),[],0,'.',1);
+    end
 end
