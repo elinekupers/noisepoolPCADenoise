@@ -78,7 +78,7 @@ onsets = ssmeg_trigger_2_onsets(trigger, subjects);
 
     %  Dummy Denoise for broadband analysis
     optbb.verbose         = 'true';
-    optbb.pcchoose        = 0;   
+    optbb.pcchoose        = 10;   
     optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
     evokedfun             = @(x)getstimlocked(x,freq); % function handle to determine noise pool
     evalfun               = @(x)getbroadband(x,freq);  % function handle to compuite broadband
@@ -86,8 +86,8 @@ onsets = ssmeg_trigger_2_onsets(trigger, subjects);
     [results,evalout,denoisedspec,denoisedts] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
     
     
-    fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_full'),whichSubject);
+    fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData'),1);
     
-    parsave([fname '_bb_afterICA.mat'], 'results', results, 'evalout', evalout, ...
+    parsave([fname '_bb_afterICA_10.mat'], 'results', results, 'evalout', evalout, ...
         'denoisedspec', denoisedspec, 'denoisedts', denoisedts,...
         'badChannels', badChannels, 'badEpochs', badEpochs, 'opt', optbb)        
