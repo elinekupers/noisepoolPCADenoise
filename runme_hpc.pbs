@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -l nodes=4:ppn=4
 #PBS -l walltime=20:00:00
-#PBS -l mem=8GB
+#PBS -l mem=128GB
 #PBS -N dfdDenoiseWrapper
 #PBS -M ek99@nyu.edu
 #PBS -j oe
