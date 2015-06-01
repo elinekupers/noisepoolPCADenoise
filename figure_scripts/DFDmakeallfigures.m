@@ -5,12 +5,12 @@
 % DESCRIPTION HERE
 
 % Make all figures
-DFDmakefigure4;
-DFDmakefigure5;
-DFDmakefigure6; % Slow
-DFDmakefigure7;
-DFDmakefigure8;
-DFDmakefigure9;
-DFDmakefigure11;
-DFDmakefigure12;
+dfdMakeFigure4;
+dfdMakeFigure5;
+dfdMakeFigure6; % Slow
+dfdMakeFigure7;
+dfdMakeFigure8;
+dfdMakeFigure9;
+dfdMakeFigure11;
+dfdMakeFigure12;
 

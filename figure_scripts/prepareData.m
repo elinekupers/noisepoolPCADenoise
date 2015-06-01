@@ -28,6 +28,18 @@ switch whichFigure
         data = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_bb.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's0%d_conditions.mat'),whichSubject));
         
+    case 8
+        data = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_bb.mat'),whichSubject));
+        load(sprintf(fullfile(dataDir, 's0%d_conditions.mat'),whichSubject));
+        
+    case 9
+        data = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_bb.mat'),whichSubject));
+        load(sprintf(fullfile(dataDir, 's0%d_conditions.mat'),whichSubject));
+        
+    case 11
+        data = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_full_sl.mat'),whichSubject));
+        load(sprintf(fullfile(dataDir, 's0%d_conditions.mat'),whichSubject));
+        
 end
     
 %% Spectrum before and after denoising
@@ -45,7 +57,7 @@ if ~exist('exampleChannel','var')
     design(conditions == 5,2) = 1; % Right
     design(conditions == 7,3) = 1; % Left
     
-    design = design(~data{1}.badEpochs,:);
+    design = design(~data.badEpochs,:);
     
 else
     channelNumbers = find(~badChannels);

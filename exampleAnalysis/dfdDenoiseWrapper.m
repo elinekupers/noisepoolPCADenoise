@@ -17,7 +17,7 @@ varThreshold        = [0.05 20];
 badChannelThreshold = 0.2;       
 badEpochThreshold   = 0.2;
 dataChannels        = 1:157;
-use3Channels        = true;
+use3Channels        = false;
 
 % Get 'freq' struct to define stimulus locked and broadband frequencies
 %  This struct is needed as input args for getstimlocked and getbroadband
@@ -28,7 +28,7 @@ freq = megGetSLandABfrequencies(0:150, 1, 12);
 % optbb.pcchoose        = -10;   % denoise with exactly 10 PCs for broadband
 optsl.pcchoose        = 0;   % denoise with exactly 10 PCs for stimulus locked
 optbb.pcchoose        = 0;   % denoise with exactly 10 PCs for broadband
-optsl.npcs2try        = 0;   % denoise with exactly 10 PCs for stimulus locked
+optsl.npcs2try        = 10;   % denoise with exactly 10 PCs for stimulus locked
 optbb.npcs2try        = 10;
 optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
 evokedfun             = @(x)getstimlocked(x,freq); % function handle to determine noise pool
