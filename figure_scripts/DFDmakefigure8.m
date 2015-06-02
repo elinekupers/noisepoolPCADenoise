@@ -1,6 +1,8 @@
 function dfdMakeFigure8()
 %% Function to reproduce Figure 8 (Spatialmap) for all subjects pre- vs post-denoising
 %
+% dfdMakeFigure8()
+%
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
 % This figure will show an interpolated spatial map of the SNR values in
@@ -13,22 +15,19 @@ function dfdMakeFigure8()
 %% Choices to make:
 
 whichSubjects        = 1:8;
-dataDir              = fullfile(dfdRootPath, 'data');
-figureDir            = fullfile(dfdRootPath, 'figures');
+dataDir              = fullfile(dfdRootPath, 'data');   % Where to save data?
+figureDir            = fullfile(dfdRootPath, 'figures');% Where to save images?
 saveFigures          = true;   % Save figures in the figure folder?
 dataAll              = [];
 
-%% Load data
-
+%% Load data of all subjects
 for whichSubject = whichSubjects
     fprintf(' Load subject %d \n', whichSubject);
     [data,design,exampleIndex] = prepareData(dataDir,whichSubject,8);
     dataAll{whichSubject} = {data,design,exampleIndex}; %#ok<AGROW>
 end
 
-%% Make spatial map figures:
-% Plot full condition, post minus pre denoising
-
+%% Plot spatial map figure with full condition, post minus pre denoising
 figure('position',[1,600,1400,800]);
 icond = 1;
 for k = 1:length(whichSubjects)

@@ -1,6 +1,11 @@
 function dfdDenoiseWrapper(subjects)
-
-% Description: Wrapper function to denoise multiple MEG visual steady
+% 
+% dfdDenoiseWrapper(subjects)
+% 
+% INPUTS:
+% subjects  : Number of subjects one would like to denoise
+%
+% DESCRIPTION: Wrapper function to denoise multiple MEG visual steady
 % state data sets. The results of the denoising are written to file and can
 % be then be used to reproduce several of the published figures from the
 % paper the paper:
@@ -24,8 +29,6 @@ use3Channels        = false;
 freq = megGetSLandABfrequencies(0:150, 1, 12);
 
 % denoise parameters (see denoisedata.m)
-% optsl.pcchoose        = -10;   % denoise with exactly 10 PCs for stimulus locked
-% optbb.pcchoose        = -10;   % denoise with exactly 10 PCs for broadband
 optsl.pcchoose        = 10;   % denoise with exactly 10 PCs for stimulus locked
 optbb.pcchoose        = 10;   % denoise with exactly 10 PCs for broadband
 optsl.npcs2try        = 10;   % loop through 10
@@ -43,8 +46,8 @@ for whichSubject = subjects
     % ******** Make design matrix *****************
     design = zeros(length(conditions), 3);
     design(conditions==1,1) = 1; % condition 1 is full field
-    design(conditions==5,2) = 1; % condition 5 is right (??)
-    design(conditions==7,3) = 1; % condition 7 is left (??)
+    design(conditions==5,2) = 1; % condition 5 is left field
+    design(conditions==7,3) = 1; % condition 7 is right field 
     % condition 3 is blank
     
     % ******* Preprocess data **********************
@@ -79,11 +82,12 @@ for whichSubject = subjects
         
     end
     
+    % ********* Save denoised broadband data ******************** 
     parsave([fname '_bb.mat'], 'results', results, 'evalout', evalout, ...
         'denoisedspec', denoisedspec, 'denoisedts', denoisedts,...
         'badChannels', badChannels, 'badEpochs', badEpochs, 'opt', optbb)        
     
-    %   Denoise for stimulus-locked analysis
+    % ********* Denoise and save stimulus-locked analysis *****************
     [results,evalout,denoisedspec,denoisedts] = denoisedata(design,sensorData,evokedfun,evokedfun,optsl);
     parsave([fname '_sl.mat'], 'results', results, 'evalout', evalout, ...
         'denoisedspec', denoisedspec, 'denoisedts', denoisedts,...

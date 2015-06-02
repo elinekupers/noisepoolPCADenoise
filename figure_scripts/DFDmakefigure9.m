@@ -1,6 +1,7 @@
-function dfdMakeFigure()
+function dfdMakeFigure9()
 %% Function to reproduce Figure 9 (Spatialmap) for right minus left denoised activations 
 %
+% dfdMakeFigure9()
 %
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
@@ -12,23 +13,20 @@ function dfdMakeFigure()
 % function. 
 
 %% Choices to make:
-
 whichSubjects        = 1:8;
-dataDir              = fullfile(dfdRootPath, 'data');
-figureDir            = fullfile(dfdRootPath, 'figures');
+dataDir              = fullfile(dfdRootPath, 'data');   % Where to save data?
+figureDir            = fullfile(dfdRootPath, 'figures');% Where to save images?
 saveFigures          = true;   % Save figures in the figure folder?
 dataAll              = [];
 
-%% Check whether we got our preprocessed data matrices
-
+%% Load data for all subjects
 for whichSubject = whichSubjects
     fprintf(' Load subject %d \n', whichSubject);
     [data,design,exampleIndex] = prepareData(dataDir,whichSubject,9);
     dataAll{whichSubject} = {data,design,exampleIndex}; %#ok<AGROW>
 end                                                       
 
-%% Make spatial map figures:
-% Plot right minus left stimulation, SL and BB pre and post denosing separately)
+%% Plot spatial map figures: right minus left stimulation for broadband component after denoising.
 figure('position',[1,600,1400,800]);
 whichmodel = 'finalmodel';
 for k = 1:length(whichSubjects)

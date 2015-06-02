@@ -19,12 +19,12 @@ figureDir       = fullfile(dfdRootPath, 'figures'); % Where to save images?
 dataDir         = fullfile(dfdRootPath, 'data');    % Where to save data?
 saveFigures     = true;     % Save figures in the figure folder?
 
-% Load denoised data
+%% Load denoised data of example subject
 [data] = prepareData(dataDir,whichSubject,5);
 bb = data{1};
 sl = data{2};
 
-%%
+%% Plot stimulus-locked signal, broadband before and after denoising on sensormap
 figure('position',[1,600,1400,800]);
 condNames = {'Stim Full','Stim Left','Stim Right'};
 for icond = 1:3

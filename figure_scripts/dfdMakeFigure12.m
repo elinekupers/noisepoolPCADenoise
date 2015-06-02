@@ -3,6 +3,8 @@ function dfdMakeFigure12()
 % and Figure 12b, SNR for top ten channels against PCs removed for all
 % subjects in stimulus-locked signals
 %
+% dfdMakeFigure12()
+%
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
 % This figure will show 2 ways of plotting SNR values against the number of PCs
@@ -15,27 +17,22 @@ function dfdMakeFigure12()
 % function. 
 
 %% Choices to make:
-
 whichSubjects        = 1:8;
-dataDir              = fullfile(dfdRootPath, 'data');
-figureDir            = fullfile(dfdRootPath, 'figures');
-saveFigures          = true;   % Save figures in the figure folder?
+dataDir              = fullfile(dfdRootPath, 'data');   % Where to save data?
+figureDir            = fullfile(dfdRootPath, 'figures');% Where to save images?
+saveFigures          = true;     % Save figures in the figure folder?
 exampleSessions      = [3,4,5];  % Helena's plot contained subjects [5,6,9]
 condColors           = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
 linecolors = copper(157);
 dataAll              = [];
 
-
-%% Load data
+%% Load data all subjects
 for whichSubject = whichSubjects
     fprintf(' Load subject %d \n', whichSubject);
-
-    [data,design,exampleIndex] = prepareData(dataDir,whichSubject,11);
-    
+    [data,design,exampleIndex] = prepareData(dataDir,whichSubject,11);  
     dataAll{whichSubject} = {data,design,exampleIndex}; %#ok<AGROW>
      
 end
-
 
 %% SNR increase as a function of number of PCs for 3 example subjects
 for k = exampleSessions
@@ -88,8 +85,6 @@ for k = 1:length(whichSubjects)
     end
     snr_top10 = cat(3,snr_top10,xvaltrend);
 end
-
-% Plot them together
 
 % define colors - vary saturation for different subjects
 satValues = linspace(0.1,1,8);
