@@ -7,7 +7,7 @@
 % Make all figures
 dfdMakeFigure4;
 dfdMakeFigure5;
-dfdMakeFigure6; % Slow
+dfdMakeFigure6;
 dfdMakeFigure7;
 dfdMakeFigure8;
 dfdMakeFigure9;

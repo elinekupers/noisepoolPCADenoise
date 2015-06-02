@@ -41,11 +41,11 @@ Funcs		: Functions that specify how to define
 Scripts		: Scripts to preload and shape the 
 		data before denoising.
 
-Denoisedata.m	: main function to denoise time series.
+denoisedata.m	: main function to denoise time series.
 
-DFDdownloaddata.m : Download example datasets from web.
+dfdDownloadData.m : Download example datasets from web.
 
-DFDaddpaths.m	: Add paths with functions to make 
+dfdAddPaths.m	: Add paths with functions to make 
 		this repository run smoothly.
 
 
@@ -96,5 +96,5 @@ OUTPUT:
 —————————————————————————————————————————————————————-
 Recreate figure 4 from manuscript. In the Matlab prompt, type:
 
-DFDaddpaths
-ok = DFDmakefigure4()
+dfdAddPaths
+dfdMakeFigure4()
