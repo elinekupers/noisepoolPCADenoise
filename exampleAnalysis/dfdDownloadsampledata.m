@@ -20,7 +20,7 @@ function savePth = dfdDownloadSampleData(savePth, whichDataSets)
 %   savePth = dfdDownloadSampleData();
 
 % Argument check
-if notDefined('savePth'),       savePth = fullfile(dfdRootPath, 'data'); end
+if notDefined('savePth'),       savePth = fullfile(dfdRootPath, 'exampleAnalysis', 'data'); end
 if notDefined('whichDataSets'), whichDataSets = 1:8; end
 
 % Site to retrieve the data
