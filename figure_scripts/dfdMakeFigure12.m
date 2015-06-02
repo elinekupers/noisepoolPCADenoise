@@ -23,7 +23,7 @@ figureDir            = fullfile(dfdRootPath, 'figures');% Where to save images?
 saveFigures          = true;     % Save figures in the figure folder?
 exampleSessions      = [3,4,5];  % Helena's plot contained subjects [5,6,9]
 condColors           = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
-linecolors = copper(157);
+linecolors           = copper(157);
 dataAll              = [];
 
 %% Load data all subjects
@@ -39,6 +39,7 @@ for k = exampleSessions
       
     data = dataAll{k};
     results = data{1}.results;
+    evalout = data{1}.evalout;
     
     % get snr
     snr = abs(cat(3,results.evalout.beta_md)) ./ cat(3,results.evalout.beta_se);
