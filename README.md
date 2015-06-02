@@ -16,10 +16,7 @@ Neural Network Toolbox (v 8.2.1)
 ——-——-——-——-——-——- Folder structure ——-——-——-——-——-——-
 —————————————————————————————————————————————————————-
 
-Data 		: Contains Folders with example data 
-		sets and a folder with saved processed 
-		data matrices, in order to reproduce 
-		figures faster after denoising.
+Data: Empty folder to store data. Example data downloaded by dfdDownloadSampleData will be written here by default. This folder contains a .gitignore file to prevent large data files from being added to the repository.
 
 Experiments 	: Scripts and functions specific to 
 		denoise MEG or EEG data with an on/off
@@ -94,7 +91,15 @@ OUTPUT:
 —————————————————————————————————————————————————————-
 ——-——-——-——-——- Example -----------------——-——-——-——-—
 —————————————————————————————————————————————————————-
-Recreate figure 4 from manuscript. In the Matlab prompt, type:
 
+% Prepare data sets.  In the Matlab prompt, type:
 dfdAddPaths
+dfdDownloadSampleData % Slow. Do this once to download 8 data sets.
+dfdDenoiseWrapper % Slow. Do this once to denoise 8 sample data sets.
+
+%  Recreate figure 4 from manuscript. 
 dfdMakeFigure4()
+
+%  Recreate all figures from manuscript. 
+DFDmakeallfigures()
+
