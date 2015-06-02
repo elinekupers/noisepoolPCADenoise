@@ -31,7 +31,8 @@ evokedfun             = @(x)getstimlocked(x,freq); % function handle to determin
 evalfun               = @(x)getbroadband(x,freq);  % function handle to compuite broadband
 
 % Load and denoise data, one subject at a time
-parfor whichSubject = subjects
+%parfor whichSubject = subjects
+for whichSubject = subjects
     % ******* Load data and design *****************
     tmp = load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_sensorData.mat'),whichSubject)); sensorData = tmp.sensorData;
     tmp = load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_conditions.mat'),whichSubject)); conditions = tmp.conditions;

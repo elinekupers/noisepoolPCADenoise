@@ -22,11 +22,10 @@ if ~exist('plotType', 'var') || isempty(plotType), plotType = 'both'; end
 % check length of sensor data
 if length(sensor_data) > 157, sensor_data = sensor_data(1:157); end
 
+if notDefined('data_hdr')
+    data_hdr = load('meg160_example_hdr'); data_hdr = data_hdr.hdr;
+end
 
-
-% Load the sensor positions in 3 space 
-tmp = load('meg160xyz');
-xyz = tmp.xyz;
 
 
 %% Old mesh
@@ -64,6 +63,9 @@ switch lower(plotType)
         xlabel('    Posterior       Anterior     ')
         zlabel('    Inferior       Superior     ')
         
+        % xyz coordinates
+        xyz = data_hdr.grad.chanpos;
+        
         ft_plot_topo3d(xyz,sensor_data); hold on;
         label_add(xyz)
         
@@ -75,14 +77,6 @@ end
 
 switch lower(plotType)
     case {'2d', 'both'}
-        %rawdir = '/Volumes/server/Projects/MEG/SSMEG/02_SSMEG_02_28_2014/raw';
-        %if notDefined('meg_files')
-        %    meg_files = dir(fullfile(rawdir,'*.sqd'));
-        %end
-        %data_hdr = ft_read_header(fullfile(rawdir,meg_files(1).name));
-        if notDefined('data_hdr')
-            data_hdr = load('hdr'); data_hdr = data_hdr.hdr;
-        end
         
         cfg=[];
         %cfg.interpolation = 'nearest';
@@ -100,7 +94,6 @@ switch lower(plotType)
                 cfg.data(ii) = nanmedian(sensor_data);
             end
         end
-        %figure; clf;
         topoplot(cfg,cfg.data);
         
         fH = gcf;
