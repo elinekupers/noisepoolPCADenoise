@@ -1,5 +1,5 @@
 function dfdMakeFigure4()
-% Function to reproduce Figure 4abc (Example data set) for one channel in
+%% Function to reproduce Figure 4abc (Example data set) for one channel in
 % example subject
 %
 % dfdMakeFigure4()
@@ -20,11 +20,10 @@ function dfdMakeFigure4()
 
 
 %% Choices to make:
-whichSubject    = 1;  % Subject 1 has the example channel.
-figureDir       = fullfile(dfdRootPath, 'figures');
-saveFigures     = true;     % Save figures in the figure folder?
-dataDir         = fullfile(dfdRootPath, 'data'); % Note: New data matrices will 
-                                         % also get stored in the same folder.
+whichSubject    = 1;     % Subject 1 has the example channel.
+figureDir       = fullfile(dfdRootPath, 'figures'); % Where to save images?
+dataDir         = fullfile(dfdRootPath, 'data');    % Where to save data?
+saveFigures     = true;  % Save figures in the figure folder?
                                          
 % Define plot colors
 colors          = [63, 121, 204; 228, 65, 69; 116,183,74; 127,127,127]/255;
@@ -40,15 +39,12 @@ condEpochs2 = {design{2}(:,1)==1, design{2}(:,2)==1, design{2}(:,3)==1, all(desi
 
 condEpochs = {condEpochs1 condEpochs2};
 
-% outargs = computeSpectra(inputArgs); % not sure whether to put this
-% outsife the figure panel function or not
-
 %% Spectrum before and after denoising
 
 fH(1) = plotSpectraPanel4A(data, exampleIndex, condEpochs1, avgLogFlg, colors, saveFigures, figureDir);
 
 fH(2) = plotSpectraPanel4B(data, exampleIndex, condEpochs, avgLogFlg, colors, saveFigures, figureDir);
 
-fH(3) = plotBetaDistributions4C(data, exampleIndex, condEpochs, colors, saveFigures, figureDir);
+fH(3) = plotBetaDistributions4C(data, exampleIndex, condEpochs, colors, saveFigures, figureDir); %#ok<NASGU>
 
 

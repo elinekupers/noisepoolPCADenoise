@@ -1,6 +1,7 @@
 function dfdMakeFigure5()
 %% Function to reproduce Figure 5 (Spatialmap) from example subject 
 %
+% dfdMakeFigure5()
 %
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
@@ -15,7 +16,7 @@ function dfdMakeFigure5()
 %% Choices to make:                                              
 whichSubject    = 1;        % Subject 1 is the example subject.
 figureDir       = fullfile(dfdRootPath, 'figures'); % Where to save images?
-dataDir       = fullfile(dfdRootPath, 'data'); % Where to save images?
+dataDir         = fullfile(dfdRootPath, 'data');    % Where to save data?
 saveFigures     = true;     % Save figures in the figure folder?
 
 % Load denoised data

@@ -1,7 +1,9 @@
 function dfdMakeFigure6()
-%% function to reproduce Figure 6A SNR against PCs removed for 3 example subjects 
+%% Function to reproduce Figure 6A SNR against PCs removed for 3 example subjects 
 % and Figure 6b, SNR for top ten channels against PCs removed for all
 % subjects.
+%
+% dfdMakeFigure6()
 %
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
@@ -17,33 +19,25 @@ function dfdMakeFigure6()
 % function. 
 
 %% Choices to make:
-whichSubjects        = 1:8;             
-figureDir           = fullfile(dfdRootPath, 'figures');
-dataDir           = fullfile(dfdRootPath, 'data');
-
-saveFigures         = true;
+whichSubjects       = 1:8;             
+figureDir           = fullfile(dfdRootPath, 'figures'); % Where to save images?
+dataDir             = fullfile(dfdRootPath, 'data');    % Where to save data?
+saveFigures         = true;         % Save figures in the figure folder?
 exampleSessions     = [3,4,5];
-
 condColors          = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
-linecolors          = copper(157);
-axmax               = 10; % how far to go out on the x-axis
+axmax               = 10;           % how far to go out on the x-axis
 
-
-
-%% SNR increase as a function of number of PCs removed, 3 example sessions - Fig. 6A
-
+%% Load data from all subjects
 for whichSubject = whichSubjects
     fprintf(' Load subject %d \n', whichSubject);
-
-    [data,design,exampleIndex] = prepareData(dataDir,whichSubject,6);
-    
+    [data,design,exampleIndex] = prepareData(dataDir,whichSubject,6);    
     dataAll{whichSubject} = {data,design,exampleIndex};   %#ok<AGROW>
 end
 
-
-%%
+%% SNR increase as a function of number of PCs removed, 3 example sessions - Fig. 6A
 fH = plotSNRvsPCsExampleSubjectsPanel6A(dataAll,exampleSessions,condColors,axmax,figureDir,saveFigures); %#ok<NASGU>
 
+%% SNR increase as a function of number of PCs removed, all sessions - Fig. 6B
 fH = plotSNRvsPCsAllSubjectsPanel6B(dataAll,exampleSessions,condColors,axmax,figureDir,saveFigures); %#ok<NASGU>
 
 
