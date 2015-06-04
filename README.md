@@ -16,27 +16,33 @@ Neural Network Toolbox (v 8.2.1)
 ——-——-——-——-——-——- Folder structure ——-——-——-——-——-——-
 —————————————————————————————————————————————————————-
 
-Data: Empty folder to store data. Example data downloaded by dfdDownloadSampleData will be written here by default. This folder contains a .gitignore file to prevent large data files from being added to the repository.
+alternativeAnalysis: (Under construction) Folder with 
+		scripts to use alternative analyses, such as 
+		ICA, to denoise MEG code.
 
-Experiments 	: Scripts and functions specific to 
-		denoise MEG or EEG data with an on/off
-		steady state stimulus paradigm.
+exampleAnalysis:   	  Folder with code and possibility
+		to download and store data to run analysis from 
+		the paper and make all manuscript figures.
+		
+		Contains:
+		- data:
+		Empty folder to store data. Example data downloaded 
+		by dfdDownloadSampleData will be written here by default.
+		This folder contains a .gitignore file to prevent 
+		large data files from being added to the repository. 
+		- denoise_sample_data:
+		Folder with specific code to denoise data of all subjects 
+		for this particular steady state study.
+		- figure_scripts:
+		Functions to make figures 4-12 from the manuscript.
+		- figures:
+		 Folder where figures will be saved in .eps format,
+		 if requested.
+		- dfdDownloadSampleData.m: Function to download
+		sample data for all subejcts from the web.
 
 External 	: General functions from other 
 		toolboxes, repositories or researchers 
-
-Figure scripts 	: Scripts to make figures 4-12 from  
-		the manuscript.
-
-Figures		: Folder where figures will be saved
-		in .eps format, if requested.
-
-Funcs		: Functions that specify how to define
-		the ‘noise’ channel pool, signal of 
-		interest, and filtering options.
-
-Scripts		: Scripts to preload and shape the 
-		data before denoising.
 
 denoisedata.m	: main function to denoise time series.
 
@@ -71,7 +77,8 @@ WHAT THE MAIN FUNCTION COMPUTES:
 
 4) Compute PCA on noise pool
 
-5) Denoise data by projecting out x PCs, compute output of interest (using evalfun), fit GLM on output response, cross validate
+5) Denoise data by projecting out x PCs, compute output of interest (using evalfun), 
+	fit GLM on output response, cross validate
 
 6) Repeat for x+1 PCs, until we've tried some reasonable number of PCs
 
@@ -94,8 +101,8 @@ OUTPUT:
 
 % Prepare data sets.  In the Matlab prompt, type:
 dfdAddPaths
-dfdDownloadSampleData % Slow. Do this once to download 8 data sets.
-dfdDenoiseWrapper % Slow. Do this once to denoise 8 sample data sets.
+dfdDownloadSampleData(1:8) % Slow. Do this once to download 8 data sets.
+dfdDenoiseWrapper(1:8) % Slow. Do this once to denoise 8 sample data sets.
 
 %  Recreate figure 4 from manuscript. 
 dfdMakeFigure4()
