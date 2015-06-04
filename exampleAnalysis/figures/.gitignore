@@ -1,10 +1,5 @@
-# The purpose of this directory is to store figures created by the denoise code, for example the figures created by sample data for the paper describing the denoise algorithm.  These figures, when created, will be stored locally (not synced with the git repository).
-
-figures_noenvironmentalnoise/
 *.eps
-*.fig
 *.jpg
-*.tif
-*.tiff
 *.jpeg
 *.png
+*.fig
