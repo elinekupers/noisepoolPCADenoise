@@ -17,8 +17,8 @@ function dfdMakeFigure7()
 
 %% Choices to make:
 whichSubjects        = 1:8; 
-dataDir              = fullfile(dfdRootPath, 'data');   % Where to save data?
-figureDir            = fullfile(dfdRootPath, 'figures');% Where to save images?
+dataDir              = fullfile(dfdRootPath, 'exampleAnalysis', 'data');   % Where to save data?
+figureDir            = fullfile(dfdRootPath, 'exampleAnalysis', 'figures');% Where to save images?
 saveFigures          = true;     % Save figures in the figure folder?
 exampleSessions      = [3,4,5];  % Helena's plot contained subjects [5,6,9]
 condColors           = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
@@ -34,9 +34,9 @@ end
 
 %% S, N, and SNR shown separately, before versus after denoising with 10 PCs
 %% For 3 example sessions - Fig. 7A,B,C
-fH = plotSNRPrePostPanel7ABC(dataAll, exampleSessions, condColors,figureDir,saveFigures,figureNumber); %#ok<NASGU>
+fH = plotSNRPrePostPanelABC(dataAll, exampleSessions, condColors,figureDir,saveFigures,figureNumber); %#ok<NASGU>
 
 %% Plot changes in SNR before and after denoising, showing all sessions
 %% together - Fig. 7D
-fH = plotSNRPrePostPanel7D(dataAll,whichSubjects,condColors,figureDir,saveFigures,figureNumber); %#ok<NASGU>
+fH = plotSNRPrePostPanelD(dataAll,whichSubjects,condColors,figureDir,saveFigures,figureNumber); %#ok<NASGU>
 

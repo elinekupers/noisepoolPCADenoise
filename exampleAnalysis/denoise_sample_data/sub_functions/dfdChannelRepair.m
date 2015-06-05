@@ -12,14 +12,14 @@ function sensorDataOut = dfdChannelRepair(sensorDataIn, outliers, method, sensor
 % OUTPUTS
 %   sensorDataOut: data array, same size as sensorDataIn
 
-if notDefined('sensorPositions'), sensorPositions = 'meg160xyz.mat'; end
+if notDefined('sensorPositions'), 
+    hdr = load('meg160_example_hdr.mat'); hdr = hdr.hdr;
+    net.xyz = hdr.grad.chanpos; 
+end
 
 % get data sizes
 nEpochs   = size(sensorDataIn,2);
 nChannels = size(sensorDataIn,3);
-
-% load the xyz positions of the sensor
-net=load(sensorPositions);
 
 % compute distance matrix, which will be used for weighting channels for
 % interpolation

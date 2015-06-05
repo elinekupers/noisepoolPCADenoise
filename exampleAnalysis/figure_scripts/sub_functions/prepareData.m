@@ -8,21 +8,20 @@ switch whichFigure
         load(sprintf(fullfile(dataDir, 's0%d_sensorData.mat'),whichSubject));
         exampleChannel = 42;
         
-        sensorData = permute(sensorData, [3 1 2]);
+        sensorData = permute(sensorData, [3 1 2]); %#ok<NODEF>
         % time domain data before and after denoising
         data = {sensorData,denoisedts{1}}; %#ok<USENS>
         
     case 5
-        bb = load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_denoisedData_bb.mat'),whichSubject)); 
-        sl = load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_denoisedData_sl.mat'),whichSubject));
+        bb = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_bb.mat'),whichSubject)); 
+        sl = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_sl.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's0%d_conditions.mat'),whichSubject));
 
         data = {bb,sl};
     
     case 6 
-        load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_denoisedData_full_bb.mat'),whichSubject));
+        data = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_full_bb.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's0%d_conditions.mat'),whichSubject));
-
         
     case 7
         data = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_bb.mat'),whichSubject));
@@ -62,12 +61,15 @@ if ~exist('exampleChannel','var')
     design(conditions == 5,2) = 1; % Right
     design(conditions == 7,3) = 1; % Left
     
-    design = design(~data.badEpochs,:);
+    if whichFigure == 5
+        design = [];
+    else
+        design = design(~data.badEpochs,:);
+    end
     
 else
-    channelNumbers = find(~badChannels);
-    exampleIndex   = find(channelNumbers == exampleChannel);
-    
+    exampleIndex = megGetOrigChannel(exampleChannel,badChannels);
+     
     % Compute design matrix
     design = zeros(size(conditions,1),3);
     design(conditions == 1,1) = 1; % Full

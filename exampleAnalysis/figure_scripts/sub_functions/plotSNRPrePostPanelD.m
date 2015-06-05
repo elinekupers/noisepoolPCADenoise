@@ -1,7 +1,5 @@
 function fH = plotSNRPrePostPanelD(dataAll,whichSubjects,condColors,figureDir,saveFigures,figureNumber)
 
-
-
 % get results for everybody and top10 channels for everybody
 for k = 1:length(whichSubjects)
     allpcchan{k} = getTop10(dataAll{k}{1}.results);

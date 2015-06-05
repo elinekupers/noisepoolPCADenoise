@@ -21,15 +21,17 @@ end
 %% Subroutine
 function ssm_plotOnMesh(sensor_data)
 
+if notDefined('data_hdr'); data_hdr = load('meg160_example_hdr.mat');
+    data_hdr = data_hdr.hdr;
+end
+
 % clip data to 157 points
 if length(sensor_data) > 157, sensor_data = sensor_data(1:157); end
 
 cfg=[];
-%cfg.interpolation = 'nearest';
-
 cfg.layout = ft_prepare_layout(cfg, data_hdr);
 cfg.style='straight';
-
+%cfg.interpolation = 'nearest';
 %cfg.style='blank';
 %cfg.electrodes ='numbers';
 cfg.colorbar='yes';

@@ -13,7 +13,7 @@ yl=[yt(1),yt(end)];
 
 exampleChannel = 42;
 
-for dd = 2
+for dd = 1
     % compute spectrum
     spec = abs(fft(squeeze(data{dd}(exampleIndex,:,:))))/size(data{dd},2)*2;
 

@@ -1,6 +1,6 @@
 function fH = plotSNRPrePostPanelABC(dataAll,exampleSessions,condColors,figureDir,saveFigures,figurenumber)
 
-fH = figure;
+fH = figure; set(fH, 'Color', 'w');
 
 for k = 1:numel(exampleSessions)
 

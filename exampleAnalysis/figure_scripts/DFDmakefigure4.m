@@ -21,8 +21,8 @@ function dfdMakeFigure4()
 
 %% Choices to make:
 whichSubject    = 1;     % Subject 1 has the example channel.
-figureDir       = fullfile(dfdRootPath, 'figures'); % Where to save images?
-dataDir         = fullfile(dfdRootPath, 'data');    % Where to save data?
+figureDir       = fullfile(dfdRootPath, 'exampleAnalysis', 'figures'); % Where to save images?
+dataDir         = fullfile(dfdRootPath, 'exampleAnalysis', 'data');    % Where to save data?
 saveFigures     = true;  % Save figures in the figure folder?
                                          
 % Define plot colors

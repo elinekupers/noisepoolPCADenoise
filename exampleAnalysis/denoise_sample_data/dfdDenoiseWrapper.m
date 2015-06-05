@@ -42,8 +42,8 @@ evalfun               = @(x)getbroadband(x,freq);  % function handle to compuite
 % Load and denoise data, one subject at a time
 for whichSubject = subjects
     % ******* Load data and design *****************
-    tmp = load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_sensorData.mat'),whichSubject)); sensorData = tmp.sensorData;
-    tmp = load(sprintf(fullfile(dfdRootPath, 'data', 's0%d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
+    tmp = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's0%d_sensorData.mat'),whichSubject)); sensorData = tmp.sensorData;
+    tmp = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's0%d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
     
     % ******** Make design matrix *****************
     design = zeros(length(conditions), 3);
