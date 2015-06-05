@@ -6,6 +6,11 @@ switch whichFigure
         load(sprintf(fullfile(dataDir, 's0%d_denoisedData_bb.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's0%d_conditions.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's0%d_sensorData.mat'),whichSubject));
+        
+        %% preprocess raw data here
+        
+        %% 
+        
         exampleChannel = 42;
         
         sensorData = permute(sensorData, [3 1 2]); %#ok<NODEF>

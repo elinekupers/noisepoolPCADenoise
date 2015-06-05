@@ -12,7 +12,7 @@ xt = [12:12:72, 96,144];
 yt = 1:2;
 yl=[yt(1),yt(end)];
 
-exampleChannel = 1;
+exampleChannel = 42;
 
 for dd = 1:2
     subplot(2,1,dd);
