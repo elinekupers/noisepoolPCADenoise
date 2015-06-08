@@ -29,13 +29,14 @@ use3Channels        = false;
 freq = megGetSLandABfrequencies(0:150, 1, 12);
 
 % denoise parameters (see denoisedata.m)
-optsl.pcchoose        = 10;   % denoise with exactly 10 PCs for stimulus locked
-optbb.pcchoose        = 10;   % denoise with exactly 10 PCs for broadband
-optsl.npcs2try        = 10;   % loop through 10
-optbb.npcs2try        = 10;
+optsl.pcchoose        = -10;   % denoise with exactly 10 PCs for stimulus locked
+optbb.pcchoose        = -10;   % denoise with exactly 10 PCs for broadband
+optsl.npcs2try        = 0;   % loop through 10
+optbb.npcs2try        = 0;
 optsl.resampling      = {'boot','boot'};
 optbb.resampling      = {'boot','boot'};
 optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
+optbb.pccontrolmode   = 1:4;   % do all control methods 
 evokedfun             = @(x)getstimlocked(x,freq); % function handle to determine noise pool
 evalfun               = @(x)getbroadband(x,freq);  % function handle to compuite broadband
 
@@ -68,11 +69,17 @@ for whichSubject = subjects
     %   Denoise for broadband analysis    
     [results,evalout,denoisedspec,denoisedts] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
     
-    if isempty(optbb.pcchoose);
+    if optbb.pcchoose <= 0;
         if use3Channels
             fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_w3chan'),whichSubject);
         else
             fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData'),whichSubject);
+        end
+    elseif optbb.pccontrolmode > 0;
+        if use3Channels
+            fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_w3chan_controls'),whichSubject);
+        else
+            fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_controls'),whichSubject);
         end
     else
          if use3Channels
