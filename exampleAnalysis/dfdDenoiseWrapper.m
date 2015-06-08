@@ -1,7 +1,7 @@
 function dfdDenoiseWrapper(subjects)
-% 
+%
 % dfdDenoiseWrapper(subjects)
-% 
+%
 % INPUTS:
 % subjects  : Number of subjects one would like to denoise
 %
@@ -18,8 +18,8 @@ if isempty(fullfile(dfdRootPath, 'data'));
 end
 
 % preprocessing parameters (see dfdPreprocessData)
-varThreshold        = [0.05 20];  
-badChannelThreshold = 0.2;       
+varThreshold        = [0.05 20];
+badChannelThreshold = 0.2;
 badEpochThreshold   = 0.2;
 dataChannels        = 1:157;
 use3Channels        = false;
@@ -38,7 +38,8 @@ optbb.resampling      = {'boot','boot'};
 optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
 evokedfun             = @(x)getstimlocked(x,freq); % function handle to determine noise pool
 evalfun               = @(x)getbroadband(x,freq);  % function handle to compuite broadband
-nr_controlmodes       = 1:4;
+nr_controlmodes       = 0;
+all_in_noisepool      = true;
 
 % Load and denoise data, one subject at a time
 for whichSubject = subjects
@@ -50,7 +51,7 @@ for whichSubject = subjects
     design = zeros(length(conditions), 3);
     design(conditions==1,1) = 1; % condition 1 is full field
     design(conditions==5,2) = 1; % condition 5 is left field
-    design(conditions==7,3) = 1; % condition 7 is right field 
+    design(conditions==7,3) = 1; % condition 7 is right field
     % condition 3 is blank
     
     % ******* Preprocess data **********************
@@ -60,18 +61,24 @@ for whichSubject = subjects
     % Remove bad channels and bad epochs from data and conditions
     sensorData = sensorData(:,~badEpochs, ~badChannels);
     design = design(~badEpochs,:);
-
+    
     % Permute sensorData for denoising
     sensorData = permute(sensorData, [3 1 2]);
     
-    % ********* Denoise the data ********************    
+    % Get number of channels if denoising with all channels in noise pool
+    if all_in_noisepool
+        optbb.npoolmethod = {'r2','n',size(sensorData,1)};
+    end
+    
+    % ********* Denoise the data ********************
+    
     
     for nr_control = nr_controlmodes;
-        optbb.pccontrolmode = nr_control;   % do all control methods 
-        %   Denoise for broadband analysis    
+        optbb.pccontrolmode = nr_control;   % do all control methods
+        %   Denoise for broadband analysis
         [results,evalout,denoisedspec,denoisedts] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
-
-        if optbb.pcchoose <= 0;
+        
+        if optbb.pcchoose == 0;
             if use3Channels
                 fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_w3chan'),whichSubject);
             else
@@ -83,25 +90,32 @@ for whichSubject = subjects
             else
                 fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_controls'),whichSubject);
             end
+        elseif optbb.npoolmethod == {'r2','n',size(sensorData,1)};
+            if use3Channels
+                fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_w3chan_allinnp'),whichSubject);
+            else
+                fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_allinnp'),whichSubject);
+            end
         else
-             if use3Channels
+            if use3Channels
                 fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_w3chan_full'),whichSubject);
             else
                 fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_full'),whichSubject);
             end
-
-
+            
+            
+            
         end
-
-        % ********* Save denoised broadband data ******************** 
+        
+        % ********* Save denoised broadband data ********************
         parsave([fname '_bb.mat'], 'results', results, 'evalout', evalout, ...
             'denoisedspec', denoisedspec, 'denoisedts', denoisedts,...
-            'badChannels', badChannels, 'badEpochs', badEpochs, 'opt', optbb)        
-
+            'badChannels', badChannels, 'badEpochs', badEpochs, 'opt', optbb)
+        
         % ********* Denoise and save stimulus-locked analysis *****************
         [results,evalout,denoisedspec,denoisedts] = denoisedata(design,sensorData,evokedfun,evokedfun,optsl);
         parsave([fname '_sl.mat'], 'results', results, 'evalout', evalout, ...
             'denoisedspec', denoisedspec, 'denoisedts', denoisedts,...
-            'badChannels', badChannels, 'badEpochs', badEpochs,  'opt', optsl)        
+            'badChannels', badChannels, 'badEpochs', badEpochs,  'opt', optsl)
     end
 end
