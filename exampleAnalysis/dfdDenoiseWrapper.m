@@ -80,27 +80,27 @@ for whichSubject = subjects
         
         if optbb.pcchoose == 0;
             if use3Channels
-                fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_w3chan'),whichSubject);
+                fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data','s0%d_denoisedData_w3chan'),whichSubject);
             else
-                fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData'),whichSubject);
+                fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data','s0%d_denoisedData'),whichSubject);
             end
         elseif optbb.pccontrolmode > 0;
             if use3Channels
-                fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_w3chan_control%d'),whichSubject,optbb.pccontrolmode);
+                fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data','s0%d_denoisedData_w3chan_control%d'),whichSubject,optbb.pccontrolmode);
             else
-                fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_controls'),whichSubject);
+                fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data','s0%d_denoisedData_controls'),whichSubject);
             end
         elseif all_in_noisepool;
             if use3Channels
-                fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_w3chan_allinnp'),whichSubject);
+                fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data','s0%d_denoisedData_w3chan_allinnp'),whichSubject);
             else
-                fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_allinnp'),whichSubject);
+                fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data','s0%d_denoisedData_allinnp'),whichSubject);
             end
         else
             if use3Channels
-                fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_w3chan_full'),whichSubject);
+                fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data','s0%d_denoisedData_w3chan_full'),whichSubject);
             else
-                fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_full'),whichSubject);
+                fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data','s0%d_denoisedData_full'),whichSubject);
             end
             
             
