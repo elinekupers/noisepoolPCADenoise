@@ -36,7 +36,7 @@ optbb.npcs2try        = 0;
 optsl.resampling      = {'boot','boot'};
 optbb.resampling      = {'boot','boot'};
 optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
-optbb.pccontrolmode   = 1:4;   % do all control methods 
+optbb.pccontrolmode   = 1;   % do all control methods 
 evokedfun             = @(x)getstimlocked(x,freq); % function handle to determine noise pool
 evalfun               = @(x)getbroadband(x,freq);  % function handle to compuite broadband
 
@@ -77,7 +77,7 @@ for whichSubject = subjects
         end
     elseif optbb.pccontrolmode > 0;
         if use3Channels
-            fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_w3chan_controls'),whichSubject);
+            fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_w3chan_control%d'),whichSubject,optbb.pccontrolmethode);
         else
             fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_controls'),whichSubject);
         end
