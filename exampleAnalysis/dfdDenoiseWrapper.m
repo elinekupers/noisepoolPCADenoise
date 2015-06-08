@@ -90,7 +90,7 @@ for whichSubject = subjects
             else
                 fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_controls'),whichSubject);
             end
-        elseif optbb.npoolmethod == {'r2','n',size(sensorData,1)};
+        elseif all_in_noisepool;
             if use3Channels
                 fname = sprintf(fullfile(dfdRootPath,'data','s0%d_denoisedData_w3chan_allinnp'),whichSubject);
             else
