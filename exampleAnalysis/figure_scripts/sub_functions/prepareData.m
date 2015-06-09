@@ -7,10 +7,6 @@ switch whichFigure
         load(sprintf(fullfile(dataDir, 's0%d_conditions.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's0%d_sensorData.mat'),whichSubject));
         
-        %% preprocess raw data here
-        
-        %%
-        
         exampleChannel = 42;
         
         % preprocessing parameters (see dfdPreprocessData)
@@ -20,7 +16,7 @@ switch whichFigure
         dataChannels        = 1:157;
         use3Channels        = false;
         
-        % ******* Preprocess data **********************
+        % Preprocess raw sensordata
         [sensorData, badChannels0, badEpochs0] = dfdPreprocessData(sensorData(:,:,dataChannels), ...
             varThreshold, badChannelThreshold, badEpochThreshold, use3Channels);
         
@@ -55,6 +51,13 @@ switch whichFigure
     case 9
         data = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_bb.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's0%d_conditions.mat'),whichSubject));
+        
+    case 10
+        data_controls = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_bb_control*.mat'),whichSubject));
+        data_allinnp  = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_bb_allinnp.mat'),whichSubject));
+        load(sprintf(fullfile(dataDir, 's0%d_conditions.mat'),whichSubject));
+        
+        data = {data_controls,data_allinnp};
         
     case 11
         data = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_full_sl.mat'),whichSubject));
