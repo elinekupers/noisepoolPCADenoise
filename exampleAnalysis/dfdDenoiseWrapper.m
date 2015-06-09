@@ -38,8 +38,8 @@ optbb.resampling      = {'boot','boot'};
 optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
 evokedfun             = @(x)getstimlocked(x,freq); % function handle to determine noise pool
 evalfun               = @(x)getbroadband(x,freq);  % function handle to compuite broadband
-nr_controlmodes       = 0;
-all_in_noisepool      = true;
+nr_controlmodes       = 1;
+all_in_noisepool      = false;
 
 % Load and denoise data, one subject at a time
 for whichSubject = subjects
