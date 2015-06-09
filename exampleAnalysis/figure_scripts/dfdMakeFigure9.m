@@ -18,7 +18,6 @@ dataDir              = fullfile(dfdRootPath, 'data');   % Where to save data?
 figureDir            = fullfile(dfdRootPath, 'figures');% Where to save images?
 saveFigures          = true;   % Save figures in the figure folder?
 dataAll              = [];
-dataType             = EEG;
 
 %% Load data for all subjects
 for whichSubject = whichSubjects
@@ -40,16 +39,10 @@ for k = 1:length(whichSubjects)
     ab_snr2 = getsignalnoise(results.(whichmodel), 3, 'SNR'); % Right
     ab_snr_diff = to157chan(ab_snr2-ab_snr1,~data{1}.badChannels,'nans');
     
-    if dataType == MEG    
     [~,ch] = megPlotMap(ab_snr_diff,[-5,5],gcf,jmaColors('coolhotcortex'));
     makeprettyaxes(gca,9,9);
     set(ch,'ytick',-5:1:5);
     makeprettyaxes(ch,9,9);
-    
-    elseif dataType == EEG
-    plotOnEgi(ab_snr_diff(~data{1}.badChannels));
-    
-end        
 end
 
 if saveFigures
