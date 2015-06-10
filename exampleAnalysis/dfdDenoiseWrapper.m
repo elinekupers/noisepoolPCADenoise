@@ -1,9 +1,14 @@
-function dfdDenoiseWrapper(subjects)
+function dfdDenoiseWrapper(subjects, howToDenoise)
 %
-% dfdDenoiseWrapper(subjects)
+% dfdDenoiseWrapper(subjects, howToDenoise)
 %
 % INPUTS:
 % subjects  : Number of subjects one would like to denoise
+% howToDenoise: 1, 2, or 3, meaning:
+%                   1: denoise with exactly 10 PC regressors
+%                   2: denoise with each of 0 to 10 PC regressors
+%                   3: various controls
+%               [default=1]
 %
 % DESCRIPTION: Wrapper function to denoise multiple MEG visual steady
 % state data sets. The results of the denoising are written to file and can
@@ -12,8 +17,10 @@ function dfdDenoiseWrapper(subjects)
 %
 % AUTHORS. YEAR. TITLE. JOURNAL.
 
+if notDefined('howToDenoise'), howToDenoise = 1; end
+
 % Check for data, download data if needed
-if isempty(fullfile(dfdRootPath, 'data'));
+if isempty(dir(fullfile(dfdRootPath, 'exampleAnalysis', 'data', '*.mat')));
     error('No data were found. Use dfdDownloadSampleData')
 end
 
@@ -42,10 +49,10 @@ evokedfun             = @(x)getstimlocked(x,freq); % function handle to determin
 evalfun               = @(x)getbroadband(x,freq);  % function handle to compuite broadband
 nrControlModes        = 0; % Note, mode 1 has a bug.
 allInNoisepool        = false;
-varyEpochLength       = true; if varyEpochLength, 
-                                epochDurs = [1,3,6,12,24,36,72,inf];
-                                npcs      = [5,10:10:70]; end
-                            
+varyEpochLength       = false; if varyEpochLength,
+    epochDurs = [1,3,6,12,24,36,72,inf];
+    npcs      = [5,10:10:70]; end
+
 
 
 % Load and denoise data, one subject at a time
@@ -92,23 +99,23 @@ for whichSubject = subjects
             end
             optbb.epochGroup = epochGroup;
             fprintf('epochDur = %d; %d epochs\n', epochDurs(ii), max(epochGroup));
-        
-                clear results;
-        
-%             % Vary npcs
-%             for jj = 1:length(npcs) % iterate through number of PCs projected out 
-%                 opt.pcstop = -npcs(jj);
-%                 fprintf('\tnpcs = %d\n', npcs(jj));
-% 
-%                 if jj == 1
-%                     [results] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
-%                     noisepooldef = results.noisepool;
-%                 else
-%                     [results] = denoisedata(design,sensorData,noisepooldef,evalfun,opt);
-%                 end
-%                 allResults{ii,jj} = results;
-%             end
-%         end
+            
+            clear results;
+            
+            %             % Vary npcs
+            %             for jj = 1:length(npcs) % iterate through number of PCs projected out
+            %                 opt.pcstop = -npcs(jj);
+            %                 fprintf('\tnpcs = %d\n', npcs(jj));
+            %
+            %                 if jj == 1
+            %                     [results] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
+            %                     noisepooldef = results.noisepool;
+            %                 else
+            %                     [results] = denoisedata(design,sensorData,noisepooldef,evalfun,opt);
+            %                 end
+            %                 allResults{ii,jj} = results;
+            %             end
+        end
         
         
         % Denoise for broadband analysis

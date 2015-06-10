@@ -216,6 +216,9 @@ for rp = 1:nrep
         end
         % scale so that std is 1 (ntime x npcs2try)
         pcs{rp} = bsxfun(@rdivide,u,std(u,[],1));
+        % discard PCs greater than the number of channels in noise pool, as
+        % these are uninformative
+        pcs{rp} = pcs{rp}(:,1:sum(noisepool));        
         % check for nan's. this can happen if PC is all 0's then scaled by std of 0
         nanpcs = isnan(pcs{rp}(1,:));
         if sum(nanpcs)
@@ -225,9 +228,9 @@ for rp = 1:nrep
     end
 end
 
-% --------------------------------------------------------------
-% Perturb PCs, if requested
-% --------------------------------------------------------------
+% ---------------------------------------------------------------------
+% Perturb PCs, if requested (for null model, not for actual denoising)
+% ---------------------------------------------------------------------
 switch opt.pccontrolmode
     case 1 % phase scramble the pcs 
         if opt.verbose

@@ -1,4 +1,4 @@
-function savePth = dfdDownloadSampleData(savePth, whichDataSets)
+function savePth = dfdDownloadSampleData(savePth, whichSubjects, whichDataTypes)
 % Download sample MEG data sets to be denoised by the 'Denoise Field Data'
 % algorithm for the paper:
 %   AUTHORS. YEAR. TITLE. JOURNAL. VOLUME. ISSUE. DOI.
@@ -8,33 +8,49 @@ function savePth = dfdDownloadSampleData(savePth, whichDataSets)
 % Inputs
 %   savePth: Path to store data. 
 %                   [default = fullfile(DFDrootpath,'data')];
-%   whichDataSets: Vector of data sets (1 to 8) 
+%   whichSubjects: Vector of one or more data sets (1 to 8) 
 %                   [default=1:8]
+%   whichDataTypes: Cell array of one or more of  {'raw' ...
+%                   'denoised 10 pcs' 'denoised 1-10 pcs' 'controls'}
+%                   [default='raw']
 %
 % Output
 %   savePth: path where data was written
 %
-% Example 1: Download data from subject 1
-%   savePth = dfdDownloadSampleData([], 1);
-% Example 2: Download data from all subject
+% Example 1: Download raw data from subject 1
+%   savePth = dfdDownloadSampleData([], 1, {'raw'});
+% Example 2: Download raw data from all subjects
 %   savePth = dfdDownloadSampleData();
+% Example 1: Download denoised data from subject 1
+%   savePth = dfdDownloadSampleData([], 1, {'denoised 10 pcs'});
+
 
 % Argument check
-if notDefined('savePth'),       savePth = fullfile(dfdRootPath, 'exampleAnalysis', 'data'); end
-if notDefined('whichDataSets'), whichDataSets = 1:8; end
+if notDefined('savePth'),        savePth = fullfile(dfdRootPath, 'exampleAnalysis', 'data'); end
+if notDefined('whichDataSets'),  whichSubjects = 1:8; end
+if notDefined('whichDataTypes'), whichDataTypes = {'raw'}; end
 
 % Site to retrieve the data
 dirProject = 'http://psych.nyu.edu/winawerlab/denoiseFieldData';
 
+fnames = [];
 
-% For each data set, there are 7 files
-fnames = {...
-    '_conditions.mat' ...
-    '_sensorData.mat' ...
-    };
+for ii = 1:length(whichDataTypes)
+    switch lower(whichDataTypes{ii})
+        case 'raw'
+            fnames = [fnames {'_conditions.mat' '_sensorData.mat'}];
+        case 'denoised 10 pcs'
+            fnames = [fnames {'_conditions.mat' '_denoisedData_bb.mat' '_denoisedData_sl.mat'}];
+        case 'denoised 1-10 pcs'
+            fnames = [fnames {'_conditions.mat' '_denoisedData_full_bb.mat' '_denoisedData_full_sl.mat'}];
+        case 'controls'
+            fnames = [fnames {'_denoisedData_allinnp_bb' '_denoisedData_control1_bb' '_denoisedData_control2_bb' '_denoisedData_control3_bb' '_denoisedData_control4_bb'}];
+    end
+end
+fnames = unique(fnames);
 
 % Read / write the sample data
-for s = whichDataSets
+for s = whichSubjects
         
     fprintf('Downloading subject %d (please be patient).\n',s);
     
