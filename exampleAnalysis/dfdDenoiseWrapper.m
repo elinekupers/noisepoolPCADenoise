@@ -35,11 +35,18 @@ optsl.npcs2try        = 0;   % loop through 10
 optbb.npcs2try        = 0;
 optsl.resampling      = {'boot','boot'};
 optbb.resampling      = {'boot','boot'};
+optsl.pcselmethod     = 'snr';
+optbb.pcselmethod     = 'snr';
 optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
 evokedfun             = @(x)getstimlocked(x,freq); % function handle to determine noise pool
 evalfun               = @(x)getbroadband(x,freq);  % function handle to compuite broadband
-nr_controlmodes       = 2:4;
-all_in_noisepool      = false;
+nrControlModes        = 0; % Note, mode 1 has a bug.
+allInNoisepool        = false;
+varyEpochLength       = true; if varyEpochLength, 
+                                epochDurs = [1,3,6,12,24,36,72,inf];
+                                npcs      = [5,10:10:70]; end
+                            
+
 
 % Load and denoise data, one subject at a time
 for whichSubject = subjects
@@ -66,31 +73,62 @@ for whichSubject = subjects
     sensorData = permute(sensorData, [3 1 2]);
     
     % Get number of channels if denoising with all channels in noise pool
-    if all_in_noisepool
+    if allInNoisepool
         optbb.npoolmethod = {'r2','n',size(sensorData,1)};
     end
     
     % ********* Denoise the data ********************
     
     
-    for nr_control = nr_controlmodes;
-        optbb.pccontrolmode = nr_control;   % do all control methods
-        %   Denoise for broadband analysis
+    for nrControl = nrControlModes;
+        optbb.pccontrolmode = nrControl; % Zero is no control method
+        
+        if varyEpochLength
+            % Vary epoch lengths
+            if isinf(epochDurs(ii))
+                epochGroup = ones(size(sensorData,1),1);
+            else
+                epochGroup = megEpochGroup(okEpochs,epochDurs(ii),0);
+            end
+            optbb.epochGroup = epochGroup;
+            fprintf('epochDur = %d; %d epochs\n', epochDurs(ii), max(epochGroup));
+        
+                clear results;
+        
+%             % Vary npcs
+%             for jj = 1:length(npcs) % iterate through number of PCs projected out 
+%                 opt.pcstop = -npcs(jj);
+%                 fprintf('\tnpcs = %d\n', npcs(jj));
+% 
+%                 if jj == 1
+%                     [results] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
+%                     noisepooldef = results.noisepool;
+%                 else
+%                     [results] = denoisedata(design,sensorData,noisepooldef,evalfun,opt);
+%                 end
+%                 allResults{ii,jj} = results;
+%             end
+%         end
+        
+        
+        % Denoise for broadband analysis
         [results,evalout,denoisedspec,denoisedts] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
         
-        if optbb.pcchoose == 0;
+        
+        % Get file name
+        if optbb.pcchoose == 0
             if use3Channels
                 fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data','s0%d_denoisedData_w3chan'),whichSubject);
             else
                 fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data','s0%d_denoisedData'),whichSubject);
             end
-        elseif optbb.pccontrolmode > 0;
+        elseif optbb.pccontrolmode > 0
             if use3Channels
                 fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data','s0%d_denoisedData_w3chan_control%d'),whichSubject,optbb.pccontrolmode);
             else
                 fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data','s0%d_denoisedData_control%d'),whichSubject,optbb.pccontrolmode);
             end
-        elseif all_in_noisepool;
+        elseif allInNoisepool
             if use3Channels
                 fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data','s0%d_denoisedData_w3chan_allinnp'),whichSubject);
             else
