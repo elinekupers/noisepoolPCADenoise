@@ -315,7 +315,7 @@ else
 end
 
 % --------------------------------------------------------------
-% % choose number of PCs, ala Kendrick
+% % choose number of PCs, ala fMRI GLM Denoise
 % --------------------------------------------------------------
 % we probably eventually want to do something fancier, like fitting a curve
 % Unlike fMRI data, EEG/MEG has fewer channels and curve is often not as

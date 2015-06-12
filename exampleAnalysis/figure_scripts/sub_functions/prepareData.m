@@ -56,11 +56,12 @@ switch whichFigure
         load(sprintf(fullfile(dataDir, 's0%d_conditions.mat'),whichSubject));
         
     case 10
-        data_controls = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_bb_control*.mat'),whichSubject));
-        data_allinnp  = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_bb_allinnp.mat'),whichSubject));
-        load(sprintf(fullfile(dataDir, 's0%d_conditions.mat'),whichSubject));
-        
-        data = {data_controls,data_allinnp};
+        for nrControl = 1:5
+            data_controls{nrControl} = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_control%d_bb.mat'),whichSubject,nrControl)); %#ok<AGROW>
+        end
+        data = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_bb.mat'),whichSubject));
+        load(sprintf(fullfile(dataDir, 's0%d_conditions.mat'),whichSubject)); 
+        data = {data,data_controls};
         
     case 11
         data = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_full_sl.mat'),whichSubject));
@@ -90,6 +91,8 @@ if ~exist('exampleChannel','var')
     
     if whichFigure == 5
         design = [];
+    elseif whichFigure == 10
+        design = design(~data{1}.badEpochs,:);
     else
         design = design(~data.badEpochs,:);
     end
