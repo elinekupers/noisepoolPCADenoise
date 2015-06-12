@@ -3,9 +3,10 @@ function [data,design,exampleIndex] = prepareData(dataDir,whichSubject,whichFigu
 switch whichFigure
     case 4
         % Load denoised data
-        load(sprintf(fullfile(dataDir, 's0%d_denoisedData_bb.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's0%d_conditions.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's0%d_sensorData.mat'),whichSubject));
+        load(sprintf(fullfile(dataDir, 's0%d_denoisedData_bb.mat'),whichSubject));
+        denoisedts = load(sprintf(fullfile(dataDir, 's0%d_denoisedts.mat'),whichSubject));
         
         exampleChannel = 42;
         
@@ -27,7 +28,7 @@ switch whichFigure
         sensorData = permute(sensorData, [3 1 2]);
         
         % time domain data before and after denoising
-        data = {sensorData,denoisedts{1}}; %#ok<USENS>
+        data = {sensorData,denoisedts,results}; 
         
     case 5
         bb = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_bb.mat'),whichSubject));
