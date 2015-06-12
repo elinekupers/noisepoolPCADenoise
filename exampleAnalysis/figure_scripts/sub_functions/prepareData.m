@@ -5,8 +5,9 @@ switch whichFigure
         % Load denoised data
         load(sprintf(fullfile(dataDir, 's0%d_conditions.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's0%d_sensorData.mat'),whichSubject));
-        load(sprintf(fullfile(dataDir, 's0%d_denoisedData_bb.mat'),whichSubject));
-        denoisedts = load(sprintf(fullfile(dataDir, 's0%d_denoisedts.mat'),whichSubject));
+        load(sprintf(fullfile(dataDir, 's0%d_denoisedData_10_0_bb.mat'),whichSubject));
+        load(sprintf(fullfile(dataDir, 's0%d_denoisedts.mat'),whichSubject));
+        
         
         exampleChannel = 42;
         
@@ -28,7 +29,8 @@ switch whichFigure
         sensorData = permute(sensorData, [3 1 2]);
         
         % time domain data before and after denoising
-        data = {sensorData,denoisedts,results}; 
+        denoisedts = eval(sprintf('s0%d_denoisedts',whichSubject));
+        data = {sensorData,denoisedts}; 
         
     case 5
         bb = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_bb.mat'),whichSubject));
