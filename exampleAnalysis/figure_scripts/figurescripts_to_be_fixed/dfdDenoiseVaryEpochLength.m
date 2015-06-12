@@ -1,70 +1,69 @@
-function denoisescripthpc_megVaryEpochDur()
+function dfdDenoiseVaryEpochLength(subjects)
+
 % denoise as a function of denoising epoch duration 
-% you can modify the script take parameter k for session number
 
-root = '/scratch/hxw201/denoisedir/';
-inputdir = 'inputdata';
-addpath(fullfile(root,'aux'));
-addpath(fullfile(root,'funcs'));
-datapaths = sessions();
 
-dohpc     = true;
 
-freq = load(fullfile(root,inputdir,'megfreq'));
-freq = freq.freq;
-%warning off;
-%epochDurs = [1,3*2.^(0:7),inf];
-epochDurs = [1,3,6,12,24,36,72,inf];
-npcs      = [5,10:10:70];
+% Preprocessing parameters to remove bad channels and epochs (see dfdPreprocessData)
+varThreshold        = [0.05 20];
+badChannelThreshold = 0.2;
+badEpochThreshold   = 0.2;
+dataChannels        = 1:157;
+use3Channels        = false;
 
-for k = [3:6,9:12]%10:12%[3:6,9:12]
-    filename = [datapaths{k},'b2'];
-    disp(filename);
-    %filename = datapaths{k};
-    load(fullfile(root,inputdir,filename),'sensorData','design','badChannels');
-    load(fullfile(root,inputdir,'okEpochs',filename),'okEpochs');
-    if sum(okEpochs) ~= size(sensorData,3)
-        error('wrong okEpochs');
-    end
+% Get 'freq' struct to define stimulus locked and broadband frequencies
+%  This struct is needed as input args for getstimlocked and getbroadband
+freq = megGetSLandABfrequencies(0:150, 1, 12);
+
+% Define options for denoising
+opt.resampling        = {'boot','boot'};
+opt.pcselmethod       = 'snr';
+opt.preprocessfun     = @hpf;  % preprocess data with a high pass filter for broadband analysis
+opt.npoolmethod       = {'snr','n',75};
+
+% Define functions to define noise pool and signal of interest
+evokedfun             = @(x)getstimlocked(x,freq); % function handle to determine noise pool
+evalfun               = @(x)getbroadband(x,freq);  % function handle to compuite broadband
+
+% Get different epoch lengths and npcs to denoise with
+epochDurs             = [1,3,6,12,24,36,72,inf];
+npcs                  = [5,10:10:70];
+
+allResults = [];
+
+for whichSubject = subjects
+    % ------------------ Load data and design ----------------------------
+    tmp = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's0%d_sensorData.mat'),whichSubject)); sensorData = tmp.sensorData;
+    tmp = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's0%d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
     
-    clear opt
+    % ------------------ Make design matrix ------------------------------
+    design = zeros(length(conditions), 3);
+    design(conditions==1,1) = 1; % condition 1 is full field
+    design(conditions==5,2) = 1; % condition 5 is left field
+    design(conditions==7,3) = 1; % condition 7 is right field
+    % condition 3 is blank
     
-    if dohpc
-        opt.preprocessfun = @hpf;
-        hpcstr = '_hpf2';
-    else
-        hpcstr = '';
-    end
+    % ------------------ Preprocess data ---------------------------------
+    [sensorData, badChannels, badEpochs] = dfdPreprocessData(sensorData(:,:,dataChannels), ...
+        varThreshold, badChannelThreshold, badEpochThreshold, use3Channels);
     
-    evokedfun = @(x)getstimlocked(x,freq);
-    %evalfun   = {@(x)getbroadband(x,freq), @(x)getstimlocked(x,freq)};
-    %evalfun = {@(x)getbroadbandlog(x,freq)};
-    evalfun = {@(x)getbroadband(x,freq), @(x)getbroadbandlog(x,freq)};
-    for kk = 1:length(evalfun), evalfunstr{kk} = func2str(evalfun{kk}); end
-    opt.freq = freq;
-    %opt.npcs2try    = 70;
-    %opt.xvalmaxperm = 100;
-    opt.resampling  = {'boot','boot'};
-    opt.nboot = 100;
-    %opt.resampling = {'xval','xval'};
-    %opt.fitbaseline = true;
-    %opt.savepcs = true;
-    opt.pcselmethod = 'snr';
+    % ---- Remove bad channels and bad epochs from data and conditions ---
+    sensorData = sensorData(:,~badEpochs, ~badChannels);
+    design = design(~badEpochs,:);
     
-    opt.npoolmethod = {'snr','n',75};
-    %opt.npoolmethod = {'r2','n',75};
-    %opt.npoolmethod = {'r2','thres',0};
-    
-    allResults = [];
+    % ------------------ Permute sensorData for denoising ----------------
+    sensorData = permute(sensorData, [3 1 2]);  
+
+    % ------------------ Loop over Epoch length & nr PCs -----------------
     for ii = 1:length(epochDurs) % iterate through epoch duration fo doing PCA
         
         if isinf(epochDurs(ii))
             epochGroup = ones(size(sensorData,1),1);
         else
-            epochGroup = megEpochGroup(okEpochs,epochDurs(ii),0);
+            epochGroup = megEpochGroup(~badEpochs,epochDurs(ii),0);
         end
+        
         opt.epochGroup = epochGroup;
-        clear results;
         fprintf('epochDur = %d; %d epochs\n', epochDurs(ii), max(epochGroup));
         
         for jj = 1:length(npcs) % iterate through number of PCs projected out 
@@ -78,14 +77,17 @@ for k = [3:6,9:12]%10:12%[3:6,9:12]
                 [results] = denoisedata(design,sensorData,noisepooldef,evalfun,opt);
             end
             allResults{ii,jj} = results;
+            
+            clear results;
         end
     end
     
-    %[results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
-    savename = fullfile(root,'data',sprintf('%sfr%s_fitfull75p1k_varyEpochs',filename,hpcstr));
-    save(savename,'allResults','evalfunstr','epochDurs','npcs');
-    %save(savename,'results','evalout','denoisedts');
-    fprintf('data saved:%s\n', savename);
-    clear okEpochs
+    fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', 's0%d_denoisedData_varyEpochLength_NrPCs',whichSubject));   
+        
+    parsave([fname '_bb.mat'], 'allResults', allResults, 'epochDurs', epochDurs, 'npcs', npcs);
+    fprintf('data saved:%s\n', fname);
+    
 end
-%warning on;
+
+  
+end
