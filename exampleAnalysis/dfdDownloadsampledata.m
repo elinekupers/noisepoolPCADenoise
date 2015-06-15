@@ -44,7 +44,7 @@ for ii = 1:length(whichDataTypes)
         case 'denoised 1-10 pcs'
             fnames = [fnames {'_conditions.mat' '_denoisedData_full_bb.mat' '_denoisedData_full_sl.mat'}];
         case 'controls'
-            fnames = [fnames {'_denoisedData_allinnp_bb' '_denoisedData_control1_bb' '_denoisedData_control2_bb' '_denoisedData_control3_bb' '_denoisedData_control4_bb'}];
+            fnames = [fnames {'_denoisedData_control1_bb' '_denoisedData_control2_bb' '_denoisedData_control3_bb' '_denoisedData_control4_bb' '_denoisedData_control5_bb'}];
     end
 end
 fnames = unique(fnames);
@@ -52,7 +52,7 @@ fnames = unique(fnames);
 % Read / write the sample data
 for s = whichSubjects
         
-    fprintf('Downloading subject %d (please be patient).\n',s);
+    fprintf('Downloading subject %d .\n',s);
     
     for f = 1:length(fnames)
         

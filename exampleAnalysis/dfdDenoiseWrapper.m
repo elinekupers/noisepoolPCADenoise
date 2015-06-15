@@ -58,7 +58,7 @@ switch howToDenoise % Define denoise parameters (see denoisedata.m)
         optbb                 = opt;
         optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
         nrControlModes        = 0;
-        postFix               = '10';
+        postFix               = '';
         
     case 2 % Denoise with each of 0 to 10 PC regressors
         opt.pcchoose          = 1.05;   % Get threshold for optimal nr of PCs
