@@ -34,12 +34,21 @@ for k = 1:length(whichSubjects)
     data = dataAll{k};
     results = data{1}.results;
     
-    subplot(2,4,k);  
-    ab_snr1 = getsignalnoise(results.(whichmodel), 2, 'SNR'); % Left
-    ab_snr2 = getsignalnoise(results.(whichmodel), 3, 'SNR'); % Right
-    ab_snr_diff = to157chan(ab_snr2-ab_snr1,~data{1}.badChannels,'nans');
+    ab_beta1 = results.finalmodel.beta(2,:,:); %left
+    ab_beta2 = results.finalmodel.beta(3,:,:); %right
+    ab_diff = ab_beta2 - ab_beta1;
     
-    [~,ch] = megPlotMap(ab_snr_diff,[-5,5],gcf,jmaColors('coolhotcortex'));
+    diff_med = nanmedian(squeeze(ab_diff),2);
+    diff_se = nanstd(squeeze(ab_diff),[],2);
+        
+    ab_snr_diff = to157chan((diff_med./diff_se)',~data{1}.badChannels,'nans');
+    
+    subplot(2,4,k);  
+%     ab_snr1 = getsignalnoise(results.(whichmodel), 2, 'SNR'); % Left
+%     ab_snr2 = getsignalnoise(results.(whichmodel), 3, 'SNR'); % Right
+%     ab_snr_diff = to157chan(ab_snr2-ab_snr1,~data{1}.badChannels,'nans');
+    
+    [~,ch] = megPlotMap(ab_snr_diff,[-4,4],gcf,jmaColors('coolhotcortex'));
     makeprettyaxes(gca,9,9);
     set(ch,'ytick',-5:1:5);
     makeprettyaxes(ch,9,9);
