@@ -77,12 +77,11 @@ for whichSubject = subjects
                 [results] = denoisedata(design,sensorData,noisepooldef,evalfun,opt);
             end
             allResults{ii,jj} = results;
-            
             clear results;
         end
     end
     
-    fname = fullfile(sprintf(dfdRootPath,'exampleAnalysis','data', 's0%d_denoisedData_varyEpochLength_NrPCs',whichSubject));   
+    fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', 's0%d_denoisedData_varyEpochLength_NrPCs'),whichSubject);   
         
     parsave([fname '_bb.mat'], 'allResults', allResults, 'epochDurs', epochDurs, 'npcs', npcs);
     fprintf('data saved:%s\n', fname);
