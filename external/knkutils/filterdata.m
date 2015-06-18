@@ -1,6 +1,27 @@
 function [xFiltered, hipassfilter, freqs] = filterdata(x,fs,lcutoff,ftsd,excludef)
-%fs = sampling frequency
-%lcutoff = lower frequency cutoff
+%
+% Inputs
+%   x:       3D array of data, [channels x time x epochs]
+%   fs:      sampling frequency in Hz
+%   lcutoff: low frequency cutoff for raised cosine high pass filter
+%   ftsd:    width of the raised cosine high pass filter (in Hz)
+%   excludef: band-stop frequencies to remove
+%
+% Outputs
+%   xFiltered:      filtered data in same size and dimensions as x
+%   hipassfilter:   amplitude spectrum of the filter
+%   freqs:          frequencies (positive only)
+%
+% Example 1
+%   x = randn(1, 1000,1);
+%   [xFiltered, hipassfilter, freqs] = filterdata(x,1000);
+%   figure; plot(abs(fft(x))); hold on, plot(abs(fft(xFiltered)), 'r'); xlim([0 200])
+%
+% Example 2
+%   x = randn(1, 1000,1);
+%   [xFiltered, hipassfilter, freqs] = filterdata(x,1000, [], [], 20:20:1000);
+%   figure; plot(abs(fft(x))); hold on, plot(abs(fft(xFiltered)), 'r'); xlim([0 200])
+%   figure; plot(abs(fft(xFiltered))./abs(fft(x))); xlim([0 200])
 if notDefined('lcutoff'), lcutoff = 60; end
 if notDefined('ftsd'),    ftsd = lcutoff; end
 
@@ -19,7 +40,7 @@ hipassfilter(freqs<lcutoff) = 0;
 [xtbl,ytbl] = rcosFn(ftsd,lcutoff,[0,1]);
 hipassfilter(1:length(freqs)) = interp1(xtbl,ytbl,freqs,'linear','extrap');
 % also exclude certain frequencies 
-if ~notDefined('excludef')
+if exist('excludef', 'var') && ~isempty(excludef)
     excludevec = ones(1,length(freqs));
     [~, ex_i]  = intersect(round(freqs), round(excludef));
     excludevec(ex_i) = 0;
