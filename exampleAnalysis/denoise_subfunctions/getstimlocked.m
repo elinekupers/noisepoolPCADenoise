@@ -1,5 +1,5 @@
 function sl = getstimlocked(data,freq)
-% get the stimulus locked frequency
+% get the response amplitude at the stimulus locked frequency
 % INPUT
 % data   : raw time series [channels x time x epochs]
 % freq   : index for stimulus locked frequency (either a number or a

@@ -1,10 +1,10 @@
 function ab = getbroadband(data,freq)
 
-% get the stimulus locked frequency
+% get the broadband response
 % INPUT
 % data   : raw time series [channels x time x epochs]
 % freq   : indicies for frequencies to compute (either a vector or a
-%          struct)
+%          struct) - if a struct, what are the fields??
 % OUTPUT
 % ab     : broadband time series [epochs x channels]
 
