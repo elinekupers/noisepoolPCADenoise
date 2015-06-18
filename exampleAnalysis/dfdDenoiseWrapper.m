@@ -30,7 +30,7 @@ if isempty(dir(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's0*.mat')));
 end
 
 % ------------------------------------------------------------------------
-% --------------------- Define variables and options ---------------------
+% --------------- Define variables depending on how to denoise -----------
 % ------------------------------------------------------------------------
 
 % Preprocessing parameters to remove bad channels and epochs (see dfdPreprocessData)
@@ -42,18 +42,20 @@ use3Channels        = false;
 
 % Get 'freq' struct to define stimulus locked and broadband frequencies
 %  This struct is needed as input args for getstimlocked and getbroadband
-freq = megGetSLandABfrequencies(0:150, 1, 12);
+freq                = megGetSLandABfrequencies(0:150, 1, 12);
 
 % Define functions to define noise pool and signal of interest
-evokedfun             = @(x)getstimlocked(x,freq); % function handle to determine noise pool
-evalfun               = @(x)getbroadband(x,freq);  % function handle to compuite broadband
+evokedfun           = @(x)getstimlocked(x,freq); % function handle to determine noise pool
+evalfun             = @(x)getbroadband(x,freq);  % function handle to compuite broadband
 
-switch howToDenoise % Define denoise parameters (see denoisedata.m)
+% Define options for denoising that are equal for each type of denoising
+opt.resampling      = {'boot','boot'};
+opt.pcselmethod     = 'snr';
+
+switch howToDenoise % Define denoise other parameters (see denoisedata.m)
     case 1 % Denoise with exactly 10 PC regressors
-        opt.pcchoose          = -10;
+        opt.pcchoose          = -10;   % Take 10 PCs
         opt.npcs2try          = [];    
-        opt.resampling        = {'boot','boot'};
-        opt.pcselmethod       = 'snr';
         optsl                 = opt;
         optbb                 = opt;
         optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
@@ -63,8 +65,6 @@ switch howToDenoise % Define denoise parameters (see denoisedata.m)
     case 2 % Denoise with each of 0 to 10 PC regressors
         opt.pcchoose          = 1.05;   % Get threshold for optimal nr of PCs
         opt.npcs2try          = 10;     % loop through 10
-        opt.resampling        = {'boot','boot'};
-        opt.pcselmethod       = 'snr';
         optsl                 = opt;
         optbb                 = opt;
         optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
@@ -72,10 +72,8 @@ switch howToDenoise % Define denoise parameters (see denoisedata.m)
         postFix               = 'full';
         
     case 3 % Denoise with various control modes
-        opt.pcchoose          = 10;     % Denoise with exactly 10 PCs
+        opt.pcchoose          = 10;     % Take 10 PCs
         opt.npcs2try          = [];     
-        opt.resampling        = {'boot','boot'};
-        opt.pcselmethod       = 'snr';
         optsl                 = opt;
         optbb                 = opt;
         optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
@@ -105,7 +103,7 @@ for whichSubject = subjects
     
     % ---- Remove bad channels and bad epochs from data and conditions ---
     sensorData = sensorData(:,~badEpochs, ~badChannels);
-    design = design(~badEpochs,:);
+    design     = design(~badEpochs,:);
     
     % ------------------ Permute sensorData for denoising ----------------
     sensorData = permute(sensorData, [3 1 2]);  
@@ -117,13 +115,14 @@ for whichSubject = subjects
     % ------------------ Denoise for broadband analysis ------------------
     for nrControl = nrControlModes;
         if (0 <= nrControl) && (nrControl <= 4)
-            optbb.pccontrolmode = nrControl;
-            postFix = sprintf('control%d',nrControl);
-            [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
+            optbb.pccontrolmode   = nrControl;
+            postFix               = sprintf('control%d',nrControl);
+            [results,evalout]     = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
         elseif nrControl == 5
             optbb.pccontrolmode   = 0;
             optbb.npoolmethod     = {'r2','n',size(sensorData,1)};
-            [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
+            postFix               = sprintf('control%d',nrControl);
+            [results,evalout]     = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
         end
         
         % ------------------ Define file name ---------------------------
