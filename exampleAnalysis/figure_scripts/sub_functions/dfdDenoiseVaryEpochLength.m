@@ -1,8 +1,22 @@
 function dfdDenoiseVaryEpochLength(subjects)
 
-% denoise as a function of denoising epoch duration 
+% dfdDenoiseVaryEpochLength(subjects)
+%
+% INPUTS:
+% subjects  : Number of subjects one would like to denoise
+%
+% DESCRIPTION: Function to denoise multiple MEG visual steady
+% state data sets, varying in epoch length and number of PCs projected out.
+% All results will be saved in one big cell called 'AllResults' and can
+% be then be used to reproduce the two supplementary figures from the
+% paper the paper:
+%
+% AUTHORS. YEAR. TITLE. JOURNAL.
 
 
+% ------------------------------------------------------------------------
+% --------------- Define variables depending on how to denoise -----------
+% ------------------------------------------------------------------------
 
 % Preprocessing parameters to remove bad channels and epochs (see dfdPreprocessData)
 varThreshold        = [0.05 20];
@@ -30,6 +44,10 @@ epochDurs             = [1,3,6,12,24,36,72,inf];
 npcs                  = [5,10:10:70];
 
 allResults = [];
+
+% ------------------------------------------------------------------------
+% ------------------ Load and denoise data per subject -------------------
+% ------------------------------------------------------------------------
 
 for whichSubject = subjects
     % ------------------ Load data and design ----------------------------
@@ -80,6 +98,10 @@ for whichSubject = subjects
             clear results;
         end
     end
+    
+% ------------------------------------------------------------------------
+% -------------------- Denoise and save the data -------------------------
+% ------------------------------------------------------------------------
     
     fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', 's0%d_denoisedData_varyEpochLength_NrPCs'),whichSubject);   
         
