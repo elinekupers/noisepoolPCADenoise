@@ -192,7 +192,7 @@ if opt.verbose
     fprintf('(denoisedata) computing pcs for %d epoch groups ...\n', nrep); 
 end
 % do preprocessing before computing pcs
-if ~isempty(opt.preprocessfun), noisedata = opt.preprocessfun(noisedata); end
+if ~isempty(opt.preprocessfun), [noisedata, ntime] = opt.preprocessfun(noisedata); end
 pcs = cell(nrep,1);
 for rp = 1:nrep
     % get current noise time series (ntime x nchan)
@@ -569,7 +569,7 @@ function denoiseddata = denoisetimeseries(data,pcs,p,epochgroup,preprocessfun)
 nrep = max(epochgroup);
 
 % preprocess data, if requested 
-if ~notDefined('preprocessfun'), data = preprocessfun(data); end
+if ~notDefined('preprocessfun'), [data ntime] = preprocessfun(data); end
 
 denoiseddata = zeros(nchan,ntime,nepoch);
 cummnepoch   = 0;
