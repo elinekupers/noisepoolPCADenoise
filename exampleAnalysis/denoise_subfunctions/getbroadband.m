@@ -1,24 +1,24 @@
-function ab = getbroadband(data,freq)
+function ab = getbroadband(data,keep_frequencies,fs)
 
 % get the broadband response
 % INPUT
-% data   : raw time series [channels x time x epochs]
-% freq   : indicies for frequencies to compute (either a vector or a
-%          struct) - if a struct, what are the fields??
+% data   :           raw time series [channels x time x epochs]
+% keep_frequencies : function handle to indicate which frequencies to use
+%                       to calculate broadband
+% fs :               sample rate (Hz)
+%
 % OUTPUT
-% ab     : broadband time series [epochs x channels]
+% ab :               broadband time series [epochs x channels]
 
 % check input 
-if isnumeric(freq)
-    f = freq;
-elseif isstruct(freq) && isfield(freq,'ab_i')
-    f = freq.ab_i;
-else
-    error('input error: freq not recognized');
-end
+n_time_points = size(data,2);
+f = (0:n_time_points-1) * fs / n_time_points;
+[~, f_inds] = intersect(f, keep_frequencies(f));
 
 spec = fft(data,[],2);
-spec_amp = abs(spec(:,f,:))/ size(data,2)*2; 
+spec_amp = abs(spec(:,f_inds,:))/ size(data,2)*2; 
+
 % take the mean across frequencies in log space 
 ab = squeeze(exp(nanmean(log(spec_amp.^2),2)))';
 
+return

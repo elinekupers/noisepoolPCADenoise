@@ -101,8 +101,8 @@ OUTPUT:
 
 % Prepare data sets.  In the Matlab prompt, type:
 dfdAddPaths
-dfdDownloadSampleData(1:8) % Slow. Do this once to download 8 data sets.
-dfdDenoiseWrapper(1:8) % Slow. Do this once to denoise 8 sample data sets.
+dfdDownloadSampleData(1:8) 	% Slow. Do this once to download 8 data sets.
+dfdDenoiseWrapper(1:8) 		% Slow. Do this once to denoise 8 sample data sets.
 
 %  Recreate figure 4 from manuscript. 
 dfdMakeFigure4()
