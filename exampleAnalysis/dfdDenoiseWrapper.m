@@ -42,7 +42,7 @@ use3Channels        = false;
 
 % Get 'freq' struct to define stimulus locked and broadband frequencies
 %  This struct is needed as input args for getstimlocked and getbroadband
-freq                = megGetSLandABfrequencies(0:150, 1, 12);
+freq                = megGetSLandABfrequencies(0:150, 12, 60, 1);
 
 % Define functions to define noise pool and signal of interest
 evokedfun           = @(x)getstimlocked(x,freq); % function handle to determine noise pool
@@ -113,7 +113,7 @@ for whichSubject = subjects
 % ------------------------------------------------------------------------
     
     % ------------------ Denoise for broadband analysis ------------------
-    for nrControl = nrControlModes;
+    for nrControl = nrControlModes;                                                                                               
         if (0 <= nrControl) && (nrControl <= 4)
             optbb.pccontrolmode   = nrControl;
             postFix               = sprintf('control%d',nrControl);
