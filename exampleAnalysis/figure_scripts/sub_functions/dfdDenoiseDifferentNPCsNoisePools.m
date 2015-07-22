@@ -92,9 +92,8 @@ for whichSubject = whichSubjects
         end
     end
     
-    postFix   = evalfunstr{kk};
     fname     = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s0%d_denoisedData_NCPSvsNoisePool_' postFix]), whichSubject);
-    parsave([fname '_bb.mat'], 'results', results, 'evalout', evalout, 'badChannels', badChannels, 'badEpochs', badEpochs, 'opt', optbb)
+    parsave([fname '_bb.mat'], 'allResults', allResults)
 
 
 end
