@@ -1,4 +1,5 @@
-function sl = getstimlocked(data,freq)
+function sl = getstimlocked(data,which_freq)
+
 % get the response amplitude at the stimulus locked frequency
 % INPUT
 % data   : raw time series [channels x time x epochs]
@@ -8,13 +9,12 @@ function sl = getstimlocked(data,freq)
 % sl     : stimulus locked time series [epochs x channels]
 
 % check input 
-if isnumeric(freq)
-    f = freq;
-elseif isstruct(freq) && isfield(freq,'sl_i')
-    f = freq.sl_i;
-else
-    error('input error: freq not recognized');
+if notDefined('which_freq')
+    which_freq = 12;
 end
 
+% Fourier transform data, take power of relevant frequency
 spec = fft(data,[],2);
-sl   = abs(squeeze(spec(:,f,:)))' / size(data,2)*2;
+sl   = abs(squeeze(spec(:,which_freq,:)))' / size(data,2)*2;
+
+return
