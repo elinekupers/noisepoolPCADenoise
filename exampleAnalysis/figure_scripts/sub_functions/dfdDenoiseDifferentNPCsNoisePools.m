@@ -80,8 +80,6 @@ for whichSubject = whichSubjects
     % Loop over the different eval functions
 %     for kk = 1:length(evalfun), evalfunstr{kk} = func2str(evalfun{kk}); end %#ok<AGROW>
 
-    clear allResults;
-    
     for np = 1:length(npools)
         for nc = 1:length(npcs)
             if npcs(nc)>npools(np), continue; end
