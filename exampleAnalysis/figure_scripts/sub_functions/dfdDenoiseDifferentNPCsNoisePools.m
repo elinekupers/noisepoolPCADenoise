@@ -16,13 +16,30 @@ badEpochThreshold   = 0.2;
 dataChannels        = 1:157;
 use3Channels        = false;
 
-% Get 'freq' struct to define stimulus locked and broadband frequencies
-%  This struct is needed as input args for getstimlocked and getbroadband
-freq                = megGetSLandABfrequencies(0:150, 1, 12);
+%% Get frequencies to define stimuluslocked and asynchronous broadband power
+% Exclude all frequencies that are close to a multiple of the
+% stimulus-locked frequency
+f        = 1:150; % Used frequencies
+tol      = 1;     % Tolerance for finding stimulus-locked frequency
+sl_freq  = 12;    % Stimulus-locked frequency
+sl_drop  = f(mod(f, sl_freq) <= tol | mod(f, sl_freq) > sl_freq - tol);
+   
+% Exclude all frequencies that are close to a multiple of the
+% line noise frequency (60 Hz)
+ln_drop   = f(mod(f, 60) <= tol | mod(f, 60) > 60 - tol);
+
+% Exclude all frequencies below 60 Hz when computing broadband power
+lf_drop = f(f<60);
+
+% Define the frequenies and indices into the frequencies used to compute
+% broadband power
+[ab_f, ab_i]   = setdiff(f, [sl_drop ln_drop lf_drop]);
+
+keep_frequencies    = @(x) x(ab_f);
 
 % Define functions to define noise pool and signal of interest
-evokedfun           = @(x)getstimlocked(x,freq); % function handle to determine noise pool
-evalfun             = @(x)getbroadband(x,freq); %, @(x)getbroadbandlog(x,freq)};  % function handle to compuite broadband
+evokedfun           = @(x)getstimlocked(x,sl_freq); % function handle to determine noise pool
+evalfun             = @(x)getbroadband(x,keep_frequencies,1000);  % function handle to compuite broadband with a sample rate of 1 kHz
 
 % Define options for denoising that are equal for each type of denoising
 opt.resampling      = {'boot','boot'};
@@ -69,8 +86,9 @@ for whichSubject = whichSubjects
         for nc = 1:length(npcs)
             if npcs(nc)>npools(np), continue; end
             
-            opt.npoolmethod = {'snr','n',npools(np)};
-            opt.pcstop = -npcs(nc);
+            opt.npcs2try      = [];    
+            opt.npoolmethod   = {'snr','n',npools(np)};
+            opt.pcchoose      = -npcs(nc);
             [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
             allResults(np,nc) = results; %#ok<AGROW>
         end
