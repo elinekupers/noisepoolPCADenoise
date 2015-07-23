@@ -57,8 +57,8 @@ opt.preprocessfun     = @hpf;  % preprocess data with a high pass filter for bro
 opt.npoolmethod       = {'snr','n',75};
 
 % Define functions to define noise pool and signal of interest
-evokedfun             = @(x)getstimlocked(x,freq); % function handle to determine noise pool
-evalfun               = @(x)getbroadband(x,freq);  % function handle to compuite broadband
+evokedfun           = @(x)getstimlocked(x,sl_freq); % function handle to determine noise pool
+evalfun             = @(x)getbroadband(x,keep_frequencies,1000);  % function handle to compuite broadband with a sample rate of 1 kHz
 
 % Get different epoch lengths and npcs to denoise with
 epochDurs             = [1,3,6,12,24,36,72,inf];
