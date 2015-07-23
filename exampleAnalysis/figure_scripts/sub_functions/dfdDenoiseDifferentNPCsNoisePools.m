@@ -33,9 +33,9 @@ lf_drop = f(f<60);
 
 % Define the frequenies and indices into the frequencies used to compute
 % broadband power
-[ab_f, ab_i]   = setdiff(f, [sl_drop ln_drop lf_drop]);
+[~, ab_i]   = setdiff(f, [sl_drop ln_drop lf_drop]);
 
-keep_frequencies    = @(x) x(ab_f);
+keep_frequencies    = @(x) x(ab_i);
 
 % Define functions to define noise pool and signal of interest
 evokedfun           = @(x)getstimlocked(x,sl_freq); % function handle to determine noise pool
