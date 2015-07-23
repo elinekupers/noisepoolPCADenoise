@@ -134,7 +134,8 @@ for whichSubject = subjects
     for nrControl = nrControlModes;                                                                                               
         if (0 <= nrControl) && (nrControl <= 4)
             optbb.pccontrolmode   = nrControl;
-            postFix               = sprintf('control%d',nrControl);
+            if nrControl == 0;    postFix = ''; 
+            else postFix          = sprintf('control%d',nrControl); end
             [results,evalout]     = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
         elseif nrControl == 5
             optbb.pccontrolmode   = 0;
