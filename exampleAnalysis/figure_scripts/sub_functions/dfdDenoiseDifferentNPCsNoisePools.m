@@ -90,7 +90,7 @@ for whichSubject = whichSubjects
         end
     end
     
-    fname     = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s0%d_denoisedData_NCPSvsNoisePool_' postFix]), whichSubject);
+    fname     = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s0%d_denoisedData_NCPSvsNoisePool']), whichSubject);
     parsave([fname '_bb.mat'], 'allResults', allResults)
 
 
