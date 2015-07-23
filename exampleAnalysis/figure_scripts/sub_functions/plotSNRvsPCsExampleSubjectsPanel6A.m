@@ -1,4 +1,4 @@
-function fH = plotSNRvsPCsExampleSubjectsPanel6A(dataAll,exampleSessions,condColors,axmax,figureDir,saveFigures) %#ok<STOUT>
+function fH = plotSNRvsPCsExampleSubjectsPanel6A(dataAll,exampleSessions,condColors,axmax,figureDir,saveFigures)
 
 % Define colors
 linecolors=copper(157);
@@ -19,7 +19,7 @@ for k = 1:length(exampleSessions)
         % plot snr change for top10 channels
         xvaltrend = mean(this_snr(:,dataAll{k}{1}.results.pcchan{1}),2);
         plot(0:axmax, xvaltrend(1:axmax+1,:), 'color', condColors(icond,:), 'linewidth',2);
-        %plot(axmax+1, xvaltrend(51,:), 'o', 'color', condColors(icond,:));
+        % plot(axmax+1, xvaltrend(51,:), 'o', 'color', condColors(icond,:));
         axis square; xlim([0,axmax]);
         ylim([0,15]); % if SL: ylim([0,50])
         makeprettyaxes(gca,9,9);
