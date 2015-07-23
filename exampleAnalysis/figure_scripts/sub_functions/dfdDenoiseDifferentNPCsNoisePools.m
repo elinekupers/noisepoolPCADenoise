@@ -52,7 +52,7 @@ optbb                 = opt;
 optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
 npools                = [5,10:10:140];
 npcs                  = [5,10:10:130];
-allResults            = [];
+allResults            = {};
 
 for whichSubject = whichSubjects
     % ------------------ Load data and design ----------------------------
@@ -78,7 +78,6 @@ for whichSubject = whichSubjects
     sensorData = permute(sensorData, [3 1 2]);  
     
     % Loop over the different eval functions
-%     for kk = 1:length(evalfun), evalfunstr{kk} = func2str(evalfun{kk}); end %#ok<AGROW>
     count = 1;
     for np = 1:length(npools)
         for nc = 1:length(npcs)
@@ -88,7 +87,7 @@ for whichSubject = whichSubjects
             opt.npoolmethod   = {'snr','n',npools(np)};
             opt.pcchoose      = -npcs(nc);
             [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
-            allResults(count) = results;          
+            allResults{count} = results;          
             count = count +1;
         end
     end
