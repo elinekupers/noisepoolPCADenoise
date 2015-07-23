@@ -102,7 +102,7 @@ for whichSubject = subjects
             epochGroup = megEpochGroup(~badEpochs,epochDurs(ii),0);
         end
         
-        opt.epochGroup = epochGroup;
+        opt.epochgroup = epochGroup;
         fprintf('epochDur = %d; %d epochs\n', epochDurs(ii), max(epochGroup));
         
         for jj = 1:length(npcs) % iterate through number of PCs projected out 

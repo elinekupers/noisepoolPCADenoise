@@ -78,7 +78,6 @@ for whichSubject = whichSubjects
     sensorData = permute(sensorData, [3 1 2]);  
     
     % Loop over the different eval functions
-    count = 1;
     for np = 1:length(npools)
         for nc = 1:length(npcs)
             if npcs(nc)>npools(np), continue; end
@@ -87,8 +86,7 @@ for whichSubject = whichSubjects
             opt.npoolmethod   = {'snr','n',npools(np)};
             opt.pcchoose      = -npcs(nc);
             [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
-            allResults{count} = results;          
-            count = count +1;
+            allResults{np,nc} = results;          
         end
     end
     
