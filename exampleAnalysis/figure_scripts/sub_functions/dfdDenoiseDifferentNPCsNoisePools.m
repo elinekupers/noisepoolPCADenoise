@@ -52,7 +52,7 @@ optbb                 = opt;
 optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
 npools                = [5,10:10:140];
 npcs                  = [5,10:10:130];
-allResults            = [[],[]];
+allResults            = [];
 
 for whichSubject = whichSubjects
     % ------------------ Load data and design ----------------------------
