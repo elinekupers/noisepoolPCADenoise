@@ -102,11 +102,13 @@ for whichSubject = subjects
             epochGroup = megEpochGroup(~badEpochs,epochDurs(ii),0);
         end
         
+        clear results;
         opt.epochgroup = epochGroup;
         fprintf('epochDur = %d; %d epochs\n', epochDurs(ii), max(epochGroup));
         
         for jj = 1:length(npcs) % iterate through number of PCs projected out 
-            opt.pcstop = -npcs(jj);
+            opt.pcchoose   = -npcs(jj);
+            opt.npcs2try   = [];
             fprintf('\tnpcs = %d\n', npcs(jj));
             
             if jj == 1
@@ -116,7 +118,6 @@ for whichSubject = subjects
                 [results] = denoisedata(design,sensorData,noisepooldef,evalfun,opt);
             end
             allResults{ii,jj} = results;
-            clear results;
         end
     end
     
