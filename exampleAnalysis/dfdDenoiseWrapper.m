@@ -90,7 +90,7 @@ switch howToDenoise % Define denoise other parameters (see denoisedata.m)
         postFix               = 'full';
         
     case 3 % Denoise with various control modes
-        opt.pcchoose          = 10;     % Take 10 PCs
+        opt.pcchoose          = -10;     % Take 10 PCs
         opt.npcs2try          = [];     
         optsl                 = opt;
         optbb                 = opt;

@@ -19,7 +19,7 @@ dataDir              = fullfile(dfdRootPath, 'exampleAnalysis', 'data');   % Whe
 figureDir            = fullfile(dfdRootPath, 'exampleAnalysis', 'figures');% Where to save images?
 saveFigures          = true;   % Save figures in the figure folder?
 condColors           = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
-num_of_controls      = 5;
+numOfControls        = 5;
 dataAll              = [];
 
 %% Load data for all subjects
@@ -31,7 +31,7 @@ end
 
 
 %% Prepare data for figure
-snr_diff = zeros(length(whichSubjects),num_of_controls+1,3); % All controls, plus original result for all three conditions
+snr_diff = zeros(length(whichSubjects),numOfControls+1,3); % All controls, plus original result for all three conditions
 for k = 1:length(whichSubjects)
     
     results_null = [dataAll{k}{1}(1),dataAll{k}{1}{2}];
