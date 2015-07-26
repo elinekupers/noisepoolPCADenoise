@@ -79,6 +79,13 @@ switch whichFigure
 
         load(sprintf(fullfile(dataDir, 's0%d_conditions.mat'),whichSubject));
         
+    case 'SF2'
+        data = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_NCPSvsNoisePool_bb.mat'), whichSubject));
+        data1 = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_bb.mat'),whichSubject));
+        data.badEpochs = data1.badEpochs;
+        data.badChannels = data1.badChannels;
+
+        load(sprintf(fullfile(dataDir, 's0%d_conditions.mat'),whichSubject));
 end
 
 %% Spectrum before and after denoising

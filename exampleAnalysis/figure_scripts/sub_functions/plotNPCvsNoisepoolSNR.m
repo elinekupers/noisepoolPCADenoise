@@ -1,41 +1,30 @@
-function plotNPCsNoisePoolvsRemovedSNR(whichSubjects,AllResults,npcs,saveFigures,figureDir)
+function fH = plotNPCvsNoisepoolSNR(whichSubjects,dataAll,npools,npcs,saveFigures,figureDir)
 
 %% Plot difference in SNR (post-pre) as a function of number of channels in
 %% noise pool and number of PCs removed
 
 % nchan in noisepool x npcs removed x conds x nsessions
-allvals2 = [];
+allSubjectsResults = [];
 
 for whichSubject = whichSubjects
-    fprintf(' session %d \n', whichSubject);
-    
-    
-
+    fprintf(' compute SNR for subject %d \n', whichSubject);    
     
     % load results
-    thisfile = fullfile(inputDataDir,sprintf('%s%s',sessionDir,fitDataStr));
-    disp(thisfile); load(thisfile,'allresults','npools','npcs');
-    
     allvals = nan(length(npools),length(npcs),3);
     for np = 1:length(npools)
         for nc = 1:length(npcs)
-            
-            % I think we need a different saved dataset for this figure
-            results = dataAll{whichSubject}{1}.allResults(np,jj);
-
-            
-            
-            results = allresults(np,nc);
-            if isempty(results.finalmodel), continue; end
+            results = dataAll{whichSubject}{1}.allResults(np,nc);
+            results = results{1};
+            if isempty(results), continue; end
             
             % get top 10
-            pcchan = getTop10(results,whichfun);
+            pcchan = getTop10(results);
             
             % get snr before and after, nconds x nchannels
-            ab_signal1 = abs(results.origmodel(whichfun).beta_md(:,pcchan));
-            ab_noise1  = results.origmodel(whichfun).beta_se(:,pcchan);
-            ab_signal2 = abs(results.finalmodel(whichfun).beta_md(:,pcchan));
-            ab_noise2  = results.finalmodel(whichfun).beta_se(:,pcchan);
+            ab_signal1 = abs(results.origmodel.beta_md(:,pcchan));
+            ab_noise1  = results.origmodel.beta_se(:,pcchan);
+            ab_signal2 = abs(results.finalmodel.beta_md(:,pcchan));
+            ab_noise2  = results.finalmodel.beta_se(:,pcchan);
             ab_snr1    = ab_signal1./ab_noise1;
             ab_snr2    = ab_signal2./ab_noise2;
             % get snr difference for each condition (post-pre)
@@ -45,16 +34,16 @@ for whichSubject = whichSubjects
         end
     end
     % concate across sessions
-    allvals2 = cat(4,allvals2,allvals);
+    allSubjectsResults = cat(4,allSubjectsResults,allvals);
 end
 
 %%
-fH = figure('position',[0,300,450,900]);
-clims = [[0,4];[0,2];[0,2]];
+fH = figure('position',[0,300,450,900],'color','w');
+clims = [[0,6];[0,6];[0,6]];
 conditionNames = {'FULL','RIGHT','LEFT'};
 for icond = 1:3
     subplot(3,1,icond);
-    imagesc(1:length(npcs),1:length(npools),mean(allvals2(:,:,icond,:),4),clims(icond,:));
+    imagesc(1:length(npcs),1:length(npools),mean(allSubjectsResults(:,:,icond,:),4),clims(icond,:));
     
     set(gca,'ydir','normal');
     xlabel('Number of PCs removed');
@@ -67,6 +56,6 @@ for icond = 1:3
     title(conditionNames{icond});
 end
 
-if savefigures
-    figurewrite(fullfile(figuredir,'figure_grid_subjmean'),[],0,'.',1);
+if saveFigures
+    figurewrite(fullfile(figureDir,'SF2GridSubjMean_NPCSvsNoisePool'),[],0,'.',1);
 end

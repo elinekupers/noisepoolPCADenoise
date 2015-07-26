@@ -1,4 +1,4 @@
-function dfdDenoiseDifferentNPCsNoisePools(whichSubjects)
+function dfdDenoiseNPCvsNoisepool(whichSubjects)
 % denoise as a function of denoising epoch duration and number of PCs
 % removed
 % you can modify the script take parameter k for session number
