@@ -46,10 +46,6 @@ lf_drop = f(f<60);
 
 keep_frequencies    = @(x) x(ab_i);
 
-% Define functions to define noise pool and signal of interest
-evokedfun           = @(x)getstimlocked(x,sl_freq); % function handle to determine noise pool
-evalfun             = @(x)getbroadband(x,keep_frequencies,1000);  % function handle to compuite broadband with a sample rate of 1 kHz
-
 % Define options for denoising
 opt.resampling        = {'boot','boot'};
 opt.pcselmethod       = 'snr';
@@ -97,7 +93,7 @@ for whichSubject = subjects
     for ii = 1:length(epochDurs) % iterate through epoch duration fo doing PCA
         
         if isinf(epochDurs(ii))
-            epochGroup = ones(size(sensorData,1),1);
+            epochGroup = ones(size(sensorData,3),1);
         else
             epochGroup = megEpochGroup(~badEpochs,epochDurs(ii),0);
         end
