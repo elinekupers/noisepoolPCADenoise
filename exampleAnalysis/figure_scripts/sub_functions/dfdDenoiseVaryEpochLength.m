@@ -57,8 +57,8 @@ evokedfun           = @(x)getstimlocked(x,sl_freq); % function handle to determi
 evalfun             = @(x)getbroadband(x,keep_frequencies,1000);  % function handle to compuite broadband with a sample rate of 1 kHz
 
 % Get different epoch lengths and npcs to denoise with
-epochDurs             = [1,3,6,12,24,36,72,inf];
-npcs                  = [5,10:10:70];
+epochDurs             = [1,3,6,12,24,36,72,inf]; %[1,3,6,12,24,36,72,inf];
+npcs                  = 10; %[5,10:10:70];
 
 allResults = [];
 
@@ -107,12 +107,12 @@ for whichSubject = subjects
             opt.npcs2try   = [];
             fprintf('\tnpcs = %d\n', npcs(jj));
             
-            if jj == 1
+%             if jj == 1
+%                 [results] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
+%                 noisepooldef = results.noisepool;
+%             else
                 [results] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
-                noisepooldef = results.noisepool;
-            else
-                [results] = denoisedata(design,sensorData,noisepooldef,evalfun,opt);
-            end
+%             end
             allResults{ii,jj} = results;
         end
     end
