@@ -39,6 +39,7 @@ badChannelThreshold = 0.2;
 badEpochThreshold   = 0.2;
 dataChannels        = 1:157;
 use3Channels        = false;
+removeFirstEpoch    = true;
 
 %% Get frequencies to define stimuluslocked and asynchronous broadband power
 % Exclude all frequencies that are close to a multiple of the
@@ -119,9 +120,16 @@ for whichSubject = subjects
     [sensorData, badChannels, badEpochs] = dfdPreprocessData(sensorData(:,:,dataChannels), ...
         varThreshold, badChannelThreshold, badEpochThreshold, use3Channels);
     
+    % ---- Define first epochs in order to remove later ------------------
+    if removeFirstEpoch, firstEpochs = 1:6:length(design); 
+    
     % ---- Remove bad channels and bad epochs from data and conditions ---
-    sensorData = sensorData(:,~badEpochs, ~badChannels);
-    design     = design(~badEpochs,:);
+    epochsToRemove  = zeros(length(design),1);
+    epochsToRemove(unique([find(badEpochs); firstEpochs'])) = 1;
+    badEpochs       = epochsToRemove; 
+    end
+    sensorData      = sensorData(:,~badEpochs, ~badChannels);
+    design          = design(~badEpochs,:);
     
     % ------------------ Permute sensorData for denoising ----------------
     sensorData = permute(sensorData, [3 1 2]);  
@@ -146,7 +154,9 @@ for whichSubject = subjects
         
         % ------------------ Define file name ---------------------------
         if use3Channels
-            fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s0%d_denoisedData_' postFix '_w3chan']),whichSubject);
+            fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s0%d_denoisedData_' postFix 'w3chan']),whichSubject);
+        elseif removeFirstEpoch
+            fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s0%d_denoisedData_' postFix 'rm1epoch']),whichSubject);
         else
             fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s0%d_denoisedData_' postFix]), whichSubject);   
         end
