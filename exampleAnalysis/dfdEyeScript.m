@@ -105,7 +105,8 @@ for whichSubject = subjects
     full	= design(:,1)==1;
     left    = design(:,2)==1;
     right	= design(:,3)==1;
-    conds = {blank,full,left,right};
+    conds   = {blank,full,left,right};
+    condsName = {'Blank','Full','Left','Right'};
     
     
  
@@ -159,36 +160,10 @@ for whichSubject = subjects
     set(gca, 'FontSize', 20);
     
     
-    return
     %% Concatenate all conditions for XY position and XY velocity
-    % BOTH
-    new_array_sz = size(eye_xvel_on_both_epoched,1)*size(eye_xvel_on_both_epoched,2);
-    both_xyvel = [reshape(eye_xvel_on_both_epoched,1,new_array_sz);reshape(eye_yvel_on_both_epoched,1,new_array_sz)]';
-    
-    new_array_sz = size(eye_xpos_on_both_epoched,1)*size(eye_xpos_on_both_epoched,2);
-    both_xypos = [reshape(eye_xpos_on_both_epoched,1,new_array_sz);reshape(eye_ypos_on_both_epoched,1,new_array_sz)]';
-    
-    % RIGHT
-    new_array_sz = size(eye_xvel_on_right_epoched,1)*size(eye_xvel_on_right_epoched,2);
-    right_xyvel = [reshape(eye_xvel_on_right_epoched,1,new_array_sz);reshape(eye_yvel_on_right_epoched,1,new_array_sz)]';
-    
-    new_array_sz = size(eye_xpos_on_right_epoched,1)*size(eye_xpos_on_right_epoched,2);
-    right_xypos = [reshape(eye_xpos_on_right_epoched,1,new_array_sz);reshape(eye_ypos_on_right_epoched,1,new_array_sz)]';
-    
-    % LEFT
-    new_array_sz = size(eye_xvel_on_left_epoched,1)*size(eye_xvel_on_left_epoched,2);
-    left_xyvel = [reshape(eye_xvel_on_left_epoched,1,new_array_sz);reshape(eye_yvel_on_left_epoched,1,new_array_sz)]';
-    
-    new_array_sz = size(eye_xpos_on_left_epoched,1)*size(eye_xpos_on_left_epoched,2);
-    left_xypos = [reshape(eye_xpos_on_left_epoched,1,new_array_sz);reshape(eye_ypos_on_left_epoched,1,new_array_sz)]';
-    
-    % OFF
-    new_array_sz = size(eye_xvel_off_epoched,1)*size(eye_xvel_off_epoched,2);
-    off_xyvel = [reshape(eye_xvel_off_epoched,1,new_array_sz);reshape(eye_yvel_off_epoched,1,new_array_sz)]';
-    
-    new_array_sz = size(eye_xpos_off_epoched,1)*size(eye_xpos_off_epoched,2);
-    off_xypos = [reshape(eye_xpos_off_epoched,1,new_array_sz);reshape(eye_ypos_off_epoched,1,new_array_sz)]';
-    
+     eyexyVel = [eyexVel(:), eyeyVel(:)];
+     eyexyPos = [eyexPos(:), eyeyPos(:)];
+
     
     %% =================================================
     %  =============== Detect saccades =================
@@ -202,7 +177,7 @@ for whichSubject = subjects
     vThres = 6;
     msMinDur = 6;
     
-    %% ALL
+    %% ALL data
     [sacRaw,radius] = microsacc(s.xyPos,s.xyVel,vThres,msMinDur);
     
     % remove the ones that occurr closely together (overshoot)
@@ -215,8 +190,8 @@ for whichSubject = subjects
     fprintf('%d saccades detected\n', size(sac,1));
     
     % saved detected saccades into s
-    s.sacsRaw = sacRaw;
-    s.sacs = sac;
+    s.sacsRaw          = sacRaw;
+    s.sacs             = sac;
     s.sacDetectRadius  = radius;
     s.eyeInfo.vThres   = vThres;
     s.eyeInfo.msMinDur = msMinDur;
@@ -229,35 +204,40 @@ for whichSubject = subjects
     msSacStats1(s);
     title('Angular distribution ALL');
     
-    %% BOTH
+    %% Epoched data
     
-    [both_sacRaw,both_radius] = microsacc(both_xypos,both_xyvel,vThres,msMinDur);
+    [sacRaw,radius] = microsacc(eyexyPos,eyexyVel,vThres,msMinDur);
     
     % remove the ones that occurr closely together (overshoot)
-    both_numSacs = size(both_sacRaw,1);
+    numSacs = size(sacRaw,1);
     minInterSamples = ceil(0.01*s.eyeInfo.smpRate);
-    both_interSac = both_sacRaw(2:end,1)- both_sacRaw(1:end-1,2);
-    both_sac = both_sacRaw([1; find(both_interSac > minInterSamples)+1],:);
-    fprintf('%d rejected for close spacing\n', both_numSacs - size(both_sac,1));
     
-    fprintf('%d saccades detected\n', size(both_sac,1));
+    return
+    %% DEBUG FROM HERE %%
+    interSac = sacRaw(2:end,1)- sacRaw(1:end-1,2);
+    sac = sacRaw([1; find(interSac > minInterSamples)+1],:);
+    fprintf('%d rejected for close spacing\n', numSacs - size(sac,1));
     
-    % saved detected saccades into s
-    s.sacsRaw = both_sacRaw;
-    s.sacs = both_sac;
-    s.sacDetectRadius  = both_radius;
-    s.eyeInfo.vThres   = vThres;
-    s.eyeInfo.msMinDur = msMinDur;
-    s.time = eye_ts_on_both_epoched;
-    s.xyPos = both_xypos;
+    fprintf('%d saccades detected\n', size(sac,1));
     
-    fprintf('number of saccades detected: %d, detectRadius: [%0.3f %0.3f]\n', ...
-        size(s.sacs,1), s.sacDetectRadius(1), s.sacDetectRadius(2));
-    
-    % look at detected saccades
-    figure(3); clf; set(gcf,'Color', 'w');
-    msSacStats1(s);
-    title('Angular distribution BOTH');
+    for nn = 1:4
+        % saved detected saccades into s
+        s.sacsRaw          = sacRaw(:,conds{nn});
+        s.sacs             = sac(:,conds{nn});
+        s.sacDetectRadius  = radius(:,conds{nn});
+        s.eyeInfo.vThres   = vThres;
+        s.eyeInfo.msMinDur = msMinDur;
+        s.time             = eyets(:,conds{nn});
+        s.xyPos            = eyexyPos(:,conds{nn});
+
+        fprintf('number of saccades detected: %d, detectRadius: [%0.3f %0.3f]\n', ...
+            size(s.sacs,1), s.sacDetectRadius(1), s.sacDetectRadius(2));
+
+        % look at detected saccades
+        figure(3); clf; set(gcf,'Color', 'w');
+        msSacStats1(s);
+        title(sprintf('Angular distribution %s',condsName{nn}));
+    end
     
     %% OFF
     
