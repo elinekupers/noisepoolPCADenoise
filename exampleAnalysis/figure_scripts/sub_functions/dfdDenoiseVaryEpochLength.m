@@ -28,17 +28,19 @@ use3Channels        = false;
 %% Get frequencies to define stimuluslocked and asynchronous broadband power
 % Exclude all frequencies that are close to a multiple of the
 % stimulus-locked frequency
-f        = 1:150; % Used frequencies
-tol      = 1;     % Tolerance for finding stimulus-locked frequency
-sl_freq  = 12;    % Stimulus-locked frequency
-sl_drop  = f(mod(f, sl_freq) <= tol | mod(f, sl_freq) > sl_freq - tol);
+f           = 1:150; % Used frequencies
+tol         = 1;     % Tolerance for finding stimulus-locked frequency
+sl_freq     = 12;    % Stimulus-locked frequency
+sl_freq_i   = 13;    % We need to use the sl_freq +1 to get the correct index
+
+sl_drop     = f(mod(f, sl_freq) <= tol | mod(f, sl_freq) > sl_freq - tol);
    
 % Exclude all frequencies that are close to a multiple of the
 % line noise frequency (60 Hz)
-ln_drop   = f(mod(f, 60) <= tol | mod(f, 60) > 60 - tol);
+ln_drop     = f(mod(f, 60) <= tol | mod(f, 60) > 60 - tol);
 
 % Exclude all frequencies below 60 Hz when computing broadband power
-lf_drop = f(f<60);
+lf_drop     = f(f<60);
 
 % Define the frequenies and indices into the frequencies used to compute
 % broadband power
@@ -53,7 +55,7 @@ opt.preprocessfun     = @hpf;  % preprocess data with a high pass filter for bro
 opt.npoolmethod       = {'snr','n',75};
 
 % Define functions to define noise pool and signal of interest
-evokedfun           = @(x)getstimlocked(x,sl_freq); % function handle to determine noise pool
+evokedfun           = @(x)getstimlocked(x,sl_freq_i); % function handle to determine noise pool
 evalfun             = @(x)getbroadband(x,keep_frequencies,1000);  % function handle to compuite broadband with a sample rate of 1 kHz
 
 % Get different epoch lengths and npcs to denoise with

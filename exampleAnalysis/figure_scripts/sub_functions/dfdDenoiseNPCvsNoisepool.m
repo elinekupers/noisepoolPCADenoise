@@ -19,10 +19,11 @@ use3Channels        = false;
 %% Get frequencies to define stimuluslocked and asynchronous broadband power
 % Exclude all frequencies that are close to a multiple of the
 % stimulus-locked frequency
-f        = 1:150; % Used frequencies
-tol      = 1;     % Tolerance for finding stimulus-locked frequency
-sl_freq  = 12;    % Stimulus-locked frequency
-sl_drop  = f(mod(f, sl_freq) <= tol | mod(f, sl_freq) > sl_freq - tol);
+f           = 1:150; % Used frequencies
+tol         = 1;     % Tolerance for finding stimulus-locked frequency
+sl_freq     = 12;    % Stimulus-locked frequency
+sl_freq_i   = 13;    % We need to use the sl_freq +1 to get the correct index
+sl_drop     = f(mod(f, sl_freq) <= tol | mod(f, sl_freq) > sl_freq - tol);
    
 % Exclude all frequencies that are close to a multiple of the
 % line noise frequency (60 Hz)
@@ -38,7 +39,7 @@ lf_drop = f(f<60);
 keep_frequencies    = @(x) x(ab_i);
 
 % Define functions to define noise pool and signal of interest
-evokedfun           = @(x)getstimlocked(x,sl_freq); % function handle to determine noise pool
+evokedfun           = @(x)getstimlocked(x,sl_freq_i); % function handle to determine noise pool
 evalfun             = @(x)getbroadband(x,keep_frequencies,1000);  % function handle to compuite broadband with a sample rate of 1 kHz
 
 % Define options for denoising that are equal for each type of denoising
