@@ -18,7 +18,7 @@ end
 %% Plot them together
 
 % define colors - vary saturation for different subjects
-satValues = linspace(0.1,1,8);
+satValues = 1-linspace(0.1,1,8);
 colorRGB = varysat(condColors,satValues);
 ttls = {'FULL','RIGHT','LEFT'};
 
