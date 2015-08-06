@@ -210,7 +210,7 @@ for rp = 1:nrep
         % unit-length normalize each time-series
         temp = unitlengthfast(currnoise);
         % perform SVD and select top PCs
-        [u,s,v] = svd(temp);
+        [u,s,v] = svd(temp, 'econ');
         
         % get extra regressors, if there are any. concatenate them along with the pcs 
         if ~isempty(extraregressors)
