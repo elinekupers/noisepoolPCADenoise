@@ -14,9 +14,9 @@ function dfdEyeScript(subjects)
 %
 % AUTHORS. YEAR. TITLE. JOURNAL.
 
-% ------------------------------------------------------------------------
-% ---------------- Check options and load in toolboxes -------------------
-% ------------------------------------------------------------------------
+% =========================================================================
+% =============== Check options and load in toolboxes =====================
+% =========================================================================
 
 % Check input
 if subjects < 6; disp('Subject does not have eye tracking data'); end;
@@ -37,9 +37,9 @@ saveFigures       = true;  % Save images?
 deleteFirstLast   = false; % Delete first and last epoch?
 saveData          = true;  % Save data?
 
-% ------------------------------------------------------------------------
-% ------------------ Define paths and load in data -----------------------
-% ------------------------------------------------------------------------
+% =========================================================================
+% ================= Define paths and load in data =========================
+% =========================================================================
 for whichSubject = subjects
     edffile = dir(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 'eye','s0%d_eyelink.edf'),whichSubject));
     tmp = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's0%d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
@@ -52,9 +52,9 @@ for whichSubject = subjects
         eyd = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 'eye','s0*_eyd.mat'),whichSubject));
     end
     
-    % ------------------------------------------------------------------------
-    % --------------- Get eye traces (blinks are removed) --------------------
-    % ------------------------------------------------------------------------
+    % =====================================================================
+    % ================ Get eye traces (blinks are removed) ================
+    % =====================================================================
     
     % Figure out the start and end time of your experiment, which will be a
     % an argument for the msGetEyeData function.
@@ -66,41 +66,41 @@ for whichSubject = subjects
     blinkWinSec = [0.2 0.35];
     s = msGetEyeData(eyd,timeLims,blinkWinSec);
     
-    % ------------------------------------------------------------------------
-    % ------------------- Get triggers and timings ---------------------------
-    % ------------------------------------------------------------------------
+    % =====================================================================
+    % ===================== Get triggers and timings ======================
+    % =====================================================================
     
     % Use MEG messages to get the eyemovements for separate conditions
     
-    % ---------------------- Delete irrelevant messages ----------------------
+    % ------------- Delete irrelevant messages ----------------------------
     eyd.messages = eyd.messages(1,startTime:end);
     
-    % ------------- Make a matrix for trigger nr and time stamp --------------
+    % ------------- Make a matrix for trigger nr and time stamp -----------
     triggers = zeros(size(eyd.messages(1,:),2),2);
     
-    % ------------------ Get trigger nr and time stamp -----------------------
-    for ii = 1:size(eyd.messages(1,:),2); % Last triggers while quiting the program are getting deleted
+    % ------------- Get trigger nr and time stamp -------------------------
+    for ii = 1:size(eyd.messages(1,:),2);                         % Last triggers while quiting the program are getting deleted
         triggers(ii,1) = str2num(eyd.messages(1,ii).message(14)); % Trigger nr
         triggers(ii,2) = eyd.messages(1,ii).time(1)-s.timeRaw(1); % Get timing and set time to zero
     end
     
-    % ------------------ Add triggers for the blank periods ---------------
+    % ------------- Add triggers for the blank periods --------------------
     onsets = ssmeg_trigger_2_onsets(triggers, whichSubject, 'eye');
     
-    % --------- Define epochs in variables of eyetracking data ------------
-    [eyets, ~] = meg_make_epochs(s.time, onsets, [0 .999], 1000);
+    % ------------- Define epochs in variables of eyetracking data --------
+    [eyets, ~]   = meg_make_epochs(s.time, onsets, [0 .999], 1000);
     [eyexPos, ~] = meg_make_epochs(s.xyPos(:,1), onsets, [0 .999], 1000);
     [eyeyPos, ~] = meg_make_epochs(s.xyPos(:,2), onsets, [0 .999], 1000);
     [eyexVel, ~] = meg_make_epochs(s.xyVel(:,1), onsets, [0 .999], 1000);
     [eyeyVel, ~] = meg_make_epochs(s.xyVel(:,2), onsets, [0 .999], 1000);
         
-    % ------------------ Make design matrix -------------------------------
+    % ------------- Make design matrix ------------------------------------
     design = zeros(size(eyets,2),3);
     design(conditions==1,1) = 1; % condition 1 is full field
     design(conditions==5,2) = 1; % condition 5 is left field
     design(conditions==7,3) = 1; % condition 7 is right field
     
-    % --------------------- Define conditions -----------------------------
+    % ------------- Define conditions -------------------------------------
     blank   = sum(design,2)==0;
     full	= design(:,1)==1;
     left    = design(:,2)==1;
@@ -110,11 +110,11 @@ for whichSubject = subjects
     
     
  
-    %% ---------------------------------------------------------------
-    %  ------------ Plot eye traces for visual inspection ------------
-    %  ---------------------------------------------------------------
+    %% ====================================================================
+    %  ============ Plot eye traces for visual inspection =================
+    %  ====================================================================
 
-    %% X COORDINATES
+    %% Plot X COORDINATES
     deglims = 20;
     figure(1); clf; set(gcf,'Color', 'w');
     subplot(2,2,1);
@@ -129,12 +129,11 @@ for whichSubject = subjects
     ylim(deglims*[-1,1]); xlabel('Time (s)'); ylabel('X (deg)');
     
     
-    %% Y COORDINATES  
+    %% Plot Y COORDINATES  
     subplot(2,2,3);
     
     % All eyetracking data
-    plot(s.time/1000,s.xyPos(:,2),'k'); hold on;
-    
+    plot(s.time/1000,s.xyPos(:,2),'k'); hold on;    
     % Plot per stimulus condition
     for nn = 1:4
          plot(eyets(:,conds{nn}),eyeyPos(:,conds{nn}));
@@ -143,26 +142,19 @@ for whichSubject = subjects
     grid on;
     ylim(deglims*[-1,1]); xlabel('Time (s)'); ylabel('Y (deg)');
     
-    %% XY ON GRID
+    %% Plot XY ON GRID
     subplot(2,2,[2,4]);
 
     % All eyetracking data
     plot(s.xyPos(:,1),s.xyPos(:,2), 'k'); axis square; grid on; hold on;
-       
     % Plot per stimulus condition
     for nn = 1:4
          plot(eyexPos(:,conds{nn}),eyeyPos(:,conds{nn}));
     end
-    
-    
+     
     xlim(deglims*[-1,1]); ylim(deglims*[-1,1]);
     xlabel('X (deg)', 'Fontsize', 20);  ylabel('Y (deg)', 'Fontsize', 20);
     set(gca, 'FontSize', 20);
-    
-    
-    %% Concatenate all conditions for XY position and XY velocity
-     eyexyVel = [eyexVel(:), eyeyVel(:)];
-     eyexyPos = [eyexPos(:), eyeyPos(:)];
 
     
     %% =================================================
@@ -176,6 +168,10 @@ for whichSubject = subjects
     % Eyelink detected saccades (eyd.saccades)
     vThres = 6;
     msMinDur = 6;
+    
+    % Concatenate all conditions for XY position and XY velocity
+    eyexyVel = [eyexVel(:), eyeyVel(:)];
+    eyexyPos = [eyexPos(:), eyeyPos(:)];
     
     %% ALL data
     [sacRaw,radius] = microsacc(s.xyPos,s.xyVel,vThres,msMinDur);
@@ -212,7 +208,6 @@ for whichSubject = subjects
     numSacs = size(sacRaw,1);
     minInterSamples = ceil(0.01*s.eyeInfo.smpRate);
     
-    return
     %% DEBUG FROM HERE %%
     interSac = sacRaw(2:end,1)- sacRaw(1:end-1,2);
     sac = sacRaw([1; find(interSac > minInterSamples)+1],:);
@@ -234,7 +229,7 @@ for whichSubject = subjects
             size(s.sacs,1), s.sacDetectRadius(1), s.sacDetectRadius(2));
 
         % look at detected saccades
-        figure(3); clf; set(gcf,'Color', 'w');
+        figure(2+nn); clf; set(gcf,'Color', 'w');
         msSacStats1(s);
         title(sprintf('Angular distribution %s',condsName{nn}));
     end
