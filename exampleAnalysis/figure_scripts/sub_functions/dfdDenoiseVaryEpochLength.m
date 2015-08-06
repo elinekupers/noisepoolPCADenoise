@@ -62,13 +62,14 @@ evalfun             = @(x)getbroadband(x,keep_frequencies,1000);  % function han
 epochDurs             = [1,3,6,12,24,36,72,inf]; %[1,3,6,12,24,36,72,inf];
 npcs                  = 10; %[5,10:10:70];
 
-allResults = [];
+
 
 % ------------------------------------------------------------------------
 % ------------------ Load and denoise data per subject -------------------
 % ------------------------------------------------------------------------
 
 for whichSubject = subjects
+    
     % ------------------ Load data and design ----------------------------
     tmp = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's0%d_sensorData.mat'),whichSubject)); sensorData = tmp.sensorData;
     tmp = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's0%d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
@@ -92,6 +93,7 @@ for whichSubject = subjects
     sensorData = permute(sensorData, [3 1 2]);  
 
     % ------------------ Loop over Epoch length & nr PCs -----------------
+    allResults = [];
     for ii = 1:length(epochDurs) % iterate through epoch duration fo doing PCA
         
         if isinf(epochDurs(ii))
@@ -100,8 +102,8 @@ for whichSubject = subjects
             epochGroup = megEpochGroup(~badEpochs,epochDurs(ii),0);
         end
         
-        clear results;
         opt.epochgroup = epochGroup;
+        clear results;
         fprintf('epochDur = %d; %d epochs\n', epochDurs(ii), max(epochGroup));
         
         for jj = 1:length(npcs) % iterate through number of PCs projected out 
@@ -109,12 +111,12 @@ for whichSubject = subjects
             opt.npcs2try   = [];
             fprintf('\tnpcs = %d\n', npcs(jj));
             
-%             if jj == 1
-%                 [results] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
-%                 noisepooldef = results.noisepool;
-%             else
+            if jj == 1
                 [results] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
-%             end
+                noisepooldef = results.noisepool;
+            else
+                [results] = denoisedata(design,sensorData,noisepooldef,evalfun,opt);
+            end
             allResults{ii,jj} = results;
         end
     end
