@@ -11,6 +11,11 @@ condition_codes = [1 5 7 3]; % arbitrary codes assigned to conditions
 block_order     = [1 4 2 4 3 4]; % full/blank, left/blank, right/blank
 num_repeats     = 1;
 stimulus_locked_frequency = 12;
+num_noise_basis                 = 10; % number of independent bases for correlated noise
+response_amp.uncorrelated_noise = 1;
+response_amp.stimulus_locked    = 2;
+response_amp.broadband          = 2;
+response_amp.correlated_noise   = 5;
 
 % --------- derived -------------------------
 num_blocks        = length(block_order) * num_repeats;
@@ -64,36 +69,65 @@ sensorData = zeros(samples_per_epoch, num_epochs, num_channels);
 
 t = (1:1000)/fs;
 
-% STIMULUS LOCKED
+% ------------------------STIMULUS LOCKED --------------------------------
+%
 % make an example stimulus-locked response
-stimulus_locked = 100*sin(2*pi*t*stimulus_locked_frequency);
+stimulus_locked =  response_amp.stimulus_locked * 2 * ...
+    sin(2*pi*t*stimulus_locked_frequency);
 
 % for full field epochs, fill the left and right sensor data with stimulus
 % locked time series
 sz = size(sensorData(:,conditions==1, [channels.left channels.right]));
-sensorData(:,conditions==1, [channels.left channels.right]) = repmat(stimulus_locked(:), [1 sz(2) sz(3)]);
+sensorData(:,conditions==1, [channels.left channels.right]) = ...
+    repmat(stimulus_locked(:), [1 sz(2) sz(3)]);
 
 % for left field epochs, fill the left sensor data with stimulus locked time series
 sz = size(sensorData(:,conditions==5, [channels.left]));
-sensorData(:,conditions==1, [channels.left]) = repmat(stimulus_locked(:), [1 sz(2) sz(3)]);
+sensorData(:,conditions==5, [channels.left]) = ...
+    repmat(stimulus_locked(:), [1 sz(2) sz(3)]);
 
 % for right field epochs, fill the left sensor data with stimulus locked time series
 sz = size(sensorData(:,conditions==7, [channels.right]));
-sensorData(:,conditions==1, [channels.right]) = repmat(stimulus_locked(:), [1 sz(2) sz(3)]);
+sensorData(:,conditions==7, [channels.right]) = ...
+    repmat(stimulus_locked(:), [1 sz(2) sz(3)]);
 
-% BROADBAND
+% ------------------------BROADBAND  --------------------------------
+% 
 % for full field epochs, fill the left and right sensor data with broadband time series
 sz = size(sensorData(:,conditions==1, [channels.left channels.right]));
-sensorData(:,conditions==1, [channels.left channels.right]) = zscore(randn(sz));
+sensorData(:,conditions==1, [channels.left channels.right]) = ...
+    sensorData(:,conditions==1, [channels.left channels.right]) + ...
+    response_amp.broadband * zscore(randn(sz));
 
 % for left field epochs, fill the left sensor data with broadband time series
 sz = size(sensorData(:,conditions==1, [channels.left]));
-sensorData(:,conditions==5, [channels.left]) = zscore(randn(sz));
+sensorData(:,conditions==5, [channels.left]) = ...
+    sensorData(:,conditions==5, [channels.left]) + ...
+    response_amp.broadband * zscore(randn(sz));
 
 % for right field epochs, fill the right sensor data with broadband time series
 sz = size(sensorData(:,conditions==7, [channels.right]));
-sensorData(:,conditions==7, [channels.right]) = zscore(randn(sz));
+sensorData(:,conditions==7, [channels.right]) = ...
+    sensorData(:,conditions==7, [channels.right]) + ...
+    response_amp.broadband * zscore(randn(sz));
+
+% ------------------------Uncorrelated Noise  ----------------------------
+% add white noise to all channels, all conditions
+sensorData = sensorData + ...
+    response_amp.uncorrelated_noise * zscore(randn(samples_per_epoch, num_epochs, num_channels));
 
 
+% ------------------------Correlated Noise  ----------------------------
+% 
+
+correlated_basis = randn(samples_per_epoch * num_epochs, num_noise_basis);
+mixing_matrix    = randn(num_noise_basis, num_channels);
+mixing_matrix    = bsxfun(@rdivide, mixing_matrix, sqrt(sum(mixing_matrix.^2)));
+correlated_noise = correlated_basis * mixing_matrix;
+correlated_noise = reshape(correlated_noise, samples_per_epoch, num_epochs, num_channels);
+
+sensorData       = sensorData + correlated_noise * response_amp.correlated_noise;
+    
+% ------------------------ Save it -------------------------------------
 save('s99_sensorData', 'sensorData');
 
