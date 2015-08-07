@@ -39,13 +39,13 @@ badChannelThreshold = 0.2;
 badEpochThreshold   = 0.2;
 dataChannels        = 1:157;
 use3Channels        = false;
-removeFirstEpoch    = true;
+removeFirstEpoch    = false;
 
 %% Get frequencies to define stimuluslocked and asynchronous broadband power
 % Exclude all frequencies that are close to a multiple of the
 % stimulus-locked frequency
 f           = 1:150; % Used frequencies
-tol         = 1;     % Tolerance for finding stimulus-locked frequency
+tol         = 1.5;     % Tolerance for finding stimulus-locked frequency
 sl_freq     = 12;    % Stimulus-locked frequency
 sl_freq_i   = 13;    % We need to use the sl_freq +1 to get the correct index
 sl_drop     = f(mod(f, sl_freq) <= tol | mod(f, sl_freq) > sl_freq - tol);
@@ -61,7 +61,7 @@ lf_drop     = f(f<60);
 % broadband power
 [~, ab_i]   = setdiff(f, [sl_drop ln_drop lf_drop]);
 
-keep_frequencies    = @(x) x(ab_i);
+keep_frequencies    = @(x) x(ab_i+1);
 
 % Define functions to define noise pool and signal of interest
 evokedfun           = @(x)getstimlocked(x,sl_freq_i); % function handle to determine noise pool
@@ -155,7 +155,7 @@ for whichSubject = subjects
         elseif removeFirstEpoch
             fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s0%d_denoisedData' postFix '_rm1epoch']),whichSubject);
         else
-            fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s0%d_denoisedData' postFix]), whichSubject);   
+            fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s0%d_denoisedData' postFix '_test1']), whichSubject);   
         end
         
         % ----------------- Save denoised broadband data -----------------
