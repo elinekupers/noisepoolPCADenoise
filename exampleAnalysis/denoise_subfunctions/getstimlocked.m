@@ -1,4 +1,4 @@
-function sl = getstimlocked(data,which_freq)
+function sl = getstimlocked(data,indexed_frequency)
 
 % get the response amplitude at the stimulus locked frequency
 % INPUT
@@ -10,11 +10,11 @@ function sl = getstimlocked(data,which_freq)
 
 % check input 
 if notDefined('which_freq')
-    which_freq = 12;
+    indexed_frequency = 13; % corresponds to 12 Hz at 1 Hz spacing
 end
 
 % Fourier transform data, take power of relevant frequency
 spec = fft(data,[],2);
-sl   = abs(squeeze(spec(:,which_freq,:)))' / size(data,2)*2;
+sl   = abs(squeeze(spec(:,indexed_frequency,:)))' / size(data,2)*2;
 
 return

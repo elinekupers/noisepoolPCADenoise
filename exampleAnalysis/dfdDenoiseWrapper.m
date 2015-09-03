@@ -41,13 +41,13 @@ dataChannels        = 1:157;
 use3Channels        = false;
 removeFirstEpoch    = false;
 
-%% Get frequencies to define stimuluslocked and asynchronous broadband power
-% Exclude all frequencies that are close to a multiple of the
-% stimulus-locked frequency
-f           = 1:150; % Used frequencies
-tol         = 1.5;     % Tolerance for finding stimulus-locked frequency
-sl_freq     = 12;    % Stimulus-locked frequency
-sl_freq_i   = 13;    % We need to use the sl_freq +1 to get the correct index
+%% Get frequencies to define stimulus locked and asynchronous broadband power
+% Data are sampled at 1000 Hz and epoched in one-second bins. Hence
+% frequencies are resolved in 1 Hz increments, 0:999 Hz
+f           = 0:150;   % limit frequencies to [0 150] Hz
+sl_freq     = 12;      % Stimulus-locked frequency
+sl_freq_i   = sl_freq + 1;
+tol         = 1.5;     % exclude frequencies within +/- tol of sl_freq
 sl_drop     = f(mod(f, sl_freq) <= tol | mod(f, sl_freq) > sl_freq - tol);
    
 % Exclude all frequencies that are close to a multiple of the
@@ -61,7 +61,7 @@ lf_drop     = f(f<60);
 % broadband power
 [~, ab_i]   = setdiff(f, [sl_drop ln_drop lf_drop]);
 
-keep_frequencies    = @(x) x(ab_i+1);
+keep_frequencies    = @(x) x(ab_i);
 
 % Define functions to define noise pool and signal of interest
 evokedfun           = @(x)getstimlocked(x,sl_freq_i); % function handle to determine noise pool
@@ -89,7 +89,7 @@ switch howToDenoise % Define denoise other parameters (see denoisedata.m)
         optbb                 = opt;
         optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
         nrControlModes        = 0;
-        postFix               = 'full';
+        postFix               = '_full';
         
     case 3 % Denoise with various control modes
         opt.pcchoose          = -10;     % Take 10 PCs
@@ -107,8 +107,8 @@ end
 
 for whichSubject = subjects
     % ------------------ Load data and design ----------------------------
-    tmp = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's0%d_sensorData.mat'),whichSubject)); sensorData = tmp.sensorData;
-    tmp = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's0%d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
+    tmp = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's%02d_sensorData.mat'),whichSubject)); sensorData = tmp.sensorData;
+    tmp = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's%02d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
     
     % ------------------ Make design matrix ------------------------------
     design = zeros(length(conditions), 3);
@@ -151,11 +151,11 @@ for whichSubject = subjects
         
         % ------------------ Define file name ---------------------------
         if use3Channels
-            fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s0%d_denoisedData' postFix '_w3chan']),whichSubject);
+            fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s%02d_denoisedData' postFix '_w3chan']),whichSubject);
         elseif removeFirstEpoch
-            fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s0%d_denoisedData' postFix '_rm1epoch']),whichSubject);
+            fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s%02d_denoisedData' postFix '_rm1epoch']),whichSubject);
         else
-            fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s0%d_denoisedData' postFix '_test1']), whichSubject);   
+            fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s%02d_denoisedData' postFix]), whichSubject);   
         end
         
         % ----------------- Save denoised broadband data -----------------
@@ -165,5 +165,5 @@ for whichSubject = subjects
         [results,evalout] = denoisedata(design,sensorData,evokedfun,evokedfun,optsl);
         parsave([fname '_sl.mat'], 'results', results, 'evalout', evalout, 'badChannels', badChannels, 'badEpochs', badEpochs, 'opt', optsl)
     end
-    if opt.verbose, sprintf('(%s) done denoising dataset subject s0%d with control number %d\n',mfilename,whichSubject,nrControl); end
+    if opt.verbose, sprintf('(%s) done denoising dataset subject s%02d with control number %d\n',mfilename,whichSubject,nrControl); end
 end
