@@ -19,9 +19,9 @@ function dfdEyeScript(subjects)
 % =========================================================================
 
 % Check input
-if subjects < 6; disp('Subject does not have eye tracking data'); end;
+if subjects < 6; disp('WARNING: Subject does not have eye tracking data'); end;
 
-% Note: Think about how whether putting these functions in our repository
+% Note: Think about how putting these functions in our repository
 toolbox_pth = '/Volumes/server/Projects/MEG/Eyetracking_scripts/';
 
 
@@ -56,7 +56,7 @@ for whichSubject = subjects
     % ================ Get eye traces (blinks are removed) ================
     % =====================================================================
     
-    % Figure out the start and end time of your experiment, which will be a
+    % Define the start and end time of experiment, which will be a
     % an argument for the msGetEyeData function.
     % Blink window is pretty conservative right now. could be [-0.1,0.1] (100
     % ms either way)
@@ -70,7 +70,7 @@ for whichSubject = subjects
     % ===================== Get triggers and timings ======================
     % =====================================================================
     
-    % Use MEG messages to get the eyemovements for separate conditions
+    % Use MEG messages to get the eye movements for the different conditions
     
     % ------------- Delete irrelevant messages ----------------------------
     eyd.messages = eyd.messages(1,startTime:end);
@@ -87,15 +87,31 @@ for whichSubject = subjects
     % ------------- Add triggers for the blank periods --------------------
     onsets = ssmeg_trigger_2_onsets(triggers, whichSubject, 'eye');
     
+    % --------- Delete last 12 epochs since those are not recorded ---------
+    onsets = onsets(1:end-12);
+    
+    % Extract conditions from triggers and add blanks to conditions vector
+    A = triggers(1:12:end-12,1);
+    conditions = zeros(2*length(A),1);
+    
+    indices = 1:12:length(A);
+    
+    %% Not ready yet, figure out how to implement blank conditions in conditions vector
+    for ii = indices
+            conditions(ii:ii+5) = A(ii:ii+5);
+            conditions(ii+6:ii+11) = 3*ones(6,1);   
+    end
+    
+    
     % ------------- Define epochs in variables of eyetracking data --------
-    [eyets, ~]   = meg_make_epochs(s.time, onsets, [0 .999], 1000);
-    [eyexPos, ~] = meg_make_epochs(s.xyPos(:,1), onsets, [0 .999], 1000);
-    [eyeyPos, ~] = meg_make_epochs(s.xyPos(:,2), onsets, [0 .999], 1000);
-    [eyexVel, ~] = meg_make_epochs(s.xyVel(:,1), onsets, [0 .999], 1000);
-    [eyeyVel, ~] = meg_make_epochs(s.xyVel(:,2), onsets, [0 .999], 1000);
+    [eyets, ~]   = meg_make_epochs(s.time, onsets, [0 .999], 1000, 'eye');
+    [eyexPos, ~] = meg_make_epochs(s.xyPos(:,1), onsets, [0 .999], 1000, 'eye');
+    [eyeyPos, ~] = meg_make_epochs(s.xyPos(:,2), onsets, [0 .999], 1000, 'eye');
+    [eyexVel, ~] = meg_make_epochs(s.xyVel(:,1), onsets, [0 .999], 1000, 'eye');
+    [eyeyVel, ~] = meg_make_epochs(s.xyVel(:,2), onsets, [0 .999], 1000, 'eye');
         
     % ------------- Make design matrix ------------------------------------
-    design = zeros(size(eyets,2),3);
+    design = zeros(size(onsets,1),3);
     design(conditions==1,1) = 1; % condition 1 is full field
     design(conditions==5,2) = 1; % condition 5 is left field
     design(conditions==7,3) = 1; % condition 7 is right field

@@ -33,8 +33,8 @@ switch whichFigure
         data = {sensorData,denoisedts}; 
         
     case 5
-        bb = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_rm1epoch_bb.mat'),whichSubject));
-        sl = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_rm1epoch_sl.mat'),whichSubject));
+        bb = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_bb.mat'),whichSubject));
+        sl = load(sprintf(fullfile(dataDir, 's0%d_denoisedData_sl.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's0%d_conditions.mat'),whichSubject));
         
         data = {bb,sl};

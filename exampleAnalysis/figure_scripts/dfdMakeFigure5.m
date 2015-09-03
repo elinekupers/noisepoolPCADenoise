@@ -15,7 +15,7 @@ function dfdMakeFigure5()
 
 %% Choices to make:                                              
 whichSubject    = 1;        % Subject 1 is the example subject.
-figureDir       = fullfile(dfdRootPath, 'exampleAnalysis', 'figures_rm1epoch'); % Where to save images?
+figureDir       = fullfile(dfdRootPath, 'exampleAnalysis', 'figures'); % Where to save images?
 dataDir         = fullfile(dfdRootPath, 'exampleAnalysis', 'data');    % Where to save data?
 saveFigures     = true;     % Save figures in the figure folder?
 
