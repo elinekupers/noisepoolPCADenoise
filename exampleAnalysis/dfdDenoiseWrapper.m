@@ -39,7 +39,7 @@ badChannelThreshold = 0.2;
 badEpochThreshold   = 0.2;
 dataChannels        = 1:157;
 use3Channels        = false;
-removeFirstEpoch    = false;
+removeFirstEpoch    = true;
 
 %% Get frequencies to define stimulus locked and asynchronous broadband power
 % Data are sampled at 1000 Hz and epoched in one-second bins. Hence
