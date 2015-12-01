@@ -1,6 +1,6 @@
-function dfdMakeFigure5AcrossSubjects()
+function dfdMakeFigure8AcrossSubjects()
 
-%% Function to reproduce Figure 5 (Spatialmap) across all subjects
+%% Function to reproduce Figure 8 (Spatialmap) across all subjects
 %
 % dfdMakeFigure5AcrossSubjects()
 %
@@ -37,27 +37,26 @@ for whichSubject = whichSubjects
     
     data = prepareData(dataDir,whichSubject,5);
     bb(whichSubject,:) = data{1};
-    sl(whichSubject,:) = data{2};
     
     % SL
-    num_channels = size(sl(whichSubject).results.origmodel.beta,2);
-    num_boots    = size(sl(whichSubject).results.origmodel.beta,3);
+    num_channels = size(bb(whichSubject).results.origmodel.beta,2);
+    num_boots    = size(bb(whichSubject).results.origmodel.beta,3);
     num_contrasts = length(contrasts);
     
-    tmp_data = reshape(sl(whichSubject).results.origmodel.beta,3,[]);
-    tmp = contrasts*tmp_data;
-    tmp = reshape(tmp, num_contrasts, num_channels, num_boots);
-    snrSL = computeSNR(tmp)';
-    
-    % BB before
     tmp_data = reshape(bb(whichSubject).results.origmodel.beta,3,[]);
     tmp = contrasts*tmp_data;
+    tmp = reshape(tmp, num_contrasts, num_channels, num_boots);
+    snrBBB = computeSNR(tmp)';
+    
+    % BB before
+    tmp_data = reshape(bb(whichSubject).results.finalmodel.beta,3,[]);
+    tmp = contrasts*tmp_data;
     tmp = reshape(tmp, num_contrasts, num_channels,num_boots);
-    snrBB = computeSNR(tmp)';
+    snrBBA = computeSNR(tmp)';
     
     
-    snrSLAcrossSubjects(:,:,whichSubject) = to157chan(snrSL', ~sl(whichSubject).badChannels,'nans');
-    snrBBAcrossSubjects(:,:,whichSubject) = to157chan(snrBB', ~bb(whichSubject).badChannels,'nans');
+    snrBBBAcrossSubjects(:,:,whichSubject) = to157chan(snrBBB', ~bb(whichSubject).badChannels,'nans');
+    snrBBAAcrossSubjects(:,:,whichSubject) = to157chan(snrBBA', ~bb(whichSubject).badChannels,'nans');
     
 end
 
@@ -69,10 +68,10 @@ condNames = {'Stim Full','Stim Left','Stim Right'};
 for icond = 1:length(contrasts)
     
     % get stimulus-locked snr
-    sl_snr1 = nanmean(snrSLAcrossSubjects,3);
+    ab_snr1 = nanmean(snrBBBAcrossSubjects,3);
     
     % get broadband snr for before
-    ab_snr1 = nanmean(snrBBAcrossSubjects,3);
+    ab_snr2 = nanmean(snrBBAAcrossSubjects,3);
     
     if icond == 4;
         clims_sl = [-10,10];
@@ -86,25 +85,25 @@ for icond = 1:length(contrasts)
     end
     
     % plot spatial maps
-    subplot(4,2,(icond-1)*2+1)
-    [~,ch] = megPlotMap(sl_snr1(icond,:),clims_sl,gcf,'jet',sprintf('%s : Stimulus Locked Original', contrastNames{icond}));
-    makeprettyaxes(gca,9,9);
-    makeprettyaxes(ch,9,9);
-    title(sprintf('SL no DN %s', contrastNames{icond}))
+%     subplot(4,2,(icond-1)*2+1)
+%     [~,ch] = megPlotMap(sl_snr1(icond,:),clims_sl,gcf,'jet',sprintf('%s : Stimulus Locked Original', contrastNames{icond}));
+%     makeprettyaxes(gca,9,9);
+%     makeprettyaxes(ch,9,9);
+%     title(sprintf('SL no DN %s', contrastNames{icond}))
     
-    subplot(4,2,(icond-1)*2+2)
+    subplot(4,2,(icond-1)*2+1)
     [~,ch] = megPlotMap(ab_snr1(icond,:),clims_ab,gcf,'jet',sprintf('%s Original', contrastNames{icond}));
     makeprettyaxes(gca,9,9);
     makeprettyaxes(ch,9,9);
     title(sprintf('Broadband Pre %s', contrastNames{icond}))
     
-    %     subplot(3,3,(icond-1)*3+3)
-    %     [~,ch] = megPlotMap(ab_snr2a,clims_ab,gcf,'jet',sprintf('%s : Denoised PC %d',condNames{icond}, bb.results.pcnum(1)));
-    %     makeprettyaxes(gca,9,9);
-    %     makeprettyaxes(ch,9,9);
-    %     title(sprintf('Broadband Post %s', condNames{icond}))
+    subplot(4,2,(icond-1)*2+2)
+    [~,ch] = megPlotMap(ab_snr2(icond,:),clims_ab,gcf,'jet',sprintf('%s : Denoised PC %02d',contrastNames{icond}, bb(1).results.pcnum(1)));
+    makeprettyaxes(gca,9,9);
+    makeprettyaxes(ch,9,9);
+    title(sprintf('Broadband Post %s', contrastNames{icond}))
 end
 
 if saveFigures
-    figurewrite(sprintf(fullfile(figureDir,'figure5_AcrossSubject%d'),whichSubject),[],0,'.',1);
+    figurewrite(sprintf(fullfile(figureDir,'figure8_AcrossSubject%d'),whichSubject),[],0,'.',1);
 end
