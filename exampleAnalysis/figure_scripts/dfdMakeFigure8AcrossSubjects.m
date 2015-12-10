@@ -94,13 +94,13 @@ for icond = 1:length(contrasts)
 %     title(sprintf('SL no DN %s', contrastNames{icond}))
     
     subplot(4,2,(icond-1)*2+1)
-    [~,ch] = megPlotMap(ab_snr1(icond,:),clims_ab,gcf,'jet',sprintf('%s Original', contrastNames{icond}));
+    [~,ch] = megPlotMap(ab_snr1(icond,:),clims_ab,gcf,'parula',sprintf('%s Original', contrastNames{icond}));
     makeprettyaxes(gca,9,9);
     makeprettyaxes(ch,9,9);
     title(sprintf('Broadband Pre %s', contrastNames{icond}))
     
     subplot(4,2,(icond-1)*2+2)
-    [~,ch] = megPlotMap(ab_snr2(icond,:),clims_ab,gcf,'jet',sprintf('%s : Denoised PC %02d',contrastNames{icond}, bb(1).results.pcnum(1)));
+    [~,ch] = megPlotMap(ab_snr2(icond,:),clims_ab,gcf,'parula',sprintf('%s : Denoised PC %02d',contrastNames{icond}, bb(1).results.pcnum(1)));
     makeprettyaxes(gca,9,9);
     makeprettyaxes(ch,9,9);
     title(sprintf('Broadband Post %s', contrastNames{icond}))
