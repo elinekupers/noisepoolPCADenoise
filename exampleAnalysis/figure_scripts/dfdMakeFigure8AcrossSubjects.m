@@ -22,7 +22,9 @@ saveFigures     = true;     % Save figures in the figure folder?
 
 %% Compute SNR across subjects
 contrasts = [1 0 0; 0 1 0; 0 0 1; 0 1 -1]; % Full, Left, Right and L-R
-computeSNR = @(x) nanmean(x,3) ./ nanstd(x, [], 3);
+% computeSNR = @(x) nanmean(x,3) ./ nanstd(x, [], 3);
+computeSignal = @(x) nanmean(x,3);
+
 
 contrastNames = {
     'Full'...
@@ -46,17 +48,17 @@ for whichSubject = whichSubjects
     tmp_data = reshape(bb(whichSubject).results.origmodel.beta,3,[]);
     tmp = contrasts*tmp_data;
     tmp = reshape(tmp, num_contrasts, num_channels, num_boots);
-    snrBBB = computeSNR(tmp)';
+    sBBB = computeSignal(tmp)';
     
     % BB before
     tmp_data = reshape(bb(whichSubject).results.finalmodel.beta,3,[]);
     tmp = contrasts*tmp_data;
     tmp = reshape(tmp, num_contrasts, num_channels,num_boots);
-    snrBBA = computeSNR(tmp)';
+    sBBA = computeSignal(tmp)';
     
     
-    snrBBBAcrossSubjects(:,:,whichSubject) = to157chan(snrBBB', ~bb(whichSubject).badChannels,'nans');
-    snrBBAAcrossSubjects(:,:,whichSubject) = to157chan(snrBBA', ~bb(whichSubject).badChannels,'nans');
+    sBBBAcrossSubjects(:,:,whichSubject) = to157chan(sBBB', ~bb(whichSubject).badChannels,'nans');
+    sBBAAcrossSubjects(:,:,whichSubject) = to157chan(sBBA', ~bb(whichSubject).badChannels,'nans');
     
 end
 
@@ -68,10 +70,10 @@ condNames = {'Stim Full','Stim Left','Stim Right'};
 for icond = 1:length(contrasts)
     
     % get stimulus-locked snr
-    ab_snr1 = nanmean(snrBBBAcrossSubjects,3);
+    ab_snr1 = nanmean(sBBBAcrossSubjects,3) ./ (std(sBBBAcrossSubjects, [],3)/8);
     
     % get broadband snr for before
-    ab_snr2 = nanmean(snrBBAAcrossSubjects,3);
+    ab_snr2 = nanmean(sBBAAcrossSubjects,3) ./ (std(sBBAAcrossSubjects, [],3)/8);
     
     if icond == 4;
         clims_sl = [-10,10];
