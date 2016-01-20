@@ -13,7 +13,7 @@ cd /scratch/ek99/denoiseproject/
 # If the files you are running are not in the same folder as this script,
 # you can insert "addpath(genpath('/PATH/TO/FILES/'));" before the command
 # you want to run.
-matlab -nodisplay -r "addpath(genpath('/scratch/ek99/denoiseproject')); dfdAddPaths; dfdDenoiseWrapper(1:8); exit()"
+matlab -nodisplay -r "addpath(genpath('/scratch/ek99/denoiseproject')); dfdAddPaths; dfdDenoiseWrapper(9:12); exit()"
 
 exit
 
