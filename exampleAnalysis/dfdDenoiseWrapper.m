@@ -164,7 +164,7 @@ for whichSubject = subjects
         
         % ------------- Combine channels if NeuroMag360 data -------------
         if whichSubject > 8          
-            [results, evalout] = dfdCombinePlanarChannels(whichSubject, denoisedts, badEpochs); 
+            [results, evalout] = dfdCombinePlanarChannels(whichSubject, denoisedts, design, badEpochs, sl_freq_i, keep_frequencies); 
         end
         
         
