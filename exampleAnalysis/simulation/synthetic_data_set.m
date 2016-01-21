@@ -1,4 +1,4 @@
-% Create synthetic data set for vaildation of MEG denoisedata pipeline
+% Create synthetic data set for validation of MEG denoisedata pipeline
 
 %% specify simulation parameters
 
