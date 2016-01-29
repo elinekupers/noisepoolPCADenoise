@@ -52,7 +52,7 @@ for whichSubject = whichSubjects
     sSL = computeSignal(tmp)';
     
     % BB before
-    tmp_data = reshape(bb(whichSubject).results.finalmodel.beta,3,[]);
+    tmp_data = reshape(bb(whichSubject).results.origmodel.beta,3,[]);
     tmp = contrasts*tmp_data;
     tmp = reshape(tmp, num_contrasts, num_channels,num_boots);
     sBB = computeSignal(tmp)';
@@ -110,5 +110,5 @@ for icond = 1:numel(contrastNames)
 end
 
 if saveFigures
-    figurewrite(sprintf(fullfile(figureDir,'figure5_AcrossSubject%d_bipolar_post_BB'),whichSubject),[],0,'.',1);
+    figurewrite(sprintf(fullfile(figureDir,'figure5_AcrossSubject%d_bipolar_SL_pre_BB'),whichSubject),[],0,'.',1);
 end

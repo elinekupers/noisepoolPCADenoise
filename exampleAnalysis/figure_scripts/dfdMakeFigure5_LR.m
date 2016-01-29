@@ -21,7 +21,8 @@ sl_snr1_R = getsignalnoise(sl.results.origmodel(1), 3, 'SNR');
 
 
 %clims_sl = [0, max(sl_snr1)];
-clims_sl = [-25.6723,25.6723];
+% clims_sl = [-25.6723,25.6723];
+clims_sl = 
 
 ab_snr1_L = getsignalnoise(bb.results.origmodel(1),  2, 'SNR');
 ab_snr1_R = getsignalnoise(bb.results.origmodel(1),  3, 'SNR');

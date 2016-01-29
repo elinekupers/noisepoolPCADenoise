@@ -21,7 +21,7 @@ epochs = epochs(~badEpochs);
 dataRaw.trial = repmat({zeros(204,1000)},size(epochs,2),1);
 
 % Put the denoised data (epoched into 1000 ms epochs) into fieldtrip struct
-dataRaw.trial = epoch2trial(dataRaw.trial, denoisedts{1});
+dataRaw.trial = epoch2trial(dataRaw.trial, denoisedts{1}(:,:,epochs));
 
 % Combine planar gradiometers
 dataRaw.cfg.demean  = 'no';
@@ -29,17 +29,18 @@ dataRaw.cfg.trials  = 'all';
 dataCombined    = ft_combineplanar(dataRaw.cfg, dataRaw);
 
 % Transform back to one array: channels x time x epochs
-sensorData = catcell(3, dataCombined.trial);
+denoisedts = catcell(3, dataCombined.trial);
 
 
 
 % Run algorithm again without denoising to get results back in the right
 % format
+opt.preprocessfun = [];
 opt.npcs2try    = 0;
 opt.pcchoose    = 0;
 evokedfun       = @(x)getstimlocked(x,sl_freq_i);
 evalfun         = @(x)getbroadband(x,keep_frequencies,1000);
 
-[results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
+[results,evalout] = denoisedata(design,denoisedts,evokedfun,evalfun,opt);
 
 return
