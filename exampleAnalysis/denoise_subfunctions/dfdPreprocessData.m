@@ -66,7 +66,7 @@ if verbose
 end
 
 % Interpolate epochs over neighbouring channels
-sensorData = dfdChannelRepair(sensorDataIn, outliers, 'nearest');
+sensorData = dfdChannelRepair(sensorDataIn, outliers, 'nearest','neuromag360xyz');
 
 % Denoise with three environmental channels
 if use3channels

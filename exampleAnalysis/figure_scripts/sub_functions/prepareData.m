@@ -5,8 +5,8 @@ switch whichFigure
         % Load denoised data
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_sensorData.mat'),whichSubject));
-        load(sprintf(fullfile(dataDir, 's%02d_denoisedData_10_0_bb.mat'),whichSubject));
-        load(sprintf(fullfile(dataDir, 's%02d_denoisedts.mat'),whichSubject));
+        load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));
+        load(sprintf(fullfile(dataDir, 's%02d_denoisedts_rm1epoch.mat'),whichSubject));
         
         
         exampleChannel = 42;
@@ -29,13 +29,13 @@ switch whichFigure
         sensorData = permute(sensorData, [3 1 2]);
         
         % time domain data before and after denoising
-        denoisedts = eval(sprintf('s%02d_denoisedts',whichSubject));
+        denoisedts = denoiseddata;
         data = {sensorData,denoisedts}; 
         
     case 5
 
-        bb = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject));
-        sl = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_sl.mat'),whichSubject));
+        bb = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));
+        sl = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_sl.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
 
         
@@ -46,15 +46,15 @@ switch whichFigure
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         
     case 7
-        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject));
+        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         
     case 8
-        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject));
+        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         
     case 9
-        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject));
+        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         
     case 10
@@ -66,7 +66,7 @@ switch whichFigure
         data = {data,data_controls};
         
     case 11
-        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_full_sl.mat'),whichSubject));
+        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_sl.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         
     case 12

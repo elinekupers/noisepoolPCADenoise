@@ -1,5 +1,4 @@
 function [fH,ch] = megPlotMap(vals,clims,fH,cm,ttl)
-% stylize plotOnEgi map the way we want it to look
 
 if notDefined('cm'),     cm = 'jet';    end  % colormap
 if notDefined('ttl');    ttl = '';      end  % title string

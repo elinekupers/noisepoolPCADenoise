@@ -37,9 +37,13 @@ end
 varThreshold        = [0.05 20];
 badChannelThreshold = 0.2;
 badEpochThreshold   = 0.2;
-dataChannels        = 1:157;
+if subjects < 9
+    dataChannels        = 1:157;
+else
+    dataChannels        = 1:204;
+end
 use3Channels        = false;
-removeFirstEpoch    = false;
+removeFirstEpoch    = true;
 
 %% Get frequencies to define stimulus locked and asynchronous broadband power
 % Data are sampled at 1000 Hz and epoched in one-second bins. Hence
@@ -141,12 +145,12 @@ for whichSubject = subjects
             optbb.pccontrolmode   = nrControl;
             if nrControl == 0;    % do nothing to postFix in filename
             else postFix          = sprintf('_control%d',nrControl); end
-            [results,evalout]     = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
+            [results,evalout, ~, denoisedts] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
         elseif nrControl == 5
             optbb.pccontrolmode   = 0;
             optbb.npoolmethod     = {'r2','n',size(sensorData,1)};
             postFix               = sprintf('_control%d',nrControl);
-            [results,evalout]     = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
+            [results,evalout, ~, denoisedts] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
         end
         
         % ------------------ Define file name ---------------------------
@@ -158,6 +162,12 @@ for whichSubject = subjects
             fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s%02d_denoisedData' postFix]), whichSubject);   
         end
         
+        % ------------- Combine channels if NeuroMag360 data -------------
+        if whichSubject > 8          
+            [results, evalout] = dfdCombinePlanarChannels(whichSubject, denoisedts, design, badEpochs, sl_freq_i, keep_frequencies); 
+        end
+        
+        
         % ----------------- Save denoised broadband data -----------------
         parsave([fname '_bb.mat'], 'results', results, 'evalout', evalout, 'badChannels', badChannels, 'badEpochs', badEpochs, 'opt', optbb)
         
@@ -166,4 +176,6 @@ for whichSubject = subjects
         parsave([fname '_sl.mat'], 'results', results, 'evalout', evalout, 'badChannels', badChannels, 'badEpochs', badEpochs, 'opt', optsl)
     end
     if opt.verbose, sprintf('(%s) done denoising dataset subject s%02d with control number %d\n',mfilename,whichSubject,nrControl); end
+    
+    
 end

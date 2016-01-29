@@ -18,7 +18,7 @@ function dfdMakeFigure7()
 %% Choices to make:
 whichSubjects        = 1:8; 
 dataDir              = fullfile(dfdRootPath, 'exampleAnalysis', 'data');   % Where to save data?
-figureDir            = fullfile(dfdRootPath, 'exampleAnalysis', 'figures');% Where to save images?
+figureDir            = fullfile(dfdRootPath, 'exampleAnalysis', 'figures_rm1epoch');% Where to save images?
 saveFigures          = true;     % Save figures in the figure folder?
 exampleSessions      = [3,4,5];  % Helena's plot contained subjects [5,6,9]
 condColors           = [63, 121, 204; 228, 65, 69; 116,183,74]/255;

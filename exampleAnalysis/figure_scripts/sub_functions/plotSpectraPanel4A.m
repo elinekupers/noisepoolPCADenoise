@@ -8,7 +8,7 @@ xl = [8 150];
 fok = f;
 fok(f<=xl(1) | f>=xl(2) | mod(f,60) < 2 | mod(f,60) > 58 ) = [];
 xt = [12:12:72, 96,144];
-yt = 1:5;
+yt = 0:5;
 yl=[yt(1),yt(end)];
 
 exampleChannel = 42;
