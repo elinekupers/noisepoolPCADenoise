@@ -16,7 +16,7 @@ function dfdMakeFigure10()
 %% Choices to make:
 whichSubjects        = 1:8;
 dataDir              = fullfile(dfdRootPath, 'exampleAnalysis', 'data');   % Where to save data?
-figureDir            = fullfile(dfdRootPath, 'exampleAnalysis', 'figures');% Where to save images?
+figureDir            = fullfile(dfdRootPath, 'exampleAnalysis', 'figures_rm1epoch');% Where to save images?
 saveFigures          = true;   % Save figures in the figure folder?
 condColors           = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
 numOfControls        = 5;
@@ -50,9 +50,9 @@ for k = 1:length(whichSubjects)
 end
 
 %% Plot figure
-fH = figure('position',[0,300,700,200]);
+fH = figure('position',[0,300,700,300]);
 % define what the different conditions are 
-types = {'Original','Phase-scrambled','Order shuffled', 'Random Amplitude', 'Random PCs','All Noise'};
+types = {'MEG Denoise','Phase-scrambled','Order shuffled', 'Random Amplitude', 'Replace PCs with random values','All channels in noisepool'};
 % re-arrange the order of the bars 
 neworder = [1,3,4,2,5,6];
 newtypes = types(neworder);
@@ -69,8 +69,10 @@ for icond = 1:3
     % format figure and make things pretty 
     set(gca,'xlim',[0.2,nnull+0.8],'ylim',[-1,5]);
     makeprettyaxes(gca,9,9);
+    set(gca,'XTickLabel',types(neworder),'XTickLabelRotation',45)
+    ylabel('Difference in SNR (post-pre)')
 end
 
 if saveFigures
-    figurewrite(fullfile(figureDir,'figure10_allconds'),[],0,'.',1);
+    figurewrite(fullfile(figureDir,'figure10_control'),[],0,'.',1);
 end

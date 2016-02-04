@@ -8,7 +8,7 @@ function plotBeforeAfter(allresults, ...
 
 if notDefined('whichfun'), whichfun = 1;    end  % which function, if results contains more than one
 if notDefined('doTop10'),  doTop10  = true; end  % top 10 or all non-noise
-if notDefined('plotType'), plotType = 'snr'; end % snr, s, or n
+if notDefined('plotType'), plotType = 'SNR'; end % snr, s, or n
 if notDefined('whichConds'), whichConds = 1:3; end % 1:3, or 1, 2, 3 (full, right, left)
 if notDefined('funXchan'),  funXchan = @mean; end  % how to aggregate across chan (e.g.@mean or @median)
 
@@ -47,13 +47,13 @@ for k = 1:nsess
     
     % choose the values we want
     switch plotType
-        case 'snr'
+        case 'SNR'
             vals1 = max(ab_snr1(whichConds,:),[],1);
             vals2 = max(ab_snr2(whichConds,:),[],1);
-        case 's'
+        case 'Signal'
             vals1 = max(ab_signal1(whichConds,:),[],1);
             vals2 = max(ab_signal2(whichConds,:),[],1);
-        case 'n'
+        case 'Noise'
             vals1 = mean(ab_noise1(whichConds,:),1);
             vals2 = mean(ab_noise2(whichConds,:),1);
     end
@@ -71,8 +71,8 @@ for k = 1:nsess
     plot(1:2, [vals1all(k),vals2all(k)], 'o-', 'color', colors(k,:), 'linewidth',2);
 end
 xlim([0,3]);
-set(gca,'xtick',1:2,'xticklabel',{'Before','After'});
-ylabel(upper(plotType));
+set(gca,'xtick',1:2,'xticklabel',{'0 PCs','10 PCs'});
+ylabel(plotType);
 makeprettyaxes(gca,14,14); %axis square;
 % make title
 if ~iscell(doTop10)

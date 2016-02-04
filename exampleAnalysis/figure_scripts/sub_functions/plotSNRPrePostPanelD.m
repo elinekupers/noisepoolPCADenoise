@@ -15,16 +15,16 @@ colorRGB = varysat(condColors,satValues);
 fH = figure('position',[0,300,500,200]);
     for icond = 1:3
         subplot(1,3,icond);
-        plotBeforeAfter(allresults,1,allpcchan,'snr',icond,[],squeeze(colorRGB(icond,:,:)));
+        plotBeforeAfter(allresults,1,allpcchan,'SNR',icond,[],squeeze(colorRGB(icond,:,:)));
         xlim([0.5,2.5]);
         makeprettyaxes(gca,9,9);
-        if isequal(figureNumber,7);  ylim([0,12]);
+        if isequal(figureNumber,7);  ylim([0,6]);
         else ylim([0,40]); end;
     end
 
 if saveFigures
     if isequal(figureNumber,7)
-        figurewrite(fullfile(figureDir,'Figure7D_snrfull_sat'),[],0,'.',1);
+        figurewrite(fullfile(figureDir,'Figure7D_snrfull_sat_S8_Noise_3'),[],0,'.',1);
     elseif isequal(figureNumber,11)
         figurewrite(fullfile(figureDir,'Figure11D_snrfull_sat'),[],0,'.',1);
     end

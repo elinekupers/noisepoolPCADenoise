@@ -64,8 +64,16 @@ if verbose
     fprintf('(dfdPreprocessData): %5.2f%% of epochs removed\n', sum(sum(outliers))/(size(sensorDataIn,2)*size(sensorDataIn,3))*100);
 end
 
+% Check how many sensors there are, if there are more than 192, it will be
+% a neuromag360 dataset and we need a different layout for interpolation
+if size(sensorDataIn,3) > 192;
+    sensorPositions = 'neuromag360xyz';
+else
+    sensorPositions = [];
+end
+
 % Interpolate epochs over neighbouring channels
-sensorData = dfdChannelRepair(sensorDataIn, outliers, 'nearest','neuromag360xyz');
+sensorData = dfdChannelRepair(sensorDataIn, outliers, 'nearest',sensorPositions);
 
 % Denoise with three environmental channels
 if use3channels

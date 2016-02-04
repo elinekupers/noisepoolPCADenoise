@@ -34,7 +34,7 @@ end
 % ------------------------------------------------------------------------
 
 % Preprocessing parameters to remove bad channels and epochs (see dfdPreprocessData)
-varThreshold        = [0.05 20];
+varThreshold        = [0.05 20];%[0.05 30];
 badChannelThreshold = 0.2;
 badEpochThreshold   = 0.2;
 if subjects < 9
@@ -135,6 +135,13 @@ for whichSubject = subjects
     % ------------------ Permute sensorData for denoising ----------------
     sensorData = permute(sensorData, [3 1 2]);  
     
+    % ------------- Combine channels if NeuroMag360 data -------------
+    if whichSubject > 8
+        sensorData = dfdCombinePlanarChannels(whichSubject, sensorData, badEpochs);
+        optbb.npoolmethod = {'r2','n',50};
+        optsl.npoolmethod = {'r2','n',50};
+    end
+    
 % ------------------------------------------------------------------------
 % -------------------- Denoise and save the data -------------------------
 % ------------------------------------------------------------------------
@@ -161,13 +168,7 @@ for whichSubject = subjects
         else
             fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s%02d_denoisedData' postFix]), whichSubject);   
         end
-        
-        % ------------- Combine channels if NeuroMag360 data -------------
-        if whichSubject > 8          
-            [results, evalout] = dfdCombinePlanarChannels(whichSubject, denoisedts, design, badEpochs, sl_freq_i, keep_frequencies); 
-        end
-        
-        
+                
         % ----------------- Save denoised broadband data -----------------
         parsave([fname '_bb.mat'], 'results', results, 'evalout', evalout, 'badChannels', badChannels, 'badEpochs', badEpochs, 'opt', optbb)
         
