@@ -14,10 +14,18 @@ function dfdMakeFigure5()
 % function. 
 
 %% Choices to make:                                              
-whichSubject    = 3;        % Subject 1 is the example subject.
+whichSubject    = 9;        % Subject 1 is the example subject.
 figureDir       = fullfile(dfdRootPath, 'exampleAnalysis', 'figures_rm1epoch'); % Where to save images?
 dataDir         = fullfile(dfdRootPath, 'exampleAnalysis', 'data');    % Where to save data?
 saveFigures     = true;     % Save figures in the figure folder?
+threshold       = 2;        % Set threshold for colormap. If no threshold set value to 0
+
+if whichSubject > 8;
+    data_hdr        = 'neuromag360_sample_hdr_combined.mat';
+    cfg             = 'neuromag360_sample_cfg_combined.mat';
+else
+    data_hdr        = [];
+end
 
 %% Load denoised data of example subject
 [data] = prepareData(dataDir,whichSubject,5);
@@ -39,32 +47,39 @@ for icond = 1:3
     clims_ab = [0, 7.4445];
     %clims_ab = [0, max([ab_snr1, ab_snr2])];
     
-    % convert back into 157-channel space
-    ab_snr1a = to157chan(ab_snr1,~bb.badChannels,'nans');
-    ab_snr2a = to157chan(ab_snr2,~bb.badChannels,'nans');
-    sl_snr1a = to157chan(sl_snr1,~sl.badChannels,'nans');
+    if whichSubject < 9; % Assuming NeuroMag360 data has no badChannels (CHECK!)
+        % convert back into 157-channel space
+        ab_snr1 = to157chan(ab_snr1,~bb.badChannels,'nans');
+        ab_snr2 = to157chan(ab_snr2,~bb.badChannels,'nans');
+        sl_snr1 = to157chan(sl_snr1,~sl.badChannels,'nans');
+    end
     
+    % Set threshold
+    ab_snr1(abs(ab_snr1) < threshold) = 0;
+    ab_snr2(abs(ab_snr2) < threshold) = 0;
+    sl_snr1(abs(sl_snr1) < threshold) = 0;
+ 
     % plot spatial maps
     subplot(3,3,(icond-1)*3+1)
-    [~,ch] = megPlotMap(sl_snr1a,clims_sl,gcf,'parula',sprintf('%s : Stimulus Locked Original', condNames{icond}));
+    [~,ch] = megPlotMap(sl_snr1,clims_sl,gcf,'parula',sprintf('%s : Stimulus Locked Original', condNames{icond}),data_hdr,cfg);
     makeprettyaxes(gca,9,9);
     makeprettyaxes(ch,9,9);
     title(sprintf('SL no DN %s', condNames{icond}))
     
     subplot(3,3,(icond-1)*3+2)
-    [~,ch] = megPlotMap(ab_snr1a,clims_ab,gcf,'parula',sprintf('%s Original', condNames{icond}));
+    [~,ch] = megPlotMap(ab_snr1,clims_ab,gcf,'parula',sprintf('%s Original', condNames{icond}),data_hdr,cfg);
     makeprettyaxes(gca,9,9);
     makeprettyaxes(ch,9,9);
     title(sprintf('Broadband Pre %s', condNames{icond}))
     
     subplot(3,3,(icond-1)*3+3)
-    [~,ch] = megPlotMap(ab_snr2a,clims_ab,gcf,'parula',sprintf('%s : Denoised PC %d',condNames{icond}, bb.results.pcnum(1)));
+    [~,ch] = megPlotMap(ab_snr2,clims_ab,gcf,'parula',sprintf('%s : Denoised PC %d',condNames{icond}, bb.results.pcnum(1)),data_hdr,cfg);
     makeprettyaxes(gca,9,9);
     makeprettyaxes(ch,9,9);
     title(sprintf('Broadband Post %s', condNames{icond}))
 end
 
 if saveFigures
-    figurewrite(sprintf(fullfile(figureDir,'figure5_examplesubject%d_parula'),whichSubject),[],0,'.',1);
+    figurewrite(sprintf(fullfile(figureDir,'figure5_examplesubject%d_parula_thresh%d_varThresh3'),whichSubject, threshold),[],0,'.',1);
 end
 

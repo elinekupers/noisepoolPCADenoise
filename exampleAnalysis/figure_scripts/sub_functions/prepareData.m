@@ -42,7 +42,7 @@ switch whichFigure
         data = {bb,sl};
         
     case 6
-        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_full_bb.mat'),whichSubject));
+        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_full_rm1epoch_bb.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         
     case 7
@@ -59,9 +59,9 @@ switch whichFigure
         
     case 10
         for nrControl = 1:5
-            data_controls{nrControl} = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_control%d_bb.mat'),whichSubject,nrControl)); %#ok<AGROW>
+            data_controls{nrControl} = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_control%d_rm1epoch_bb.mat'),whichSubject,nrControl)); %#ok<AGROW>
         end
-        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject));
+        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject)); 
         data = {data,data_controls};
         
