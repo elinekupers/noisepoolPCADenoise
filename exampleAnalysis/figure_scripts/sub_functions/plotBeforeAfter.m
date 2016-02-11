@@ -12,13 +12,13 @@ if notDefined('plotType'), plotType = 'SNR'; end % snr, s, or n
 if notDefined('whichConds'), whichConds = 1:3; end % 1:3, or 1, 2, 3 (full, right, left)
 if notDefined('funXchan'),  funXchan = @mean; end  % how to aggregate across chan (e.g.@mean or @median)
 
-nsess = length(allresults);
+nsess = find(~cellfun(@isempty,allresults));
 
 % values before and after denoising, nsess x 1
 vals1all = [];
 vals2all = [];
 
-for k = 1:nsess
+for k = nsess
     results = allresults{k};
     
     % pcchan can be a list of user-specified channels 
@@ -67,7 +67,7 @@ end
 %colors = copper(nsess);
 if notDefined('colors'), colors = copper(nsess); end
 hold on;
-for k = 1:nsess
+for k = 1:numel(nsess)
     plot(1:2, [vals1all(k),vals2all(k)], 'o-', 'color', colors(k,:), 'linewidth',2);
 end
 xlim([0,3]);

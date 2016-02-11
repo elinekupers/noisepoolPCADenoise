@@ -40,7 +40,7 @@ badEpochThreshold   = 0.2;
 if subjects < 9
     dataChannels        = 1:157;
 else
-    dataChannels        = 1:204;
+    dataChannels        = 1:102;
 end
 use3Channels        = false;
 removeFirstEpoch    = true;
@@ -121,6 +121,13 @@ for whichSubject = subjects
     design(conditions==7,3) = 1; % condition 7 is right field
     % condition 3 is blank
     
+    % ------------- Combine channels if NeuroMag360 data -------------
+    if whichSubject > 8
+        sensorData = dfdCombinePlanarChannels(whichSubject, sensorData);
+        optbb.npoolmethod = {'r2','n',50};
+        optsl.npoolmethod = {'r2','n',50};
+    end
+    
     % ------------------ Preprocess data ---------------------------------
     [sensorData, badChannels, badEpochs] = dfdPreprocessData(sensorData(:,:,dataChannels), ...
         varThreshold, badChannelThreshold, badEpochThreshold, use3Channels);
@@ -135,13 +142,6 @@ for whichSubject = subjects
     % ------------------ Permute sensorData for denoising ----------------
     sensorData = permute(sensorData, [3 1 2]);  
     
-    % ------------- Combine channels if NeuroMag360 data -------------
-    if whichSubject > 8
-        sensorData = dfdCombinePlanarChannels(whichSubject, sensorData, badEpochs);
-        optbb.npoolmethod = {'r2','n',50};
-        optsl.npoolmethod = {'r2','n',50};
-    end
-    
 % ------------------------------------------------------------------------
 % -------------------- Denoise and save the data -------------------------
 % ------------------------------------------------------------------------
@@ -152,12 +152,12 @@ for whichSubject = subjects
             optbb.pccontrolmode   = nrControl;
             if nrControl == 0;    % do nothing to postFix in filename
             else postFix          = sprintf('_control%d',nrControl); end
-            [results,evalout, ~, denoisedts] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
+            [results,evalout,~,denoisedts] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
         elseif nrControl == 5
             optbb.pccontrolmode   = 0;
             optbb.npoolmethod     = {'r2','n',size(sensorData,1)};
             postFix               = sprintf('_control%d',nrControl);
-            [results,evalout, ~, denoisedts] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
+            [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
         end
         
         % ------------------ Define file name ---------------------------

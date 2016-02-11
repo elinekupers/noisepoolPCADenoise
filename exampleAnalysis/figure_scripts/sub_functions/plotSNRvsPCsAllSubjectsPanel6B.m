@@ -5,7 +5,11 @@ function fH = plotSNRvsPCsAllSubjectsPanel6B(dataAll,condColors,axmax,figureDir,
 
 % get the trend for the top 10 channels of all sessions
 snr_top10 = [];
-for k = 1:numel(dataAll) 
+for k = 1:numel(dataAll)
+    
+    dataAllind = ~cellfun(@isempty,dataAll);
+    dataAll = dataAll(dataAllind);
+    
     snr = abs(cat(3,dataAll{k}{1}.evalout(:,1).beta_md)) ./ cat(3,dataAll{k}{1}.evalout(:,1).beta_se);    
     xvaltrend = [];
     for icond = 1:3
@@ -18,7 +22,7 @@ end
 %% Plot them together
 
 % define colors - vary saturation for different subjects
-satValues = 1-linspace(0.1,1,8);
+satValues = 1-linspace(0.1,1,numel(dataAll));
 colorRGB = varysat(condColors,satValues);
 ttls = {'FULL','RIGHT','LEFT'};
 
@@ -26,7 +30,7 @@ fH = figure; set(fH, 'Color', 'w');
 % plot for each condition
 for icond = 1:3
     subplot(1,3,icond);hold on;
-    for nn = 1:8 % for each subject
+    for nn = 1:numel(dataAll) % for each subject
         plot(0:axmax, squeeze(snr_top10(:,icond,nn)), 'color', squeeze(colorRGB(icond,nn,:)));
     end
     axis square; xlim([0,axmax]);

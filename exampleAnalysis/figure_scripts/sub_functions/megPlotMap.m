@@ -44,11 +44,12 @@ cfg.colorbar='yes';
 cfg.maplimits='maxmin';
 
 % clip data to 157 points
-if numel(cfg.channel) > 157
+if length(sensor_data) < 157
     
     cfg.interpolation   = 'v4';
     cfg.data = sensor_data';
-    ft_topoplotER(cfg,cfg.data);
+     topoplot(cfg,cfg.data);
+%     ft_topoplotER(cfg,cfg.data);
     
 elseif length(sensor_data) > 157,
     sensor_data = sensor_data(1:157);

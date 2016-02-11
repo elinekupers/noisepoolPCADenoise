@@ -1,7 +1,7 @@
 function fH = plotSNRPrePostPanelD(dataAll,whichSubjects,condColors,figureDir,saveFigures,figureNumber)
 
 % get results for everybody and top10 channels for everybody
-for k = 1:length(whichSubjects)
+for k = whichSubjects
     allpcchan{k} = getTop10(dataAll{k}{1}.results);
     allresults{k} = dataAll{k}{1}.results;
 end
@@ -24,7 +24,7 @@ fH = figure('position',[0,300,500,200]);
 
 if saveFigures
     if isequal(figureNumber,7)
-        figurewrite(fullfile(figureDir,'Figure7D_snrfull_sat_S8_Noise_3'),[],0,'.',1);
+        figurewrite(fullfile(figureDir,'Figure7D_snrfull_sat'),[],0,'.',1);
     elseif isequal(figureNumber,11)
         figurewrite(fullfile(figureDir,'Figure11D_snrfull_sat'),[],0,'.',1);
     end
