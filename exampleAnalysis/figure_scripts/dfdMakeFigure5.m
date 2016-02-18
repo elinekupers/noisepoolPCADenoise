@@ -21,8 +21,8 @@ saveFigures     = true;     % Save figures in the figure folder?
 threshold       = 2;        % Set threshold for colormap. If no threshold set value to 0
 
 if whichSubject > 8;
-    data_hdr        = 'neuromag360_sample_hdr_combined.mat';
-    cfg             = 'neuromag360_sample_cfg_combined.mat';
+    data_hdr        = 'neuromag360_sample_hdr_combined3.mat';
+    cfg             = 'neuromag360_sample_cfg_combined4.mat';
 else
     data_hdr        = [];
 end

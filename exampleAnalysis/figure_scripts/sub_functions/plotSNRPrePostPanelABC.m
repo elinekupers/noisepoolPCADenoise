@@ -4,6 +4,8 @@ fH = figure; set(fH, 'Color', 'w');
 
 for k = 1:numel(exampleSessions)
 
+    dataAllind = ~cellfun(@isempty,dataAll);
+    dataAll = dataAll(dataAllind);
     % top 10 channels
     pcchan = getTop10(dataAll{k}{1}.results);
     %pcchan = results.pcchan{whichFun};

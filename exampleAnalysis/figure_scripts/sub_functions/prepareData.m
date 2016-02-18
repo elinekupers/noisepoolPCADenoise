@@ -15,7 +15,12 @@ switch whichFigure
         varThreshold        = [0.05 20];
         badChannelThreshold = 0.2;
         badEpochThreshold   = 0.2;
-        dataChannels        = 1:157;
+        if whichSubject < 8
+            dataChannels    = 1:157;
+        else
+            dataChannels    = 1:204;
+        end
+        
         use3Channels        = false;
         
         % Preprocess raw sensordata
@@ -30,7 +35,7 @@ switch whichFigure
         
         % time domain data before and after denoising
         denoisedts = denoiseddata;
-        data = {sensorData,denoisedts}; 
+        data = {sensorData,denoisedts{1}}; 
         
     case 5
 

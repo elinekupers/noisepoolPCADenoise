@@ -5,6 +5,10 @@ linecolors=copper(157);
 
 fH = figure('position',[1,200,800,800]); set(fH, 'Color', 'w');
 for k = 1:length(exampleSessions)
+    
+    dataAllind = ~cellfun(@isempty,dataAll);
+    dataAll = dataAll(dataAllind);
+    
     % get snr
     snr = abs(cat(3,dataAll{k}{1}.evalout(:,1).beta_md)) ./ cat(3,dataAll{k}{1}.evalout(:,1).beta_se);
     
