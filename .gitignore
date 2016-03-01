@@ -11,3 +11,6 @@ eegfigs/
 megfigs/
 manuscript_figs/
 pbs_scripts/
+figures/
+figures_rm1epoch/
+figures_rm1epoch_CiNet/

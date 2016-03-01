@@ -5,11 +5,12 @@ function fH = plotSNRvsPCsAllSubjectsPanel6B(dataAll,condColors,axmax,figureDir,
 
 % get the trend for the top 10 channels of all sessions
 snr_top10 = [];
+
+dataAllind = ~cellfun(@isempty,dataAll);
+dataAll = dataAll(dataAllind);
+
 for k = 1:numel(dataAll)
-    
-    dataAllind = ~cellfun(@isempty,dataAll);
-    dataAll = dataAll(dataAllind);
-    
+
     snr = abs(cat(3,dataAll{k}{1}.evalout(:,1).beta_md)) ./ cat(3,dataAll{k}{1}.evalout(:,1).beta_se);    
     xvaltrend = [];
     for icond = 1:3

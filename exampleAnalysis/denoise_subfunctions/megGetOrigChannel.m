@@ -6,7 +6,7 @@ if notDefined('orig2new'), orig2new = true; end
 if orig2new %figure out index in the vector with badChannels discarded
     chanNum0 = nan(size(chanNum));
     for jj = 1:length(chanNum)
-        tmp = zeros(1,157);
+        tmp = zeros(1,length(badChannels));
         tmp(chanNum(jj))=1;
         if ~isempty(find(tmp(~badChannels), 1))
             chanNum0(jj)= find(tmp(~badChannels));
