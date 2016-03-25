@@ -40,11 +40,11 @@ badEpochThreshold   = 0.2;
 if subjects < 9
     dataChannels        = 1:157;
 else
-    dataChannels        = 1:102;
+    dataChannels        = 1:204;
 end
 use3Channels        = false;
 removeFirstEpoch    = true;
-combineChannels     = 'before'; % Before, after or none
+combineChannels     = 'after'; % 'after' denoising or 'none'
 
 %% Get frequencies to define stimulus locked and asynchronous broadband power
 % Data are sampled at 1000 Hz and epoched in one-second bins. Hence
@@ -124,14 +124,8 @@ for whichSubject = subjects
     
     % ------------- Combine channels if NeuroMag360 data -------------
     if whichSubject > 8
-        if strcmp(combineChannels,'before')
-            sensorData = dfdCombinePlanarChannels(whichSubject, sensorData);
-            optbb.npoolmethod = {'r2','n',50};
-            optsl.npoolmethod = {'r2','n',50};
-        elseif strcmp(combineChannels,'after') || strcmp(combineChannels,'none')
-            optbb.npoolmethod = {'r2','n',100};
-            optsl.npoolmethod = {'r2','n',100};
-        end
+        optbb.npoolmethod = {'r2','n',100};
+        optsl.npoolmethod = {'r2','n',100};
     end
     
     % ------------------ Preprocess data ---------------------------------
@@ -158,7 +152,8 @@ for whichSubject = subjects
             optbb.pccontrolmode   = nrControl;
             if nrControl == 0;    % do nothing to postFix in filename
             else postFix          = sprintf('_control%d',nrControl); end
-            [results,evalout,~,denoisedts] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
+            [results,evalout,~,denoisedts_bb] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
+            
         elseif nrControl == 5
             optbb.pccontrolmode   = 0;
             optbb.npoolmethod     = {'r2','n',size(sensorData,1)};
@@ -167,21 +162,21 @@ for whichSubject = subjects
         end
         
         % Combine channels after denoising if requested
-        if strcmp(combineChannels,'after')
-            opt.pcchoose          = 0;   % Take 10 PCs
-            opt.npcs2try          = 0;
-            optsl                 = opt;
-            optbb                 = opt;
-            optbb.preprocessfun   = [];
-            optbb.npoolmethod     = {'r2','n',50};
-            optsl.npoolmethod     = {'r2','n',50};
-            nrControlModes        = 0;
-            postFix               = 'CombinedAfterDenoising';
-        
-            sensorData = dfdCombinePlanarChannels(whichSubject, denoisedts);
-            sensorData = permute(sensorData, [3 1 2]);
-            [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
-        end
+%         if strcmp(combineChannels,'after')
+%             opt.pcchoose          = 0;   % Take 10 PCs
+%             opt.npcs2try          = 0;
+%             optbb                 = opt;
+%             optbb.preprocessfun   = [];
+%             optbb.npoolmethod     = {'r2','n',50};
+%             optsl.npoolmethod     = {'r2','n',50};
+%             nrControlModes        = 0;
+%             postFix               = 'CombinedAfterDenoising';
+%         
+%             sensorData = dfdCombinePlanarChannels(whichSubject, denoisedts_bb);
+%             sensorData = permute(sensorData, [3 1 2]);
+%             [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
+%             
+%         end
                 
         %% ------------------ Define file name ---------------------------
         if use3Channels

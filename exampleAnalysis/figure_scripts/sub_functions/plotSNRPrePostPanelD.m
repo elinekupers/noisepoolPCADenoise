@@ -15,7 +15,7 @@ colorRGB = varysat(condColors,satValues);
 fH = figure('position',[0,300,500,200]);
     for icond = 1:3
         subplot(1,3,icond);
-        plotBeforeAfter(allresults,1,allpcchan,'SNR',icond,[],squeeze(colorRGB(icond,:,:)));
+        plotBeforeAfter(allresults,1,allpcchan,'SNR',icond,[],jet(6));
         xlim([0.5,2.5]);
         makeprettyaxes(gca,9,9);
         if isequal(figureNumber,7);  ylim([0,6]);

@@ -13,4 +13,4 @@ finalsnr(results.noisepool) = -inf;
 [~,idx] = sort(finalsnr,'descend');
 % find the top 10 
 pcchan = false(size(results.noisepool));
-pcchan(idx(1:10))= 1;
+pcchan(idx(1:5))= 1;

@@ -34,7 +34,7 @@ addpath(genpath('~/Applications/mgl/mgllib'));
 % Check options:
 saveEyd           = true;  % Convert edf to eyd.mat file and save it?
 saveFigures       = true;  % Save images?
-deleteFirstLast   = false; % Delete first and last epoch?
+deleteFirstLast   = true; % Delete first and last epoch?
 saveData          = true;  % Save data?
 
 % =========================================================================
@@ -44,12 +44,11 @@ for whichSubject = subjects
     edffile = dir(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 'eye','s0%d_eyelink.edf'),whichSubject));
     tmp = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's0%d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
     
-    
     if saveEyd
         eyd = mglEyelinkEDFRead(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 'eye',edffile.name)));
         save(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 'eye', 's0%d_eyd.mat'),whichSubject));
     else
-        eyd = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 'eye','s0*_eyd.mat'),whichSubject));
+        eyd = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 'eye','s0%d_eyd.mat'),whichSubject));
     end
     
     % =====================================================================
@@ -87,21 +86,12 @@ for whichSubject = subjects
     % ------------- Add triggers for the blank periods --------------------
     onsets = ssmeg_trigger_2_onsets(triggers, whichSubject, 'eye');
     
-    % --------- Delete last 12 epochs since those are not recorded ---------
+    % --------- Delete last 12 epochs since those are not recorded
+    % --------- % Question: Is this true for all subjects?
     onsets = onsets(1:end-12);
-    
-    % Extract conditions from triggers and add blanks to conditions vector
-    A = triggers(1:12:end-12,1);
-    conditions = zeros(2*length(A),1);
-    
-    indices = 1:12:length(A);
-    
+    conditions = conditions(1:end-12);
+        
     %% Not ready yet, figure out how to implement blank conditions in conditions vector
-    for ii = indices
-            conditions(ii:ii+5) = A(ii:ii+5);
-            conditions(ii+6:ii+11) = 3*ones(6,1);   
-    end
-    
     
     % ------------- Define epochs in variables of eyetracking data --------
     [eyets, ~]   = meg_make_epochs(s.time, onsets, [0 .999], 1000, 'eye');
@@ -216,203 +206,13 @@ for whichSubject = subjects
     msSacStats1(s);
     title('Angular distribution ALL');
     
-    %% Epoched data
-    
-    [sacRaw,radius] = microsacc(eyexyPos,eyexyVel,vThres,msMinDur);
-    
-    % remove the ones that occurr closely together (overshoot)
-    numSacs = size(sacRaw,1);
-    minInterSamples = ceil(0.01*s.eyeInfo.smpRate);
-    
-    %% DEBUG FROM HERE %%
-    interSac = sacRaw(2:end,1)- sacRaw(1:end-1,2);
-    sac = sacRaw([1; find(interSac > minInterSamples)+1],:);
-    fprintf('%d rejected for close spacing\n', numSacs - size(sac,1));
-    
-    fprintf('%d saccades detected\n', size(sac,1));
-    
-    for nn = 1:4
-        % saved detected saccades into s
-        s.sacsRaw          = sacRaw(:,conds{nn});
-        s.sacs             = sac(:,conds{nn});
-        s.sacDetectRadius  = radius(:,conds{nn});
-        s.eyeInfo.vThres   = vThres;
-        s.eyeInfo.msMinDur = msMinDur;
-        s.time             = eyets(:,conds{nn});
-        s.xyPos            = eyexyPos(:,conds{nn});
-
-        fprintf('number of saccades detected: %d, detectRadius: [%0.3f %0.3f]\n', ...
-            size(s.sacs,1), s.sacDetectRadius(1), s.sacDetectRadius(2));
-
-        % look at detected saccades
-        figure(2+nn); clf; set(gcf,'Color', 'w');
-        msSacStats1(s);
-        title(sprintf('Angular distribution %s',condsName{nn}));
-    end
-    
-    %% OFF
-    
-    [off_sacRaw,off_radius] = microsacc(off_xypos,off_xyvel,vThres,msMinDur);
-    
-    % remove the ones that occurr closely together (overshoot)
-    off_numSacs = size(off_sacRaw,1);
-    minInterSamples = ceil(0.01*s.eyeInfo.smpRate);
-    off_interSac = off_sacRaw(2:end,1)- off_sacRaw(1:end-1,2);
-    off_sac = off_sacRaw([1; find(off_interSac > minInterSamples)+1],:);
-    fprintf('%d rejected for close spacing\n', off_numSacs - size(off_sac,1));
-    
-    fprintf('%d saccades detected\n', size(off_sac,1));
-    
-    % saved detected saccades into s
-    s.sacsRaw = off_sacRaw;
-    s.sacs = off_sac;
-    s.sacDetectRadius  = off_radius;
-    s.eyeInfo.vThres   = vThres;
-    s.eyeInfo.msMinDur = msMinDur;
-    s.time = eye_ts_off_epoched;
-    s.xyPos = off_xypos;
-    
-    fprintf('number of saccades detected: %d, detectRadius: [%0.3f %0.3f]\n', ...
-        size(s.sacs,1), s.sacDetectRadius(1), s.sacDetectRadius(2));
-    
-    % look at detected saccades
-    figure(4); clf; set(gcf,'Color', 'w');
-    msSacStats1(s);
-    title('Angular distribution OFF');
-    
-    %% LEFT
-    
-    [left_sacRaw,left_radius] = microsacc(left_xypos,left_xyvel,vThres,msMinDur);
-    
-    % remove the ones that occurr closely together (overshoot)
-    left_numSacs = size(left_sacRaw,1);
-    minInterSamples = ceil(0.01*s.eyeInfo.smpRate);
-    left_interSac = left_sacRaw(2:end,1)- left_sacRaw(1:end-1,2);
-    left_sac = left_sacRaw([1; find(left_interSac > minInterSamples)+1],:);
-    fprintf('%d rejected for close spacing\n', left_numSacs - size(left_sac,1));
-    
-    fprintf('%d saccades detected\n', size(left_sac,1));
-    
-    % saved detected saccades into s
-    s.sacsRaw = left_sacRaw;
-    s.sacs = left_sac;
-    s.sacDetectRadius  = left_radius;
-    s.eyeInfo.vThres   = vThres;
-    s.eyeInfo.msMinDur = msMinDur;
-    s.time = eye_ts_on_left_epoched;
-    s.xyPos = left_xypos;
-    
-    fprintf('number of saccades detected: %d, detectRadius: [%0.3f %0.3f]\n', ...
-        size(s.sacs,1), s.sacDetectRadius(1), s.sacDetectRadius(2));
-    
-    % look at detected saccades
-    figure(5); clf; set(gcf,'Color', 'w');
-    msSacStats1(s);
-    title('Angular distribution LEFT');
-    
-    %% RIGHT
-    
-    [right_sacRaw,right_radius] = microsacc(right_xypos,right_xyvel,vThres,msMinDur);
-    
-    % remove the ones that occurr closely together (overshoot)
-    right_numSacs = size(right_sacRaw,1);
-    minInterSamples = ceil(0.01*s.eyeInfo.smpRate);
-    right_interSac = right_sacRaw(2:end,1)- right_sacRaw(1:end-1,2);
-    right_sac = right_sacRaw([1; find(right_interSac > minInterSamples)+1],:);
-    fprintf('%d rejected for close spacing\n', right_numSacs - size(right_sac,1));
-    
-    fprintf('%d saccades detected\n', size(right_sac,1));
-    
-    % saved detected saccades into s
-    s.sacsRaw = right_sacRaw;
-    s.sacs = right_sac;
-    s.sacDetectRadius  = right_radius;
-    s.eyeInfo.vThres   = vThres;
-    s.eyeInfo.msMinDur = msMinDur;
-    s.time = eye_ts_on_right_epoched;
-    s.xyPos = right_xypos;
-    
-    fprintf('number of saccades detected: %d, detectRadius: [%0.3f %0.3f]\n', ...
-        size(s.sacs,1), s.sacDetectRadius(1), s.sacDetectRadius(2));
-    
-    % look at detected saccades
-    figure(6); clf; set(gcf,'Color', 'w');
-    msSacStats1(s);
-    title('Angular distribution RIGHT');
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    %% Get microsaccades
-    % Both
-    [both_sacRaw,both_radius] = microsacc(both_xypos,both_xyvel,vThres,msMinDur);
-    % Right
-    [right_sacRaw,right_radius] = microsacc(right_xypos,right_xyvel,vThres,msMinDur);
-    % Left
-    [left_sacRaw,left_radius] = microsacc(left_xypos,left_xyvel,vThres,msMinDur);
-    % Off
-    [off_sacRaw,off_radius] = microsacc(off_xypos,off_xyvel,vThres,msMinDur);
-    
-    
-    
-    %% Remove the ones that occurr closely together (overshoot)
-    % Both
-    both_numSacs = size(both_sacRaw,1);
-    both_interSac = both_sacRaw(2:end,1)- both_sacRaw(1:end-1,2);
-    both_sac = both_sacRaw([1; find(both_interSac > minInterSamples)+1],:);
-    
-    % Right
-    right_numSacs = size(right_sacRaw,1);
-    right_interSac = right_sacRaw(2:end,1)- right_sacRaw(1:end-1,2);
-    right_sac = right_sacRaw([1; find(right_interSac > minInterSamples)+1],:);
-    
-    % Left
-    left_numSacs = size(left_sacRaw,1);
-    left_interSac = left_sacRaw(2:end,1)- left_sacRaw(1:end-1,2);
-    left_sac = left_sacRaw([1; find(left_interSac > minInterSamples)+1],:);
-    
-    % Left
-    off_numSacs = size(off_sacRaw,1);
-    off_interSac = off_sacRaw(2:end,1)- off_sacRaw(1:end-1,2);
-    off_sac = off_sacRaw([1; find(off_interSac > minInterSamples)+1],:);
-    
-    %% Prepare to plot sample and saccade distribution (95% confidence)
-    
     % ALL trials
     all_traceMean = nanmean(s.xyPos);
     all_traceMedian = nanmedian(s.xyPos);
     all_traceCov = cov(s.xyPos(~isnan(s.xyPos(:,1)),:));
     
-    % Both
-    both_traceMean = nanmean(both_xypos);
-    both_traceMedian = nanmedian(both_xypos);
-    both_traceCov = cov(both_xypos(~isnan(both_xypos(:,1)),:));
-    
-    % RIGHT trials
-    right_traceMean = nanmean(right_xypos);
-    right_traceMedian = nanmedian(right_xypos);
-    right_traceCov = cov(right_xypos(~isnan(right_xypos(:,1)),:));
-    
-    % LEFT trials
-    left_traceMean = nanmean(left_xypos);
-    left_traceMedian = nanmedian(left_xypos);
-    left_traceCov = cov(left_xypos(~isnan(left_xypos(:,1)),:));
-    
-    % OFF trials
-    off_traceMean = nanmean(off_xypos);
-    off_traceMedian = nanmedian(off_xypos);
-    off_traceCov = cov(off_xypos(~isnan(off_xypos(:,1)),:));
-    
-    
-    
-    %% Plot all samples
-    
-    figure(7); clf; set(gcf,'Color', 'w');
+    % Plot confidence interval ellipses
+    figure; clf; set(gcf,'Color', 'w');
     subplot(1,2,1); hold on;
     
     % distribution of samples
@@ -443,257 +243,122 @@ for whichSubject = subjects
     title('Saccade vectors');
     
     
-    %% Plot off baseline samples
     
-    figure(8); clf; set(gcf,'Color', 'w');
-    subplot(1,2,1); hold on;
+    %% Epoched data
     
-    % distribution of samples
-    plot(off_xypos(:,1),off_xypos(:,2),'.','markersize',1);
-    % 95% confidence ellipse
-    error_ellipse(off_traceCov,off_traceMean,'conf',0.95,'color','k');
-    % median
-    plot(off_traceMedian(1),off_traceMedian(2),'+r','markersize',5);
-    grid on; axis square;
-    xlim(5*[-1,1]); ylim(5*[-1,1]);
-    title('Eye position of OFF samples');
-    xlabel('Horizontal (deg)'); ylabel('Vertical (deg)');
-    
-    subplot(1,2,2); hold on; % distribution of saccades
-    dxy = off_sac(:,6:7);
-    sacMean = mean(dxy);
-    sacMedian = median(dxy);
-    sacCov = cov(dxy);
-    % plot all samples
-    plot(dxy(:,1),dxy(:,2),'.','markersize',2);
-    % 95% confidence ellipse
-    error_ellipse(sacCov,sacMean,'conf',0.95,'color','k');
-    % median
-    plot(sacMedian(1),sacMedian(2),'+r','markersize',5);
-    grid on; axis square;
-    xlabel('Horizontal (deg)'); ylabel('Vertical (deg)');
-    xlim(5*[-1,1]); ylim(5*[-1,1]);
-    title('Saccade vectors');
+    for nn = 1:4
+        
+        thiseyexVel = eyexVel(:,conds{nn});
+        thiseyeyVel = eyeyVel(:,conds{nn});
+        
+        thiseyexPos = eyexPos(:,conds{nn});
+        thiseyeyPos = eyeyPos(:,conds{nn});
+
+        
+        % Concatenate all conditions for XY position and XY velocity
+        eyexyVel = [thiseyexVel(:), thiseyeyVel(:)];
+        eyexyPos = [thiseyexPos(:), thiseyeyPos(:)];
     
     
     
+        [sacRaw,radius] = microsacc(eyexyPos,eyexyVel,vThres,msMinDur);
     
-    %% Plot Both samples
-    figure(9); clf; set(gcf,'Color', 'w');
-    subplot(1,2,1); hold on; % distribution of samples
+        % remove the ones that occurr closely together (overshoot)
+        numSacs = size(sacRaw,1);
+        minInterSamples = ceil(0.01*s.eyeInfo.smpRate);
+       
+        interSac = sacRaw(2:end,1)- sacRaw(1:end-1,2);
+        sac = sacRaw([1; find(interSac > minInterSamples)+1],:);
+        fprintf('%d rejected for close spacing\n', numSacs - size(sac,1));
     
-    plot(both_xypos(:,1),both_xypos(:,2),'.','markersize',1);
-    % 95% confidence ellipse
-    error_ellipse(both_traceCov,both_traceMean,'conf',0.95,'color','k');
-    % median
-    plot(both_traceMedian(1),both_traceMedian(2),'+r','markersize',5);
-    grid on; axis square;
-    xlim(5*[-1,1]); ylim(5*[-1,1]);
-    title('Eye position of Attention Both samples ');
-    xlabel('Horizontal (deg)'); ylabel('Vertical (deg)');
+        fprintf('%d saccades detected\n', size(sac,1));
     
-    subplot(1,2,2); hold on; % distribution of saccades
-    dxy = both_sac(:,6:7);
-    sacMean = mean(dxy);
-    sacMedian = median(dxy);
-    sacCov = cov(dxy);
-    % plot all samples
-    plot(dxy(:,1),dxy(:,2),'.','markersize',2);
-    % 95% confidence ellipse
-    error_ellipse(sacCov,sacMean,'conf',0.95,'color','k');
-    % median
-    plot(sacMedian(1),sacMedian(2),'+r','markersize',5);
-    grid on; axis square;
-    xlabel('Horizontal (deg)'); ylabel('Vertical (deg)');
-    xlim(5*[-1,1]); ylim(5*[-1,1]);
-    title('Saccade vectors');
-    
-    
-    %% Plot Right samples
-    figure(10); clf; set(gcf,'Color', 'w');
-    subplot(1,2,1); hold on; % distribution of samples
-    
-    plot(right_xypos(:,1),right_xypos(:,2),'.','markersize',1);
-    % 95% confidence ellipse
-    error_ellipse(right_traceCov,right_traceMean,'conf',0.95,'color','k');
-    % median
-    plot(right_traceMedian(1),right_traceMedian(2),'+r','markersize',5);
-    grid on; axis square;
-    xlim(5*[-1,1]); ylim(5*[-1,1]);
-    title('Eye position of Attention Right samples');
-    xlabel('Horizontal (deg)'); ylabel('Vertical (deg)');
-    
-    subplot(1,2,2); hold on; % distribution of saccades
-    dxy = right_sac(:,6:7);
-    sacMean = mean(dxy);
-    sacMedian = median(dxy);
-    sacCov = cov(dxy);
-    % plot all samples
-    plot(dxy(:,1),dxy(:,2),'.','markersize',2);
-    % 95% confidence ellipse
-    error_ellipse(sacCov,sacMean,'conf',0.95,'color','k');
-    % median
-    plot(sacMedian(1),sacMedian(2),'+r','markersize',5);
-    grid on; axis square;
-    xlabel('Horizontal (deg)'); ylabel('Vertical (deg)');
-    xlim(5*[-1,1]); ylim(5*[-1,1]);
-    title('Saccade vectors');
-    
-    
-    %% Plot Left samples
-    figure(11); clf; set(gcf,'Color', 'w');
-    subplot(1,2,1); hold on; % distribution of samples
-    
-    plot(left_xypos(:,1),left_xypos(:,2),'.','markersize',1);
-    % 95% confidence ellipse
-    error_ellipse(left_traceCov,left_traceMean,'conf',0.95,'color','k');
-    % median
-    plot(left_traceMedian(1),left_traceMedian(2),'+r','markersize',5);
-    grid on; axis square;
-    xlim(5*[-1,1]); ylim(5*[-1,1]);
-    title('Eye position of Attention Left samples');
-    xlabel('Horizontal (deg)'); ylabel('Vertical (deg)');
-    
-    subplot(1,2,2); hold on; % distribution of saccades
-    dxy = left_sac(:,6:7);
-    sacMean = mean(dxy);
-    sacMedian = median(dxy);
-    sacCov = cov(dxy);
-    % plot all samples
-    plot(dxy(:,1),dxy(:,2),'.','markersize',2);
-    % 95% confidence ellipse
-    error_ellipse(sacCov,sacMean,'conf',0.95,'color','k');
-    % median
-    plot(sacMedian(1),sacMedian(2),'+r','markersize',5);
-    grid on; axis square;
-    xlabel('Horizontal (deg)'); ylabel('Vertical (deg)');
-    xlim(5*[-1,1]); ylim(5*[-1,1]);
-    title('Saccade vectors');
-    
-    
-    
-    %% Plot distributions of saccades on top of eachother
-    
-    % Both
-    both_dxy = both_sac(:,6:7);
-    both_sacMean = mean(both_dxy);
-    both_sacMedian = median(both_dxy);
-    both_sacCov = cov(both_dxy);
-    
-    % Left
-    left_dxy = left_sac(:,6:7);
-    left_sacMean = mean(left_dxy);
-    left_sacMedian = median(left_dxy);
-    left_sacCov = cov(left_dxy);
-    
-    % Right
-    right_dxy = right_sac(:,6:7);
-    right_sacMean = mean(right_dxy);
-    right_sacMedian = median(right_dxy);
-    right_sacCov = cov(right_dxy);
-    
-    % Off
-    off_dxy = off_sac(:,6:7);
-    off_sacMean = mean(off_dxy);
-    off_sacMedian = median(off_dxy);
-    off_sacCov = cov(off_dxy);
-    
-    
-    
-    figure(12); clf; set(gcf,'Color', 'w');
-    
-    
-    subplot(1,2,1); hold on; % distribution of samples
-    
-    % 95% confidence ellipse
-    error_ellipse(both_traceCov,both_traceMean,'conf',0.95,'color','r'); hold on;
-    % error_ellipse(left_traceCov,left_traceMean,'conf',0.95,'color','g');
-    % error_ellipse(right_traceCov,right_traceMean,'conf',0.95,'color','b');
-    error_ellipse(off_traceCov,off_traceMean,'conf',0.95,'color','k');
-    %
-    % median
-    plot(both_traceMedian(1),both_traceMedian(2),'+r','markersize',5); hold on;
-    % plot(left_traceMedian(1),left_traceMedian(2),'+g','markersize',5);
-    % plot(right_traceMedian(1),right_traceMedian(2),'+b','markersize',5);
-    plot(off_traceMedian(1),off_traceMedian(2),'+k','markersize',5);
-    
-    
-    grid on; axis square;
-    xlim(5*[-1,1]); ylim(5*[-1,1]);
-    title('Eye position', 'FontSize',18);
-    set(gca,  'FontSize',18); xlabel('Horizontal (deg)'); set(gca,  'FontSize',18); ylabel('Vertical (deg)');
-    legend('Both', 'Blank'); % ,
-    
-    
-    
-    subplot(1,2,2); hold on;
-    
-    % 95% confidence ellipse
-    error_ellipse(both_sacCov,both_sacMean,'conf',0.95,'color','r'); hold on;
-    % error_ellipse(left_sacCov,left_sacMean,'conf',0.95,'color','g');
-    % error_ellipse(right_sacCov,right_sacMean,'conf',0.95,'color','b');
-    error_ellipse(off_sacCov,off_sacMean,'conf',0.95,'color','k');
-    
-    % plot both samples
-    plot(both_dxy(:,1),both_dxy(:,2),'r.','markersize',2); hold on;
-    % plot(left_dxy(:,1),left_dxy(:,2),'g.','markersize',2);
-    % plot(right_dxy(:,1),right_dxy(:,2),'b.','markersize',2);
-    plot(off_dxy(:,1),off_dxy(:,2), 'k.','markersize',2);
-    
-    
-    % median
-    plot(both_sacMedian(1),both_sacMedian(2),'+r','markersize',5); hold on;
-    % plot(left_sacMedian(1),left_sacMedian(2),'+g','markersize',5);
-    % plot(right_sacMedian(1),right_sacMedian(2),'+b','markersize',5);
-    plot(off_sacMedian(1),off_sacMedian(2),'+k','markersize',5);
-    
-    
-    grid on; axis square;
-    set(gca,  'FontSize',18); xlabel('Horizontal (deg)'); set(gca,  'FontSize',18); ylabel('Vertical (deg)');
-    xlim(5*[-1,1]); ylim(5*[-1,1]);
-    title('Saccade vectors' ,  'FontSize',18);
-    legend('Both', 'Blank'); %'Left', 'Right',
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    %% Export images
-    if save_images
-        if delete_first_last
-            cd(datapath);
-            hgexport(1,fullfile(datapath,'eyetracking_fig1_xypositions_no_firstlast.eps'));
-            hgexport(2,fullfile(datapath,'eyetracking_fig2_microsaccades_all_no_firstlast.eps'));
-            hgexport(3,fullfile(datapath,'eyetracking_fig3_microsaccades_both_no_firstlast.eps'));
-            hgexport(4,fullfile(datapath,'eyetracking_fig4_microsaccades_off_no_firstlast.eps'));
-            hgexport(5,fullfile(datapath,'eyetracking_fig5_microsaccades_left_no_firstlast.eps'));
-            hgexport(6,fullfile(datapath,'eyetracking_fig6_microsaccades_right_no_firstlast.eps'));
-            hgexport(7,fullfile(datapath,'eyetracking_fig7_xypos_ms_all_no_firstlast.eps'));
-            hgexport(8,fullfile(datapath,'eyetracking_fig8_xypos_ms_off_no_firstlast.eps'));
-            hgexport(9,fullfile(datapath,'eyetracking_fig9_xypos_ms_both_no_firstlast.eps'));
-            hgexport(10,fullfile(datapath,'eyetracking_fig10_xypos_ms_right_no_firstlast.eps'));
-            hgexport(11,fullfile(datapath,'eyetracking_fig11_xypos_ms_left_no_firstlast.eps'));
-            hgexport(12,fullfile(datapath,'eyetracking_fig12_xypos_ms_combined_no_firstlast.eps'));
-            
-        else
-            
-            hgexport(1,fullfile(datapath,'eyetracking_fig1_xypositions.eps'));
-            hgexport(2,fullfile(datapath,'eyetracking_fig2_microsaccades_all.eps'));
-            hgexport(3,fullfile(datapath,'eyetracking_fig3_microsaccades_both.eps'));
-            hgexport(4,fullfile(datapath,'eyetracking_fig4_microsaccades_off.eps'));
-            hgexport(5,fullfile(datapath,'eyetracking_fig5_microsaccades_left.eps'));
-            hgexport(6,fullfile(datapath,'eyetracking_fig6_microsaccades_right.eps'));
-            hgexport(7,fullfile(datapath,'eyetracking_fig7_xypos_ms_all.eps'));
-            hgexport(8,fullfile(datapath,'eyetracking_fig8_xypos_ms_off.eps'));
-            hgexport(9,fullfile(datapath,'eyetracking_fig9_xypos_ms_both.eps'));
-            hgexport(10,fullfile(datapath,'eyetracking_fig10_xypos_ms_right.eps'));
-            hgexport(11,fullfile(datapath,'eyetracking_fig11_xypos_ms_left.eps'));
-            hgexport(12,fullfile(datapath,'eyetracking_fig12_xypos_ms_combined.eps'));
-        end
+        % saved detected saccades into s
+        s.sacsRaw          = sacRaw;
+        s.sacs             = sac;
+        s.sacDetectRadius  = radius;
+        s.eyeInfo.vThres   = vThres;
+        s.eyeInfo.msMinDur = msMinDur;
+        s.time             = eyets(:,conds{nn});
+        s.xyPos            = eyexyPos;
+
+        fprintf('number of saccades detected: %d, detectRadius: [%0.3f %0.3f]\n', ...
+            size(s.sacs,1), s.sacDetectRadius(1), s.sacDetectRadius(2));
+
+        % look at detected saccades
+        figure(2+nn); clf; set(gcf,'Color', 'w');
+        msSacStats1(s);
+        title(sprintf('Angular distribution %s',condsName{nn}));
+        
+        % Get mean and median of positions in trials
+        traceMean = nanmean(s.xyPos);
+        traceMedian = nanmedian(s.xyPos);
+        traceCov = cov(s.xyPos(~isnan(s.xyPos(:,1)),:));
+        
+        % Plot it   
+        figure; clf; set(gcf,'Color', 'w');
+        subplot(1,2,1); hold on;
+
+        % distribution of samples
+        plot(s.xyPos(:,1),s.xyPos(:,2),'.','markersize',1);
+        % 95% confidence ellipse
+        error_ellipse(traceCov,traceMean,'conf',0.95,'color','k');
+        % median
+        plot(traceMedian(1),traceMedian(2),'+r','markersize',5);
+        grid on; axis square;
+        xlim(5*[-1,1]); ylim(5*[-1,1]);
+        title(sprintf('Eye position of %s samples',condsName{nn}));
+        xlabel('Horizontal (deg)'); ylabel('Vertical (deg)');
+
+        subplot(1,2,2); hold on; % distribution of saccades
+        dxy = s.sacs(:,6:7);
+        sacMean = mean(dxy);
+        sacMedian = median(dxy);
+        sacCov = cov(dxy);
+        % plot all samples
+        plot(dxy(:,1),dxy(:,2),'.','markersize',2);
+        % 95% confidence ellipse
+        error_ellipse(sacCov,sacMean,'conf',0.95,'color','k');
+        % median
+        plot(sacMedian(1),sacMedian(2),'+r','markersize',5);
+        grid on; axis square;
+        xlabel('Horizontal (deg)'); ylabel('Vertical (deg)');
+        xlim(5*[-1,1]); ylim(5*[-1,1]);
+        title('Saccade vectors');
     end
     
+%     %% Export images
+%     if save_images
+%         if delete_first_last
+%             cd(datapath);
+%             hgexport(1,fullfile(datapath,'eyetracking_fig1_xypositions_no_firstlast.eps'));
+%             hgexport(2,fullfile(datapath,'eyetracking_fig2_microsaccades_all_no_firstlast.eps'));
+%             hgexport(3,fullfile(datapath,'eyetracking_fig3_microsaccades_both_no_firstlast.eps'));
+%             hgexport(4,fullfile(datapath,'eyetracking_fig4_microsaccades_off_no_firstlast.eps'));
+%             hgexport(5,fullfile(datapath,'eyetracking_fig5_microsaccades_left_no_firstlast.eps'));
+%             hgexport(6,fullfile(datapath,'eyetracking_fig6_microsaccades_right_no_firstlast.eps'));
+%             hgexport(7,fullfile(datapath,'eyetracking_fig7_xypos_ms_all_no_firstlast.eps'));
+%             hgexport(8,fullfile(datapath,'eyetracking_fig8_xypos_ms_off_no_firstlast.eps'));
+%             hgexport(9,fullfile(datapath,'eyetracking_fig9_xypos_ms_both_no_firstlast.eps'));
+%             hgexport(10,fullfile(datapath,'eyetracking_fig10_xypos_ms_right_no_firstlast.eps'));
+%             hgexport(11,fullfile(datapath,'eyetracking_fig11_xypos_ms_left_no_firstlast.eps'));
+%             hgexport(12,fullfile(datapath,'eyetracking_fig12_xypos_ms_combined_no_firstlast.eps'));
+%             
+%         else
+%             
+%             hgexport(1,fullfile(datapath,'eyetracking_fig1_xypositions.eps'));
+%             hgexport(2,fullfile(datapath,'eyetracking_fig2_microsaccades_all.eps'));
+%             hgexport(3,fullfile(datapath,'eyetracking_fig3_microsaccades_both.eps'));
+%             hgexport(4,fullfile(datapath,'eyetracking_fig4_microsaccades_off.eps'));
+%             hgexport(5,fullfile(datapath,'eyetracking_fig5_microsaccades_left.eps'));
+%             hgexport(6,fullfile(datapath,'eyetracking_fig6_microsaccades_right.eps'));
+%             hgexport(7,fullfile(datapath,'eyetracking_fig7_xypos_ms_all.eps'));
+%             hgexport(8,fullfile(datapath,'eyetracking_fig8_xypos_ms_off.eps'));
+%             hgexport(9,fullfile(datapath,'eyetracking_fig9_xypos_ms_both.eps'));
+%             hgexport(10,fullfile(datapath,'eyetracking_fig10_xypos_ms_right.eps'));
+%             hgexport(11,fullfile(datapath,'eyetracking_fig11_xypos_ms_left.eps'));
+%             hgexport(12,fullfile(datapath,'eyetracking_fig12_xypos_ms_combined.eps'));
+%         end
+%     end
+%     
 end

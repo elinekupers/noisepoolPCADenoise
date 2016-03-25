@@ -9,16 +9,16 @@ xl = [60 150];
 fok = f;
 fok(f<=xl(1) | f>=xl(2) | mod(f,60) < 2 | mod(f,60) > 58 ) = [];
 xt = [12:12:72, 96,144];
-yt = 1:2;
+yt = [-27,-24];
 yl=[yt(1),yt(end)];
 
-exampleChannel = 42;
-
+for exampleChannel = 1:204%42;
+    clf;
 for dd = 1:2
     subplot(2,1,dd);
     
     % compute spectrum
-    spec = abs(fft(squeeze(data{dd}(exampleIndex,:,:))))/size(data{dd},2)*2;
+    spec = abs(fft(squeeze(data{dd}(exampleChannel,:,:))))/size(data{dd},2)*2;
     
     hold on;
     for ii = [1,4]
@@ -51,7 +51,7 @@ for dd = 1:2
         else
             mn = prctile(this_data,[16,50,84],2);
         end
-        mn(abs(mn-0)<0.001)= nan;
+%         mn(abs(mn-0)<0.001)= nan;
         
         % plot median
         plot(fok, mn(:,2),  '-',  'Color', colors(ii,:), 'LineWidth', 1);
@@ -61,11 +61,11 @@ for dd = 1:2
     
     % format x and y axes
     set(gca, 'XLim', xl, 'XTick', xt, 'XScale', 'log');
-    if avgLogFlg
-        set(gca,'ytick', yt, 'ylim',yl);
-    else
-        set(gca,'ytick',10.^yt, 'ylim',10.^yl,'YScale', 'log');
-    end
+%     if avgLogFlg
+%         set(gca,'ytick', yt, 'ylim',yl);
+%     else
+         set(gca,'ytick',10.^yt, 'ylim',10.^yl,'YScale', 'log');
+%     end
     
     % label figure, add stimulus harmonic lines, and make it look nice
     xlabel('Frequency (Hz)'); ylabel('Power (fT^2)');
@@ -76,5 +76,7 @@ for dd = 1:2
 end
 
 if saveFigures
-    figurewrite(sprintf(fullfile(figureDir,'figure4bHighFreqSpectrumChannel%d'),exampleIndex),[],0,'.',1);
+    figurewrite(sprintf(fullfile(figureDir,'figure4bHighFreqSpectrumChannel%d'),exampleChannel),[],0,'.',1);
+end
+
 end

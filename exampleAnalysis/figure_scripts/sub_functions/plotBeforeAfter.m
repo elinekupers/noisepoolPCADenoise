@@ -39,8 +39,13 @@ for k = nsess
     
     % nconds x nchannels
     ab_signal1 = abs(results.origmodel(whichfun).beta_md(:,pcchan));
+    ab_signal1 = (results.origmodel(whichfun).beta_md(:,pcchan));
+
     ab_noise1  = results.origmodel(whichfun).beta_se(:,pcchan);
+    
     ab_signal2 = abs(results.finalmodel(whichfun).beta_md(:,pcchan));
+    ab_signal2 = (results.finalmodel(whichfun).beta_md(:,pcchan));
+
     ab_noise2  = results.finalmodel(whichfun).beta_se(:,pcchan);
     ab_snr1    = ab_signal1./ab_noise1;
     ab_snr2    = ab_signal2./ab_noise2;
@@ -71,7 +76,7 @@ for k = 1:numel(nsess)
     plot(1:2, [vals1all(k),vals2all(k)], 'o-', 'color', colors(k,:), 'linewidth',2);
 end
 xlim([0,3]);
-set(gca,'xtick',1:2,'xticklabel',{'0 PCs','10 PCs'});
+set(gca,'xtick',1:2,'xticklabel',{'0 PCs','5 PCs'});
 ylabel(plotType);
 makeprettyaxes(gca,14,14); %axis square;
 % make title
