@@ -3,6 +3,8 @@ function sensorDataCombined = dfdCombinePlanarChannels(whichSubject, sensorData)
 % Permute sensorData
 sensorData = permute(sensorData, [3 1 2]);
 
+if iscell(sensorData), sensorData = sensorData{1}; end
+
 % Get fieldtrip cfg structure from raw data
 dataDir         = fullfile(dfdRootPath, 'exampleAnalysis', 'data'); 
 
@@ -27,11 +29,20 @@ end
 
 dataRaw = combined(1);
 
-% Get epochs, and remove the ones that were defined as bad
-epochs = 1:(12*size(combined(1).trial,2) + 12*size(combined(2).trial,2) + 12*size(combined(3).trial,2));
+sumTrials = size(combined(1).trial,2)+size(combined(2).trial,2)+size(combined(3).trial,2);
+numConds  = 3;
+numEpochsPerTrial = 12;
+
+if numConds*numEpochsPerTrial*sumTrials ~= size(sensorData,3);    
+    epochs = 1:size(sensorData,3);
+else
+    % Get epochs, and remove the ones that were defined as bad
+    epochs = 1:(numEpochsPerTrial*size(combined(1).trial,2) + numEpochsPerTrial*size(combined(2).trial,2) + numEpochsPerTrial*size(combined(3).trial,2));
+end
+
 % Use knowledge of number of epochs to shorten number of cells in
 % dataRaw.trial
-dataRaw.trial = repmat({zeros(204,1000)},size(epochs,2),1);
+dataRaw.trial = repmat({zeros(size(sensorData,1),1000)},size(epochs,2),1);
 dataRaw.time  = repmat({1:1:1000}, size(epochs,2),1);
 
 

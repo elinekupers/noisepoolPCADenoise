@@ -44,6 +44,7 @@ else
 end
 use3Channels        = false;
 removeFirstEpoch    = true;
+combineChannels     = 'before'; % Before, after or none
 
 %% Get frequencies to define stimulus locked and asynchronous broadband power
 % Data are sampled at 1000 Hz and epoched in one-second bins. Hence
@@ -123,9 +124,14 @@ for whichSubject = subjects
     
     % ------------- Combine channels if NeuroMag360 data -------------
     if whichSubject > 8
-        sensorData = dfdCombinePlanarChannels(whichSubject, sensorData);
-        optbb.npoolmethod = {'r2','n',50};
-        optsl.npoolmethod = {'r2','n',50};
+        if strcmp(combineChannels,'before')
+            sensorData = dfdCombinePlanarChannels(whichSubject, sensorData);
+            optbb.npoolmethod = {'r2','n',50};
+            optsl.npoolmethod = {'r2','n',50};
+        elseif strcmp(combineChannels,'after') || strcmp(combineChannels,'none')
+            optbb.npoolmethod = {'r2','n',100};
+            optsl.npoolmethod = {'r2','n',100};
+        end
     end
     
     % ------------------ Preprocess data ---------------------------------
@@ -160,7 +166,24 @@ for whichSubject = subjects
             [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
         end
         
-        % ------------------ Define file name ---------------------------
+        % Combine channels after denoising if requested
+        if strcmp(combineChannels,'after')
+            opt.pcchoose          = 0;   % Take 10 PCs
+            opt.npcs2try          = 0;
+            optsl                 = opt;
+            optbb                 = opt;
+            optbb.preprocessfun   = [];
+            optbb.npoolmethod     = {'r2','n',50};
+            optsl.npoolmethod     = {'r2','n',50};
+            nrControlModes        = 0;
+            postFix               = 'CombinedAfterDenoising';
+        
+            sensorData = dfdCombinePlanarChannels(whichSubject, denoisedts);
+            sensorData = permute(sensorData, [3 1 2]);
+            [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
+        end
+                
+        %% ------------------ Define file name ---------------------------
         if use3Channels
             fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s%02d_denoisedData' postFix '_w3chan']),whichSubject);
         elseif removeFirstEpoch
