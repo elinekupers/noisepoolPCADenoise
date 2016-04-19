@@ -44,7 +44,7 @@ else
 end
 use3Channels        = false;
 removeFirstEpoch    = true;
-combineChannels     = 'after'; % 'after' denoising or 'none'
+saveDenoisedts      = true;
 
 %% Get frequencies to define stimulus locked and asynchronous broadband power
 % Data are sampled at 1000 Hz and epoched in one-second bins. Hence
@@ -153,6 +153,7 @@ for whichSubject = subjects
             if nrControl == 0;    % do nothing to postFix in filename
             else postFix          = sprintf('_control%d',nrControl); end
             [results,evalout,~,denoisedts_bb] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
+            if saveDenoisedts; save(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's%02d_denoisedts.mat'),whichSubject),'denoisedts_bb'); end
             
         elseif nrControl == 5
             optbb.pccontrolmode   = 0;
@@ -160,24 +161,7 @@ for whichSubject = subjects
             postFix               = sprintf('_control%d',nrControl);
             [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
         end
-        
-        % Combine channels after denoising if requested
-%         if strcmp(combineChannels,'after')
-%             opt.pcchoose          = 0;   % Take 10 PCs
-%             opt.npcs2try          = 0;
-%             optbb                 = opt;
-%             optbb.preprocessfun   = [];
-%             optbb.npoolmethod     = {'r2','n',50};
-%             optsl.npoolmethod     = {'r2','n',50};
-%             nrControlModes        = 0;
-%             postFix               = 'CombinedAfterDenoising';
-%         
-%             sensorData = dfdCombinePlanarChannels(whichSubject, denoisedts_bb);
-%             sensorData = permute(sensorData, [3 1 2]);
-%             [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
-%             
-%         end
-                
+  
         %% ------------------ Define file name ---------------------------
         if use3Channels
             fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s%02d_denoisedData' postFix '_w3chan']),whichSubject);

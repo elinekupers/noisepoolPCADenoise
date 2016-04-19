@@ -9,8 +9,8 @@ function dfdEyeScript(subjects)
 % DESCRIPTION: Function to analyze eyetracking data recorded during MEG visual steady
 % state experiment, for subject 6, 7 and 8.
 %
-% DEPENDENCIES: This function depends on function from the meg_utils
-% repository
+% DEPENDENCIES: This function depends on functions from the meg_utils
+% repository and mgl toolbox
 %
 % AUTHORS. YEAR. TITLE. JOURNAL.
 
@@ -19,7 +19,7 @@ function dfdEyeScript(subjects)
 % =========================================================================
 
 % Check input
-if subjects < 6; disp('WARNING: Subject does not have eye tracking data'); end;
+if subjects < 6; error('Subject does not have eye tracking data'); end;
 
 % Note: Think about how putting these functions in our repository
 toolbox_pth = '/Volumes/server/Projects/MEG/Eyetracking_scripts/';
@@ -30,25 +30,28 @@ addpath(fullfile(toolbox_pth));
 addpath(genpath(fullfile(toolbox_pth,'toolboxes','mgl')));
 addpath(genpath(fullfile(toolbox_pth,'toolboxes','mrToolsUtilities')));
 addpath(genpath('~/Applications/mgl/mgllib'));
+addpath(genpath('~/matlab/git/meg_utils'));
 
 % Check options:
 saveEyd           = true;  % Convert edf to eyd.mat file and save it?
 saveFigures       = true;  % Save images?
-deleteFirstLast   = true; % Delete first and last epoch?
-saveData          = true;  % Save data?
+saveStats         = true;  % Save statistics for barplot
+removeFirstEpoch  = true;  % Delete first and last epoch?
+savePath          = fullfile(dfdRootPath, 'exampleAnalysis','figures_rm1epoch');
+dataPath          = fullfile(dfdRootPath, 'exampleAnalysis', 'data');
 
 % =========================================================================
 % ================= Define paths and load in data =========================
 % =========================================================================
 for whichSubject = subjects
-    edffile = dir(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 'eye','s0%d_eyelink.edf'),whichSubject));
-    tmp = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's0%d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
+    edffile = dir(sprintf(fullfile(dataPath, 'eye','s0%d_eyelink.edf'),whichSubject));
+    tmp = load(sprintf(fullfile(dataPath, 's0%d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
     
     if saveEyd
-        eyd = mglEyelinkEDFRead(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 'eye',edffile.name)));
-        save(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 'eye', 's0%d_eyd.mat'),whichSubject));
+        eyd = mglEyelinkEDFRead(sprintf(fullfile(dataPath, 'eye',edffile.name)));
+        save(sprintf(fullfile(dataPath, 'eye', 's0%d_eyd.mat'),whichSubject));
     else
-        eyd = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 'eye','s0%d_eyd.mat'),whichSubject));
+        eyd = load(sprintf(fullfile(dataPath, 'eye','s0%d_eyd.mat'),whichSubject));
     end
     
     % =====================================================================
@@ -90,7 +93,17 @@ for whichSubject = subjects
     % --------- % Question: Is this true for all subjects?
     onsets = onsets(1:end-12);
     conditions = conditions(1:end-12);
-        
+    
+    if removeFirstEpoch;       
+        % Define
+        badEpochs = zeros(size(onsets));
+        badEpochs(1:6:end) = 1;        
+        % Remove
+        onsets = onsets(~badEpochs);
+        conditions = conditions(~badEpochs);      
+    end
+    
+    
     %% Not ready yet, figure out how to implement blank conditions in conditions vector
     
     % ------------- Define epochs in variables of eyetracking data --------
@@ -99,7 +112,7 @@ for whichSubject = subjects
     [eyeyPos, ~] = meg_make_epochs(s.xyPos(:,2), onsets, [0 .999], 1000, 'eye');
     [eyexVel, ~] = meg_make_epochs(s.xyVel(:,1), onsets, [0 .999], 1000, 'eye');
     [eyeyVel, ~] = meg_make_epochs(s.xyVel(:,2), onsets, [0 .999], 1000, 'eye');
-        
+    
     % ------------- Make design matrix ------------------------------------
     design = zeros(size(onsets,1),3);
     design(conditions==1,1) = 1; % condition 1 is full field
@@ -115,11 +128,11 @@ for whichSubject = subjects
     condsName = {'Blank','Full','Left','Right'};
     
     
- 
+    
     %% ====================================================================
     %  ============ Plot eye traces for visual inspection =================
     %  ====================================================================
-
+    
     %% Plot X COORDINATES
     deglims = 20;
     figure(1); clf; set(gcf,'Color', 'w');
@@ -127,22 +140,22 @@ for whichSubject = subjects
     
     % All eyetracking data
     plot(s.time/1000,s.xyPos(:,1), 'k'); hold on;
-     % Plot per stimulus condition
+    % Plot per stimulus condition
     for nn = 1:4
-         plot(eyets(:,conds{nn}),eyexPos(:,conds{nn}));
+        plot(eyets(:,conds{nn}),eyexPos(:,conds{nn}));
     end
     grid on;
     ylim(deglims*[-1,1]); xlabel('Time (s)'); ylabel('X (deg)');
     
     
-    %% Plot Y COORDINATES  
+    %% Plot Y COORDINATES
     subplot(2,2,3);
     
     % All eyetracking data
-    plot(s.time/1000,s.xyPos(:,2),'k'); hold on;    
+    plot(s.time/1000,s.xyPos(:,2),'k'); hold on;
     % Plot per stimulus condition
     for nn = 1:4
-         plot(eyets(:,conds{nn}),eyeyPos(:,conds{nn}));
+        plot(eyets(:,conds{nn}),eyeyPos(:,conds{nn}));
     end
     
     grid on;
@@ -150,18 +163,18 @@ for whichSubject = subjects
     
     %% Plot XY ON GRID
     subplot(2,2,[2,4]);
-
+    
     % All eyetracking data
     plot(s.xyPos(:,1),s.xyPos(:,2), 'k'); axis square; grid on; hold on;
     % Plot per stimulus condition
     for nn = 1:4
-         plot(eyexPos(:,conds{nn}),eyeyPos(:,conds{nn}));
+        plot(eyexPos(:,conds{nn}),eyeyPos(:,conds{nn}));
     end
-     
+    
     xlim(deglims*[-1,1]); ylim(deglims*[-1,1]);
     xlabel('X (deg)', 'Fontsize', 20);  ylabel('Y (deg)', 'Fontsize', 20);
     set(gca, 'FontSize', 20);
-
+    
     
     %% =================================================
     %  =============== Detect saccades =================
@@ -246,34 +259,35 @@ for whichSubject = subjects
     
     %% Epoched data
     
+    allSacs       = {};
+    allSacsMedian = {};
+    allData       = {};
+    
+    % For all conditions (Both, Left, Right, Blank)
     for nn = 1:4
-        
+        % Get velocity
         thiseyexVel = eyexVel(:,conds{nn});
         thiseyeyVel = eyeyVel(:,conds{nn});
-        
+        % Get position
         thiseyexPos = eyexPos(:,conds{nn});
         thiseyeyPos = eyeyPos(:,conds{nn});
-
-        
+          
         % Concatenate all conditions for XY position and XY velocity
         eyexyVel = [thiseyexVel(:), thiseyeyVel(:)];
         eyexyPos = [thiseyexPos(:), thiseyeyPos(:)];
-    
-    
-    
+
+        % Define microsaccades
         [sacRaw,radius] = microsacc(eyexyPos,eyexyVel,vThres,msMinDur);
-    
-        % remove the ones that occurr closely together (overshoot)
+        
+        % Remove the ones that occurr closely together (overshoot)
         numSacs = size(sacRaw,1);
         minInterSamples = ceil(0.01*s.eyeInfo.smpRate);
-       
         interSac = sacRaw(2:end,1)- sacRaw(1:end-1,2);
         sac = sacRaw([1; find(interSac > minInterSamples)+1],:);
-        fprintf('%d rejected for close spacing\n', numSacs - size(sac,1));
-    
+        fprintf('%d rejected for close spacing\n', numSacs - size(sac,1));     
         fprintf('%d saccades detected\n', size(sac,1));
-    
-        % saved detected saccades into s
+        
+        % Saved detected saccades into variable called 's'
         s.sacsRaw          = sacRaw;
         s.sacs             = sac;
         s.sacDetectRadius  = radius;
@@ -281,24 +295,24 @@ for whichSubject = subjects
         s.eyeInfo.msMinDur = msMinDur;
         s.time             = eyets(:,conds{nn});
         s.xyPos            = eyexyPos;
-
+        
         fprintf('number of saccades detected: %d, detectRadius: [%0.3f %0.3f]\n', ...
             size(s.sacs,1), s.sacDetectRadius(1), s.sacDetectRadius(2));
-
-        % look at detected saccades
-        figure(2+nn); clf; set(gcf,'Color', 'w');
+        
+        % Look at detected saccades
+        figure(2+nn); clf; set(gcf,'Color', 'w','name',sprintf('%s',condsName{nn}));
         msSacStats1(s);
-        title(sprintf('Angular distribution %s',condsName{nn}));
+        title('Angular distribution');
         
         % Get mean and median of positions in trials
         traceMean = nanmean(s.xyPos);
         traceMedian = nanmedian(s.xyPos);
         traceCov = cov(s.xyPos(~isnan(s.xyPos(:,1)),:));
         
-        % Plot it   
+        % Plot it
         figure; clf; set(gcf,'Color', 'w');
         subplot(1,2,1); hold on;
-
+        
         % distribution of samples
         plot(s.xyPos(:,1),s.xyPos(:,2),'.','markersize',1);
         % 95% confidence ellipse
@@ -309,7 +323,7 @@ for whichSubject = subjects
         xlim(5*[-1,1]); ylim(5*[-1,1]);
         title(sprintf('Eye position of %s samples',condsName{nn}));
         xlabel('Horizontal (deg)'); ylabel('Vertical (deg)');
-
+        
         subplot(1,2,2); hold on; % distribution of saccades
         dxy = s.sacs(:,6:7);
         sacMean = mean(dxy);
@@ -325,40 +339,39 @@ for whichSubject = subjects
         xlabel('Horizontal (deg)'); ylabel('Vertical (deg)');
         xlim(5*[-1,1]); ylim(5*[-1,1]);
         title('Saccade vectors');
+        
+        allSacs{nn} = s.sacs;
+        allSacsMedian{nn} = sacMedian;
+        allData{nn} = s;
+
     end
     
-%     %% Export images
-%     if save_images
-%         if delete_first_last
-%             cd(datapath);
-%             hgexport(1,fullfile(datapath,'eyetracking_fig1_xypositions_no_firstlast.eps'));
-%             hgexport(2,fullfile(datapath,'eyetracking_fig2_microsaccades_all_no_firstlast.eps'));
-%             hgexport(3,fullfile(datapath,'eyetracking_fig3_microsaccades_both_no_firstlast.eps'));
-%             hgexport(4,fullfile(datapath,'eyetracking_fig4_microsaccades_off_no_firstlast.eps'));
-%             hgexport(5,fullfile(datapath,'eyetracking_fig5_microsaccades_left_no_firstlast.eps'));
-%             hgexport(6,fullfile(datapath,'eyetracking_fig6_microsaccades_right_no_firstlast.eps'));
-%             hgexport(7,fullfile(datapath,'eyetracking_fig7_xypos_ms_all_no_firstlast.eps'));
-%             hgexport(8,fullfile(datapath,'eyetracking_fig8_xypos_ms_off_no_firstlast.eps'));
-%             hgexport(9,fullfile(datapath,'eyetracking_fig9_xypos_ms_both_no_firstlast.eps'));
-%             hgexport(10,fullfile(datapath,'eyetracking_fig10_xypos_ms_right_no_firstlast.eps'));
-%             hgexport(11,fullfile(datapath,'eyetracking_fig11_xypos_ms_left_no_firstlast.eps'));
-%             hgexport(12,fullfile(datapath,'eyetracking_fig12_xypos_ms_combined_no_firstlast.eps'));
-%             
-%         else
-%             
-%             hgexport(1,fullfile(datapath,'eyetracking_fig1_xypositions.eps'));
-%             hgexport(2,fullfile(datapath,'eyetracking_fig2_microsaccades_all.eps'));
-%             hgexport(3,fullfile(datapath,'eyetracking_fig3_microsaccades_both.eps'));
-%             hgexport(4,fullfile(datapath,'eyetracking_fig4_microsaccades_off.eps'));
-%             hgexport(5,fullfile(datapath,'eyetracking_fig5_microsaccades_left.eps'));
-%             hgexport(6,fullfile(datapath,'eyetracking_fig6_microsaccades_right.eps'));
-%             hgexport(7,fullfile(datapath,'eyetracking_fig7_xypos_ms_all.eps'));
-%             hgexport(8,fullfile(datapath,'eyetracking_fig8_xypos_ms_off.eps'));
-%             hgexport(9,fullfile(datapath,'eyetracking_fig9_xypos_ms_both.eps'));
-%             hgexport(10,fullfile(datapath,'eyetracking_fig10_xypos_ms_right.eps'));
-%             hgexport(11,fullfile(datapath,'eyetracking_fig11_xypos_ms_left.eps'));
-%             hgexport(12,fullfile(datapath,'eyetracking_fig12_xypos_ms_combined.eps'));
-%         end
-%     end
-%     
+            
+        if saveStats
+            % Put statistics in struct
+            stats = struct('freqBoth', size(allSacs{1},1),'freqLeft',size(allSacs{2},1), 'freqRight',size(allSacs{3},1), 'freqBlank',size(allSacs{3},1), ...
+                            'mdAmplBoth', allSacsMedian{1}, 'mdAmplLeft', allSacsMedian{2}, 'mdAmplRight', allSacsMedian{3}, 'mdAmplBlank', allSacsMedian{4}, 'allData',allData);
+            % Save data
+            fname = fullfile(dataPath,sprintf('s0%d_freq_mdAmpl',whichSubject));
+            save([fname '.mat'],'stats')
+        end
+
+    
+    %% Export images
+    if saveFigures
+        if removeFirstEpoch; postFix = '_rm1epoch'; else postFix = []; end;
+            hgexport(1,fullfile(savePath,sprintf('S%2d_eyetracking_fig1_xypositions%s.eps', whichSubject, postFix)));
+            hgexport(2,fullfile(savePath,sprintf('S%2d_eyetracking_fig2_microsaccades_all%s.eps', whichSubject,postFix)));
+            hgexport(3,fullfile(savePath,sprintf('S%2d_eyetracking_fig3_microsaccades_both%s.eps', whichSubject, postFix)));
+            hgexport(4,fullfile(savePath,sprintf('S%2d_eyetracking_fig4_microsaccades_blank%s.eps', whichSubject, postFix)));
+            hgexport(5,fullfile(savePath,sprintf('S%2d_eyetracking_fig5_microsaccades_left%s.eps', whichSubject,postFix)));
+            hgexport(6,fullfile(savePath,sprintf('S%2d_eyetracking_fig6_microsaccades_right%s.eps', whichSubject,postFix)));
+            hgexport(7,fullfile(savePath,sprintf('S%2d_eyetracking_fig7_xypos_ms_all%s.eps', whichSubject,postFix)));
+%             hgexport(8,fullfile(savePath,sprintf('S%2d_eyetracking_fig8_xypos_ms_blank%s.eps', whichSubject,postFix)));
+%             hgexport(9,fullfile(savePath,sprintf('S%2d_eyetracking_fig9_xypos_ms_both%s.eps', whichSubject,postFix)));
+%             hgexport(10,fullfile(savePath,sprintf('S%2d_eyetracking_fig10_xypos_ms_right%s.eps', whichSubject,postFix)));
+%             hgexport(11,fullfile(savePath,sprintf('S%2d_eyetracking_fig11_xypos_ms_left%s.eps', whichSubject,postFix)));
+%             hgexport(12,fullfile(savePath,sprintf('S%2d_eyetracking_fig12_xypos_ms_combined%s.eps', whichSubject,postFix)));
+    end
+    
 end

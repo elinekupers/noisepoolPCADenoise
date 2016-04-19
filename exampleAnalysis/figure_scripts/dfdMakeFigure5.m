@@ -14,21 +14,14 @@ function dfdMakeFigure5()
 % function. 
 
 %% Choices to make:                                              
-whichSubject    = 15;        % Subject 1 is the example subject.
-figureDir       = fullfile(dfdRootPath, 'exampleAnalysis', 'figures_rm1epoch_CiNet'); % Where to save images?
+whichSubject    = 8;        % Subject 1 is the example subject.
+figureDir       = fullfile(dfdRootPath, 'exampleAnalysis', 'figures_rm1epoch'); % Where to save images?
 dataDir         = fullfile(dfdRootPath, 'exampleAnalysis', 'data');    % Where to save data?
 saveFigures     = true;     % Save figures in the figure folder?
 threshold       = 0;        % Set threshold for colormap. If no threshold set value to 0
+cfg             = [];
+data_hdr        = [];
 
-% if whichSubject > 8;
-%     
-%     dataRaw = load(sprintf(fullfile(dataDir, 's%02d_raw.mat'),whichSubject));
-%     cfg = dataRaw.data_A_all.cfg;
-%     try data_hdr = dataRaw.data_A_all.hdr; catch data_hdr = []; end
-% else
-    cfg = [];
-    data_hdr = [];
-% end
 
 
 %% Load denoised data of example subject
@@ -41,23 +34,21 @@ figure('position',[1,600,1400,800]);
 condNames = {'Stim Full','Stim Right','Stim Left'};
 for icond = 1:3
     % get stimulus-locked snr
-    sl_snr1 = getsignalnoise(sl.results.origmodel(1),icond, 'SNR');
+    sl_snr1 = getsignalnoise(sl.results.origmodel(1),icond, 'SNR',sl.badChannels);
     % get broadband snr for before and after denoising
-    ab_snr1 = getsignalnoise(bb.results.origmodel(1),  icond, 'SNR');
-    ab_snr2 = getsignalnoise(bb.results.finalmodel(1), icond, 'SNR');
+    ab_snr1 = getsignalnoise(bb.results.origmodel(1),  icond, 'SNR',bb.badChannels);
+    ab_snr2 = getsignalnoise(bb.results.finalmodel(1), icond, 'SNR',bb.badChannels);
     
-    if whichSubject < 9;
-        clims_sl = [-25.6723,25.6723];
-         clims_ab = max(abs([ab_snr1, 7.4445])) * [-1,1];     
-%          clims_ab = [-7.4445, 7.4445];     
-    else
-        clims_sl = [-10.6723,10.6723];
-        clims_ab = max(abs([ab_snr1, 7.4445])) * [-1,1];
-%         clims_ab = [-4.4445, 4.4445];
-    end 
-%     clims_ab = [0, max([ab_snr1, ab_snr2])];
+    clims_sl = [-25.6723,25.6723];
+%   clims_ab = max(abs([ab_snr1, 7.4445])) * [-1,1];     
+    clims_ab = [-8.4445, 8.4445];     
+
+    % clims_sl = [-10.6723,10.6723];
+    % clims_ab = max(abs([ab_snr1, 7.4445])) * [-1,1];
+    % clims_ab = [-4.4445, 4.4445];
+    % clims_ab = [0, max([ab_snr1, ab_snr2])];
     
-    if whichSubject < 9; % Assuming NeuroMag360 data has no badChannels (CHECK!)
+    if whichSubject < 9; % NeuroMag360 data is already converted when combining the channels
         % convert back into 157-channel space
         ab_snr1 = to157chan(ab_snr1,~bb.badChannels,'nans');
         ab_snr2 = to157chan(ab_snr2,~bb.badChannels,'nans');
@@ -68,12 +59,7 @@ for icond = 1:3
     ab_snr1(abs(ab_snr1) < threshold) = 0;
     ab_snr2(abs(ab_snr2) < threshold) = 0;
     sl_snr1(abs(sl_snr1) < threshold) = 0;
-    
-    % Combine channels by taking the mean between of two corresponding ones
-%     ab_snr1 =  mean([ab_snr1(1:2:end),ab_snr1(2:2:end)],1);
-%     ab_snr2 =  mean([ab_snr2(1:2:end),ab_snr2(2:2:end)],1);
-%     sl_snr1 =  mean([sl_snr1(1:2:end),sl_snr1(2:2:end)],1);
-%  
+   
     % plot spatial maps
     subplot(3,3,(icond-1)*3+1)
     [~,ch] = megPlotMap(sl_snr1,clims_sl,gcf,'bipolar',sprintf('%s : Stimulus Locked Original', condNames{icond}),data_hdr,cfg);
@@ -92,6 +78,6 @@ for icond = 1:3
 end
 
 if saveFigures
-    hgexport(gcf, sprintf(fullfile(figureDir,'figure5_examplesubject%d_parula_thresh%d_SNRcomb'),whichSubject, threshold));
+    printnice(gcf, 0, figureDir, sprintf('figure5_examplesubject%d_bipolar_thresh%d_interpolated',whichSubject, threshold));
 end
 

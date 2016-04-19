@@ -76,7 +76,7 @@ for k = 1:numel(nsess)
     plot(1:2, [vals1all(k),vals2all(k)], 'o-', 'color', colors(k,:), 'linewidth',2);
 end
 xlim([0,3]);
-set(gca,'xtick',1:2,'xticklabel',{'0 PCs','5 PCs'});
+set(gca,'xtick',1:2,'xticklabel',{'0 PCs','10 PCs'});
 ylabel(plotType);
 makeprettyaxes(gca,14,14); %axis square;
 % make title

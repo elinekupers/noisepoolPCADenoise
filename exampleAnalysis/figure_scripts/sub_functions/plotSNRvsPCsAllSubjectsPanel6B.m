@@ -11,7 +11,7 @@ dataAll = dataAll(dataAllind);
 
 for k = 1:numel(dataAll)
 
-    snr = abs(cat(3,dataAll{k}{1}.evalout(:,1).beta_md)) ./ cat(3,dataAll{k}{1}.evalout(:,1).beta_se);    
+    snr = (cat(3,dataAll{k}{1}.evalout(:,1).beta_md)) ./ cat(3,dataAll{k}{1}.evalout(:,1).beta_se);    
     xvaltrend = [];
     for icond = 1:3
         this_snr = squeeze(snr(icond,:,1:11))';
@@ -35,7 +35,7 @@ for icond = 1:3
         plot(0:axmax, squeeze(snr_top10(:,icond,nn)), 'color', squeeze(colorRGB(icond,nn,:)));
     end
     axis square; xlim([0,axmax]);
-    ylim([0,12]); set(gca,'ytick',0:5:10); % for SL: ylim([0,40]); set(gca,'ytick',0:10:40);
+    ylim([-1,12]); set(gca,'ytick',0:5:10); % for SL: ylim([0,40]); set(gca,'ytick',0:10:40);
     title(ttls{icond});
     makeprettyaxes(gca,9,9);
 end

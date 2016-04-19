@@ -5,7 +5,7 @@ whichSubject    = 8;        % Subject 1 is the example subject. NB: Can only run
 figureDir       = fullfile(dfdRootPath, 'exampleAnalysis', 'figures_rm1epoch'); % Where to save images?
 dataDir         = fullfile(dfdRootPath, 'exampleAnalysis', 'data');    % Where to save data?
 saveFigures     = true;     % Save figures in the figure folder?
-threshold       = 2;
+threshold       = 0;
 
 %% Load denoised data of example subject
 [data] = prepareData(dataDir,whichSubject,5);
@@ -65,7 +65,7 @@ makeprettyaxes(ch,9,9);
 title(sprintf('Broadband Post %s', 'Left minus Right'))
 
 if saveFigures
-    figurewrite(sprintf(fullfile(figureDir,'figure5_LR_examplesubject%d_bipolar_threshold%d'),whichSubject, threshold),[],0,'.',1);
+    printnice(gcf, 0, figureDir, sprintf('figure5_LR_examplesubject%d_bipolar_threshold%d',whichSubject, threshold));
 end
 
 end

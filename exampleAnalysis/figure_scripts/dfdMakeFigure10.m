@@ -52,9 +52,9 @@ end
 %% Plot figure
 fH = figure('position',[0,300,700,300]);
 % define what the different conditions are 
-types = {'MEG Denoise','Phase-scrambled','Order shuffled', 'Random Amplitude', 'Replace PCs with random values','All channels in noisepool'};
+types = {'MEG Denoise','Replace PCs with random values','All channels in noisepool'}; % 'Phase-scrambled','Order shuffled', 'Random Amplitude', 
 % re-arrange the order of the bars 
-neworder = [1,3,4,2,5,6];
+neworder = [1,3,2];
 newtypes = types(neworder);
 
 snr_diff2 = snr_diff(:,neworder,:);

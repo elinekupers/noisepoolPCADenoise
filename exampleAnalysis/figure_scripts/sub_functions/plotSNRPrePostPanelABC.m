@@ -15,9 +15,13 @@ for k = 1:numel(exampleSessions)
     
     % signal and noise before denoising
     ab_signal1 = abs(dataAll{k}{1}.results.origmodel(1).beta_md(:,pcchan));
+    ab_signal1 = dataAll{k}{1}.results.origmodel(1).beta_md(:,pcchan);
+
     ab_noise1  = dataAll{k}{1}.results.origmodel(1).beta_se(:,pcchan);
     % signal and noise after denoising 
     ab_signal2 = abs(dataAll{k}{1}.results.finalmodel(1).beta_md(:,pcchan));
+    ab_signal2 = dataAll{k}{1}.results.finalmodel(1).beta_md(:,pcchan);
+
     ab_noise2  = dataAll{k}{1}.results.finalmodel(1).beta_se(:,pcchan);
     % snr = signal/denoise
     ab_snr1    = ab_signal1./ab_noise1;

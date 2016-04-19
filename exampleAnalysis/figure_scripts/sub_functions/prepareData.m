@@ -5,8 +5,8 @@ switch whichFigure
         % Load denoised data
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_sensorData.mat'),whichSubject));
-        load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_notComb_bb.mat'),whichSubject));
-        load(sprintf(fullfile(dataDir, 's%02d_denoisedts_rm1epoch_notComb.mat'),whichSubject));
+        load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));
+        load(sprintf(fullfile(dataDir, 's%02d_denoisedts.mat'),whichSubject));
         
         
         exampleChannel = 42;
@@ -39,9 +39,9 @@ switch whichFigure
         
     case 5
 
-        bb = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_notComb_bb.mat'),whichSubject));
+        bb = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));
         
-        sl = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_notComb_sl.mat'),whichSubject));
+        sl = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_sl.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
 
         data = {bb,sl};

@@ -19,11 +19,11 @@ function dfdMakeFigure6()
 % function. 
 
 %% Choices to make:
-whichSubjects       = [9:12];%1:8;             
-figureDir           = fullfile(dfdRootPath, 'exampleAnalysis', 'figures_rm1epoch_CiNet'); % Where to save images?
+whichSubjects       = [1:8];             
+figureDir           = fullfile(dfdRootPath, 'exampleAnalysis', 'figures_rm1epoch'); % Where to save images?
 dataDir             = fullfile(dfdRootPath, 'exampleAnalysis', 'data');    % Where to save data?
 saveFigures         = true;         % Save figures in the figure folder?
-exampleSessions     = [1:4];%[1,2,3,4,5,6,7,8];
+exampleSessions     = [1,2,3,4,5,6,7,8];
 condColors          = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
 axmax               = 10;           % how far to go out on the x-axis
 

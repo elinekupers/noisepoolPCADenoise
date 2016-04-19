@@ -36,16 +36,16 @@ end
 
 
 % clip data to 157 points
-if length(sensor_data) < 157 || length(sensor_data) > 200; 
+if length(sensor_data) < 157 || length(sensor_data) > 157; 
     
     cfg = [];
 %     cfg.layout = ft_prepare_layout(cfg, data_hdr);
     
-    if length(sensor_data) > 200; cfg.layout = 'neuromag306planar';
+    if length(sensor_data) > 157; cfg.layout = 'neuromag306planar';
     elseif length(sensor_data) < 157; cfg.layout = 'neuromag306cmb'; end
     cfg.style     ='straight';
-    cfg.interpolation = 'nearest';
-%     cfg.interpolation   = 'v4';
+%     cfg.interpolation = 'nearest';
+    cfg.interpolation   = 'v4';
     cfg.data = sensor_data';
     cfg.data(isnan(cfg.data)) = nanmedian(sensor_data);
     cfg.data(isinf(cfg.data)) = max(sensor_data);
@@ -56,7 +56,7 @@ elseif length(sensor_data) >= 157,
     % Define plotting options
     cfg.layout = ft_prepare_layout(cfg, data_hdr);
     cfg.style='straight';
-    cfg.interpolation = 'nearest';
+    cfg.interpolation = 'v4';
     %cfg.style='blank';
     %cfg.electrodes ='numbers';
     cfg.colorbar='yes';
