@@ -4,7 +4,7 @@ function dfdEyeScript(subjects)
 % dfdEyeScript(subjects)
 %
 % INPUTS:
-% subjects    : Number of subjects one would like to denoise
+% subjects    : Vector of subject numbers one would like to analyze
 %
 % DESCRIPTION: Function to analyze eyetracking data recorded during MEG visual steady
 % state experiment, for subject 6, 7 and 8.
@@ -29,16 +29,18 @@ toolbox_pth = '/Volumes/server/Projects/MEG/Eyetracking_scripts/';
 addpath(fullfile(toolbox_pth));
 addpath(genpath(fullfile(toolbox_pth,'toolboxes','mgl')));
 addpath(genpath(fullfile(toolbox_pth,'toolboxes','mrToolsUtilities')));
-addpath(genpath('~/Applications/mgl/mgllib'));
 addpath(genpath('~/matlab/git/meg_utils'));
 
 % Check options:
-saveEyd           = true;  % Convert edf to eyd.mat file and save it?
+saveEyd           = false;  % Convert edf to eyd.mat file and save it?
 saveFigures       = true;  % Save images?
 saveStats         = true;  % Save statistics for barplot
 removeFirstEpoch  = true;  % Delete first and last epoch?
 savePath          = fullfile(dfdRootPath, 'exampleAnalysis','figures_rm1epoch');
 dataPath          = fullfile(dfdRootPath, 'exampleAnalysis', 'data');
+
+rad.x = 15; % screen radius in deg. CHECK!!!
+rad.y = 12; % screen radius in deg. CHECK!!!
 
 % =========================================================================
 % ================= Define paths and load in data =========================
@@ -49,9 +51,10 @@ for whichSubject = subjects
     
     if saveEyd
         eyd = mglEyelinkEDFRead(sprintf(fullfile(dataPath, 'eye',edffile.name)));
-        save(sprintf(fullfile(dataPath, 'eye', 's0%d_eyd.mat'),whichSubject));
+        save(sprintf(fullfile(dataPath, 'eye', 's0%d_eyd.mat'),whichSubject), 'eyd');
     else
-        eyd = load(sprintf(fullfile(dataPath, 'eye','s0%d_eyd.mat'),whichSubject));
+        tmp = load(sprintf(fullfile(dataPath, 'eye','s0%d_eyd.mat'),whichSubject));
+        eyd = tmp.eyd; clear tmp;
     end
     
     % =====================================================================
@@ -62,8 +65,8 @@ for whichSubject = subjects
     % an argument for the msGetEyeData function.
     % Blink window is pretty conservative right now. could be [-0.1,0.1] (100
     % ms either way)
-    startTime   = 8;
-    endTime     = 0;
+    startTime   = esFindStart(eyd); % find the first message that contains MEG trigger
+    endTime     = 0; % number of messages to omit from end (if any)
     timeLims    = [eyd.messages(startTime).time(1), eyd.messages(end-endTime).time];
     blinkWinSec = [0.2 0.35];
     s = msGetEyeData(eyd,timeLims,blinkWinSec);
@@ -104,7 +107,7 @@ for whichSubject = subjects
     end
     
     
-    %% Not ready yet, figure out how to implement blank conditions in conditions vector
+    %% Convert x,y position and velocity vetors into epoched matrices (t x epoch)
     
     % ------------- Define epochs in variables of eyetracking data --------
     [eyets, ~]   = meg_make_epochs(s.time, onsets, [0 .999], 1000, 'eye');
@@ -132,30 +135,30 @@ for whichSubject = subjects
     %% ====================================================================
     %  ============ Plot eye traces for visual inspection =================
     %  ====================================================================
-    
+    colors = [0 0 0; 63, 121, 204; 228, 65, 69; 116,183,74]/255;
+
     %% Plot X COORDINATES
     deglims = 20;
     figure(1); clf; set(gcf,'Color', 'w');
     subplot(2,2,1);
     
     % All eyetracking data
-    plot(s.time/1000,s.xyPos(:,1), 'k'); hold on;
+    plot(s.time/1000,s.xyPos(:,1), 'Color', [.7 .7 .7]); hold on;
     % Plot per stimulus condition
     for nn = 1:4
-        plot(eyets(:,conds{nn}),eyexPos(:,conds{nn}));
+        plot(eyets(:,conds{nn})/1000,eyexPos(:,conds{nn}), 'Color', colors(nn,:));
     end
     grid on;
     ylim(deglims*[-1,1]); xlabel('Time (s)'); ylabel('X (deg)');
-    
     
     %% Plot Y COORDINATES
     subplot(2,2,3);
     
     % All eyetracking data
-    plot(s.time/1000,s.xyPos(:,2),'k'); hold on;
+    plot(s.time/1000,s.xyPos(:,2), 'Color', [.7 .7 .7]); hold on;
     % Plot per stimulus condition
     for nn = 1:4
-        plot(eyets(:,conds{nn}),eyeyPos(:,conds{nn}));
+        plot(eyets(:,conds{nn})/1000,eyeyPos(:,conds{nn}), 'Color', colors(nn,:));
     end
     
     grid on;
@@ -165,17 +168,17 @@ for whichSubject = subjects
     subplot(2,2,[2,4]);
     
     % All eyetracking data
-    plot(s.xyPos(:,1),s.xyPos(:,2), 'k'); axis square; grid on; hold on;
+    plot(s.xyPos(:,1),s.xyPos(:,2), 'Color', [.7 .7 .7]); axis square; grid on; hold on;
     % Plot per stimulus condition
     for nn = 1:4
-        plot(eyexPos(:,conds{nn}),eyeyPos(:,conds{nn}));
+        plot(eyexPos(:,conds{nn}),eyeyPos(:,conds{nn}), 'Color', colors(nn,:));
     end
     
     xlim(deglims*[-1,1]); ylim(deglims*[-1,1]);
     xlabel('X (deg)', 'Fontsize', 20);  ylabel('Y (deg)', 'Fontsize', 20);
     set(gca, 'FontSize', 20);
     
-    
+    plot(rad.x*[-1 1 1 -1 -1], rad.y*[-1 -1 1 1 -1], 'k--')
     %% =================================================
     %  =============== Detect saccades =================
     %  =================================================
@@ -375,3 +378,16 @@ for whichSubject = subjects
     end
     
 end
+
+end
+
+
+function startTime   = esFindStart(eyd)
+    startTime = NaN;
+    for ii = 1:length(eyd.messages)
+        if strfind(eyd.messages(ii).message, 'MEG Trigger')
+            startTime = ii; return
+        end
+    end
+end
+

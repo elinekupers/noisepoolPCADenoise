@@ -11,7 +11,7 @@ xt = [12:12:72, 96,144];
 yt = 0:1;
 yl=[yt(1),yt(end)];
 
-for exampleChannel = 1:204% 42;
+for exampleChannel = 1:157 %42;
     clf;
 for dd = 1
     

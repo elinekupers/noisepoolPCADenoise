@@ -9,13 +9,14 @@ switch whichFigure
         load(sprintf(fullfile(dataDir, 's%02d_denoisedts.mat'),whichSubject));
         
         
-        exampleChannel = 42;
+%         exampleChannel = 42;
+        exampleChannel = 13;
         
         % preprocessing parameters (see dfdPreprocessData)
         varThreshold        = [0.05 20];
         badChannelThreshold = 0.2;
         badEpochThreshold   = 0.2;
-        if whichSubject < 8
+        if whichSubject < 9
             dataChannels    = 1:157;
         else
             dataChannels    = 1:204;
