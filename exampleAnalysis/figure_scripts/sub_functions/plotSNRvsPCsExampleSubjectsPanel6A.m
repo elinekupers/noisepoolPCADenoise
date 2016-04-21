@@ -10,7 +10,7 @@ for k = 1:length(exampleSessions)
     dataAll = dataAll(dataAllind);
     
     % get snr
-    snr = abs(cat(3,dataAll{k}{1}.evalout(:,1).beta_md)) ./ cat(3,dataAll{k}{1}.evalout(:,1).beta_se);
+    snr = (cat(3,dataAll{k}{1}.evalout(:,1).beta_md)) ./ cat(3,dataAll{k}{1}.evalout(:,1).beta_se);
     
     % plot for each condition
     for icond = 1:3
@@ -32,7 +32,7 @@ for k = 1:length(exampleSessions)
 
         % plot(axmax+1, xvaltrend(51,:), 'o', 'color', condColors(icond,:));
         axis square; xlim([0,axmax]);
-        ylim([0,15]); % if SL: ylim([0,50])
+        ylim([-5,15]); % if SL: ylim([0,50])
         makeprettyaxes(gca,9,9);
     end
 end

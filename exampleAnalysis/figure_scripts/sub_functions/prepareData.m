@@ -6,16 +6,17 @@ switch whichFigure
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_sensorData.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));
-        load(sprintf(fullfile(dataDir, 's%02d_denoisedts_rm1epoch.mat'),whichSubject));
+        load(sprintf(fullfile(dataDir, 's%02d_denoisedts.mat'),whichSubject));
         
         
-        exampleChannel = 42;
+%         exampleChannel = 42;
+        exampleChannel = 13;
         
         % preprocessing parameters (see dfdPreprocessData)
         varThreshold        = [0.05 20];
         badChannelThreshold = 0.2;
         badEpochThreshold   = 0.2;
-        if whichSubject < 8
+        if whichSubject < 9
             dataChannels    = 1:157;
         else
             dataChannels    = 1:204;
@@ -34,16 +35,16 @@ switch whichFigure
         sensorData = permute(sensorData, [3 1 2]);
         
         % time domain data before and after denoising
-        denoisedts = denoiseddata;
+        denoisedts = denoisedts_bb;
         data = {sensorData,denoisedts{1}}; 
         
     case 5
 
         bb = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));
+        
         sl = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_sl.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
 
-        
         data = {bb,sl};
         
     case 6

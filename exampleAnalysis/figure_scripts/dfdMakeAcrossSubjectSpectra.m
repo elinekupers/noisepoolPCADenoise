@@ -1,6 +1,49 @@
-function fH = plotSpectraPanel4B(data, exampleIndex, condEpochs, avgLogFlg, colors, saveFigures, figureDir);
+function dfdMakeAcrossSubjectSpectra(subjects)
 
-%% set up figure 4B
+subjects = 1:8;
+
+% dfdMakeAcrossSubjectSpectra(subjects)
+figureDir       = fullfile(dfdRootPath, 'exampleAnalysis', 'figures_rm1epoch'); % Where to save images?
+dataDir         = fullfile(dfdRootPath, 'exampleAnalysis', 'data');    % Where to save data?
+saveFigures     = true;     % Save figures in the figure folder?
+
+%% Compute SNR across subjects
+% contrasts = [1 0 0; 0 1 0; 0 0 1; 0 1 -1]; % Full, Left, Right and L-R
+
+contrastNames = {
+    'Full'...
+    'Left'...
+    'Right'...
+    'Left-Right'
+    };
+
+%% Load denoised data of all subjects
+
+orig = {};
+denoised= {};
+
+for whichSubject = subjects
+    for c = 1:4; %conds
+    
+    % Get data
+    subjnum = find(subjects==whichSubject);
+    [data,design,exampleIndex] = prepareData(dataDir,whichSubject,4);
+    
+    % Define conditions: Full, right, left, off
+    condEpochs1 = {design{1}(:,1)==1, design{1}(:,2)==1, design{1}(:,3)==1, all(design{1}==0,2)};
+    condEpochs2 = {design{2}(:,1)==1, design{2}(:,2)==1, design{2}(:,3)==1, all(design{2}==0,2)};
+   
+    orig{subjnum,c} = squeeze(data{1}(exampleIndex,:,condEpochs1{c}));
+    denoised{subjnum,c} = squeeze(data{2}(exampleIndex,:,condEpochs2{c}));
+    
+    end
+end
+
+
+
+%% Plot stimulus-locked signal, broadband before and after denoising on sensormap
+condNames = {'Stim Full','Stim Left','Stim Right'};
+
 fH = figure; set(fH,'position',[0,300,200,350]);
 
 % define axes
@@ -12,13 +55,16 @@ xt = [12:12:72, 96,144];
 yt = [1:2.5];
 yl=[yt(1),yt(end)];
 
-for exampleChannel = 1:157%42;
-    clf;
     for dd = 1:2
         subplot(2,1,dd);
         
         % compute spectrum
-        spec = abs(fft(squeeze(data{dd}(exampleChannel,:,:))))/size(data{dd},2)*2;
+%         if dd = 1;
+%             data = mean(orig
+        
+        
+        
+        spec = abs(fft(data)/num_timepoints*2);
         
         hold on;
         for ii = [1,4]

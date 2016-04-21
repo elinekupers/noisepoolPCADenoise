@@ -1,4 +1,4 @@
-function sensorDataCombined = dfdCombinePlanarChannels(sensorData, dim)
+function sensorDataCombined = dfd204to102(sensorData, dim)
 
 if ~exist('dim', 'var'), 
     dim = find(size(sensorData) == 204);
