@@ -52,13 +52,13 @@ end
 %% Plot figure
 fH = figure('position',[0,300,700,300]);
 % define what the different conditions are 
-types = {'MEG Denoise','Replace PCs with random values','All channels in noisepool'}; % 'Phase-scrambled','Order shuffled', 'Random Amplitude', 
+types = {'MEG Denoise','Order shuffled','Random Amplitude','Phase-scrambled','Replace PCs with random values','All channels in noisepool'}; % 
 % re-arrange the order of the bars 
-neworder = [1,3,2];
+neworder = [1,5,6];
 newtypes = types(neworder);
 
 snr_diff2 = snr_diff(:,neworder,:);
-nnull = length(types);
+nnull = length(neworder);
 for icond = 1:3
     subplot(1,3,icond);
     % mean and sem across subjects 

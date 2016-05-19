@@ -19,8 +19,8 @@ contrastNames = {
 
 %% Load denoised data of all subjects
 
-orig = {};
-denoised= {};
+orig = [];
+denoised= [];
 
 for whichSubject = subjects
     for c = 1:4; %conds
@@ -33,8 +33,8 @@ for whichSubject = subjects
     condEpochs1 = {design{1}(:,1)==1, design{1}(:,2)==1, design{1}(:,3)==1, all(design{1}==0,2)};
     condEpochs2 = {design{2}(:,1)==1, design{2}(:,2)==1, design{2}(:,3)==1, all(design{2}==0,2)};
    
-    orig{subjnum,c} = squeeze(data{1}(exampleIndex,:,condEpochs1{c}));
-    denoised{subjnum,c} = squeeze(data{2}(exampleIndex,:,condEpochs2{c}));
+    orig(subjnum,c) = squeeze(mean(data{1}(exampleIndex,:,condEpochs1{c}),1));
+    denoised(subjnum,c) = squeeze(mean(data{2}(exampleIndex,:,condEpochs2{c}),1));
     
     end
 end
@@ -62,6 +62,7 @@ yl=[yt(1),yt(end)];
 %         if dd = 1;
 %             data = mean(orig
         
+        % FFT
         
         
         spec = abs(fft(data)/num_timepoints*2);

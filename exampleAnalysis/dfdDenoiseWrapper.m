@@ -3,7 +3,7 @@ function dfdDenoiseWrapper(subjects, howToDenoise)
 % dfdDenoiseWrapper(subjects, howToDenoise)
 %
 % INPUTS:
-% subjects  : Number of subjects one would like to denoise
+% subjects  : Vector of subject numbers one would like to denoise
 % howToDenoise: 1, 2, or 3, meaning:
 %                   1: denoise with exactly 10 PC regressors
 %                   2: denoise with each of 0 to 10 PC regressors
@@ -37,11 +37,6 @@ end
 varThreshold        = [0.05 20];%[0.05 30];
 badChannelThreshold = 0.2;
 badEpochThreshold   = 0.2;
-if subjects < 9
-    dataChannels        = 1:157;
-else
-    dataChannels        = 1:204;
-end
 use3Channels        = false;
 removeFirstEpoch    = true;
 saveDenoisedts      = true;
@@ -111,6 +106,12 @@ end
 % ------------------------------------------------------------------------
 
 for whichSubject = subjects
+    
+    if whichSubject < 9,        dataChannels        = 1:157; % yokogawa MEG
+    elseif whichSubject < 21,   dataChannels        = 1:204; % Elekta Neuromag
+    else                        dataChannels        = 1:157; % Synthetic subject
+    end
+
     % ------------------ Load data and design ----------------------------
     tmp = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's%02d_sensorData.mat'),whichSubject)); sensorData = tmp.sensorData;
     tmp = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's%02d_conditions.mat'),whichSubject)); conditions = tmp.conditions;

@@ -51,7 +51,7 @@ for exampleIndex = 1:157;
         %[n,x] = hist(meanXfreqs{dd}',30);
         %bar(x,n/1000,'barwidth',1,'edgecolor','none');
         %xlim([4,10]); set(gca,'xtick',4:2:10);
-        vals = 18:0.2:50;
+        vals = 18:0.2:42;
         n = hist(meanXfreqs{dd}',vals);
         bar(vals,n(:,1)/1000,'facecolor',colors(1,:),'edgecolor','none'); hold on;
         bar(vals,n(:,2)/1000,'facecolor',[0.5,0.5,0.5],'edgecolor','none');

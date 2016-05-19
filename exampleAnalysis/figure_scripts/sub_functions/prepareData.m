@@ -16,7 +16,7 @@ switch whichFigure
         varThreshold        = [0.05 20];
         badChannelThreshold = 0.2;
         badEpochThreshold   = 0.2;
-        if whichSubject < 9
+        if whichSubject < 9 || whichSubject == 99
             dataChannels    = 1:157;
         else
             dataChannels    = 1:204;

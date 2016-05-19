@@ -40,10 +40,11 @@ epochs_order      = reshape(ones(epochs_per_block,1)*block_order_all, [], 1);
 %   FFFFFF-BBBBBB-LLLLLL-BBBBBB-RRRRRR-BBBBBB
 
 conditions = condition_codes(epochs_order)';
-save('s99_conditions', 'conditions');
+
 
 %% Group channels to noisepool, respond left, respond right
-load('meg160xyz');
+load('meg160_example_hdr');
+xyz = hdr.grad.chanpos;
 
 % find the 75 channels in front (highest x value): these will be noise pool
 [~, sort_y] = sort(xyz(:,1), 'descend');
@@ -58,11 +59,11 @@ channels.right = nonnoisepool(sort_x(42:end));
 
 % % check it
 % map = zeros(1, 157);
-% map(noisepool) = 1;
-% map(left) = 2;
-% map(right) = 3;
+% map(channels.noisepool) = 1;
+% map(channels.left) = 2;
+% map(channels.right) = 3;
 % 
-% ft_plotOnMesh(map, [],[],[],'interpolation', 'nearest')
+% megPlotMap(map)
 
 %% generate noiseless time series
 sensorData = zeros(samples_per_epoch, num_epochs, num_channels);
@@ -129,5 +130,6 @@ correlated_noise = reshape(correlated_noise, samples_per_epoch, num_epochs, num_
 sensorData       = sensorData + correlated_noise * response_amp.correlated_noise;
     
 % ------------------------ Save it -------------------------------------
-save('s99_sensorData', 'sensorData');
-
+dataDir         = fullfile(dfdRootPath, 'exampleAnalysis', 'data');    % Where to save data?
+save(fullfile(dataDir, 's99_sensorData'), 'sensorData');
+save(fullfile(dataDir, 's99_conditions'), 'conditions');

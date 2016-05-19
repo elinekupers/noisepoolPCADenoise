@@ -38,9 +38,14 @@ saveStats         = true;  % Save statistics for barplot
 removeFirstEpoch  = true;  % Delete first and last epoch?
 savePath          = fullfile(dfdRootPath, 'exampleAnalysis','figures_rm1epoch');
 dataPath          = fullfile(dfdRootPath, 'exampleAnalysis', 'data');
+if removeFirstEpoch; postFix = '_rm1epoch'; else postFix = []; end;
+
+cmap              = jet(4);
 
 rad.x = 15; % screen radius in deg. CHECK!!!
 rad.y = 12; % screen radius in deg. CHECK!!!
+
+stats = [];
 
 % =========================================================================
 % ================= Define paths and load in data =========================
@@ -97,15 +102,17 @@ for whichSubject = subjects
     onsets = onsets(1:end-12);
     conditions = conditions(1:end-12);
     
-    if removeFirstEpoch;       
+    if removeFirstEpoch;
         % Define
         badEpochs = zeros(size(onsets));
-        badEpochs(1:6:end) = 1;        
+        badEpochs(1:6:end) = 1;
         % Remove
         onsets = onsets(~badEpochs);
-        conditions = conditions(~badEpochs);      
+        conditions = conditions(~badEpochs);
     end
     
+    trialCount(whichSubject==subjects,:) = [size(find(conditions==3),1),size(find(conditions==1),1),size(find(conditions==5),1),size(find(conditions==7),1)];
+
     
     %% Convert x,y position and velocity vetors into epoched matrices (t x epoch)
     
@@ -136,7 +143,7 @@ for whichSubject = subjects
     %  ============ Plot eye traces for visual inspection =================
     %  ====================================================================
     colors = [0 0 0; 63, 121, 204; 228, 65, 69; 116,183,74]/255;
-
+    
     %% Plot X COORDINATES
     deglims = 20;
     figure(1); clf; set(gcf,'Color', 'w');
@@ -179,6 +186,9 @@ for whichSubject = subjects
     set(gca, 'FontSize', 20);
     
     plot(rad.x*[-1 1 1 -1 -1], rad.y*[-1 -1 1 1 -1], 'k--')
+    
+    if saveFigures; hgexport(gcf,fullfile(savePath,sprintf('S%2d_eyetracking_fig1_xypositions%s.eps', whichSubject, postFix))); end
+    
     %% =================================================
     %  =============== Detect saccades =================
     %  =================================================
@@ -218,17 +228,19 @@ for whichSubject = subjects
         size(s.sacs,1), s.sacDetectRadius(1), s.sacDetectRadius(2));
     
     % look at detected saccades
-    figure(2); clf; set(gcf,'Color', 'w');
+    figure(2); clf; set(gcf,'Color', 'w', 'name', 'Whole experiment');
     msSacStats1(s);
-    title('Angular distribution ALL');
+    title('Angular distribution');
     
-    % ALL trials
+    if saveFigures; hgexport(gcf,fullfile(savePath,sprintf('S%2d_eyetracking_fig1_microsaccades_wholeExp%s.eps', whichSubject, postFix))); end
+    
+    % Get mean, median and covariance matrix
     all_traceMean = nanmean(s.xyPos);
     all_traceMedian = nanmedian(s.xyPos);
     all_traceCov = cov(s.xyPos(~isnan(s.xyPos(:,1)),:));
     
     % Plot confidence interval ellipses
-    figure; clf; set(gcf,'Color', 'w');
+    figure(3); clf; set(gcf,'Color', 'w');
     subplot(1,2,1); hold on;
     
     % distribution of samples
@@ -258,6 +270,7 @@ for whichSubject = subjects
     xlim(5*[-1,1]); ylim(5*[-1,1]);
     title('Saccade vectors');
     
+    if saveFigures; hgexport(gcf,fullfile(savePath,sprintf('S%2d_eyetracking_errorElipse_wholeExp%s.eps', whichSubject, postFix))); end
     
     
     %% Epoched data
@@ -274,11 +287,11 @@ for whichSubject = subjects
         % Get position
         thiseyexPos = eyexPos(:,conds{nn});
         thiseyeyPos = eyeyPos(:,conds{nn});
-          
+        
         % Concatenate all conditions for XY position and XY velocity
         eyexyVel = [thiseyexVel(:), thiseyeyVel(:)];
         eyexyPos = [thiseyexPos(:), thiseyeyPos(:)];
-
+        
         % Define microsaccades
         [sacRaw,radius] = microsacc(eyexyPos,eyexyVel,vThres,msMinDur);
         
@@ -287,7 +300,7 @@ for whichSubject = subjects
         minInterSamples = ceil(0.01*s.eyeInfo.smpRate);
         interSac = sacRaw(2:end,1)- sacRaw(1:end-1,2);
         sac = sacRaw([1; find(interSac > minInterSamples)+1],:);
-        fprintf('%d rejected for close spacing\n', numSacs - size(sac,1));     
+        fprintf('%d rejected for close spacing\n', numSacs - size(sac,1));
         fprintf('%d saccades detected\n', size(sac,1));
         
         % Saved detected saccades into variable called 's'
@@ -303,9 +316,12 @@ for whichSubject = subjects
             size(s.sacs,1), s.sacDetectRadius(1), s.sacDetectRadius(2));
         
         % Look at detected saccades
-        figure(2+nn); clf; set(gcf,'Color', 'w','name',sprintf('%s',condsName{nn}));
+        figure; clf; set(gcf,'Color', 'w','name',sprintf('%s',condsName{nn}));
         msSacStats1(s);
         title('Angular distribution');
+        
+        if saveFigures; hgexport(gcf,fullfile(savePath,sprintf('S%2d_eyetracking_microsaccades_%s%s.eps', condsName{nn},whichSubject, postFix))); end
+        
         
         % Get mean and median of positions in trials
         traceMean = nanmean(s.xyPos);
@@ -343,51 +359,120 @@ for whichSubject = subjects
         xlim(5*[-1,1]); ylim(5*[-1,1]);
         title('Saccade vectors');
         
+        if saveFigures; hgexport(gcf,fullfile(savePath,sprintf('S%2d_eyetracking_errorElipse_%s%s.eps', condsName{nn},whichSubject, postFix))); end
+        
+        
         allSacs{nn} = s.sacs;
         allSacsMedian{nn} = sacMedian;
         allData{nn} = s;
-
+        
+        
+        figure(12); if nn==1; clf; end; set(gcf,'Color', 'w');
+        subplot(111); hold on;
+        error_ellipse(sacCov,sacMean,'conf',0.95,'color',colors(nn,:));
+        plot(sacMedian(1),sacMedian(2),'Color',colors(nn,:),'marker','+','markersize',5,'DisplayName',condsName{nn}); 
+        legend('show');
+        
+        grid on; axis square; 
+        xlim(5*[-1,1]); ylim(5*[-1,1]);
+        title('Eye position', 'FontSize',18);
+        set(gca,  'FontSize',18); xlabel('Horizontal (deg)'); set(gca,  'FontSize',18); ylabel('Vertical (deg)');
+        
+        
     end
     
-            
-        if saveStats
-            % Put statistics in struct
-            stats = struct('freqBoth', size(allSacs{1},1),'freqLeft',size(allSacs{2},1), 'freqRight',size(allSacs{3},1), 'freqBlank',size(allSacs{3},1), ...
-                            'mdAmplBoth', allSacsMedian{1}, 'mdAmplLeft', allSacsMedian{2}, 'mdAmplRight', allSacsMedian{3}, 'mdAmplBlank', allSacsMedian{4}, 'allData',allData);
-            % Save data
-            fname = fullfile(dataPath,sprintf('s0%d_freq_mdAmpl',whichSubject));
-            save([fname '.mat'],'stats')
-        end
 
-    
-    %% Export images
-    if saveFigures
-        if removeFirstEpoch; postFix = '_rm1epoch'; else postFix = []; end;
-            hgexport(1,fullfile(savePath,sprintf('S%2d_eyetracking_fig1_xypositions%s.eps', whichSubject, postFix)));
-            hgexport(2,fullfile(savePath,sprintf('S%2d_eyetracking_fig2_microsaccades_all%s.eps', whichSubject,postFix)));
-            hgexport(3,fullfile(savePath,sprintf('S%2d_eyetracking_fig3_microsaccades_both%s.eps', whichSubject, postFix)));
-            hgexport(4,fullfile(savePath,sprintf('S%2d_eyetracking_fig4_microsaccades_blank%s.eps', whichSubject, postFix)));
-            hgexport(5,fullfile(savePath,sprintf('S%2d_eyetracking_fig5_microsaccades_left%s.eps', whichSubject,postFix)));
-            hgexport(6,fullfile(savePath,sprintf('S%2d_eyetracking_fig6_microsaccades_right%s.eps', whichSubject,postFix)));
-            hgexport(7,fullfile(savePath,sprintf('S%2d_eyetracking_fig7_xypos_ms_all%s.eps', whichSubject,postFix)));
-%             hgexport(8,fullfile(savePath,sprintf('S%2d_eyetracking_fig8_xypos_ms_blank%s.eps', whichSubject,postFix)));
-%             hgexport(9,fullfile(savePath,sprintf('S%2d_eyetracking_fig9_xypos_ms_both%s.eps', whichSubject,postFix)));
-%             hgexport(10,fullfile(savePath,sprintf('S%2d_eyetracking_fig10_xypos_ms_right%s.eps', whichSubject,postFix)));
-%             hgexport(11,fullfile(savePath,sprintf('S%2d_eyetracking_fig11_xypos_ms_left%s.eps', whichSubject,postFix)));
-%             hgexport(12,fullfile(savePath,sprintf('S%2d_eyetracking_fig12_xypos_ms_combined%s.eps', whichSubject,postFix)));
-    end
-    
+    if saveFigures; hgexport(12,fullfile(savePath,sprintf('s0%s_eyetracking_errorElipse_AllConds_%s.eps',whichSubject, postFix))); end
+
+    % Storage stats for all subjects
+    stats{whichSubject==subjects} = [allSacs, allSacsMedian, allData];
+        
 end
+
+
+
+%% Plot stats across subjects
+
+
+freq =[];
+for whichSubject = 1:length(subjects);
+    for ii = 1:4
+        % Frequency of microsaccades
+        freq(whichSubject,ii,:) = length(stats{whichSubject}{ii});
+        
+        % median amplitude of microsaccades for x and y
+        amplX(whichSubject,ii,:) = stats{whichSubject}{ii+4}(1);
+        amplY(whichSubject,ii,:) = stats{whichSubject}{ii+4}(2);        
+    end
+end
+
+% Take amount of trials per subject per condition into account
+freq2 = freq./trialCount;
+
+% Take mean xpos, ypos and sd xpos, ypos
+mn = mean(freq2,1);
+sd = std(freq2)/sqrt(length(subjects));
+
+mnAmpX = mean(amplX);
+sdAmpX = std(amplX)/sqrt(length(subjects));
+mnAmpY = mean(amplY);
+sdAmpY = std(amplY)/sqrt(length(subjects));
+
+% Plot frequencies of micro saccades for the different conditions
+figure; clf; 
+subplot(1,1,1);
+bar_width = .3;
+% mean and sem across subjects
+for ii = 1:4
+    hold on;
+    fh = bar(ii, mn(ii), bar_width, 'FaceColor',colors(ii,:),'EdgeColor','none'); 
+    errorbar2(ii, [mn(ii)], [sd(ii)],1,'Color',colors(ii,:));
+end
+
+set(gca,'XTick',[1:4],'XTickLabel',{'Blank','Both', 'Left', 'Right'})
+% format figure and make things pretty
+set(gca,'xlim',[1-0.8,4+0.8],'ylim',[0,3],'FontSize',18);
+makeprettyaxes(gca,9,9);
+ylabel('Frequency (# MS / # epochs)','FontSize',18)
+xlabel('Conditions','FontSize',18)
+
+if saveFigures; hgexport(gcf,fullfile(savePath,sprintf('eyetracking_AcrossSubjects_MSFreq%s_2.eps', postFix))); end
+
+% Plot individual differences
+rgb    = [93,12,139]/255;
+satValues       = 1-linspace(0.1,1,length(subjects));
+colorRGB   = varysat(rgb,satValues);
+colorRGB   = squeeze(colorRGB);
+colorRGB   = colorRGB';
+
+cmap = colorRGB;
+
+
+figure; clf; 
+subplot(1,1,1);
+for k = 1:size(freq2,1)
+    plot([1:4], [freq2(k,1),freq2(k,2),freq2(k,3),freq2(k,4)], 'o-','color', cmap(k,:), 'linewidth',4); hold on;
+end
+
+set(gca,'XTickLabel',{'Blank','Both','Left', 'Right'}, 'FontSize',20)
+% format figure and make things pretty
+set(gca,'xlim',[1-0.8,4+0.8],'ylim',[0,4]);
+makeprettyaxes(gca,9,9);
+ylabel('Frequency (# MS / # epochs)','FontSize',20)
+xlabel('Conditions','FontSize',20)
+set(gca, 'FontSize', 18)
+
+if saveFigures; hgexport(gcf,fullfile(savePath,sprintf('eyetracking_IndivSubjects_MSFreq%s_2.eps', postFix))); end
 
 end
 
 
 function startTime   = esFindStart(eyd)
-    startTime = NaN;
-    for ii = 1:length(eyd.messages)
-        if strfind(eyd.messages(ii).message, 'MEG Trigger')
-            startTime = ii; return
-        end
+startTime = NaN;
+for ii = 1:length(eyd.messages)
+    if strfind(eyd.messages(ii).message, 'MEG Trigger')
+        startTime = ii; return
     end
+end
 end
 

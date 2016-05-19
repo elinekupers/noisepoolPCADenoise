@@ -3,6 +3,8 @@ function fH = plotSNRvsPCsExampleSubjectsPanel6A(dataAll,exampleSessions,condCol
 % Define colors
 linecolors=copper(157);
 
+n = length(dataAll);
+
 fH = figure('position',[1,200,800,800]); set(fH, 'Color', 'w');
 for k = 1:length(exampleSessions)
     
@@ -14,7 +16,7 @@ for k = 1:length(exampleSessions)
     
     % plot for each condition
     for icond = 1:3
-        subplot(8,3,(k-1)*3+icond); hold on;
+        subplot(n,3,(k-1)*3+icond); hold on;
         this_snr = squeeze(snr(icond,:,:))';
         % plot each channel's snr as a function of number of pc's
         for ic = 1:size(this_snr,2)
