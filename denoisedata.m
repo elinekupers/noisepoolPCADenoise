@@ -107,8 +107,8 @@ if ~isfield(opt,'verbose'),       opt.verbose     = false;             end
 
 if opt.verbose
     fprintf('---------------------------------------------------------------------\n');
-    fprintf('(denoisedata) data dimenions: %d channels x %d time samples x %d epochs\n', ...
-        nchan,ntime,nepoch);
+    fprintf('[%s]: data dimenions: %d channels x %d time samples x %d epochs\n', ...
+        mfilename, nchan,ntime,nepoch);
     fprintf('---------------------------------------------------------------------\n');
 end
 

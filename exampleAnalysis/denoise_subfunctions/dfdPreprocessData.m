@@ -61,7 +61,8 @@ outliers(:,badChannels) = 1;
 if verbose
     figure; imagesc(outliers);
     xlabel('channel number'); ylabel('epoch number'); title('Bad channels / epochs')
-    fprintf('(dfdPreprocessData): %5.2f%% of epochs removed\n', sum(sum(outliers))/(size(sensorDataIn,2)*size(sensorDataIn,3))*100);
+    fprintf('[%s]: %5.2f%% of epochs removed\n', mfilename, ...
+        sum(sum(outliers))/(size(sensorDataIn,2)*size(sensorDataIn,3))*100);
 end
 
 % Check how many sensors there are, if there are more than 192, it will be
