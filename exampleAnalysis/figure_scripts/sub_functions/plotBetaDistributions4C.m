@@ -45,21 +45,34 @@ for exampleIndex = 1:157;
     end
     
     % Set up figure and plot
-    figure(1); set(gcf,'position',[0,300,200,350]); clf;
+    fH = figure(1); set(fH,'position',[0,400,400,400]); clf;
     for dd = 1:2
-        subplot(2,1,dd);
+        subplot(2,2,dd);
         %[n,x] = hist(meanXfreqs{dd}',30);
         %bar(x,n/1000,'barwidth',1,'edgecolor','none');
         %xlim([4,10]); set(gca,'xtick',4:2:10);
-        vals = 18:0.2:42;
+        vals = 12:0.2:40;
         n = hist(meanXfreqs{dd}',vals);
         bar(vals,n(:,1)/1000,'facecolor',colors(1,:),'edgecolor','none'); hold on;
         bar(vals,n(:,2)/1000,'facecolor',[0.5,0.5,0.5],'edgecolor','none');
-        xlim([18,max(vals)]); set(gca,'xtick',18:4:max(vals));
+        xlim([min(vals),max(vals)]); set(gca,'xtick',min(vals):4:max(vals));
         ylim([0,0.45]);set(gca,'ytick',0:0.2:0.4);
         xlabel('Mean power (fT^2)'); ylabel('Fraction of bootstraps');
         makeprettyaxes(gca,9,9);
+        
+        % Make difference histogram
+        subplot(2,2,dd+2);
+        diffMeanFreq = meanXfreqs{dd}(1,:) - meanXfreqs{dd}(2,:);
+        vals = 0:0.1:14;
+        n = hist(diffMeanFreq',vals);
+        bar(vals,n/1000,'facecolor','k','edgecolor','none'); hold on;
+        xlim([0,10]); set(gca,'xtick',0:4:10);
+        ylim([0,0.45]);set(gca,'ytick',0:0.2:0.4);
+        xlabel('Mean power (fT^2)'); ylabel('Fraction of bootstraps');
+        makeprettyaxes(gca,9,9);
+        
     end
+    
     
     if saveFigures
         figurewrite(fullfile(figureDir,sprintf('Figure4cFullDistributionBootDiff%d',exampleIndex)),[],0,'.',1);

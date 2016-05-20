@@ -15,9 +15,9 @@ function dfdMakeFigure5AcrossSubjects
 % function.
 
 %% Choices to make:
-% whichSubjects    = [1:8];        % Subject 1 is the example subject.
-whichSubjects    = [14,16,18,20];        % Subject 1 is the example subject.
-figureDir       = fullfile(dfdRootPath, 'exampleAnalysis', 'figures_rm1epoch_CiNet'); % Where to save images?
+whichSubjects    = [1:8];        % Subject 1 is the example subject.
+% whichSubjects    = [9:12];%[14,16,18,20];        % Subject 1 is the example subject.
+figureDir       = fullfile(dfdRootPath, 'exampleAnalysis', 'figures_rm1epoch'); % Where to save images?
 dataDir         = fullfile(dfdRootPath, 'exampleAnalysis', 'data');    % Where to save data?
 saveFigures     = true;     % Save figures in the figure folder?
 threshold       = 0;
@@ -113,16 +113,16 @@ for icond = 1:numel(contrastNames)
     
     
     % Define ranges colormap
-    clims_sl = [-20.6723,20.6723];
-    clims_sl = [-20,20];
-    clims_sl = [-15,15];
+    clims_sl = [-25.6723,25.6723];
+%     clims_sl = [-20,20];
+%     clims_sl = [-15,15];
     clims_ab = [-6.4445,6.4445];
     clims_ab = [-8,8];
     clims_ab = [-4,4];
     cmap = 'bipolar';
     
     
-    if size(sl_snr1,2) > 157   
+    if size(sl_snr1,2) > 157
         % Combine channels
         sl_snr1 = dfd204to102(sl_snr1(icond,:));
         ab_snr1 = dfd204to102(ab_snr1(icond,:));
@@ -162,5 +162,5 @@ for icond = 1:numel(contrastNames)
 end
 
 if saveFigures
-    printnice(gcf,0,figureDir,sprintf('figure5_AcrossSubject%d_bipolar_threshold%d_tsss',whichSubject, threshold));
+    printnice(gcf,0,figureDir,sprintf('figure5_AcrossSubject%d_bipolar_threshold%d_raw',whichSubject, threshold));
 end
