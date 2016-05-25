@@ -116,9 +116,9 @@ for icond = 1:numel(contrastNames)
     clims_sl = [-25.6723,25.6723];
 %     clims_sl = [-20,20];
 %     clims_sl = [-15,15];
-    clims_ab = [-6.4445,6.4445];
+%     clims_ab = [-6.4445,6.4445];
     clims_ab = [-8,8];
-    clims_ab = [-4,4];
+    if icond == 4; clims_ab = [-5.5363, 5.5363];  end;
     cmap = 'bipolar';
     
     

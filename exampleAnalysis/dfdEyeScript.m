@@ -24,15 +24,14 @@ if subjects < 6; error('Subject does not have eye tracking data'); end;
 % Note: Think about how putting these functions in our repository
 toolbox_pth = '/Volumes/server/Projects/MEG/Eyetracking_scripts/';
 
-
 % Add necessary paths:
 addpath(fullfile(toolbox_pth));
 addpath(genpath(fullfile(toolbox_pth,'toolboxes','mgl')));
 addpath(genpath(fullfile(toolbox_pth,'toolboxes','mrToolsUtilities')));
-addpath(genpath('~/matlab/git/meg_utils'));
+% addpath(genpath('~/matlab/git/meg_utils'));
 
 % Check options:
-saveEyd           = false;  % Convert edf to eyd.mat file and save it?
+saveEyd           = false;  % Convert edf to eyd.mat file and save it? If false, we assumed you already saved an eyd file.
 saveFigures       = true;  % Save images?
 saveStats         = true;  % Save statistics for barplot
 removeFirstEpoch  = true;  % Delete first and last epoch?
