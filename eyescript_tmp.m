@@ -9,9 +9,10 @@ addpath(genpath(fullfile(toolbox_pth,'toolboxes','mgl')));
 addpath(genpath(fullfile(toolbox_pth,'toolboxes','mrToolsUtilities')));
 
 % Get subject data
-subjects = 6;
-whichSubject = 6;
+subjects = 8;
+whichSubject = 8;
 dataPath     = fullfile(dfdRootPath, 'exampleAnalysis', 'data');
+savePath     = fullfile(dfdRootPath, 'exampleAnalysis', 'figures_rm1epoch');
 
 % Get eye data
 tmp          = load(sprintf(fullfile(dataPath, 'eye','s0%d_eyd.mat'),whichSubject));
@@ -20,7 +21,7 @@ eyd          = tmp.eyd; clear tmp;
 % Get conditions
 tmp          = load(sprintf(fullfile(dataPath, 's0%d_conditions.mat'),whichSubject));
 conditions   = tmp.conditions;
-
+condsName   = {'Blank','Full','Left','Right'};
 
 
 startTime = NaN;
@@ -104,58 +105,105 @@ eyexyPos = [eyexPos(:), eyeyPos(:)];
 
 
 
-nn = 1;%:4
-% Get velocity
-thiseyexVel = eyexVel(:,conds{nn});
-thiseyeyVel = eyeyVel(:,conds{nn});
-% Get position
-thiseyexPos = eyexPos(:,conds{nn});
-thiseyeyPos = eyeyPos(:,conds{nn});
-
-thiseyets = eyets(:,conds{nn});
-
-
-% Concatenate all conditions for XY position and XY velocity
-eyexyVel = cat(3,thiseyexVel, thiseyeyVel);
-eyexyPos = cat(3,thiseyexPos, thiseyeyPos);
-
-msVec = zeros(size(eyexyVel,2),1000);
-
-for epoch = 1:size(eyexyVel,2);
+for nn = 1:4
+    % Get velocity
+    thiseyexVel = eyexVel(:,conds{nn});
+    thiseyeyVel = eyeyVel(:,conds{nn});
+    % Get position
+    thiseyexPos = eyexPos(:,conds{nn});
+    thiseyeyPos = eyeyPos(:,conds{nn});
     
-    % Define microsaccades
-    [sacRaw,radius] = microsacc(squeeze(eyexyPos(:,epoch,:)),squeeze(eyexyVel(:,epoch,:)),vThres,msMinDur);
+    thiseyets = eyets(:,conds{nn});
     
-    % Remove the ones that occurr closely together (overshoot)
-    numSacs = size(sacRaw,1);
-    minInterSamples = ceil(0.01*s.eyeInfo.smpRate);
+    % Concatenate all conditions for XY position and XY velocity
+    eyexyVel = cat(3,thiseyexVel, thiseyeyVel);
+    eyexyPos = cat(3,thiseyexPos, thiseyeyPos);
     
-    if numSacs ~= 0
-        interSac = sacRaw(2:end,1)- sacRaw(1:end-1,2);
-        sac = sacRaw([1; find(interSac > minInterSamples)+1],:);
-        fprintf('%d rejected for close spacing\n', numSacs - size(sac,1));
-        fprintf('%d saccades detected\n', size(sac,1));
+    numEpochs = size(eyexyVel,2);
+    numTimePoints = size(thiseyexVel,1);
+    msVec = zeros(numEpochs,numTimePoints);
+    
+    for epoch = 1:size(eyexyVel,2);
         
-        % Saved detected saccades into variable called 's'
-        s.sacsRaw(epoch)          = {sacRaw};
-        s.sacs(epoch)             = {sac};
-        s.sacDetectRadius(epoch)  = {radius};
-        s.eyeInfo.vThres(epoch,:)   = vThres;
-        s.eyeInfo.msMinDur(epoch,:) = msMinDur;
-        s.numSacs(epoch)            = numSacs;
-%         s.time(epoch)             = {thiseyets(:,epoch)};
-%         s.xyPos(epoch)            = {squeeze(eyexyPos(:,epoch,:))};
+        % Define microsaccades
+        [sacRaw,radius] = microsacc(squeeze(eyexyPos(:,epoch,:)),squeeze(eyexyVel(:,epoch,:)),vThres,msMinDur);
         
-        fprintf('number of saccades detected: %d, detectRadius: [%0.3f %0.3f]\n', ...
-            size(s.sacs{epoch},1), s.sacDetectRadius{epoch}(1), s.sacDetectRadius{epoch}(2));
+        % Remove the ones that occurr closely together (overshoot)
+        numSacs = size(sacRaw,1);
+        minInterSamples = ceil(0.01*s.eyeInfo.smpRate);
         
-        for msNr = 1:numSacs
-            msVec(epoch,sacRaw(msNr,1)) = 1;
+        if numSacs ~= 0
+            interSac = sacRaw(2:end,1)- sacRaw(1:end-1,2);
+            sac = sacRaw([1; find(interSac > minInterSamples)+1],:);
+            fprintf('%d rejected for close spacing\n', numSacs - size(sac,1));
+            fprintf('%d saccades detected\n', size(sac,1));
+            
+            % Saved detected saccades into variable called 's'
+            s.sacsRaw(epoch)          = {sacRaw};
+            s.sacs(epoch)             = {sac};
+            s.sacDetectRadius(epoch)  = {radius};
+            s.eyeInfo.vThres(epoch,:)   = vThres;
+            s.eyeInfo.msMinDur(epoch,:) = msMinDur;
+            s.numSacs(epoch)            = numSacs;
+            %         s.time(epoch)             = {thiseyets(:,epoch)};
+            %         s.xyPos(epoch)            = {squeeze(eyexyPos(:,epoch,:))};
+            
+            fprintf('number of saccades detected: %d, detectRadius: [%0.3f %0.3f]\n', ...
+                size(s.sacs{epoch},1), s.sacDetectRadius{epoch}(1), s.sacDetectRadius{epoch}(2));
+            
+            for msNr = 1:numSacs
+                msVec(epoch,sacRaw(msNr,1)) = 1;
+            end
         end
     end
+    ms{nn} = msVec;
+end
+% for epoch = 1:size(eyexyVel,2);
+%     msOnsets(epoch,:) = find(msVec(epoch,:));
+% end
+
+
+% number of bins within one stimulus cycle for computing saccade rate
+num_bins = 10;
+
+% epoch time (seconds)
+t = (1:numTimePoints)/numTimePoints;
+
+
+
+%% For simulation only
+% make saccades by time-varying poisson process, where the rate is
+% proportional to the phase of the stimulus
+% r = ones(numEpochs,1) * (1+sin(2*pi*t*12))/100;
+% r = r/mean(r(:))/1000;
+% s = poissrnd(r);
+% s = logical(s); % s indicates presence or absence of s
+%%
+
+figure(1), clf, hold all
+for nn = 1:4
+    
+    thisMsVec = ms{nn};
+    thisNrEpoch = size(thisMsVec,1);
+    % stimulus phase (assumed to be 12 cycles per second)
+    ph = mod(t*12*2*pi, 2*pi);
+    ph = ones(thisNrEpoch,1)*ph;
+   
+    % get the stimulus phase for each saccade
+    saccade_ph = ph(find(thisMsVec));
+    
+    % get the saccade count per time bin
+    [y, bins] = hist(saccade_ph(:),num_bins);
+    
+    saccade_r = y / thisNrEpoch * num_bins;
+    plot(bins/(2*pi)/12*1000,saccade_r, 'o-')
 end
 
-for epoch = 1:size(eyexyVel,2);
-    msOnsets(epoch,:) = find(msVec(epoch,:));
-end
+legend(condsName);
 
+ylabel('Saccade rate (per second)')
+xlabel('Time (ms)')
+title('Saccade rate in one stimulus period (one half cycle)')
+makeprettyaxes(gca,9,9)
+
+hgexport(gcf, fullfile(savePath, sprintf('MSrate_subject%02d',whichSubject)));
