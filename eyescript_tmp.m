@@ -17,7 +17,7 @@ addpath(genpath(fullfile(toolbox_pth,'toolboxes','mrToolsUtilities')));
 % --------------------------------------
 
 % ------------- Subject nr and folders -------------
-whichSubject = 8;
+whichSubject = 6; % Only subject 6,7,8 have eye tracking data
 subjects     = whichSubject;
 dataPath     = fullfile(dfdRootPath, 'exampleAnalysis', 'data');
 savePath     = fullfile(dfdRootPath, 'exampleAnalysis', 'figures_rm1epoch');
@@ -234,6 +234,6 @@ legend(condsName);
 ylabel('Saccade rate (per second)')
 xlabel('Time (ms)')
 title('Saccade rate in one stimulus period (one half cycle)')
-makeprettyaxes(gca,9,9)
+makeprettyaxes(gca,20,20)
 
-% hgexport(gcf, fullfile(savePath, sprintf('MSrate_subject%02d',whichSubject)));
+hgexport(gcf, fullfile(savePath, sprintf('MSrate_subject%02d',whichSubject)));
