@@ -1,4 +1,4 @@
-function [data,design,exampleIndex] = prepareData(dataDir,whichSubject,whichFigure)
+function [data,design,exampleIndex,exampleChannel] = prepareData(dataDir,whichSubject,whichFigure)
 
 switch whichFigure
     case 4
@@ -8,9 +8,7 @@ switch whichFigure
         load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_denoisedts.mat'),whichSubject));
         
-        
-%         exampleChannel = 42;
-        exampleChannel = 13;
+        exampleChannel = 42;
         
         % preprocessing parameters (see dfdPreprocessData)
         varThreshold        = [0.05 20];
