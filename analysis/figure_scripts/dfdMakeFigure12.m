@@ -1,111 +1,78 @@
-function dfdMakeFigure12()
-%% Function to reproduce Figure 12A SNR against PCs removed for 3 example subjects 
-% and Figure 12b, SNR for top ten channels against PCs removed for all
-% subjects in stimulus-locked signals
+function dfdMakeFigure10()
+%% Function to reproduce Figure 10 with SNR difference before and after 
+% denoising control analyses
 %
-% dfdMakeFigure12()
-%
+% dfdMakeFigure10()
+% 
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
-% This figure will show 2 ways of plotting SNR values against the number of PCs
-% removed from the data. In Figure 12A, SNR values of all channels from the 
-% three example subjects (corresponding to 3,4,5) will be plotted against
-% the number of PCs removed. The median is plotted in the color of the
-% condition. This function needs the full dataset
+% This figure will show ...
 %
 % This function assumes that data is downloaded with the DFDdownloaddata
 % function. 
 
+
+
 %% Choices to make:
 whichSubjects        = 1:8;
-dataDir              = fullfile(dfdRootPath, 'data');   % Where to save data?
-figureDir            = fullfile(dfdRootPath, 'figures');% Where to save images?
-saveFigures          = true;     % Save figures in the figure folder?
-exampleSessions      = [3,4,5];  % Helena's plot contained subjects [5,6,9]
+dataDir              = fullfile(dfdRootPath, 'exampleAnalysis', 'data');   % Where to save data?
+figureDir            = fullfile(dfdRootPath, 'exampleAnalysis', 'figures_rm1epoch');% Where to save images?
+saveFigures          = true;   % Save figures in the figure folder?
 condColors           = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
-linecolors           = copper(157);
+numOfControls        = 5;
 dataAll              = [];
 
-%% Load data all subjects
+%% Load data for all subjects
 for whichSubject = whichSubjects
     fprintf(' Load subject %d \n', whichSubject);
-    [data,design,exampleIndex] = prepareData(dataDir,whichSubject,11);  
+    [data,design,exampleIndex] = prepareData(dataDir,whichSubject,10);
     dataAll{whichSubject} = {data,design,exampleIndex}; %#ok<AGROW>
-     
-end
+end 
 
-%% SNR increase as a function of number of PCs for 3 example subjects
-for k = exampleSessions
-      
-    data = dataAll{k};
-    results = data{1}.results;
-    evalout = data{1}.evalout;
-    
-    % get snr
-    snr = abs(cat(3,results.evalout.beta_md)) ./ cat(3,results.evalout.beta_se);
-    
-    % plot for each condition
-    for icond = 1:3
-        subplot(8,3,(k-1)*3+icond); hold on;
-        this_snr = squeeze(snr(icond,:,:))';
-        % plot each channel's snr as a function of number of pc's
-        for ic = 1:size(this_snr,2)
-            plot(0:axmax,this_snr(1:axmax+1,ic),'color',linecolors(ic,:));
-        end
-        % plot snr change for top10 channels
-        xvaltrend = mean(this_snr(:,results.pcchan),2);
-        plot(0:axmax, xvaltrend(1:axmax+1,:), 'color', condColors(icond,:), 'linewidth',2);
-        %plot(axmax+1, xvaltrend(51,:), 'o', 'color', condColors(icond,:));
-        axis square; xlim([0,axmax]);
-        ylim([0,50]);
-        makeprettyaxes(gca,9,9);
-    end
-end
 
-if saveFigures
-   figurewrite(fullfile(figureDir,'Figure12SNRvPCsExampleSubjects_SL'),[],0,'.',1);
-end
-
-%% SNR increase as a function of number of PCs removed for all subjects -
-%% Fig. 12B
-
-% get the trend for the top 10 channels of all sessions
-% files might take a while to load!
-snr_top10 = [];
+%% Prepare data for figure
+snr_diff = zeros(length(whichSubjects),numOfControls+1,3); % All controls, plus original result for all three conditions
 for k = 1:length(whichSubjects)
     
-    data = dataAll{k};
-    results = data{1}.results;
+    results_null = [dataAll{k}{1}(1),dataAll{k}{1}{2}];
     
-    snr = abs(cat(3,results.evalout.beta_md)) ./ cat(3,results.evalout.beta_se);
+    % get top 10 channels 
+    pcchan = getTop10(results_null{1,1}.results);
     
-    xvaltrend = [];
+    % compute the difference between pre and post
     for icond = 1:3
-        this_snr = squeeze(snr(icond,:,1:11))';
-        xvaltrend = cat(2, xvaltrend, mean(this_snr(:,results.pcchan),2));
+        for nn = 1:length(results_null)
+            snr_pre  = getsignalnoise(results_null{nn}.results.origmodel,icond);
+            snr_post = getsignalnoise(results_null{nn}.results.finalmodel,icond);
+            snr_diff(k,nn,icond) = mean(snr_post(pcchan)-snr_pre(pcchan));
+        end
     end
-    snr_top10 = cat(3,snr_top10,xvaltrend);
 end
 
-% define colors - vary saturation for different subjects
-satValues = linspace(0.1,1,8);
-colorRGB = varysat(condColors,satValues);
-ttls = {'FULL','RIGHT','LEFT'};
+%% Plot figure
+fH = figure('position',[0,300,700,300]);
+% define what the different conditions are 
+types = {'MEG Denoise','Order shuffled','Random Amplitude','Phase-scrambled','Replace PCs with random values','All channels in noisepool'}; % 
+% re-arrange the order of the bars 
+neworder = [1,5,6];
+newtypes = types(neworder);
 
-% plot for each condition
+snr_diff2 = snr_diff(:,neworder,:);
+nnull = length(neworder);
 for icond = 1:3
-    subplot(1,3,icond);hold on;
-    for nn = 1:8 % for each subject
-        plot(0:axmax, squeeze(snr_top10(:,icond,nn)), 'color', squeeze(colorRGB(icond,nn,:)));
-    end
-    axis square; xlim([0,axmax]);
-    ylim([0,40]); set(gca,'ytick',0:10:40);
-    title(ttls{icond});
+    subplot(1,3,icond);
+    % mean and sem across subjects 
+    mn  = mean(snr_diff2(:,:,icond));
+    sem = std(snr_diff2(:,:,icond))/sqrt(8);
+    bar(1:nnull, mn,'EdgeColor','none','facecolor',condColors(icond,:)); hold on
+    errorbar2(1:nnull,mn,sem,1,'-','color',condColors(icond,:));
+    % format figure and make things pretty 
+    set(gca,'xlim',[0.2,nnull+0.8],'ylim',[-1,5]);
     makeprettyaxes(gca,9,9);
+    set(gca,'XTickLabel',types(neworder),'XTickLabelRotation',45)
+    ylabel('Difference in SNR (post-pre)')
 end
 
 if saveFigures
-    figurewrite(fullfile(figureDir,'Figure12BSNRvPCsAllSubjects_SL'),[],0,'.',1);
+    figurewrite(fullfile(figureDir,'figure10_control'),[],0,'.',1);
 end
-
-return

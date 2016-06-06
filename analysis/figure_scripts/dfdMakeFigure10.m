@@ -1,78 +1,98 @@
 function dfdMakeFigure10()
-%% Function to reproduce Figure 10 with SNR difference before and after 
-% denoising control analyses
+%% Function to reproduce Figure 5 (Spatialmap) from example subject 
 %
-% dfdMakeFigure10()
-% 
+% dfdMakeFigure5()
+%
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
-% This figure will show ...
+% This figure will show an interpolated spatial map of the SNR values in 
+% each channel for the stimulus locked signal, broadband signals before and
+% after using the denoising algorithm. The three separate conditions (Full,
+% left, right hemifield stimulation are shown separately). 
 %
 % This function assumes that data is downloaded with the DFDdownloaddata
 % function. 
 
+%% Choices to make:                                              
+whichSubject    = 1;        % Subject 1 is the example subject.
+figureDir       = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to save images?
+dataDir         = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?
+saveFigures     = true;     % Save figures in the figure folder?
+threshold       = 0;        % Set threshold for colormap. If no threshold set value to 0
+cfg             = [];
+data_hdr        = [];
 
 
-%% Choices to make:
-whichSubjects        = 1:8;
-dataDir              = fullfile(dfdRootPath, 'exampleAnalysis', 'data');   % Where to save data?
-figureDir            = fullfile(dfdRootPath, 'exampleAnalysis', 'figures_rm1epoch');% Where to save images?
-saveFigures          = true;   % Save figures in the figure folder?
-condColors           = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
-numOfControls        = 5;
-dataAll              = [];
+%% Load denoised data of example subject
+[data] = prepareData(dataDir,whichSubject,5);
+bb = data{1};
+sl = data{2};
 
-%% Load data for all subjects
-for whichSubject = whichSubjects
-    fprintf(' Load subject %d \n', whichSubject);
-    [data,design,exampleIndex] = prepareData(dataDir,whichSubject,10);
-    dataAll{whichSubject} = {data,design,exampleIndex}; %#ok<AGROW>
-end 
-
-
-%% Prepare data for figure
-snr_diff = zeros(length(whichSubjects),numOfControls+1,3); % All controls, plus original result for all three conditions
-for k = 1:length(whichSubjects)
-    
-    results_null = [dataAll{k}{1}(1),dataAll{k}{1}{2}];
-    
-    % get top 10 channels 
-    pcchan = getTop10(results_null{1,1}.results);
-    
-    % compute the difference between pre and post
-    for icond = 1:3
-        for nn = 1:length(results_null)
-            snr_pre  = getsignalnoise(results_null{nn}.results.origmodel,icond);
-            snr_post = getsignalnoise(results_null{nn}.results.finalmodel,icond);
-            snr_diff(k,nn,icond) = mean(snr_post(pcchan)-snr_pre(pcchan));
-        end
-    end
-end
-
-%% Plot figure
-fH = figure('position',[0,300,700,300]);
-% define what the different conditions are 
-types = {'MEG Denoise','Order shuffled','Random Amplitude','Phase-scrambled','Replace PCs with random values','All channels in noisepool'}; % 
-% re-arrange the order of the bars 
-neworder = [1,5,6];
-newtypes = types(neworder);
-
-snr_diff2 = snr_diff(:,neworder,:);
-nnull = length(neworder);
+%% Plot stimulus-locked signal, broadband before and after denoising on sensormap
+figure('position',[1,600,1400,800]);
+condNames = {'Stim Full','Stim Left','Stim Right'};
 for icond = 1:3
-    subplot(1,3,icond);
-    % mean and sem across subjects 
-    mn  = mean(snr_diff2(:,:,icond));
-    sem = std(snr_diff2(:,:,icond))/sqrt(8);
-    bar(1:nnull, mn,'EdgeColor','none','facecolor',condColors(icond,:)); hold on
-    errorbar2(1:nnull,mn,sem,1,'-','color',condColors(icond,:));
-    % format figure and make things pretty 
-    set(gca,'xlim',[0.2,nnull+0.8],'ylim',[-1,5]);
-    makeprettyaxes(gca,9,9);
-    set(gca,'XTickLabel',types(neworder),'XTickLabelRotation',45)
-    ylabel('Difference in SNR (post-pre)')
+    % get broadband snr for before and after denoising
+    ab_snr1 = getsignalnoise(bb.results.origmodel(1),  icond, 'SNR',bb.badChannels);
+    ab_snr2 = getsignalnoise(bb.results.finalmodel(1), icond, 'SNR',bb.badChannels);
+    
+    ab_snr1_L = getsignalnoise(bb.results.origmodel(1),  2, 'SNR');
+    ab_snr1_R = getsignalnoise(bb.results.origmodel(1),  3, 'SNR');
+
+    ab_snr2_L = getsignalnoise(bb.results.finalmodel(1), 2, 'SNR');
+    ab_snr2_R = getsignalnoise(bb.results.finalmodel(1), 3, 'SNR');
+
+    if whichSubject < 9; % NeuroMag360 data is already converted when combining the channels
+        % convert back into 157-channel space  
+        ab_snr1 = to157chan(ab_snr1,~bb.badChannels,'nans');
+        ab_snr2 = to157chan(ab_snr2,~bb.badChannels,'nans');
+
+        ab_snr1a_LmnR = to157chan(ab_snr1_L,~bb.badChannels,'nans') - to157chan(ab_snr1_R,~bb.badChannels,'nans');
+        ab_snr2a_LmnR = to157chan(ab_snr2_L,~bb.badChannels,'nans') - to157chan(ab_snr2_R,~bb.badChannels,'nans');
+    end
+    
+    % Threshold
+    ab_snr1(abs(ab_snr1) < threshold) = 0;
+    ab_snr2(abs(ab_snr2) < threshold) = 0;
+    
+    ab_snr1a_LmnR(abs(ab_snr1a_LmnR) < threshold) = 0;
+    ab_snr2a_LmnR(abs(ab_snr2a_LmnR) < threshold) = 0;
+    
+    % Set colormap limits
+%     max_val = max(abs([ab_snr1a_LmnR, ab_snr2a_LmnR]));
+%     clims_ab = [-1,1].*[max_val,max_val];
+    clims_sl = [-25.6723,25.6723];
+    clims_ab = [-8.4445, 8.4445];     
+
+    subplot(4,2,(icond-1)*2+1)
+    [~,ch] = megPlotMap(ab_snr1,clims_ab,gcf,'bipolar',sprintf('%s Original', condNames{icond}),data_hdr,cfg);
+    makeprettyaxes(ch,9,9);
+    title(sprintf('Broadband Pre %s', condNames{icond}))
+    
+    subplot(4,2,(icond-1)*2+2)
+    [~,ch] = megPlotMap(ab_snr2,clims_ab,gcf,'bipolar',sprintf('%s : Denoised PC %d',condNames{icond}, bb.results.pcnum(1)),data_hdr,cfg);
+    makeprettyaxes(ch,9,9);
+    title(sprintf('Broadband Post %s', condNames{icond}))
+    
+    % plot difference spatial maps
+    subplot(4,2,(icond-1)*2+3)
+    [~,ch] = megPlotMap(ab_snr1a_LmnR,clims_ab,gcf,'bipolar',sprintf('%s Original', 'Left minus Right'));
+    makeprettyaxes(ch,9,9);
+    set(ch,'YTick',[-5,-2.5,0,2.5,5]);
+    title(sprintf('Broadband Pre %s', 'Left minus Right'))
+    
+    subplot(4,2,(icond-1)*2+4)
+    [~,ch] = megPlotMap(ab_snr2a_LmnR,clims_ab,gcf,'bipolar',sprintf('%s : Denoised PC %d', 'Left minus Right', bb.results.pcnum(1)));
+    makeprettyaxes(ch,9,9);
+    set(ch,'YTick',[-5,-2.5,0,2.5,5]);
+    title(sprintf('Broadband Post %s', 'Left minus Right'))
+    
 end
 
 if saveFigures
-    figurewrite(fullfile(figureDir,'figure10_control'),[],0,'.',1);
+    printnice(gcf, 0, figureDir, sprintf('figure5_examplesubject%d_bipolar_thresh%d_interpolated',whichSubject, threshold));
 end
+
+%% Now do the same but then across subjects
+dfdMakeFigure10AcrossSubjects()
+
