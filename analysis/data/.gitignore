@@ -1,0 +1,4 @@
+*.mat
+*.sqd
+/tmp
+/eye
