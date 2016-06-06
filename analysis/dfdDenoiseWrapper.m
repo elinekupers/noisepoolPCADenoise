@@ -25,7 +25,7 @@ function dfdDenoiseWrapper(subjects, howToDenoise)
 if notDefined('howToDenoise'), howToDenoise = 1; end
 
 % Check for data, download data if needed
-if isempty(dir(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's0*.mat')));
+if isempty(dir(fullfile(dfdRootPath, 'analysis', 'data', 's0*.mat')));
     error('No data were found. Use dfdDownloadSampleData')
 end
 
@@ -113,8 +113,8 @@ for whichSubject = subjects
     end
 
     % ------------------ Load data and design ----------------------------
-    tmp = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's%02d_sensorData.mat'),whichSubject)); sensorData = tmp.sensorData;
-    tmp = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's%02d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
+    tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's%02d_sensorData.mat'),whichSubject)); sensorData = tmp.sensorData;
+    tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's%02d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
     
     % ------------------ Make design matrix ------------------------------
     design = zeros(length(conditions), 3);
@@ -154,7 +154,7 @@ for whichSubject = subjects
             if nrControl == 0;    % do nothing to postFix in filename
             else postFix          = sprintf('_control%d',nrControl); end
             [results,evalout,~,denoisedts_bb] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
-            if saveDenoisedts; save(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's%02d_denoisedts.mat'),whichSubject),'denoisedts_bb'); end
+            if saveDenoisedts; save(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's%02d_denoisedts.mat'),whichSubject),'denoisedts_bb'); end
             
         elseif nrControl == 5
             optbb.pccontrolmode   = 0;
@@ -165,11 +165,11 @@ for whichSubject = subjects
   
         %% ------------------ Define file name ---------------------------
         if use3Channels
-            fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s%02d_denoisedData' postFix '_w3chan']),whichSubject);
+            fname = sprintf(fullfile(dfdRootPath,'analysis','data', ['s%02d_denoisedData' postFix '_w3chan']),whichSubject);
         elseif removeFirstEpoch
-            fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s%02d_denoisedData' postFix '_rm1epoch']),whichSubject);
+            fname = sprintf(fullfile(dfdRootPath,'analysis','data', ['s%02d_denoisedData' postFix '_rm1epoch']),whichSubject);
         else
-            fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s%02d_denoisedData' postFix]), whichSubject);   
+            fname = sprintf(fullfile(dfdRootPath,'analysis','data', ['s%02d_denoisedData' postFix]), whichSubject);   
         end
                 
         % ----------------- Save denoised broadband data -----------------

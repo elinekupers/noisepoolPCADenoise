@@ -7,7 +7,7 @@ function savePth = dfdDownloadsampledata(savePth, whichSubjects, whichDataTypes)
 %
 % Inputs
 %   savePth: Path to store data. 
-%                   [default = fullfile(dfdRootPath,'data')];
+%                   [default = fullfile(dfdRootPath,'analysis','data')];
 %
 %   whichSubjects: Vector of one or more data sets (
 %       [1:8]:          Main experiment
@@ -32,7 +32,7 @@ function savePth = dfdDownloadsampledata(savePth, whichSubjects, whichDataTypes)
 
 
 % Argument check
-if notDefined('savePth'),        savePth = fullfile(dfdRootPath, 'exampleAnalysis', 'data'); end
+if notDefined('savePth'),        savePth = fullfile(dfdRootPath, 'analysis', 'data'); end
 if notDefined('whichDataSets'),  whichSubjects = 1:8; end
 if notDefined('whichDataTypes'), whichDataTypes = {'raw'}; end
 

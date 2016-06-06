@@ -21,8 +21,8 @@ addpath(genpath(fullfile(toolbox_pth,'toolboxes','mrToolsUtilities')));
 % ------------- Subject nr and folders -------------
 whichSubject = 8; % Only subject 6,7,8 have eye tracking data
 subjects     = whichSubject;
-dataPath     = fullfile(dfdRootPath, 'exampleAnalysis', 'data');
-savePath     = fullfile(dfdRootPath, 'exampleAnalysis', 'figures_rm1epoch');
+dataPath     = fullfile(dfdRootPath, 'analysis', 'data');
+savePath     = fullfile(dfdRootPath, 'analysis', 'figures');
 saveFigs     = true;
 
 
