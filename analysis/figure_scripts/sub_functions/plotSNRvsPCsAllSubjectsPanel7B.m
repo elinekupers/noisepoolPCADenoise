@@ -1,7 +1,7 @@
-function fH = plotSNRvsPCsAllSubjectsPanel6B(dataAll,condColors,axmax,figureDir,saveFigures)
+function fH = plotSNRvsPCsAllSubjectsPanel7B(dataAll,condColors,axmax,figureDir,saveFigures)
 
 %% SNR increase as a function of number of PCs removed for all subjects -
-%% Fig. 6B
+%% Fig. 7B
 
 % get the trend for the top 10 channels of all sessions
 snr_top10 = [];
@@ -11,11 +11,11 @@ dataAll = dataAll(dataAllind);
 
 for k = 1:numel(dataAll)
 
-    snr = (cat(3,dataAll{k}{1}.evalout(:,1).beta_md)) ./ cat(3,dataAll{k}{1}.evalout(:,1).beta_se);    
+    snr = (cat(3,dataAll{k}.evalout(:,1).beta_md)) ./ cat(3,dataAll{k}.evalout(:,1).beta_se);    
     xvaltrend = [];
     for icond = 1:3
         this_snr = squeeze(snr(icond,:,1:11))';
-        xvaltrend = cat(2, xvaltrend, mean(this_snr(:,dataAll{k}{1}.results.pcchan{1}),2));
+        xvaltrend = cat(2, xvaltrend, mean(this_snr(:,dataAll{k}.results.pcchan{1}),2));
     end
     snr_top10 = cat(3,snr_top10,xvaltrend);
 end
@@ -27,7 +27,7 @@ satValues = 1-linspace(0.1,1,numel(dataAll));
 colorRGB = varysat(condColors,satValues);
 ttls = {'FULL','RIGHT','LEFT'};
 
-fH = figure; set(fH, 'Color', 'w');
+fH = figure('position',[1,200,600,200]); set(fH, 'Color', 'w');
 % plot for each condition
 for icond = 1:3
     subplot(1,3,icond);hold on;
@@ -41,5 +41,5 @@ for icond = 1:3
 end
 
 if saveFigures
-    figurewrite(fullfile(figureDir,'Figure6BSNRvPCsAllSubjsBB'),[],0,'.',1);
+    figurewrite(fullfile(figureDir,'Figure7BSNRvPCsAllSubjsBB'),[],0,'.',1);
 end

@@ -1,42 +1,43 @@
 function dfdMakeFigure6()
-%% Function to reproduce Figure 6A SNR against PCs removed for 3 example subjects 
-% and Figure 6b, SNR for top ten channels against PCs removed for all
-% subjects.
+%% Function to reproduce Figure 6AB spectra and beta distributionsof full 
+% field vs blank, pre-post denoising for one example subject (S1).
 %
 % dfdMakeFigure6()
 %
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
-% This figure will show 2 ways of plotting SNR values against the number of PCs
-% removed from the data. In Figure 6A, SNR values of all channels from the 
-% three example subjects (corresponding to 6,7,8) will be plotted against
-% the number of PCs removed. The median is plotted in the color of the
-% condition. In Figure 6B, only the median of all channels for SNR against
-% number of PCs removed, for all subjects, for the three conditions. This
-% function needs all 
+% This figure will show subject's the broadband spectra before and after denoising from 60-150 Hz.
+% Bootstrapped fullfield signal (mean across bootstraps) and noise component (std across bootstraps) 
+% and the difference between the two distributions are plotted before and
+% after denoising. 
 %
 % This function assumes that data is downloaded with the DFDdownloaddata
 % function. 
 
 %% Choices to make:
-whichSubjects       = [1:8];             
-figureDir           = fullfile(dfdRootPath, 'exampleAnalysis', 'figures_rm1epoch'); % Where to save images?
-dataDir             = fullfile(dfdRootPath, 'exampleAnalysis', 'data');    % Where to save data?
-saveFigures         = true;         % Save figures in the figure folder?
-exampleSessions     = [1,2,3,4,5,6,7,8];
-condColors          = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
-axmax               = 10;           % how far to go out on the x-axis
+whichSubject    = 1;     % Subject 1 has the example channel.
+figureDir       = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to save images?
+dataDir         = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?
+saveFigures     = true;  % Save figures in the figure folder?
+figNum          = 6;     % To call corresponding part of subfunction
+                                         
+% Define plot colors
+colors          = dfdGetColors(4);
+% Define whether to average in log or not
+avgLogFlg       = false;
 
-%% Load data from all subjects
-for whichSubject = whichSubjects
-    fprintf(' Load subject %d \n', whichSubject);
-    [data,design,exampleIndex] = prepareData(dataDir,whichSubject,6);    
-    dataAll{whichSubject} = {data,design,exampleIndex};   %#ok<AGROW>
-end
+% Load data, design, and get example subject
+[data,design,exampleIndex,exampleChannel] = prepareData(dataDir,whichSubject,6);
 
-%% SNR increase as a function of number of PCs removed, 3 example sessions - Fig. 6A
-fH = plotSNRvsPCsExampleSubjectsPanel6A(dataAll,exampleSessions,condColors,axmax,figureDir,saveFigures); %#ok<NASGU>
+% Define conditions: Full, right, left, off
+condEpochs1 = {design{1}(:,1)==1, design{1}(:,2)==1, design{1}(:,3)==1, all(design{1}==0,2)};
+condEpochs2 = {design{2}(:,1)==1, design{2}(:,2)==1, design{2}(:,3)==1, all(design{2}==0,2)};
 
-%% SNR increase as a function of number of PCs removed, all sessions - Fig. 6B
-fH = plotSNRvsPCsAllSubjectsPanel6B(dataAll,condColors,axmax,figureDir,saveFigures); %#ok<NASGU>
+condEpochs = {condEpochs1 condEpochs2};
 
+
+%% Plot spectrum before and after denoising
+fH(1) = plotSpectraPanelBeforeAfterDenoising(data, exampleIndex, exampleChannel, condEpochs, avgLogFlg, colors, saveFigures, figureDir, figNum);
+
+%% Plot signal and noise distributions before and after denoising
+fH(2) = plotBetaDistributions(data, exampleIndex, exampleChannel, condEpochs, colors, saveFigures, figureDir, figNum); %#ok<NASGU>

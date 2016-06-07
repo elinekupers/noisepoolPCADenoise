@@ -1,4 +1,4 @@
-function fH = plotBetaDistributions4C(data, exampleIndex, exampleChannel, condEpochs, colors, saveFigures, figureDir)
+function fH = plotBetaDistributions(data, exampleIndex, exampleChannel, condEpochs, colors, saveFigures, figureDir, figNum)
 
 %% Bootstrap to get signal and noise - Fig 5C
 
@@ -44,7 +44,9 @@ end
 
 % Set up figure and plot
 fH = figure; set(fH,'position',[0,400,400,400]);
-for dd = 1:2
+if figNum == 4; dataToPlot = 1; elseif figNum == 6; dataToPlot = 1:2;
+else disp('This figure number does not contain a distribution panel'); end
+for dd = dataToPlot;
     subplot(2,2,dd);
     %[n,x] = hist(meanXfreqs{dd}',30);
     %bar(x,n/1000,'barwidth',1,'edgecolor','none');
@@ -73,6 +75,8 @@ end
 
 
 if saveFigures
-    figurewrite(fullfile(figureDir,sprintf('Figure4cFullDistributionBootDiff%d',exampleChannel)),[],0,'.',1);
+    if figNum == 4; fname = sprintf('Figure4cFullDistributionBootDiff%d',exampleChannel);
+    elseif figNum == 6; fname = sprintf('Figure7bFullDistributionBootDiff%d',exampleChannel); end    
+    figurewrite(fullfile(figureDir,fname),[],0,'.',1);    
 end
 end

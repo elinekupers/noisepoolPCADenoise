@@ -1,14 +1,15 @@
 function dfdMakeFigure10()
-%% Function to reproduce Figure 5 (Spatialmap) from example subject 
+%% Function to reproduce Figure 10 (Spatialmap) from example subject and across subjects
+% after denoising
 %
 % dfdMakeFigure5()
 %
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
 % This figure will show an interpolated spatial map of the SNR values in 
-% each channel for the stimulus locked signal, broadband signals before and
-% after using the denoising algorithm. The three separate conditions (Full,
-% left, right hemifield stimulation are shown separately). 
+% each channel for the broadband signals before and
+% after using the denoising algorithm. The four separate conditions (Full,
+% left, right and left-right hemifield stimulation are shown separately). 
 %
 % This function assumes that data is downloaded with the DFDdownloaddata
 % function. 

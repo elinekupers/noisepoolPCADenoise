@@ -1,47 +1,26 @@
-function fH = plotSpectraPanel4B(data, exampleIndex, exampleChannel, condEpochs, avgLogFlg, colors, saveFigures, figureDir);
+function fH = plotSpectraPanelBeforeDenoising(data, exampleIndex, exampleChannel, condEpochs, avgLogFlg, colors, saveFigures, figureDir)
 
-%% set up figure 4B
-fH = figure; set(fH,'position',[0,300,200,350]);
-
+%% set up figure 4A
+fH = figure('position',[0,300,500,500]); clf(fH);
 % define axes
 f = (0:999);
-xl = [60 150];
+xl = [8 150];
 fok = f;
 fok(f<=xl(1) | f>=xl(2) | mod(f,60) < 2 | mod(f,60) > 58 ) = [];
 xt = [12:12:72, 96,144];
-yt = [1:2.5];
+yt = 1:5;
 yl=[yt(1),yt(end)];
 
-
-clf;
-for dd = 1:2
-    subplot(2,1,dd);
-    
+for dd = 1
     % compute spectrum
     spec = abs(fft(squeeze(data{dd}(exampleIndex,:,:))))/size(data{dd},2)*2;
     
     hold on;
-    for ii = [1,4]
+    for ii = [1,4];
         % compute power for epochs corresponding to a condition and
         % trim data to specific frequencies
-        this_data = spec(:,condEpochs{dd}{ii}).^2;
+        this_data = spec(:,condEpochs{ii}).^2;
         this_data = this_data(fok+1,:);
-        
-        % bootstrap for confidence intervals
-        nboot = 1000;
-        nepochs = size(this_data,2);
-        epochs_boot = randi(nepochs,nboot,nepochs);
-        epoch_vals = zeros(size(this_data,1),nboot);
-        for nn = 1:nboot
-            this_data_boot = this_data(:,epochs_boot(nn,:));
-            if avgLogFlg
-                this_data_log = log10(this_data_boot);
-                epoch_vals(:,nn) = mean(this_data_log,2);
-            else
-                epoch_vals(:,nn) = mean(this_data_boot,2);
-            end
-        end
-        mn = prctile(epoch_vals,[2.5,50,97.5],2);
         
         % compute median and confidence interval across epochs
         if avgLogFlg
@@ -60,7 +39,7 @@ for dd = 1:2
     end
     
     % format x and y axes
-    set(gca, 'XLim', xl, 'XTick', xt, 'XScale', 'log');
+    set(gca, 'XLim', xl, 'XTick', xt, 'XScale', 'log', 'YScale','log');
     if avgLogFlg
         set(gca,'ytick', yt, 'ylim',yl);
     else
@@ -76,7 +55,6 @@ for dd = 1:2
 end
 
 if saveFigures
-    figurewrite(sprintf(fullfile(figureDir,'figure4bHighFreqSpectrumChannel%d'),exampleChannel),[],0,'.',1);
+    figurewrite(sprintf(fullfile(figureDir,'figure4AFullSpectrumChannel%d'),exampleChannel),[],0,'.',1);
 end
-
 end

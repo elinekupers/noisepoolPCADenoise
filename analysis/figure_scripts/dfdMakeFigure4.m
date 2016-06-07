@@ -24,6 +24,7 @@ whichSubject    = 1;     % Subject 1 has the example channel.
 figureDir       = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to save images?
 dataDir         = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?
 saveFigures     = true;  % Save figures in the figure folder?
+figNum          = 4;     % To call corresponding part of subfunction
                                          
 % Define plot colors
 colors          = dfdGetColors(4);
@@ -41,10 +42,10 @@ condEpochs = {condEpochs1 condEpochs2};
 
 %% Spectrum before and after denoising
 
-fH(1) = plotSpectraPanel4A(data, exampleIndex, exampleChannel, condEpochs1, avgLogFlg, colors, saveFigures, figureDir);
+fH(1) = plotSpectraPanelBeforeDenoising(data, exampleIndex, exampleChannel, condEpochs1, avgLogFlg, colors, saveFigures, figureDir);
 
-fH(2) = plotSpectraPanel4B(data, exampleIndex, exampleChannel, condEpochs, avgLogFlg, colors, saveFigures, figureDir);
+fH(2) = plotSpectraPanelBeforeAfterDenoising(data, exampleIndex, exampleChannel, condEpochs, avgLogFlg, colors, saveFigures, figureDir, figNum);
 
-fH(3) = plotBetaDistributions4C(data, exampleIndex, exampleChannel, condEpochs, colors, saveFigures, figureDir); %#ok<NASGU>
+fH(3) = plotBetaDistributions(data, exampleIndex, exampleChannel, condEpochs, colors, saveFigures, figureDir,figNum); %#ok<NASGU>
 
 

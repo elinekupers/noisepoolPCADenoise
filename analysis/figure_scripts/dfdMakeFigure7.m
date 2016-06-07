@@ -2,41 +2,42 @@ function dfdMakeFigure7()
 %% Function to reproduce Figure 7ABCD S, N, SNR pre-post denoising
 % for top ten channels of all subjects
 %
-% dfdMakeFigure7()
+% dfdMakeFigure6()
 %
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
-% This figure will show the signal component (mean across bootstraps), the
-% noise component (std across bootstraps) and signal-to-noise ratio (SNR)
-% for broadband component for three example subjects (Figure 7ABC).
-% This figure will show changes in SNR before and after denoising for all
-% sessions in the three conditions (full, left, right; Figure 7D).
+% This figure will show subject's the broadband spectra before and after denoising from 60-150 Hz.
+% Bootstrapped fullfield signal (mean across bootstraps) and noise component (std across bootstraps) 
+% and the difference between the two distributions are plotted before and
+% after denoising. 
 %
 % This function assumes that data is downloaded with the DFDdownloaddata
 % function. 
 
 %% Choices to make:
-whichSubjects        = [1:8]; %1:8; 
-dataDir              = fullfile(dfdRootPath, 'exampleAnalysis', 'data');   % Where to save data?
-figureDir            = fullfile(dfdRootPath, 'exampleAnalysis', 'figures_rm1epoch');% Where to save images?
-saveFigures          = true;     % Save figures in the figure folder?
-exampleSessions      = [3,4,5];  % Helena's plot contained subjects [5,6,9]
-condColors           = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
-dataAll              = [];
-figureNumber         = 7;
+whichSubjects    = [1:8];     % Subject 1 has the example channel.
+exampleSessions = 1;
+figureDir       = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to save images?
+dataDir         = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?
+saveFigures     = true;  % Save figures in the figure folder?
+figureNumber    = 7;
+                                         
+% Define plotting parameters
+colors          = dfdGetColors(3);
+axmax           = 10;    % How far out do you want to plot the number of PCs
 
-%% Load data of all subjects
+dataAll = [];
 for whichSubject = whichSubjects
-    fprintf(' Load subject %d \n', whichSubject);
-    [data,design,exampleIndex] = prepareData(dataDir,whichSubject,7);    
-    dataAll{whichSubject} = {data,design,exampleIndex}; %#ok<AGROW>   
+    fprintf('Load data subject %d \n', whichSubject);
+    % Load data, design, and get example subject
+    [dataAll{whichSubject},design{whichSubject}] = prepareData(dataDir,whichSubject,7);
 end
 
-%% S, N, and SNR shown separately, before versus after denoising with 10 PCs
-%% For 3 example sessions - Fig. 7A,B,C
-fH = plotSNRPrePostPanelABC(dataAll, exampleSessions, condColors,figureDir,saveFigures,figureNumber); %#ok<NASGU>
+%% Plot SNR vs number of PCs change for all channels 
 
-%% Plot changes in SNR before and after denoising, showing all sessions
-%% together - Fig. 7D
-fH = plotSNRPrePostPanelD(dataAll,whichSubjects,condColors,figureDir,saveFigures,figureNumber); %#ok<NASGU>
+fH(1) = plotSNRvsPCsExampleSubjectsPanel7A(dataAll,exampleSessions,colors,axmax,figureDir,saveFigures);
+
+fH(2) = plotSNRvsPCsAllSubjectsPanel7B(dataAll,colors,axmax,figureDir,saveFigures);
+
+fH(3) = plotSNRPrePostPanel(dataAll,whichSubjects,colors,figureDir,saveFigures,figureNumber);
 

@@ -1,7 +1,7 @@
 function [data,design,exampleIndex,exampleChannel] = prepareData(dataDir,whichSubject,whichFigure)
 
 switch whichFigure
-    case 4
+    case {4, 6}
         % Load denoised data
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_sensorData.mat'),whichSubject));
@@ -45,12 +45,8 @@ switch whichFigure
 
         data = {bb,sl};
         
-    case 6
-        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_full_rm1epoch_bb.mat'),whichSubject));
-        load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
-        
     case 7
-        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));
+        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_full_rm1epoch_bb.mat'),whichSubject));        
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         
     case 8
