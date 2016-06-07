@@ -1,8 +1,8 @@
-function dfdMakeFigure10AcrossSubjects()
+function dfdMakeFigure9AcrossSubjects()
 
-%% Function to reproduce Figure 5 (Spatialmap) across all subjects
+%% Function to reproduce Figure 9 (Spatialmap) across all subjects
 %
-% dfdMakeFigure5AcrossSubjects()
+% dfdMakeFigure9AcrossSubjects()
 %
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
@@ -119,5 +119,5 @@ for icond = 1:numel(contrastNames)
 end
 
 if saveFigures
-    printnice(gcf,0,figureDir,sprintf('figure5_AcrossSubject%d_bipolar_threshold%d_raw',whichSubject, threshold));
+    printnice(gcf,0,figureDir,sprintf('figure9_AcrossSubject%d_bipolar_threshold%d_raw',whichSubject, threshold));
 end

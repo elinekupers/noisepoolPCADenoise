@@ -36,13 +36,11 @@ switch whichFigure
         denoisedts = denoisedts_bb;
         data = {sensorData,denoisedts{1}}; 
         
-    case 5
-
-        bb = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));
-        
+    case {5, 13, 14}
+        % Load denoised stimulus locked and broadband data
+        bb = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject)); 
         sl = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_sl.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
-
         data = {bb,sl};
         
     case 7
@@ -58,6 +56,10 @@ switch whichFigure
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         
     case 10
+        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));
+        load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
+        
+    case 11
         for nrControl = 1:5
             data_controls{nrControl} = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_control%d_rm1epoch_bb.mat'),whichSubject,nrControl)); %#ok<AGROW>
         end
@@ -65,14 +67,10 @@ switch whichFigure
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject)); 
         data = {data,data_controls};
         
-    case 11
+    case 12
         data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_sl.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
-        
-    case 12
-        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_sl.mat'),whichSubject));
-        load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
-        
+    
     case 'SF1'
         data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_varyEpochLength_NrPCs_bb.mat'), whichSubject));
         data1 = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject));
@@ -105,9 +103,9 @@ if ~exist('exampleChannel','var')
     design(conditions == 5,2) = 1; % Right
     design(conditions == 7,3) = 1; % Left
     
-    if whichFigure == 5
+    if whichFigure == 5 || whichFigure == 13 || whichFigure == 14;
         design = [];
-    elseif whichFigure == 10
+    elseif whichFigure == 11
         design = design(~data{1}.badEpochs,:);
     else
         design = design(~data.badEpochs,:);

@@ -16,8 +16,8 @@ function dfdMakeFigureVaryEpochLength()
 
 %% Choices to make:
 whichSubjects        = 1;%[1:8]; % For now only two subjects, should 1:8
-dataDir              = fullfile(dfdRootPath, 'exampleAnalysis', 'data');   % Where to save data?
-figureDir            = fullfile(dfdRootPath, 'exampleAnalysis', 'figures');% Where to save images?
+dataDir              = fullfile(dfdRootPath, 'analysis', 'data');   % Where to save data?
+figureDir            = fullfile(dfdRootPath, 'analysis', 'figures');% Where to save images?
 saveFigures          = true;     % Save figures in the figure folder?
 condColors           = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
 dataAll              = [];

@@ -1,11 +1,7 @@
-function dfdMakeFigure13AcrossSubjects
+function dfdMakeFigure13AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
+%% Function to reproduce Figure 13 (Spatialmap) across CiNet dataset subjects
 %
-% NEEDS SOME CLEANING
-
-
-%% Function to reproduce Figure 5 (Spatialmap) across all subjects
-%
-% dfdMakeFigure5AcrossSubjects()
+% dfdMakeFigure5AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
 %
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
@@ -17,21 +13,9 @@ function dfdMakeFigure13AcrossSubjects
 % This function assumes that data is downloaded with the DFDdownloaddata
 % function.
 
-%% Choices to make:
-whichSubjects    = [14,16,18,20];        % Subject 1 is the example subject.
-% whichSubjects    = 9:12;        % Subject 1 is the example subject.
-figureDir       = fullfile(dfdRootPath, 'exampleAnalysis', 'figures_rm1epoch_CiNet'); % Where to save images?
-dataDir         = fullfile(dfdRootPath, 'exampleAnalysis', 'data');    % Where to save data?
-saveFigures     = true;     % Save figures in the figure folder?
-threshold       = 2;
-
 %% Compute SNR across subjects
 contrasts = [1 0 0; 0 1 0; 0 0 1; 0 1 -1]; % Full, Left, Right and L-R
-
 computeSNR    = @(x) nanmean(x,3) ./ nanstd(x, [], 3);
-computeSignal = @(x) nanmean(x,3);
-
-
 contrastNames = {
     'Full'...
     'Left'...
@@ -39,11 +23,16 @@ contrastNames = {
     'Left-Right'
     };
 
+if isequal(whichSubjects,[9:12]);
+    str = {'SL raw' 'BB raw' 'BB MEG Denoise'}; figName = 'RAW';
+elseif isequal(whichSubjects,[14,16,18,20]);
+    str = {'SL raw' 'BB TSSS' 'BB TSSS + MEG Denoise'}; figName = 'TSSS';
+end
+
 %% Load denoised data of all subjects
- 
 for whichSubject = whichSubjects
-    subjnum = find(whichSubjects==whichSubject);
-    data = prepareData(dataDir,whichSubject,5);
+    subjnum = find(whichSubject==whichSubjects);
+    data = prepareData(dataDir,whichSubject,13);
     bb(subjnum) = data{1};
     sl(subjnum) = data{2};
     
@@ -78,27 +67,18 @@ for whichSubject = whichSubjects
     sSLAcrossSubjects(:,:,subjnum) = to157chan(sSL', ~sl(subjnum).badChannels,'nans');
     sBBBeforeAcrossSubjects(:,:,subjnum) = to157chan(sBBBefore', ~bb(subjnum).badChannels,'nans');
     sBBAfterAcrossSubjects(:,:,subjnum) = to157chan(sBBAfter', ~bb(subjnum).badChannels,'nans');
-
-    
 end
 
 
-
 %% Plot stimulus-locked signal, broadband before and after denoising on sensormap
-figure('position',[1,600,1400,800]);
-condNames = {'Stim Full','Stim Left','Stim Right'};
-n = 0;
-
-
 
 % stimulus locked
 data{1} = sSLAcrossSubjects;
 data{2} = sBBBeforeAcrossSubjects;
 data{3} = sBBAfterAcrossSubjects;
 cmap = bipolar;
-str = {'SL-pre' 'BB-pre' 'BB-post'};
 
-figure,set(gcf, 'Name', 'RAW')
+figure,set(gcf, 'Name', figName)
 for row = 1:4 % stimulus contrasts
     for col = 1:3 % types of analyses (sl, bb-pre, bb-post)
         subplot(4,3,3*(row-1)+col),
@@ -110,5 +90,5 @@ for row = 1:4 % stimulus contrasts
 end
 
 if saveFigures
-    figurewrite(sprintf(fullfile(figureDir,'figure13_AcrossSubject%d_bipolar_threshold%d_tsss'),whichSubject, threshold),[],0,'.',1);
+    figurewrite(sprintf(fullfile(figureDir,'figure13_AcrossSubject%d_bipolar_threshold%d_%s'),whichSubject, threshold, figName),[],0,'.',1);
 end

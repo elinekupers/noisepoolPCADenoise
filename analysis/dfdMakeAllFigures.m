@@ -14,5 +14,7 @@ dfdMakeFigure9;
 dfdMakeFigure10;
 dfdMakeFigure11;
 dfdMakeFigure12;
+dfdMakeFigure13;
+dfdMakeFigure14;
 dfdMakeFigureVaryEpochLength;
 

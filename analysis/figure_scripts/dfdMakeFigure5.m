@@ -60,6 +60,17 @@ for icond = 1:3
     
     ab_snr1a_LmnR(abs(ab_snr1a_LmnR) < threshold) = 0;
     sl_snr1a_LmnR(abs(sl_snr1a_LmnR) < threshold) = 0;
+    
+   %CHECK IF THIS IS THE SAME 
+%     ab_beta2 = results.whichmodel.beta(1,:,:); %right
+%     ab_diff = ab_beta2 - ab_beta1;
+%     
+%     diff_med = nanmedian(squeeze(ab_diff),2);
+%     diff_se = nanstd(squeeze(ab_diff),[],2);
+%         
+%     ab_snr_diff = to157chan((diff_med./diff_se)',~data{1}.badChannels,'nans');
+%     
+%     subplot(2,4,k);  
 
     % Set colormap limits
 %     max_val = max(abs([ab_snr1a_LmnR, ab_snr2a_LmnR]));
