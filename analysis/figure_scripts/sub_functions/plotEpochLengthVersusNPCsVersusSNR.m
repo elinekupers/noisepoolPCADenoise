@@ -7,7 +7,7 @@ for whichSubject = whichSubjects
     % get all the results for a particular number of pc's removed
     for jj = 1:length(npcs)
         
-        results_all = catcell(1,dataAll{whichSubject}{1}.allResults(:,jj));
+        results_all = catcell(1,dataAll{whichSubject}{1}.allResults(jj));
         
         % get top 10 channels
         pcchan = getTop10(results_all(1));

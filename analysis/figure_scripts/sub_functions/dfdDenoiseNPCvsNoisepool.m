@@ -47,18 +47,16 @@ opt.resampling      = {'boot','boot'};
 opt.pcselmethod     = 'snr';
 
 % Denoise with exactly 10 PC regressors
-opt.pcchoose          = -10;   % Take 10 PCs
-opt.npcs2try          = [];    
-optbb                 = opt;
-optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
+opt.preprocessfun     = @hpf;
+opt.verbose           = true;
 npools                = [5,10:10:140];
 npcs                  = [5,10:10:130];
 allResults            = {};
 
 for whichSubject = whichSubjects
     % ------------------ Load data and design ----------------------------
-    tmp = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's0%d_sensorData.mat'),whichSubject)); sensorData = tmp.sensorData;
-    tmp = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's0%d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
+    tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's0%d_sensorData.mat'),whichSubject)); sensorData = tmp.sensorData;
+    tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's0%d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
     
     % ------------------ Make design matrix ------------------------------
     design = zeros(length(conditions), 3);
@@ -80,9 +78,10 @@ for whichSubject = whichSubjects
     
     % Loop over the different eval functions
     for np = 1:length(npools)
+         
         for nc = 1:length(npcs)
+            fprintf('Denoising.. Using %d channels in noisepool and %d pcs to denoise \n',npools(np), npcs(nc))
             if npcs(nc)>npools(np), continue; end
-            
             opt.npcs2try      = [];    
             opt.npoolmethod   = {'snr','n',npools(np)};
             opt.pcchoose      = -npcs(nc);
@@ -91,7 +90,7 @@ for whichSubject = whichSubjects
         end
     end
     
-    fname     = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', ['s0%d_denoisedData_NCPSvsNoisePool']), whichSubject);
+    fname     = sprintf(fullfile(dfdRootPath,'analysis','data', ['s0%d_denoisedData_NCPSvsNoisePool']), whichSubject);
     parsave([fname '_bb.mat'], 'allResults', allResults)
 
 

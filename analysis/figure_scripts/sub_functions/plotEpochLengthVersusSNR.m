@@ -14,7 +14,7 @@ for whichSubject = whichSubjects
     pcchan = getTop10(results_all(1));
     
     % total number of epochs for this session 
-    nepochs(whichSubject) = length(results_all(1).opt.epochGroup);
+    nepochs(whichSubject) = length(results_all(1).opt.epochgroup);
     
     % compute the difference between pre and post
     for nn = 1:length(epochDurs)

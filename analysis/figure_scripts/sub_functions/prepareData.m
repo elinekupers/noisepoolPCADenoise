@@ -103,7 +103,11 @@ if ~exist('exampleChannel','var')
     design(conditions == 5,2) = 1; % Right
     design(conditions == 7,3) = 1; % Left
     
-    if whichFigure == 5 || whichFigure == 13 || whichFigure == 14;
+    if whichFigure == 5;
+        design = [];
+    elseif whichFigure == 13;
+        design = [];
+    elseif whichFigure == 14;
         design = [];
     elseif whichFigure == 11
         design = design(~data{1}.badEpochs,:);

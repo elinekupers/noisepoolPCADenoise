@@ -60,7 +60,7 @@ evalfun             = @(x)getbroadband(x,keep_frequencies,1000);  % function han
 
 % Get different epoch lengths and npcs to denoise with
 epochDurs             = [1,3,6,12,24,36,72,inf]; %[1,3,6,12,24,36,72,inf];
-npcs                  = 10; %[5,10:10:70];
+npcs                  = [5,10:10:70];
 
 
 
@@ -71,8 +71,8 @@ npcs                  = 10; %[5,10:10:70];
 for whichSubject = subjects
     
     % ------------------ Load data and design ----------------------------
-    tmp = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's0%d_sensorData.mat'),whichSubject)); sensorData = tmp.sensorData;
-    tmp = load(sprintf(fullfile(dfdRootPath, 'exampleAnalysis', 'data', 's0%d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
+    tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's0%d_sensorData.mat'),whichSubject)); sensorData = tmp.sensorData;
+    tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's0%d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
     
     % ------------------ Make design matrix ------------------------------
     design = zeros(length(conditions), 3);
@@ -125,7 +125,7 @@ for whichSubject = subjects
 % -------------------- Denoise and save the data -------------------------
 % ------------------------------------------------------------------------
     
-    fname = sprintf(fullfile(dfdRootPath,'exampleAnalysis','data', 's0%d_denoisedData_varyEpochLength_NrPCs'),whichSubject);   
+    fname = sprintf(fullfile(dfdRootPath,'analysis','data', 's0%d_denoisedData_varyEpochLength_NrPCs'),whichSubject);   
         
     parsave([fname '_bb.mat'], 'allResults', allResults, 'epochDurs', epochDurs, 'npcs', npcs);
     fprintf('data saved:%s\n', fname);
