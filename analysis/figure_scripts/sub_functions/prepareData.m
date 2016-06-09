@@ -76,6 +76,8 @@ switch whichFigure
         data1 = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject));
         data.badEpochs = data1.badEpochs;
         data.badChannels = data1.badChannels;
+        
+        clear data1
 
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         

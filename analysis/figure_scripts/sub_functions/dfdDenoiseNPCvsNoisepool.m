@@ -83,7 +83,7 @@ for whichSubject = whichSubjects
             fprintf('Denoising.. Using %d channels in noisepool and %d pcs to denoise \n',npools(np), npcs(nc))
             if npcs(nc)>npools(np), continue; end
             opt.npcs2try      = [];    
-            opt.npoolmethod   = {'snr','n',npools(np)};
+            opt.npoolmethod   = {'r2','n',npools(np)};
             opt.pcchoose      = -npcs(nc);
             [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
             allResults{np,nc} = results;          

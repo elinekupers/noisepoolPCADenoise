@@ -21,9 +21,9 @@ for whichSubject = whichSubjects
             pcchan = getTop10(results);
             
             % get snr before and after, nconds x nchannels
-            ab_signal1 = abs(results.origmodel.beta_md(:,pcchan));
+            ab_signal1 = results.origmodel.beta_md(:,pcchan);
             ab_noise1  = results.origmodel.beta_se(:,pcchan);
-            ab_signal2 = abs(results.finalmodel.beta_md(:,pcchan));
+            ab_signal2 = results.finalmodel.beta_md(:,pcchan);
             ab_noise2  = results.finalmodel.beta_se(:,pcchan);
             ab_snr1    = ab_signal1./ab_noise1;
             ab_snr2    = ab_signal2./ab_noise2;
@@ -39,7 +39,7 @@ end
 
 %%
 fH = figure('position',[0,300,450,900],'color','w');
-clims = [[0,6];[0,6];[0,6]];
+clims = [[0,4];[0,4];[0,4]];
 conditionNames = {'FULL','RIGHT','LEFT'};
 for icond = 1:3
     subplot(3,1,icond);

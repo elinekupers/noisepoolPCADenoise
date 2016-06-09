@@ -24,6 +24,7 @@ badChannelThreshold = 0.2;
 badEpochThreshold   = 0.2;
 dataChannels        = 1:157;
 use3Channels        = false;
+removeFirstEpoch    = true;
 
 %% Get frequencies to define stimuluslocked and asynchronous broadband power
 % Exclude all frequencies that are close to a multiple of the
@@ -52,7 +53,7 @@ keep_frequencies    = @(x) x(ab_i);
 opt.resampling        = {'boot','boot'};
 opt.pcselmethod       = 'snr';
 opt.preprocessfun     = @hpf;  % preprocess data with a high pass filter for broadband analysis
-opt.npoolmethod       = {'snr','n',75};
+opt.npoolmethod       = {'r2','n',75};
 
 % Define functions to define noise pool and signal of interest
 evokedfun           = @(x)getstimlocked(x,sl_freq_i); % function handle to determine noise pool
@@ -61,8 +62,6 @@ evalfun             = @(x)getbroadband(x,keep_frequencies,1000);  % function han
 % Get different epoch lengths and npcs to denoise with
 epochDurs             = [1,3,6,12,24,36,72,inf]; %[1,3,6,12,24,36,72,inf];
 npcs                  = [5,10:10:70];
-
-
 
 % ------------------------------------------------------------------------
 % ------------------ Load and denoise data per subject -------------------
@@ -85,6 +84,9 @@ for whichSubject = subjects
     [sensorData, badChannels, badEpochs] = dfdPreprocessData(sensorData(:,:,dataChannels), ...
         varThreshold, badChannelThreshold, badEpochThreshold, use3Channels);
     
+    % ---- Define first epochs in order to remove later ------------------
+    if removeFirstEpoch, badEpochs(1:6:end) = 1; end
+    
     % ---- Remove bad channels and bad epochs from data and conditions ---
     sensorData = sensorData(:,~badEpochs, ~badChannels);
     design = design(~badEpochs,:);
@@ -94,30 +96,29 @@ for whichSubject = subjects
 
     % ------------------ Loop over Epoch length & nr PCs -----------------
     allResults = [];
-    for ii = 1:length(epochDurs) % iterate through epoch duration fo doing PCA
-        
-        if isinf(epochDurs(ii))
+    for dur = 1:length(epochDurs) % iterate through epoch duration fo doing PCA 
+        if isinf(epochDurs(dur))
             epochGroup = ones(size(sensorData,3),1);
         else
-            epochGroup = megEpochGroup(~badEpochs,epochDurs(ii),0);
+            epochGroup = megEpochGroup(~badEpochs,epochDurs(dur),0);
         end
         
         opt.epochgroup = epochGroup;
         clear results;
-        fprintf('epochDur = %d; %d epochs\n', epochDurs(ii), max(epochGroup));
+        fprintf('epochDur = %d; %d epochs\n', epochDurs(dur), max(epochGroup));
         
-        for jj = 1:length(npcs) % iterate through number of PCs projected out 
-            opt.pcchoose   = -npcs(jj);
+        for np = 1:length(npcs) % iterate through number of PCs projected out 
+            opt.pcchoose   = -npcs(np);
             opt.npcs2try   = [];
-            fprintf('\tnpcs = %d\n', npcs(jj));
+            fprintf('\tnpcs = %d\n', npcs(np));
             
-            if jj == 1
+            if np == 1
                 [results] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
                 noisepooldef = results.noisepool;
             else
                 [results] = denoisedata(design,sensorData,noisepooldef,evalfun,opt);
             end
-            allResults{ii,jj} = results;
+            allResults{dur,np} = results;
         end
     end
     

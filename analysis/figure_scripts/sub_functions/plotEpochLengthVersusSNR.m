@@ -1,13 +1,14 @@
 function fH = plotEpochLengthVersusSNR(whichSubjects,dataAll,epochDurs,condColors,saveFigures,figureDir)
 
-
+npsIdx = 2;
 snr_diff = zeros(length(whichSubjects),length(epochDurs),3);
 nepochs  = zeros(1,length(whichSubjects));
 
 for whichSubject = whichSubjects
 
+    
     % get all the results
-    results_all = catcell(1,dataAll{whichSubject}{1}.allResults);
+    results_all = catcell(1,dataAll{whichSubject}{1}.allResults(:,npsIdx));
     
     % get top 10 channels and use the same 10 channels for all epoch
     % durations
@@ -45,7 +46,7 @@ for icond = 1:3 % for each condition
     % format axes and make figure pretty 
     set(gca,'xscale','log');
     xlim([0.5,1500]); set(gca,'xtick',epochDurs,'xscale','log');
-    ylim([-2,7]);
+    ylim([-3,7]); set(gca, 'YTick', [-2:2:7])
     ylabel('Difference in SNR (post-pre)');
     makeprettyaxes(gca,9,9);
 end
