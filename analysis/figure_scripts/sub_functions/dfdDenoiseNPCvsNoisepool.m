@@ -1,8 +1,7 @@
 function dfdDenoiseNPCvsNoisepool(whichSubjects)
 % denoise as a function of denoising epoch duration and number of PCs
 % removed
-% you can modify the script take parameter k for session number
-
+% 
 
 
 % ------------------------------------------------------------------------
@@ -15,19 +14,20 @@ badChannelThreshold = 0.2;
 badEpochThreshold   = 0.2;
 dataChannels        = 1:157;
 use3Channels        = false;
+removeFirstEpoch    = true;
 
 %% Get frequencies to define stimuluslocked and asynchronous broadband power
 % Exclude all frequencies that are close to a multiple of the
 % stimulus-locked frequency
-f           = 1:150; % Used frequencies
-tol         = 1;     % Tolerance for finding stimulus-locked frequency
-sl_freq     = 12;    % Stimulus-locked frequency
-sl_freq_i   = 13;    % We need to use the sl_freq +1 to get the correct index
+f           = 0:150;   % limit frequencies to [0 150] Hz
+sl_freq     = 12;      % Stimulus-locked frequency
+sl_freq_i   = sl_freq + 1;
+tol         = 1.5;     % exclude frequencies within +/- tol of sl_freq
 sl_drop     = f(mod(f, sl_freq) <= tol | mod(f, sl_freq) > sl_freq - tol);
    
 % Exclude all frequencies that are close to a multiple of the
 % line noise frequency (60 Hz)
-ln_drop   = f(mod(f, 60) <= tol | mod(f, 60) > 60 - tol);
+ln_drop     = f(mod(f, 60) <= tol | mod(f, 60) > 60 - tol);
 
 % Exclude all frequencies below 60 Hz when computing broadband power
 lf_drop = f(f<60);
@@ -69,6 +69,10 @@ for whichSubject = whichSubjects
     [sensorData, badChannels, badEpochs] = dfdPreprocessData(sensorData(:,:,dataChannels), ...
         varThreshold, badChannelThreshold, badEpochThreshold, use3Channels);
     
+        
+    % ---- Define first epochs in order to remove later ------------------
+    if removeFirstEpoch, badEpochs(1:6:end) = 1; end
+    
     % ---- Remove bad channels and bad epochs from data and conditions ---
     sensorData = sensorData(:,~badEpochs, ~badChannels);
     design     = design(~badEpochs,:);
@@ -85,7 +89,7 @@ for whichSubject = whichSubjects
             opt.npcs2try      = [];    
             opt.npoolmethod   = {'r2','n',npools(np)};
             opt.pcchoose      = -npcs(nc);
-            [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
+            [results] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
             allResults{np,nc} = results;          
         end
     end

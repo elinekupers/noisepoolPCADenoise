@@ -328,29 +328,31 @@ for nn = 1:4;
     
     
     % circular distribution
-    subplot(2,4,nn+4); 
-    
-    t = 0:.01:(2*pi);
-    P1 = polar(t, .15 * ones(size(t))); hold all;
-%     P2 = polar(t, 1.0 * ones(size(t)));
-%     P3 = polar(t, 0.5 * ones(size(t)));
-     set(P1, 'Visible', 'off')
 
-    set(P1, 'Color', 'k')
-%     set(P2, 'Color', 'k')
-%     set(P3, 'Color', 'k')
+    subplot(2,4,nn+4); cla;    
+    t = 0:.01:(2*pi); 
+    P1 = polar(t, 0.20 * ones(size(t))); hold all;
+    P2 = polar(t, 0.15 * ones(size(t))); 
+    P3 = polar(t, 0.10 * ones(size(t)));  
+    P4 = polar(t, 0.05 * ones(size(t)));
+%      set(P1, 'Visible', 'off')
+    set(P1, 'Color', [.7 .7 .7])
+    set(P2, 'Color', [.7 .7 .7])
+    set(P3, 'Color', [.7 .7 .7])
+    set(P4, 'Color', [.7 .7 .7])
 
-    
-    % Set up modified polar plot to get the right radial limit
-%     max_lim = .13;
-%     x_fake=[0:0.001:max_lim];
-%     h_fake=polar(x_fake);
-%     hold on;
-%     set(h_fake,'Visible','off');
-    
     
     [tout, rout] = rose(thetas,(0:10:360)/180*pi);
     fh = polar(tout,rout/numel(theta{nn}));
+    
+%     rho_labels = {'0' '0.1' '0.2',};
+%     rho_labels2 = {'0' '0.05' '.10', '.15' '0.2'};
+%     
+%     ff = findall(ax,'type','text');
+%     t=strtrim(get(ff,'String'));
+%     for r=1:length(rho_labels)
+%     set(ff(strcmp(t,rho_labels{r})),'String',rho_labels2{r})
+%     end
     
     set(fh, 'Color',colors(nn,:));
     set(fh, 'LineWidth', 2);

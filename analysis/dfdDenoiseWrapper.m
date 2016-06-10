@@ -17,6 +17,8 @@ function dfdDenoiseWrapper(subjects, howToDenoise)
 %
 % AUTHORS. YEAR. TITLE. JOURNAL.
 
+% Example: dfdDenoiseWrapper(1, 1)
+
 % ------------------------------------------------------------------------
 % --------------------------- Check options ------------------------------
 % ------------------------------------------------------------------------

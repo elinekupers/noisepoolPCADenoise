@@ -15,11 +15,11 @@ function dfdMakeFigureVaryEpochLength()
 
 
 %% Choices to make:
-whichSubjects        = 1%[1:8];
+whichSubjects        = [1:8];
 dataDir              = fullfile(dfdRootPath, 'analysis', 'data');   % Where to save data?
 figureDir            = fullfile(dfdRootPath, 'analysis', 'figures');% Where to save images?
 saveFigures          = true;     % Save figures in the figure folder?
-condColors           = [63, 121, 204; 228, 65, 69; 116,183,74]/255;
+condColors           = dfdGetColors(3);
 dataAll              = [];
 figureNumber         = 'SF1';
 epochDurs            = [1,3,6,12,24,36,72,1080];

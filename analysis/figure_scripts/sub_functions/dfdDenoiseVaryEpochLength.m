@@ -30,10 +30,10 @@ removeFirstEpoch    = true;
 % Exclude all frequencies that are close to a multiple of the
 % stimulus-locked frequency
 f           = 1:150; % Used frequencies
-tol         = 1;     % Tolerance for finding stimulus-locked frequency
 sl_freq     = 12;    % Stimulus-locked frequency
-sl_freq_i   = 13;    % We need to use the sl_freq +1 to get the correct index
+sl_freq_i   = sl_freq + 1;    % We need to use the sl_freq +1 to get the correct index
 
+tol         = 1.5;     % exclude frequencies within +/- tol of sl_freq
 sl_drop     = f(mod(f, sl_freq) <= tol | mod(f, sl_freq) > sl_freq - tol);
    
 % Exclude all frequencies that are close to a multiple of the
@@ -60,7 +60,7 @@ evokedfun           = @(x)getstimlocked(x,sl_freq_i); % function handle to deter
 evalfun             = @(x)getbroadband(x,keep_frequencies,1000);  % function handle to compuite broadband with a sample rate of 1 kHz
 
 % Get different epoch lengths and npcs to denoise with
-epochDurs             = [1,3,6,12,24,36,72,inf]; %[1,3,6,12,24,36,72,inf];
+epochDurs             = [1,3,6,12,24,36,72,inf];
 npcs                  = [5,10:10:70];
 
 % ------------------------------------------------------------------------
@@ -129,7 +129,7 @@ for whichSubject = subjects
     fname = sprintf(fullfile(dfdRootPath,'analysis','data', 's0%d_denoisedData_varyEpochLength_NrPCs'),whichSubject);   
         
     parsave([fname '_bb.mat'], 'allResults', allResults, 'epochDurs', epochDurs, 'npcs', npcs);
-    fprintf('data saved:%s\n', fname);
+    fprintf('Data saved:%s\n', fname);
     
 end
 

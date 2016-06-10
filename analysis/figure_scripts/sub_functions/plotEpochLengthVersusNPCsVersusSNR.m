@@ -16,8 +16,8 @@ for whichSubject = whichSubjects
         for nn = 1:length(epochDurs)
             %pcchan = getTop10(results_all(nn),whichfun);
             for icond = 1:3               
-                snr_pre  = getsignalnoise(results_all(nn).origmodel,icond);
-                snr_post = getsignalnoise(results_all(nn).finalmodel,icond);
+                snr_pre  = getsignalnoise(results_all(nn).origmodel(1),icond,'SNR');
+                snr_post = getsignalnoise(results_all(nn).finalmodel(1),icond,'SNR');
                 snr_diff(whichSubject,nn,jj,icond) = mean(snr_post(pcchan)-snr_pre(pcchan));
             end
         end
@@ -27,7 +27,7 @@ end
 %% Plot 
 fH = figure('position',[0,300,300,600]);
 epochDurs = [1,3,6,12,24,36,72,1080];
-clims = [[0,4];[0,2];[0,2]];
+clims = [[0,3];[0,3];[0,3]];
 % plot each condition as a separate panel 
 for icond = 1:3
     subplot(3,1,icond);
@@ -36,11 +36,12 @@ for icond = 1:3
     imagesc(sessionAvg',clims(icond,:)); 
     % set up axes and format figure
     set(gca,'ydir','normal');
-    makeprettyaxes(gca,9,9);
     set(gca,'xtick',1:length(epochDurs),'ytick',1:length(npcs),...
         'xticklabel',cellstr(num2str(epochDurs','%d')),'yticklabel',cellstr(num2str(npcs','%d')));
     %axis image; 
     ch = colorbar; makeprettyaxes(ch,9,9);
+    xlabel('Epochs denoised at a time')
+    ylabel('Nr of pcs removed from data (75 channels in NP)')
 end
 
 if saveFigures
