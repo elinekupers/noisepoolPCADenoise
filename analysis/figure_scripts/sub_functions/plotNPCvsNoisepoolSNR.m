@@ -39,7 +39,7 @@ end
 
 %%
 fH = figure('position',[0,300,450,900],'color','w');
-clims = [[0,4];[0,4];[0,4]];
+clims = [[0,4];[0,2];[0,2]];
 conditionNames = {'FULL','RIGHT','LEFT'};
 for icond = 1:3
     subplot(3,1,icond);
