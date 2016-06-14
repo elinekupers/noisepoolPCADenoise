@@ -1,6 +1,7 @@
-%% dfdEyeScriptUpdated
+function dfdMakeFigure15()
 %
-% Script to get ms rate per condition, and plot mean rate over time.
+% Function to get ms rate per condition, plot mean rate over time
+% (directional histograms and bootstrapped distributions).
 
 %% -------------------------------------
 % -------------- Add paths -------------
