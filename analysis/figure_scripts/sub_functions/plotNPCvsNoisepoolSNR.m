@@ -39,7 +39,7 @@ end
 
 %%
 fH = figure('position',[0,300,450,900],'color','w');
-clims = [[0,4];[0,2];[0,2]];
+clims = [[0,4];[0,2.5];[0,2.5]];
 conditionNames = {'FULL','RIGHT','LEFT'};
 for icond = 1:3
     subplot(3,1,icond);
@@ -57,5 +57,5 @@ for icond = 1:3
 end
 
 if saveFigures
-    figurewrite(fullfile(figureDir,'SF2GridSubjMean_NPCSvsNoisePool'),[],0,'.',1);
+    hgexport(gcf, fullfile(figureDir,'SF2GridSubjMean_NPCSvsNoisePool'));
 end
