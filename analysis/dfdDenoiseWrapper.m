@@ -86,7 +86,7 @@ switch howToDenoise % Define denoise other parameters (see denoisedata.m)
             
     case 2 % Denoise with each of 0 to 10 PC regressors
         opt.pcchoose          = 1.05;   % Get threshold for optimal nr of PCs
-        opt.npcs2try          = 10;     % loop through 10
+        opt.npcs2try          = '';     % empy string means up to nr of channels in noise pool
         optsl                 = opt;
         optbb                 = opt;
         optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
