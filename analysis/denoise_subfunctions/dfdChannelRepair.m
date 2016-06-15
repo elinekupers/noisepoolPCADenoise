@@ -16,8 +16,16 @@ if notDefined('sensorPositions'),
     hdr = load('meg160_example_hdr.mat'); hdr = hdr.hdr;
     net.xyz = hdr.grad.chanpos;
 elseif strcmp(sensorPositions, 'neuromag360xyz');
-    hdr = load('neuromag360xyz.mat');
-    net.xyz = hdr.xyz;
+    load('neuromag360_sample_cfg_combined');    
+    channels = cfg.cfg.channel;
+    hdr = load('neuromag360_sample_hdr.mat'); hdr = hdr.hdr;
+    idx = NaN(1,length(channels));
+    for ii = 1:length(channels)
+       idx(ii) = find(strcmp(channels{ii}, hdr.grad.label));
+    end
+    
+    net.xyz = hdr.grad.chanpos(idx,:);
+    
 end
 
 % get data sizes
@@ -31,6 +39,13 @@ distances          = squareform(pdist(net.xyz), 'tomatrix');
 epochsAllBad       = all(outliers, 2);
 epochsAllGood      = all(~outliers, 2); 
 epochsToInterpolate = find(~epochsAllBad & ~epochsAllGood); % these epochs have no bad data, so do not interpolate
+
+% for planar gradiometers, we may have paired gradiometers with 0 distance
+% between them. this will cause a problem when normalizing weights by
+% distance. so replace 0 with a small number
+mn = min(distances(distances(:)>0));
+distances(distances==0) = mn/2;
+distances = distances .* (1-eye(nChannels));
 
 % Initialize the sensorDataOut matrix
 sensorDataOut         = zeros(size(sensorDataIn));
