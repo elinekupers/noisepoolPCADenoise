@@ -8,10 +8,6 @@ for k = 1:numel(exampleSessions)
     dataAll = dataAll(dataAllind);
     % top 10 channels
     pcchan = getTop10(dataAll{k}{1}.results);
-    %pcchan = results.pcchan{whichFun};
-    %pcchan = ~results.noisepool;
-    %pcchanfile = fullfile(inputDataDir,sprintf('%s%s',sessionDir,'b2fr_hpf2_fitfull75'));
-    %tmp = load(pcchanfile); pcchan = tmp.results.pcchan{whichFun};
     
     % signal and noise before denoising
     ab_signal1 = abs(dataAll{k}{1}.results.origmodel(1).beta_md(:,pcchan));

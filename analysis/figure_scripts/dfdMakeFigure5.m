@@ -29,7 +29,7 @@ bb = data{1};
 sl = data{2};
 
 %% Plot stimulus-locked signal, broadband before and after denoising on sensormap
-figure('position',[1,600,1400,800]);
+figure('position',[1,600,1400,800]); set(gcf, 'Name', 'Figure 5, Example subject');
 condNames = {'Stim Full','Stim Left','Stim Right'};
 for icond = 1:3
     % get stimulus-locked snr

@@ -49,7 +49,7 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 %                    0: do nothing (default). 1: permute fourier phase. 
 %                    2: permute assignment to epochs. 3: use white fourier
 %                    amplitude but keep fourier phase. 4: use random pcs      
-%     preprocessfun: function handle (e.g. hpf) to apply to data before
+%     preprocessfun: function handle (e.g. bbFilter) to apply to data before
 %                    computing pcs, removing pcs and computing evalfun 
 %                    (but not before computing stimfun)
 %                    default: [] (no preprocessing)

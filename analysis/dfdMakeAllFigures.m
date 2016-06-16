@@ -4,6 +4,9 @@
 
 % DESCRIPTION HERE
 
+
+if isempty(which('ft_prepare_layout')), dfdAddFieldtripPath, end
+
 % Make all figures
 dfdMakeFigure4;
 dfdMakeFigure5;

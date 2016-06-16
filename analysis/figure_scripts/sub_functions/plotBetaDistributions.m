@@ -1,6 +1,6 @@
 function fH = plotBetaDistributions(data, exampleIndex, exampleChannel, condEpochs, colors, saveFigures, figureDir, figNum)
 
-%% Bootstrap to get signal and noise - Fig 5C
+%% Bootstrap to get signal and noise - Fig 4C
 
 f = (0:999);
 fok = f;
@@ -43,7 +43,7 @@ for dd = 1:2 % for either pre and post denoising
 end
 
 % Set up figure and plot
-fH = figure; set(fH,'position',[0,400,400,400]);
+fH = figure; set(fH,'position',[0,400,400,400], 'Name', 'Figure 4c', 'NumberTitle', 'off');
 if figNum == 4; dataToPlot = 1; elseif figNum == 6; dataToPlot = 1:2;
 else disp('This figure number does not contain a distribution panel'); end
 for dd = dataToPlot;

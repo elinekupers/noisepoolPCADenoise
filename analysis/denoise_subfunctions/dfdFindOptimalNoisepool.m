@@ -46,7 +46,7 @@ evokedfun           = @(x)getstimlocked(x,sl_freq_i); % function handle to deter
 evalfun             = @(x)getbroadband(x,keep_frequencies,1000);
 
 
-optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
+optbb.preprocessfun   = @bbFilter;  % preprocess data with a filter for broadband analysis
 npcs                  = [5,10:10:70];
 optbb.resampling        = {'boot','boot'};
 optbb.pcselmethod       = 'snr';

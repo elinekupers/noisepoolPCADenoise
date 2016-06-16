@@ -80,7 +80,7 @@ switch howToDenoise % Define denoise other parameters (see denoisedata.m)
         opt.npcs2try          = [];
         optsl                 = opt;
         optbb                 = opt;
-        optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
+        optbb.preprocessfun   = @(x) bbFilter(x, keep_frequencies(f));  % preprocess data with a filter for broadband analysis
         nrControlModes        = 0;
         postFix               = '';
             
@@ -89,7 +89,7 @@ switch howToDenoise % Define denoise other parameters (see denoisedata.m)
         opt.npcs2try          = '';     % empy string means up to nr of channels in noise pool
         optsl                 = opt;
         optbb                 = opt;
-        optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
+        optbb.preprocessfun   = @(x) bbFilter(x, keep_frequencies(f));  % preprocess data with a filter for broadband analysis
         nrControlModes        = 0;
         postFix               = '_full';
         
@@ -98,7 +98,7 @@ switch howToDenoise % Define denoise other parameters (see denoisedata.m)
         opt.npcs2try          = []; 
         optsl                 = opt;
         optbb                 = opt;
-        optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
+        optbb.preprocessfun   = @(x) bbFilter(x, keep_frequencies(f));  % preprocess data with a filter for broadband analysis
         nrControlModes        = 1:5;   % All control modes
         postFix               = 'control';       
 end

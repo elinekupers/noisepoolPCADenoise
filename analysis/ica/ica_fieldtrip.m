@@ -79,7 +79,7 @@ onsets = ssmeg_trigger_2_onsets(trigger, subjects);
     %  Dummy Denoise for broadband analysis
     optbb.verbose         = 'true';
     optbb.pcchoose        = 10;   
-    optbb.preprocessfun   = @hpf;  % preprocess data with a high pass filter for broadband analysis
+    optbb.preprocessfun   = @bbFilter;  % preprocess data with a filter for broadband analysis
     evokedfun             = @(x)getstimlocked(x,freq); % function handle to determine noise pool
     evalfun               = @(x)getbroadband(x,freq);  % function handle to compuite broadband
 
