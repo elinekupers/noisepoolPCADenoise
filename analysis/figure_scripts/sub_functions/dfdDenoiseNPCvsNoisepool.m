@@ -47,7 +47,7 @@ opt.resampling      = {'boot','boot'};
 opt.pcselmethod     = 'snr';
 
 % Denoise with exactly 10 PC regressors
-opt.preprocessfun     = @hpf;
+opt.preprocessfun     = @bbFilter;
 opt.verbose           = true;
 npools                = [5,10:10:140];
 npcs                  = [5,10:10:130];

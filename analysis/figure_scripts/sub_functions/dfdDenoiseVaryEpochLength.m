@@ -52,7 +52,7 @@ keep_frequencies    = @(x) x(ab_i);
 % Define options for denoising
 opt.resampling        = {'boot','boot'};
 opt.pcselmethod       = 'snr';
-opt.preprocessfun     = @hpf;  % preprocess data with a high pass filter for broadband analysis
+opt.preprocessfun     = @bbFilter;  % preprocess data with a high pass filter for broadband analysis
 opt.npoolmethod       = {'r2','n',75};
 
 % Define functions to define noise pool and signal of interest

@@ -72,7 +72,7 @@ end
 
 
 %% Plot stimulus-locked signal, broadband before and after denoising on sensormap
-figure('position',[1,600,1400,800]);
+figure('position',[1,600,1400,800]); set(gcf, 'Name', 'Figure 5, Group Data')
 n = 0;
 
 % sem = @(x,dim) std(x, [], dim) / sqrt(size(x,dim));
