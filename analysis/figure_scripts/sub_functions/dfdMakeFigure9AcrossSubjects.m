@@ -15,7 +15,7 @@ function dfdMakeFigure9AcrossSubjects()
 % function.
 
 %% Choices to make:
-whichSubjects    = [1:8];        % Subject 1 is the example subject.
+whichSubjects    = [13,15,17,19];        % Subject 1 is the example subject.
 % whichSubjects    = [9:12];%[14,16,18,20];        % Subject 1 is the example subject.
 figureDir       = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to save images?
 dataDir         = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?
@@ -87,8 +87,13 @@ for icond = 1:numel(contrastNames)
     
     % Define ranges colormap
 %     clims_ab = [-6.4445,6.4445];
-    clims_ab = [-8,8];
-    if icond == 4; clims_ab = [-5.5363, 5.5363];  end;
+    if max(unique(whichSubjects)) < 9;
+        clims_ab = [-8,8];
+        if icond == 4; clims_ab = [-5.5363, 5.5363];  end;
+    else
+        clims_ab = [-4,4];
+        if icond == 4; clims_ab = [-4, 4];  end;
+    end
     cmap = 'bipolar';
     
     

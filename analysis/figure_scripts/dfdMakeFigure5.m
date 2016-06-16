@@ -52,6 +52,10 @@ for icond = 1:3
         
         sl_snr1a_LmnR = to157chan(sl_snr1_L,~bb.badChannels,'nans') - to157chan(sl_snr1_R,~bb.badChannels,'nans');
         ab_snr1a_LmnR = to157chan(ab_snr1_L,~bb.badChannels,'nans') - to157chan(ab_snr1_R,~bb.badChannels,'nans');
+        
+    else
+        sl_snr1a_LmnR = sl_snr1_L - sl_snr1_R;
+        ab_snr1a_LmnR = ab_snr1_L - ab_snr1_R;   
     end
     
     % Threshold

@@ -15,7 +15,7 @@ function dfdMakeFigure9()
 % function. 
 
 %% Choices to make:                                              
-whichSubject    = 1;        % Subject 1 is the example subject.
+whichSubject    = 9;        % Subject 1 is the example subject.
 figureDir       = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to save images?
 dataDir         = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?
 saveFigures     = true;     % Save figures in the figure folder?
@@ -48,6 +48,11 @@ for icond = 1:3
 
         ab_snr1a_LmnR = to157chan(ab_snr1_L,~bb.badChannels,'nans') - to157chan(ab_snr1_R,~bb.badChannels,'nans');
         ab_snr2a_LmnR = to157chan(ab_snr2_L,~bb.badChannels,'nans') - to157chan(ab_snr2_R,~bb.badChannels,'nans');
+        
+    else
+        ab_snr1a_LmnR = ab_snr1_L - ab_snr1_R;
+        ab_snr2a_LmnR = ab_snr2_L - ab_snr2_R;
+        
     end
     
     % Threshold
