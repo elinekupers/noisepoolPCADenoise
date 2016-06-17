@@ -29,7 +29,7 @@ removeFirstEpoch    = true;
 %% Get frequencies to define stimuluslocked and asynchronous broadband power
 % Exclude all frequencies that are close to a multiple of the
 % stimulus-locked frequency
-f           = 1:150; % Used frequencies
+f           = 0:150; % Used frequencies
 sl_freq     = 12;    % Stimulus-locked frequency
 sl_freq_i   = sl_freq + 1;    % We need to use the sl_freq +1 to get the correct index
 
@@ -48,20 +48,22 @@ lf_drop     = f(f<60);
 [~, ab_i]   = setdiff(f, [sl_drop ln_drop lf_drop]);
 
 keep_frequencies    = @(x) x(ab_i);
+bb_frequencies      = f(ab_i);
 
 % Define options for denoising
 opt.resampling        = {'boot','boot'};
 opt.pcselmethod       = 'snr';
-opt.preprocessfun     = @bbFilter;  % preprocess data with a high pass filter for broadband analysis
+opt.preprocessfun     = @(x) bbFilter(x, bb_frequencies);  % preprocess data with a high pass filter for broadband analysis
 opt.npoolmethod       = {'r2','n',75};
+opt.verbose           = true;
 
 % Define functions to define noise pool and signal of interest
 evokedfun           = @(x)getstimlocked(x,sl_freq_i); % function handle to determine noise pool
 evalfun             = @(x)getbroadband(x,keep_frequencies,1000);  % function handle to compuite broadband with a sample rate of 1 kHz
 
 % Get different epoch lengths and npcs to denoise with
-epochDurs             = [1,3,6,12,24,36,72,inf];
-npcs                  = [5,10:10:70];
+epochDurs             = 1;%[1,3,6,12,24,36,72,inf];
+npcs                  = 10;%[5,10:10:70];
 
 % ------------------------------------------------------------------------
 % ------------------ Load and denoise data per subject -------------------
@@ -80,22 +82,29 @@ for whichSubject = subjects
     design(conditions==7,3) = 1; % condition 7 is right field
     % condition 3 is blank
     
-    % ------------------ Preprocess data ---------------------------------
+    
+    %%
+        % ------------------ Preprocess data ---------------------------------
     [sensorData, badChannels, badEpochs] = dfdPreprocessData(sensorData(:,:,dataChannels), ...
         varThreshold, badChannelThreshold, badEpochThreshold, use3Channels);
     
     % ---- Define first epochs in order to remove later ------------------
     if removeFirstEpoch, badEpochs(1:6:end) = 1; end
     
-    % ---- Remove bad channels and bad epochs from data and conditions ---
-    sensorData = sensorData(:,~badEpochs, ~badChannels);
-    design = design(~badEpochs,:);
+    % -------------- Remove bad epochs and channels ----------------------
+    sensorData      = sensorData(:,~badEpochs, ~badChannels);
+    design          = design(~badEpochs,:);
     
     % ------------------ Permute sensorData for denoising ----------------
     sensorData = permute(sensorData, [3 1 2]);  
-
+    
+    
+    %%
+    
+    
+    
     % ------------------ Loop over Epoch length & nr PCs -----------------
-    allResults = [];
+    allResults = cell(length(epochDurs), length(npcs));
     for dur = 1:length(epochDurs) % iterate through epoch duration fo doing PCA 
         if isinf(epochDurs(dur))
             epochGroup = ones(size(sensorData,3),1);
@@ -105,7 +114,7 @@ for whichSubject = subjects
         
         opt.epochgroup = epochGroup;
         clear results;
-        fprintf('epochDur = %d; %d epochs\n', epochDurs(dur), max(epochGroup));
+        fprintf('epochDur = %d; %d epochs\n', epochDurs(dur), length(epochGroup));
         
         for np = 1:length(npcs) % iterate through number of PCs projected out 
             opt.pcchoose   = -npcs(np);
@@ -118,6 +127,9 @@ for whichSubject = subjects
             else
                 [results] = denoisedata(design,sensorData,noisepooldef,evalfun,opt);
             end
+            % convert function handle to string otherwise saved Matlab file
+            % becomes orders of magnitude larger than necessary
+            results.opt.preprocessfun = func2str(results.opt.preprocessfun);
             allResults{dur,np} = results;
         end
     end
