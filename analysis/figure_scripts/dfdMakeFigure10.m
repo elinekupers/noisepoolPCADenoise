@@ -17,36 +17,31 @@ whichSubjects        = 1:8;
 dataDir              = fullfile(dfdRootPath, 'analysis', 'data');   % Where to save data?
 figureDir            = fullfile(dfdRootPath, 'analysis', 'figures');% Where to save images?
 saveFigures          = true;   % Save figures in the figure folder?
-dataAll              = [];
 
-%% Load data for all subjects
-for whichSubject = whichSubjects
-    fprintf(' Load subject %d \n', whichSubject);
-    [data,design,exampleIndex] = prepareData(dataDir,whichSubject,10);
-    dataAll{whichSubject} = {data,design,exampleIndex}; %#ok<AGROW>
-end
 
 %% Plot spatial map figures: right minus left stimulation for broadband component after denoising.
 figure('position',[1,600,2000,300]);
 
 for k = 1:length(whichSubjects)
     
-    % Get subject's data
-    data = dataAll{k};
+    whichSubject = whichSubjects(k);
+    fprintf(' Load subject %d \n', whichSubject);
+    data = prepareData(dataDir,whichSubject,10);    
+    
     
     % Before
     subplot(2,8,k)
     
-    ab_snr1 = getsignalnoise(data{1}.results.origmodel(1),  1, 'SNR',data{1}.badChannels);
-    ab_snr1 = to157chan(ab_snr1,~data{1}.badChannels,'nans');
+    ab_snr1 = getsignalnoise(data.results.origmodel(1),  1, 'SNR',data.badChannels);
+    ab_snr1 = to157chan(ab_snr1,~data.badChannels,'nans');
     [~,ch] = megPlotMap(ab_snr1,[-8,8],gcf,'bipolar',sprintf('S %d', k));
     set(ch,'YTick',[-8,-4,0,4,8]);
     makeprettyaxes(ch,9,9);
     
     % After
     subplot(2,8,length(whichSubjects)+k)
-    ab_snr2 = getsignalnoise(data{1}.results.finalmodel(1),  1, 'SNR',data{1}.badChannels);
-    ab_snr2 = to157chan(ab_snr2,~data{1}.badChannels,'nans');
+    ab_snr2 = getsignalnoise(data.results.finalmodel(1),  1, 'SNR',data.badChannels);
+    ab_snr2 = to157chan(ab_snr2,~data.badChannels,'nans');
     [~,ch] = megPlotMap(ab_snr2,[-8,8],gcf,'bipolar',sprintf('S %d', k));
     set(ch,'YTick',[-8,-4,0,4,8]);
     makeprettyaxes(ch,9,9);
