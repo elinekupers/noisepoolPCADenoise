@@ -64,6 +64,7 @@ lf_drop     = f(f<60);
 [~, ab_i]   = setdiff(f, [sl_drop ln_drop lf_drop]);
 
 keep_frequencies    = @(x) x(ab_i);
+bb_frequencies      = f(ab_i);
 
 % Define functions to define noise pool and signal of interest
 evokedfun           = @(x)getstimlocked(x,sl_freq_i); % function handle to determine noise pool
@@ -80,7 +81,7 @@ switch howToDenoise % Define denoise other parameters (see denoisedata.m)
         opt.npcs2try          = [];
         optsl                 = opt;
         optbb                 = opt;
-        optbb.preprocessfun   = @(x) bbFilter(x, keep_frequencies(f));  % preprocess data with a filter for broadband analysis
+        optbb.preprocessfun   = @(x) bbFilter(x, bb_frequencies);  % preprocess data with a filter for broadband analysis
         nrControlModes        = 0;
         postFix               = '';
             
@@ -89,7 +90,7 @@ switch howToDenoise % Define denoise other parameters (see denoisedata.m)
         opt.npcs2try          = '';     % empy string means up to nr of channels in noise pool
         optsl                 = opt;
         optbb                 = opt;
-        optbb.preprocessfun   = @(x) bbFilter(x, keep_frequencies(f));  % preprocess data with a filter for broadband analysis
+        optbb.preprocessfun   = @(x) bbFilter(x, bb_frequencies);  % preprocess data with a filter for broadband analysis
         nrControlModes        = 0;
         postFix               = '_full';
         
@@ -98,7 +99,7 @@ switch howToDenoise % Define denoise other parameters (see denoisedata.m)
         opt.npcs2try          = []; 
         optsl                 = opt;
         optbb                 = opt;
-        optbb.preprocessfun   = @(x) bbFilter(x, keep_frequencies(f));  % preprocess data with a filter for broadband analysis
+        optbb.preprocessfun   = @(x) bbFilter(x, bb_frequencies);  % preprocess data with a filter for broadband analysis
         nrControlModes        = 1:5;   % All control modes
         postFix               = 'control';       
 end
@@ -175,6 +176,7 @@ for whichSubject = subjects
         end
                 
         % ----------------- Save denoised broadband data -----------------
+        results.opt.preprocessfun = func2str(results.opt.preprocessfun);
         parsave([fname '_bb.mat'], 'results', results, 'evalout', evalout, 'badChannels', badChannels, 'badEpochs', badEpochs, 'opt', optbb)
         
         % ----------- Denoise and save stimulus-locked analysis ----------
