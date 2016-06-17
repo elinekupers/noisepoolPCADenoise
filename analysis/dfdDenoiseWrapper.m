@@ -151,7 +151,10 @@ for whichSubject = subjects
 % ------------------------------------------------------------------------
     
     % ------------------ Denoise for broadband analysis ------------------
-    for nrControl = nrControlModes;                                                                                               
+    for nrControl = nrControlModes;   
+        
+        optbb.preprocessfun   = @(x) bbFilter(x, bb_frequencies);
+
         if (0 <= nrControl) && (nrControl <= 4)
             optbb.pccontrolmode   = nrControl;
             if nrControl == 0;    % do nothing to postFix in filename
@@ -176,12 +179,10 @@ for whichSubject = subjects
         end
                 
         % ----------------- Save denoised broadband data -----------------
-        results.opt.preprocessfun = func2str(results.opt.preprocessfun);
-        optbb.preprocessfun = func2str(optbb.preprocessfun);
+        results.opt.preprocessfun   = func2str(results.opt.preprocessfun);
+        optbb.preprocessfun         = func2str(optbb.preprocessfun);
         parsave([fname '_bb.mat'], 'results', results, 'evalout', evalout, 'badChannels', badChannels, 'badEpochs', badEpochs, 'opt', optbb)
-        optbb.preprocessfun = str2func(optbb.preprocessfun);
-        results.opt.preprocessfun = str2func(results.opt.preprocessfun);
-
+                
         % ----------- Denoise and save stimulus-locked analysis ----------
         [results,evalout] = denoisedata(design,sensorData,evokedfun,evokedfun,optsl);
         parsave([fname '_sl.mat'], 'results', results, 'evalout', evalout, 'badChannels', badChannels, 'badEpochs', badEpochs, 'opt', optsl)
