@@ -13,6 +13,12 @@ epochGroup(1 : shift_epoch) = 0;
 epochGroup(end-shift_epoch+1 : end) = 0;
 epochGroup = epochGroup(okEpochs);
 
+% Remove any skipped numbers
+[~, ~, epochGroup] = unique(epochGroup);
+
+% ensure row vector
+epochGroup =  epochGroup(:)';
+
 % ensure groups have equal numbers of epochs
 if remove_unequal_group
     for ii = 1:max(epochGroup)
