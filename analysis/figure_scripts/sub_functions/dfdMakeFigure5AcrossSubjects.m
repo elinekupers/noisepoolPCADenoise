@@ -40,21 +40,21 @@ contrastNames = {
 for whichSubject = whichSubjects
     subjnum = find(whichSubjects==whichSubject);
     data = prepareData(dataDir,whichSubject,5);
-    bb(subjnum) = data{1};
-    sl(subjnum) = data{2};
+    bb = data{1};
+    sl = data{2};
     
     % SL
-    num_channels = size(sl(subjnum).results.origmodel.beta,2);
-    num_boots    = size(sl(subjnum).results.origmodel.beta,3);
+    num_channels = size(sl.results.origmodel.beta,2);
+    num_boots    = size(sl.results.origmodel.beta,3);
     num_contrasts = length(contrasts);
     
-    tmp_data = reshape(sl(subjnum).results.origmodel.beta,3,[]);
+    tmp_data = reshape(sl.results.origmodel.beta,3,[]);
     tmp = contrasts*tmp_data;
     tmp = reshape(tmp, num_contrasts, num_channels, num_boots);
     sSL = computeSNR(tmp)';
     
     % BB before
-    tmp_data = reshape(bb(subjnum).results.origmodel.beta,3,[]);
+    tmp_data = reshape(bb.results.origmodel.beta,3,[]);
     tmp = contrasts*tmp_data;
     tmp = reshape(tmp, num_contrasts, num_channels,num_boots);
     sBBBefore = computeSNR(tmp)';
@@ -64,8 +64,8 @@ for whichSubject = whichSubjects
         sBBBeforeAcrossSubjects = sSLAcrossSubjects;
     end
     
-    sSLAcrossSubjects(:,:,subjnum) = to157chan(sSL', ~sl(subjnum).badChannels,'nans');
-    sBBBeforeAcrossSubjects(:,:,subjnum) = to157chan(sBBBefore', ~bb(subjnum).badChannels,'nans');
+    sSLAcrossSubjects(:,:,subjnum) = to157chan(sSL', ~sl.badChannels,'nans');
+    sBBBeforeAcrossSubjects(:,:,subjnum) = to157chan(sBBBefore', ~bb.badChannels,'nans');
     
 end
 
