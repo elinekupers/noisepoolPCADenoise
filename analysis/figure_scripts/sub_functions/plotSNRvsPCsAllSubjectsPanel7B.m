@@ -1,4 +1,4 @@
-function fH = plotSNRvsPCsAllSubjectsPanel7B(dataAll,condColors,axmax,figureDir,saveFigures)
+function fH = plotSNRvsPCsAllSubjectsPanel7B(dataAll,condColors,axmax,figureDir,saveFigures, plotstr)
 
 %% SNR increase as a function of number of PCs removed for all subjects -
 %% Fig. 7B
@@ -27,7 +27,7 @@ satValues = 1-linspace(0.1,1,numel(dataAll));
 colorRGB = varysat(condColors,satValues);
 ttls = {'FULL','RIGHT','LEFT'};
 
-fH = figure('position',[1,200,600,200]); set(fH, 'Color', 'w');
+fH = figure('position',[1,200,600,200]); set(fH, 'Color', 'w', 'Name', plotstr, 'NumberTitle', 'off');
 % plot for each condition
 for icond = 1:3
     subplot(1,3,icond);hold on;

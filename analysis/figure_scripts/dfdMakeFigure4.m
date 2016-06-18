@@ -42,10 +42,10 @@ condEpochs = {condEpochs1 condEpochs2};
 
 %% Spectrum before and after denoising
 
-fH(1) = plotSpectraPanelBeforeDenoising(data, exampleIndex, exampleChannel, condEpochs1, avgLogFlg, colors, saveFigures, figureDir);
+fH(1) = plotSpectraPanelBeforeDenoising(data, exampleIndex, exampleChannel, condEpochs1, avgLogFlg, colors, saveFigures, figureDir, 'Figure 4a');
 
-fH(2) = plotSpectraPanelBeforeAfterDenoising(data, exampleIndex, exampleChannel, condEpochs, avgLogFlg, colors, saveFigures, figureDir, figNum);
+fH(2) = plotSpectraPanelBeforeAfterDenoising(data, exampleIndex, exampleChannel, condEpochs, avgLogFlg, colors, saveFigures, figureDir, figNum, 'Figure 4b');
 
-fH(3) = plotBetaDistributions(data, exampleIndex, exampleChannel, condEpochs, colors, saveFigures, figureDir,figNum); %#ok<NASGU>
+fH(3) = plotBetaDistributions(data, exampleIndex, exampleChannel, condEpochs, colors, saveFigures, figureDir,figNum, 'Figure 4c'); %#ok<NASGU>
 
 

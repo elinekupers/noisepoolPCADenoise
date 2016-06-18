@@ -28,7 +28,7 @@ data_hdr        = [];
 bb = prepareData(dataDir,whichSubject,9);
 
 %% Plot stimulus-locked signal, broadband before and after denoising on sensormap
-figure('position',[1,600,1400,800]);
+figure('position',[1,600,1400,800], 'Name', 'Figure 9 example subject', 'NumberTitle', 'off');
 condNames = {'Stim Full','Stim Left','Stim Right'};
 for icond = 1:3
     % get broadband snr for before and after denoising

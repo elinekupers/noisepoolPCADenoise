@@ -20,21 +20,17 @@ figureDir            = fullfile(dfdRootPath, 'analysis', 'figures');% Where to s
 saveFigures          = true;   % Save figures in the figure folder?
 colors               = dfdGetColors(3);
 numOfControls        = 5;
-dataAll              = [];
-
-%% Load data for all subjects
-for whichSubject = whichSubjects
-    fprintf(' Load subject %d \n', whichSubject);
-    [data,design,exampleIndex] = prepareData(dataDir,whichSubject,11);
-    dataAll{whichSubject} = {data,design,exampleIndex}; %#ok<AGROW>
-end 
 
 
 %% Prepare data for figure
 snr_diff = zeros(length(whichSubjects),numOfControls+1,3); % All controls, plus original result for all three conditions
-for k = 1:length(whichSubjects)
+for k = 1:4;%length(whichSubjects)
+
+    whichSubject = whichSubjects(k);
+    fprintf(' Load subject %d \n', whichSubject);
+    data = prepareData(dataDir,whichSubject,11);
     
-    results_null = [dataAll{k}{1}(1),dataAll{k}{1}{2}];
+    results_null = [data(1),data{2}];
     
     % get top 10 channels 
     pcchan = getTop10(results_null{1,1}.results);

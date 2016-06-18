@@ -1,4 +1,4 @@
-function fH = plotSNRPrePostPanel(dataAll,whichSubjects,condColors,figureDir,saveFigures,figureNumber)
+function fH = plotSNRPrePostPanel(dataAll,whichSubjects,condColors,figureDir,saveFigures,figureNumber, plotstr)
 
 % get results for everybody and top10 channels for everybody
 for k = whichSubjects
@@ -12,7 +12,7 @@ satValues = 1-linspace(0.1,1,8);
 colorRGB = varysat(condColors,satValues);
 
 % plot before and after
-fH = figure('position',[0,300,500,200]); set(gcf, 'Color','w');
+fH = figure('position',[0,300,500,200]); set(gcf, 'Color','w', 'Name', plotstr, 'NumberTitle', 'off');
     for icond = 1:3
         subplot(1,3,icond);
         plotBeforeAfter(allresults,1,allpcchan,'SNR',icond,[],squeeze(colorRGB(icond,:,:)));

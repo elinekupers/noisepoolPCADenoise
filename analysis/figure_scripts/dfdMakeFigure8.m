@@ -46,7 +46,7 @@ satValues = 1-linspace(0.1,1,8);
 colorRGB = varysat(colors,satValues);
 
 % plot before and after
-fH = figure('position',[0,300,500,400]); set(gcf, 'Color','w');
+fH = figure('position',[0,300,500,400]); set(gcf, 'Color','w', 'Name', 'Figure 8A&B', 'NumberTitle', 'off');
 datatypes = {'Noise','Signal'};
 for t = 1:numel(datatypes);
     for icond = 1:3
