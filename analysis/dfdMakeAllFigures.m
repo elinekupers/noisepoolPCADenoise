@@ -15,8 +15,8 @@ dfdMakeFigure7;
 dfdMakeFigure8;
 dfdMakeFigure9;
 dfdMakeFigure10;
-dfdMakeFigure11;
-dfdMakeFigure12;
+dfdMakeFigure11; 
+dfdMakeFigure12; % too much memory
 dfdMakeFigure13;
 dfdMakeFigure14;
 dfdMakeFigureVaryEpochLength;

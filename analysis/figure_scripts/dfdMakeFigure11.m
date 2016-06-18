@@ -24,7 +24,7 @@ numOfControls        = 5;
 
 %% Prepare data for figure
 snr_diff = zeros(length(whichSubjects),numOfControls+1,3); % All controls, plus original result for all three conditions
-for k = 1:4;%length(whichSubjects)
+for k = 1:length(whichSubjects)
 
     whichSubject = whichSubjects(k);
     fprintf(' Load subject %d \n', whichSubject);
