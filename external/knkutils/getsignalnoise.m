@@ -26,12 +26,9 @@ if size(model.beta,2) > 157
     signal = max(model.beta_md,[],1);
     noise  = mean(model.beta_se,1);
 else
-
-
-    % signal = max(abs(model.beta_md(whichbeta,:)),[],1); % old way of
-    % computing Signal
     
-    % No absolute value of signal
+    % Signal is max of betas across conditions. Noise is mean of se across
+    % conditions.
     signal = max(model.beta_md(whichbeta,:),[],1);
     noise  = mean(model.beta_se(whichbeta,:),1);
 end
