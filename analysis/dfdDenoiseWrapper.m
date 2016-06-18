@@ -41,7 +41,6 @@ badChannelThreshold = 0.2;
 badEpochThreshold   = 0.2;
 use3Channels        = false;
 removeFirstEpoch    = true;
-saveDenoisedts      = true;
 
 %% Get frequencies to define stimulus locked and asynchronous broadband power
 % Data are sampled at 1000 Hz and epoched in one-second bins. Hence
@@ -84,7 +83,8 @@ switch howToDenoise % Define denoise other parameters (see denoisedata.m)
         optbb.preprocessfun   = @(x) bbFilter(x, bb_frequencies);  % preprocess data with a filter for broadband analysis
         nrControlModes        = 0;
         postFix               = '';
-            
+        saveDenoisedts        = true;
+        
     case 2 % Denoise with each of 0 to 10 PC regressors
         opt.pcchoose          = 1.05;   % Get threshold for optimal nr of PCs
         opt.npcs2try          = '';     % empy string means up to nr of channels in noise pool
@@ -93,6 +93,7 @@ switch howToDenoise % Define denoise other parameters (see denoisedata.m)
         optbb.preprocessfun   = @(x) bbFilter(x, bb_frequencies);  % preprocess data with a filter for broadband analysis
         nrControlModes        = 0;
         postFix               = '_full';
+        saveDenoisedts        = false;
         
     case 3 % Denoise with various control modes
         opt.pcchoose          = -10;     % Take 10 PCs
@@ -101,7 +102,8 @@ switch howToDenoise % Define denoise other parameters (see denoisedata.m)
         optbb                 = opt;
         optbb.preprocessfun   = @(x) bbFilter(x, bb_frequencies);  % preprocess data with a filter for broadband analysis
         nrControlModes        = 1:5;   % All control modes
-        postFix               = 'control';       
+        postFix               = 'control';  
+        saveDenoisedts        = false;
 end
 
 % ------------------------------------------------------------------------
