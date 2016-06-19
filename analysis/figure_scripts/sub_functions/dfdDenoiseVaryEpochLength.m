@@ -74,6 +74,7 @@ for whichSubject = subjects
     % ------------------ Load data and design ----------------------------
     tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's0%d_sensorData.mat'),whichSubject)); sensorData = tmp.sensorData;
     tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's0%d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
+    clear tmp;
     
     % ------------------ Make design matrix ------------------------------
     design = zeros(length(conditions), 3);
@@ -130,7 +131,7 @@ for whichSubject = subjects
             % convert function handle to string otherwise saved Matlab file
             % becomes orders of magnitude larger than necessary
             results.opt.preprocessfun = func2str(results.opt.preprocessfun);
-            allResults{dur,np} = results;
+            allResults{dur,np} = results; 
         end
     end
     
