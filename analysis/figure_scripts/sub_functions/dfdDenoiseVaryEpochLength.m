@@ -62,8 +62,8 @@ evokedfun           = @(x)getstimlocked(x,sl_freq_i); % function handle to deter
 evalfun             = @(x)getbroadband(x,keep_frequencies,1000);  % function handle to compuite broadband with a sample rate of 1 kHz
 
 % Get different epoch lengths and npcs to denoise with
-epochDurs             = 1;%[1,3,6,12,24,36,72,inf];
-npcs                  = 10;%[5,10:10:70];
+epochDurs             = [1,3,6,12,24,36,72,inf];
+npcs                  = [5,10:10:70];
 
 % ------------------------------------------------------------------------
 % ------------------ Load and denoise data per subject -------------------

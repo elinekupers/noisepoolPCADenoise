@@ -37,6 +37,7 @@ lf_drop = f(f<60);
 [~, ab_i]   = setdiff(f, [sl_drop ln_drop lf_drop]);
 
 keep_frequencies    = @(x) x(ab_i);
+bb_frequencies      = f(ab_i);
 
 % Define functions to define noise pool and signal of interest
 evokedfun           = @(x)getstimlocked(x,sl_freq_i); % function handle to determine noise pool
@@ -47,13 +48,16 @@ opt.resampling      = {'boot','boot'};
 opt.pcselmethod     = 'snr';
 
 % Denoise with exactly 10 PC regressors
-opt.preprocessfun     = @bbFilter;
+opt.preprocessfun     =  @(x) bbFilter(x, bb_frequencies);
 opt.verbose           = true;
 npools                = [5,10:10:140];
 npcs                  = [5,10:10:130];
 allResults            = {};
 
 for whichSubject = whichSubjects
+    
+    opt.preprocessfun     =  @(x) bbFilter(x, bb_frequencies);
+    
     % ------------------ Load data and design ----------------------------
     tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's0%d_sensorData.mat'),whichSubject)); sensorData = tmp.sensorData;
     tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's0%d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
@@ -90,6 +94,11 @@ for whichSubject = whichSubjects
             opt.npoolmethod   = {'r2','n',npools(np)};
             opt.pcchoose      = -npcs(nc);
             [results] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
+            
+            % convert function handle to string otherwise saved Matlab file
+            % becomes orders of magnitude larger than necessary
+            results.opt.preprocessfun = func2str(results.opt.preprocessfun);
+            
             allResults{np,nc} = results;          
         end
     end

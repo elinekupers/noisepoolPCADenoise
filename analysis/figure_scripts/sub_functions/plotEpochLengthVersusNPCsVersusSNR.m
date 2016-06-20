@@ -27,7 +27,7 @@ end
 %% Plot 
 fH = figure('position',[0,300,300,600]);
 epochDurs = [1,3,6,12,24,36,72,1080];
-clims = [[0,3];[0,3];[0,3]];
+clims = [[0,4];[0,3];[0,3]];
 % plot each condition as a separate panel 
 for icond = 1:3
     subplot(3,1,icond);

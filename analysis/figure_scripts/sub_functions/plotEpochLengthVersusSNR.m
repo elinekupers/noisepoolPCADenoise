@@ -1,6 +1,6 @@
 function fH = plotEpochLengthVersusSNR(whichSubjects,dataAll,epochDurs,condColors,saveFigures,figureDir)
 
-for npsIdx = 1:8; % Corresponding to 10 pcs
+for npsIdx = 2; % Corresponding to 10 pcs
 snr_diff = NaN(length(whichSubjects),length(epochDurs),3);
 nepochs  = NaN(1,length(whichSubjects));
 
@@ -46,7 +46,7 @@ for icond = 1:3 % for each condition
     % format axes and make figure pretty 
     set(gca,'xscale','log');
     xlim([0.5,1500]); set(gca,'xtick',epochDurs,'xscale','log');
-    ylim([-3,7]); set(gca, 'YTick', [-2:2:7])
+    ylim([0,7]); set(gca, 'YTick', [0:2:7])
     ylabel('Difference in SNR (post-pre)');
     makeprettyaxes(gca,9,9);
 end
