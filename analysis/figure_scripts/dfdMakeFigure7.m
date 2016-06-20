@@ -35,9 +35,9 @@ end
 
 %% Plot SNR vs number of PCs change for all channels 
 
-fH(1) = plotSNRvsPCsExampleSubjectsPanel7A(dataAll,exampleSessions,colors,axmax,figureDir,saveFigures);
+fH(1) = plotSNRvsPCsExampleSubjectsPanel7A(dataAll,exampleSessions,colors,axmax,figureDir,saveFigures, 'Figure 7a');
 
-fH(2) = plotSNRvsPCsAllSubjectsPanel7B(dataAll,colors,axmax,figureDir,saveFigures);
+fH(2) = plotSNRvsPCsAllSubjectsPanel7B(dataAll,colors,axmax,figureDir,saveFigures, 'Figure 7b');
 
-fH(3) = plotSNRPrePostPanel(dataAll,whichSubjects,colors,figureDir,saveFigures,figureNumber);
+fH(3) = plotSNRPrePostPanel(dataAll,whichSubjects,colors,figureDir,saveFigures,figureNumber, 'Figure 7c');
 

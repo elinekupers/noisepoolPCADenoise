@@ -73,7 +73,7 @@ switch whichFigure
     
     case 'SF1'
         data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_varyEpochLength_NrPCs_bb.mat'), whichSubject));
-        data1 = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject));
+        data1 = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));
         data.badEpochs = data1.badEpochs;
         data.badChannels = data1.badChannels;
         

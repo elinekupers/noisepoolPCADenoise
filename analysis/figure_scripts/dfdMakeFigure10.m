@@ -20,7 +20,7 @@ saveFigures          = true;   % Save figures in the figure folder?
 
 
 %% Plot spatial map figures: right minus left stimulation for broadband component after denoising.
-figure('position',[1,600,2000,300]);
+figure('position',[1,600,2000,300], 'Name', 'Figure 10', 'NumberTitle', 'off');
 
 for k = 1:length(whichSubjects)
     

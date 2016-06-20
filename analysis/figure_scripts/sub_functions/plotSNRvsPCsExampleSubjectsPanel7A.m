@@ -1,11 +1,11 @@
-function fH = plotSNRvsPCsExampleSubjectsPanel7A(dataAll,exampleSessions,condColors,axmax,figureDir,saveFigures)
+function fH = plotSNRvsPCsExampleSubjectsPanel7A(dataAll,exampleSessions,condColors,axmax,figureDir,saveFigures, plotstr)
 
 % Define colors
 linecolors=copper(157);
 
 n = length(dataAll);
 
-fH = figure('position',[1,200,600,200]); set(fH, 'Color', 'w');
+fH = figure('position',[1,200,600,200]); set(fH, 'Color', 'w', 'Name', plotstr, 'NumberTitle', 'off')
 for k = 1:length(exampleSessions)
     
     dataAllind = ~cellfun(@isempty,dataAll);

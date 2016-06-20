@@ -37,7 +37,7 @@ condEpochs = {condEpochs1 condEpochs2};
 
 
 %% Plot spectrum before and after denoising
-fH(1) = plotSpectraPanelBeforeAfterDenoising(data, exampleIndex, exampleChannel, condEpochs, avgLogFlg, colors, saveFigures, figureDir, figNum);
+fH(1) = plotSpectraPanelBeforeAfterDenoising(data, exampleIndex, exampleChannel, condEpochs, avgLogFlg, colors, saveFigures, figureDir, figNum, 'Figure 6a');
 
 %% Plot signal and noise distributions before and after denoising
-fH(2) = plotBetaDistributions(data, exampleIndex, exampleChannel, condEpochs, colors, saveFigures, figureDir, figNum); %#ok<NASGU>
+fH(2) = plotBetaDistributions(data, exampleIndex, exampleChannel, condEpochs, colors, saveFigures, figureDir, figNum, 'Figure 6b'); %#ok<NASGU>

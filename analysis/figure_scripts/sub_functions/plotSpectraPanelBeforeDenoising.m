@@ -1,7 +1,7 @@
-function fH = plotSpectraPanelBeforeDenoising(data, exampleIndex, exampleChannel, condEpochs, avgLogFlg, colors, saveFigures, figureDir)
+function fH = plotSpectraPanelBeforeDenoising(data, exampleIndex, exampleChannel, condEpochs, avgLogFlg, colors, saveFigures, figureDir, plotstr)
 
 %% set up figure 4A
-fH = figure('position',[0,300,500,500]); clf(fH); set(fH, 'Name', 'Figure 4a');
+fH = figure('position',[0,300,500,500]); clf(fH); set(fH, 'Name', plotstr, 'NumberTitle', 'off');
 % define axes
 f = (0:999);
 xl = [8 150];
