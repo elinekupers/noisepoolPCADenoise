@@ -28,16 +28,18 @@ dataAll = [];
 for whichSubject = whichSubjects
     fprintf('Load data subject %d \n', whichSubject);
     % Load data, design, and get example subject
-    dataAll{whichSubject} = prepareData(dataDir,whichSubject,12);
-end
+    dataAll = prepareData(dataDir,whichSubject,12);
+
 
 %% Plot SNR vs number of PCs change for all channels 
 
 % Get results for everybody and top10 channels for everybody
-for k = whichSubjects
-    allpcchan{k} = getTop10(dataAll{k}.results);
-    allresults{k} = dataAll{k}.results;
+
+    allpcchan{whichSubject} = getTop10(dataAll.results);
+    allresults{whichSubject} = dataAll.results;
 end
+
+clear dataAll
 
 % get colors for plotting
 % vary saturation for different subjects

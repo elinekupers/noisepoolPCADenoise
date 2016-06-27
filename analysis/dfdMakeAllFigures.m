@@ -16,8 +16,9 @@ dfdMakeFigure8;
 dfdMakeFigure9;
 dfdMakeFigure10;
 dfdMakeFigure11; 
-dfdMakeFigure12; % too much memory
+dfdMakeFigure12;
 dfdMakeFigure13;
 dfdMakeFigure14;
 dfdMakeFigureVaryEpochLength;
+dfdMakeFigureGridNPCvsNoisepool;
 
