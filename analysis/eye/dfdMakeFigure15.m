@@ -20,7 +20,7 @@ addpath(genpath(fullfile(toolbox_pth,'toolboxes','mrToolsUtilities')));
 % --------------------------------------
 
 % ------------- Subject nr and folders -------------
-whichSubject = 8; % Only subject 6,7,8 have eye tracking data
+whichSubject = 6; % Only subject 6,7,8 have eye tracking data
 subjects     = whichSubject;
 dataPath     = fullfile(dfdRootPath, 'analysis', 'data');
 savePath     = fullfile(dfdRootPath, 'analysis', 'figures');
@@ -198,7 +198,8 @@ for nn = 1:numel(conds)
     
 end
 
-
+% Save vector with onset of microsaccades for each condition
+save(sprintf(fullfile(dataPath, 'eye','s0%d_ms.mat'),whichSubject),'ms')
 %
 
 %% -------------------------------------
