@@ -38,11 +38,11 @@ for whichSubject = 1:8;
     
     % Get top ten broadband channels per subject
     load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));    
-    topChanBB = getTop10(results);
+    topChanBB = getTop10(results, [], 10);
     
     % Get top ten stimulus channels per subject
     load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_sl.mat'),whichSubject));    
-    topChanSL = getTop10(results);
+    topChanSL = getTop10(results, [], 5);
 
     % Define conditions: Full, right, left, off
     condEpochs1 = {design{1}(:,1)==1, design{1}(:,2)==1, design{1}(:,3)==1, all(design{1}==0,2)};
@@ -93,21 +93,26 @@ fprintf('Mean change in stimulus locked amplitude, undenoised data: %4.1f%% ±  %
 % fprintf('Mean change in stimulus locked amplitude, denoised data: %4.1f%% ±  %4.1f\n', ...
 %     100*mean(allSLResults(:,2)), 100*std(allSLResults(:,2))/sqrt(8));
 
+% FOR TOP 5 CHANNELS
+% Mean change in broadband power, undenoised data:  9.1% ±   1.8
+% Mean change in broadband power, denoised data: 11.1% ±   1.8
+% Mean change in stimulus locked amplitude, undenoised data: 489.8% ±  138.3
+
+% FOR TOP 10 CHANNELS
+% Mean change in broadband power, undenoised data:  7.0% ±   2.5
+% Mean change in broadband power, denoised data:  9.3% ±   1.9
+% Mean change in stimulus locked amplitude, undenoised data: 413.4% ±  110.9
+
+
 % 
-% % ECoG-BB: 2.9 -fold, 290% 0.46 log10 units
-% %  MEG-BB: 0.09-fold,   9% 
 % 
-% 
-% % ECoG BB: [1 4]
-% 
-% 
-% % Summarize difference between 2 numbers by fold, percent difference, log10
+% % Summarize difference between a number and one by fold, percent difference, log10
 % % units
-% fold     = @(x) diff(x)./x(1,:);
-% pct      = @(x) diff(x)./x(1,:)*100;
-% logdelta = @(x) log10(x(2,:)./x(1,:));
+% fold     = @(x) x-1 ;
+% pct      = @(x) (x-1)*100;
+% logdelta = @(x) log10(x);
 % 
-% betas = [1 1 1 1; 1.09 3.9 5.1 22.5];
+% betas = [1.09 3.9 5.1 22.5];
 % 
 % disp(fold(betas))
 % disp(pct(betas))
