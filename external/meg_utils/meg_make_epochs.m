@@ -48,5 +48,5 @@ ts         = permute(ts, [2 1 3]);
 
 if ~exist('which_data','var'); conditions = trigger(onset_times); 
 else conditions = []; end
-
+% conditions = [];
 return
