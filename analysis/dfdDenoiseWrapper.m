@@ -120,7 +120,7 @@ for whichSubject = subjects
     % ------------------ Load data and design ----------------------------
     tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's%02d_sensorData.mat'),whichSubject)); sensorData = tmp.sensorData;
     tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's%02d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
-    
+
     % ------------------ Make design matrix ------------------------------
     design = zeros(length(conditions), 3);
     design(conditions==1,1) = 1; % condition 1 is full field
