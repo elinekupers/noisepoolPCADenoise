@@ -33,18 +33,11 @@ elseif which_data == 'eye';
 end
 
 epoch_samples = round(epoch_time * fs); %epoch length in samples
-epoch_len     = diff(epoch_samples)+1;    %epoch length in samples
-num_channels  = size(raw_ts, 2);
-num_epochs    = length(onset_times);
 
-ts           = zeros(num_epochs,epoch_len,num_channels);
-
-for ii = 1:num_epochs
-    inds = onset_times(ii)+(epoch_samples(1):epoch_samples(2));
-    ts(ii, :, :) = raw_ts(inds,:);    
-end
-
-ts         = permute(ts, [2 1 3]);
+inds = bsxfun(@plus,onset_times,(epoch_samples(1):epoch_samples(2)));
+ts   = raw_ts(inds,:); 
+ts   = reshape(ts,size(inds,1),size(inds,2),size(raw_ts,2));
+ts   = permute(ts, [2 1 3]);
 
 if ~exist('which_data','var'); conditions = trigger(onset_times); 
 else conditions = []; end

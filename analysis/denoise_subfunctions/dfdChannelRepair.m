@@ -1,4 +1,4 @@
-function sensorDataOut = dfdChannelRepair(sensorDataIn, outliers, method, sensorPositions)
+function sensorDataOut = dfdChannelRepair(sensorDataIn, outliers, method, sensorPositions, verbose)
 % Replace bad data with an interpolation from good channels
 %  
 %sensorDataOut = dfdChannelRepair(sensorDataIn, outliers, method)
@@ -11,7 +11,7 @@ function sensorDataOut = dfdChannelRepair(sensorDataIn, outliers, method, sensor
 %                   etc.
 % OUTPUTS
 %   sensorDataOut: data array, same size as sensorDataIn
-
+if notDefined('verbose'); verbose = false; end
 if notDefined('sensorPositions'), 
     hdr = load('meg160_example_hdr.mat'); hdr = hdr.hdr;
     net.xyz = hdr.grad.chanpos;

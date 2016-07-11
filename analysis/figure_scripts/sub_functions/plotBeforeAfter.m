@@ -38,12 +38,12 @@ for k = nsess
     end
     
     % nconds x nchannels
-    ab_signal1 = abs(results.origmodel(whichfun).beta_md(:,pcchan));
+%     ab_signal1 = abs(results.origmodel(whichfun).beta_md(:,pcchan));
     ab_signal1 = (results.origmodel(whichfun).beta_md(:,pcchan));
 
     ab_noise1  = results.origmodel(whichfun).beta_se(:,pcchan);
     
-    ab_signal2 = abs(results.finalmodel(whichfun).beta_md(:,pcchan));
+%     ab_signal2 = abs(results.finalmodel(whichfun).beta_md(:,pcchan));
     ab_signal2 = (results.finalmodel(whichfun).beta_md(:,pcchan));
 
     ab_noise2  = results.finalmodel(whichfun).beta_se(:,pcchan);
