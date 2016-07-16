@@ -32,8 +32,10 @@ bb_frequencies      = f(ab_i);
 numFrequencies      = numel(bb_frequencies);
 
 dataDir = fullfile(dfdRootPath, 'analysis','data');
-spectraFull  = cell(1,2);
-spectraBlank = cell(1,2);
+spectraFull  = cell(numSubjects,2);
+spectraBlank = cell(numSubjects,2);
+spectraRight = cell(numSubjects,2);
+spectraLeft  = cell(numSubjects,2);
 
 %% loop over subjects
 for whichSubject = 1:numSubjects;
@@ -60,11 +62,19 @@ for whichSubject = 1:numSubjects;
         % get power for full and blank epochs, at the specified frequencies
         tmp = pxx(topN,ab_i,condEpochs{dd}{1});
         tmp = squeeze(lgmn(tmp,1));
-        spectraFull{dd} = cat(2, tmp, spectraFull{dd});
+        spectraFull{whichSubject, dd} = tmp;
         
+        tmp = pxx(topN,ab_i,condEpochs{dd}{2});
+        tmp = squeeze(lgmn(tmp,1));
+        spectraRight{whichSubject, dd} = tmp;
+
+        tmp = pxx(topN,ab_i,condEpochs{dd}{3});
+        tmp = squeeze(lgmn(tmp,1));
+        spectraLeft{whichSubject, dd} = tmp;
+               
         tmp = pxx(topN,ab_i,condEpochs{dd}{4});
         tmp = squeeze(lgmn(tmp,1));
-        spectraBlank{dd} = cat(2, tmp, spectraBlank{dd});
+        spectraBlank{whichSubject, dd} = tmp;
 
         
     end
@@ -72,35 +82,144 @@ for whichSubject = 1:numSubjects;
 end
 
 %% Plot 'em
-
+ 
 colors = dfdGetColors(4); str = {'Before denoising' 'After denoising'};
-% Before denoising
-for dd = 1:2
-    
-    fH = figure(dd); clf, set(gcf, 'Color', 'w')
-    
-    mn = lgmn(spectraFull{dd},2);
-    se = std(spectraFull{dd},[], 2) / sqrt(size(spectraFull{dd},2));    
-    fill([bb_frequencies flip(bb_frequencies)] , [mn + se; flip(mn - se)]', colors(1,:), 'FaceAlpha', .5);
-    hold on;
-    plot(bb_frequencies, mn, 'o-', 'Color', colors(1,:), 'LineWidth', 2)
 
+% % Before denoising
+% for dd = 1:2
+%     
+%     fH = figure(dd); clf, set(gcf, 'Color', 'w')
+%     
+%     mn = lgmn(spectraFull{dd},2);
+%     se = std(spectraFull{dd},[], 2) / sqrt(size(spectraFull{dd},2));    
+%     fill([bb_frequencies flip(bb_frequencies)] , [mn + se; flip(mn - se)]', colors(1,:), 'FaceAlpha', .5);
+%     hold on;
+%     plot(bb_frequencies, mn, 'o-', 'Color', colors(1,:), 'LineWidth', 2)
+% 
+%     
+%     mn = lgmn(spectraBlank{dd},2);
+%     se = std(spectraBlank{dd},[], 2) / sqrt(size(spectraBlank{dd},2));    
+%     fill([bb_frequencies flip(bb_frequencies)] , [mn + se; flip(mn - se)]', colors(4,:), 'FaceAlpha', .5);    
+%     plot(bb_frequencies, mn, '-o', 'Color', colors(4,:), 'LineWidth', 2)
+%     
+%     
+%     set(gca, 'XScale', 'log', 'YScale', 'log', ...
+%         'YLim', 10.^[1 2], 'XLim', [60 150], ...
+%         'XTick', 60:12:150, 'XGrid', 'on', 'LineWidth', 2, 'FontSize', 20)
+%     title(str{dd})
+%     xlabel('Frequency (Hz)')
+%     ylabel('Power (fT^2)')
+% end
+% 
+
+
+
+fH = figure(dd); clf, set(gcf, 'Color', 'w')
+
+xt = 60:12:160;
+yl = 10.^[0.9 2.1];
+for whichSubject = 1:8
     
-    mn = lgmn(spectraBlank{dd},2);
-    se = std(spectraBlank{dd},[], 2) / sqrt(size(spectraBlank{dd},2));    
-    fill([bb_frequencies flip(bb_frequencies)] , [mn + se; flip(mn - se)]', colors(4,:), 'FaceAlpha', .5);    
-    plot(bb_frequencies, mn, '-o', 'Color', colors(4,:), 'LineWidth', 2)
+    for dd = 1:2
+        
+        subplot(4,8, whichSubject + (dd-1)*8);
+        cla;
+        
+        bootstat = bootstrp(100, @(x) lgmn(x,1), spectraFull{whichSubject, dd}');
+        % mn = median(bootstat);
+        se = prctile(bootstat, [16 84],1);
+        
+        fill([bb_frequencies flip(bb_frequencies)] , [se(1,:) flip(se(2,:))], colors(1,:), 'FaceAlpha', .5);
+        hold on;
+        %plot(bb_frequencies, mn, 'o-', 'Color', colors(1,:), 'LineWidth', 2)
+        
+        
+        bootstat = bootstrp(100, @(x) lgmn(x,1), spectraBlank{whichSubject, dd}');
+        % mn = median(bootstat);
+        se = prctile(bootstat, [16 84],1);
+        
+        fill([bb_frequencies flip(bb_frequencies)] , [se(1,:) flip(se(2,:))], colors(4,:), 'FaceAlpha', .5);
+        %plot(bb_frequencies, mn, 'o-', 'Color', colors(4,:), 'LineWidth', 2)
+        
+        
+        set(gca, 'XScale', 'linear', 'YScale', 'log', ...
+            'YLim', yl, 'XLim', [60 153], ...
+            'XTick', xt, 'XGrid', 'on', 'LineWidth', 2, 'FontSize', 12)
+        
+        title(sprintf('S%d %s', whichSubject, str{dd}))
+        xlabel('Frequency (Hz)')
+        ylabel('Power (fT^2)')
+        
+       
+    end
     
+    for dd = 1:2
+        
+        subplot(4,8, whichSubject + (dd+1)*8);
+        cla;
+        
+        bootfull  = bootstrp(100, @(x) lgmn(x,1), spectraFull{whichSubject, dd}');
+        bootblank = bootstrp(100, @(x) lgmn(x,1), spectraBlank{whichSubject, dd}');
+        
+        bootdiff = (bootfull - bootblank) ./ bootblank;
+        se = prctile(bootdiff, [16 84],1)*100;
+        
+        fill([bb_frequencies flip(bb_frequencies)] , [se(1,:) flip(se(2,:))], colors(1,:), 'FaceAlpha', .5);
+        hold on, plot(bb_frequencies, 0*bb_frequencies, 'k--')
+        
+        set(gca, 'XScale', 'linear', 'YScale', 'linear', ...
+            'YLim', 60*[-1 1], 'XLim', [60 150], ...
+            'XTick', xt, 'XGrid', 'on', 'LineWidth', 2, 'FontSize', 12)
+        
+                title(str{dd})
+        xlabel('Frequency (Hz)')
+        ylabel('Percent above blank')
+
+    end
     
-    set(gca, 'XScale', 'log', 'YScale', 'log', ...
-        'YLim', 10.^[1 2], 'XLim', [60 150], ...
-        'XTick', 60:12:150, 'XGrid', 'on', 'LineWidth', 2, 'FontSize', 20)
-    title(str{dd})
-    xlabel('Frequency (Hz)')
-    ylabel('Power (fT^2)')
 end
 
+ %% Outlier 
+ 
+ figure, 
+ for ii = 1:numSubjects
+    subplot(3,3,ii) 
+    histogram(spectraFull{ii,1}(11,:))
+     
+ end
 
+ %% group average
+ fH = figure; clf, set(gcf, 'Color', 'w')
 
+ percentdiff = zeros(numSubjects, numFrequencies, 2);
+ for dd = 1:2
+     subplot(2,1,1), %cla;
+     for whichSubject = 1:numSubjects                        
+         fullmn  = lgmn(spectraFull{whichSubject, dd},2);
+         blankmn = lgmn(spectraBlank{whichSubject, dd},2); 
+         
+         
+         percentdiff(whichSubject,:,dd) = (fullmn - blankmn)./blankmn;
+     end
+     
+              
+     bootfull  = bootstrp(100, @(x) lgmn(x,1), spectraFull{whichSubject, dd}');
+     bootblank = bootstrp(100, @(x) lgmn(x,1), spectraBlank{whichSubject, dd}');
+     
+     bootdiff = (bootfull - bootblank) ./ bootblank;
+     se = prctile(bootdiff, [16 84],1)*100;
+     
+     fill([bb_frequencies flip(bb_frequencies)] , [se(1,:) flip(se(2,:))], colors(dd,:), 'FaceAlpha', .5);
+     hold on, plot(bb_frequencies, 0*bb_frequencies, 'k--')
+     
+     set(gca, 'XScale', 'linear', 'YScale', 'linear', ...
+         'YLim', 60*[-1 1], 'XLim', [60 150], ...
+         'XTick', xt, 'XGrid', 'on', 'LineWidth', 2, 'FontSize', 12)
+     
+     title(str{dd})
+     xlabel('Frequency (Hz)')
+     ylabel('Percent above blank')
 
-
+     
+ end
+   
