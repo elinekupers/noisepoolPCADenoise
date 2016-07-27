@@ -21,6 +21,7 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 %
 % opt       : options
 %     npoolmethod : noise pool selection method (see selectnoisepool for details)
+%                   (default = {'r2','n',75})
 %     epochgroup  : for grouping epochs together for denoising [epoch x 1] vector
 %     npcs2try    : number of pcs to try. if empty, then trying up to the
 %                   number of channels in noisepool. (default = [])
