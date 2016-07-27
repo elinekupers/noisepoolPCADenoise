@@ -179,21 +179,22 @@ for whichSubject = 1:8
     
 end
 
- %% Outlier 
- 
- figure, 
- for ii = 1:numSubjects
-    subplot(3,3,ii) 
-    histogram(spectraFull{ii,1}(11,:))
-     
- end
+%  %% Outlier 
+%  
+%  figure, 
+%  for ii = 1:numSubjects
+%     subplot(3,3,ii) 
+%     histogram(spectraFull{ii,1}(11,:))
+%      
+%  end
 
  %% group average
- fH = figure; clf, set(gcf, 'Color', 'w')
+fH(2) = figure; clf, set(gcf, 'Color', 'w')
+nonbroadband = setdiff(min(bb_frequencies):max(bb_frequencies), bb_frequencies);
+
 
  percentdiff = zeros(numSubjects, numFrequencies, 2);
- for dd = 1:2
-     subplot(2,1,1), %cla;
+ for dd = 2
      for whichSubject = 1:numSubjects                        
          fullmn  = lgmn(spectraFull{whichSubject, dd},2);
          blankmn = lgmn(spectraBlank{whichSubject, dd},2); 
@@ -222,4 +223,10 @@ end
 
      
  end
-   
+%    
+%  pth    = fullfile(dfdRootPath, 'analysis', 'figures');
+%  fname  = 'groupAverageBroadbandSpectrum.eps' ;
+%  hgexport(fH(2), fullfile(pth, fname));
+%  
+%  fname  = 'individualSubjectBroadbandSpectrum.eps' ;
+%  hgexport(fH(1), fullfile(pth, fname));
