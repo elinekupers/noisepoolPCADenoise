@@ -13,7 +13,7 @@ function dfdMakeFigure10()
 % function.
 
 %% Choices to make:
-whichSubjects        = 1:8;
+whichSubjects        = 6:8;
 dataDir              = fullfile(dfdRootPath, 'analysis', 'data');   % Where to save data?
 figureDir            = fullfile(dfdRootPath, 'analysis', 'figures');% Where to save images?
 saveFigures          = true;   % Save figures in the figure folder?
@@ -48,7 +48,7 @@ for k = 1:length(whichSubjects)
 end
 
 if saveFigures
-    figurewrite(fullfile(figureDir,'figure10ab_BeforeAfter'),[],0,'.',1);
+    figurewrite(fullfile(figureDir,'figure10ab_BeforeAfter_onlyMS'),[],0,'.',1);
 end
 
 

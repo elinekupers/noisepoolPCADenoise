@@ -20,16 +20,17 @@ addpath(genpath(fullfile(toolbox_pth,'toolboxes','mrToolsUtilities')));
 % --------------------------------------
 
 % ------------- Subject nr and folders -------------
-whichSubject = 6; % Only subject 6,7,8 have eye tracking data
+whichSubject = 8; % Only subject 6,7,8 have eye tracking data
 subjects     = whichSubject;
 dataPath     = fullfile(dfdRootPath, 'analysis', 'data');
 savePath     = fullfile(dfdRootPath, 'analysis', 'figures');
-saveFigs     = true;
+saveFigs     = false;
+removeFirstEpoch = false;
 
 
 % ------------- Experiment params -------------
 condsName   = {'Blank','Full','Left','Right'};
-condColors  = [63, 121, 204;  116,183,74; 228, 65, 69]/255;
+condColors  = dfdGetColors(3);
 
 % ------------- Eyetracking analysis params ---------
 vThres = 6;      % Velocity threshold
@@ -75,14 +76,14 @@ end
 % ------------- Add triggers for the blank periods -------------
 onsets = ssmeg_trigger_2_onsets(triggers, whichSubject, 'eye');
 
-% ------------- Delete last 12 epochs since those are not recorded --------
+% ------------- Delete last 12 epochs since those are blank periods, which do not have triggers --------
 % --------- % Question: Is this true for all subjects?
-onsets = onsets(1:end-12);
-conditions = conditions(1:end-12);
+% onsets = onsets(1:end-12);
+% conditions = conditions(1:end-12);
 
 % ---------- Remove first epoch of flicker and non-flicker periods --------
 badEpochs = zeros(size(onsets));
-badEpochs(1:6:end) = 1;
+if removeFirstEpoch; badEpochs(1:6:end) = 1; end
 
 % --------- Remove bad epochs ---------
 onsets = onsets(~badEpochs);
@@ -110,6 +111,11 @@ design = zeros(size(onsets,1),3);
 design(conditions==1,1) = 1; % condition 1 is full field
 design(conditions==5,2) = 1; % condition 5 is left field
 design(conditions==7,3) = 1; % condition 7 is right field
+
+% In case we dropped an epoch because we don't have enough timepoints to
+% define the full last epoch
+design = design(1:size(eyets,2),:);
+conditions = conditions(1:size(eyets,2));
 
 % ------------- Define conditions -------------------------------------
 blank   = sum(design,2)==0;
@@ -146,6 +152,7 @@ for nn = 1:numel(conds)
     numEpochs = size(eyexyVel,2);
     numTimePoints = size(thiseyexVel,1);
     msVec = zeros(numEpochs,numTimePoints);
+    epochsWithMS = [];
     
     % For each second (==epoch)
     for epoch = 1:size(eyexyVel,2);
@@ -187,6 +194,8 @@ for nn = 1:numel(conds)
                 msVec(epoch,sacRaw(msNr,1)) = 1;
             end
             
+            epochsWithMS = [epochsWithMS epoch];
+            
             % Get circular distribution of ms
             [rho{nn}{epoch},theta{nn}{epoch}] = msGetThetaRho(eyexyPos(:,epoch,:),s.sacs{epoch});
             
@@ -196,10 +205,13 @@ for nn = 1:numel(conds)
     % Concatenate ms vectors for each condition
     ms{nn} = msVec;
     
+    epochNrInExperimentForThisCondition = find(conds{nn});
+    allEpochsWithMS{nn} = epochNrInExperimentForThisCondition(epochsWithMS);
 end
 
 % Save vector with onset of microsaccades for each condition
 save(sprintf(fullfile(dataPath, 'eye','s0%d_ms.mat'),whichSubject),'ms')
+save(sprintf(fullfile(dataPath, 'eye','s0%d_epochswithms.mat'),whichSubject),'allEpochsWithMS')
 %
 
 %% -------------------------------------

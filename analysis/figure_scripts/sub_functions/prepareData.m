@@ -56,7 +56,7 @@ switch whichFigure
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         
     case 10
-        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));
+        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_onlyMS_rm1epoch_bb.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         
     case 11

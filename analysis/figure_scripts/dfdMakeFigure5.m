@@ -112,7 +112,7 @@ for icond = 1:3
 end
 
 if saveFigures
-    printnice(gcf, 0, figureDir, sprintf('figure5_examplesubject%d_bipolar_thresh%d_interpolated',whichSubject, threshold));
+    printnice(gcf, 0, figureDir, sprintf('figure5_examplesubject%d_bipolar_thresh%d_interpolated_noMS',whichSubject, threshold));
 end
 
 %% Now call dfdMakeFigure5AcrossSubjects

@@ -41,6 +41,7 @@ badChannelThreshold = 0.2;
 badEpochThreshold   = 0.2;
 use3Channels        = false;
 removeFirstEpoch    = true;
+removeMsEpochs      = true;
 
 %% Get frequencies to define stimulus locked and asynchronous broadband power
 % Data are sampled at 1000 Hz and epoched in one-second bins. Hence
@@ -120,6 +121,8 @@ for whichSubject = subjects
     % ------------------ Load data and design ----------------------------
     tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's%02d_sensorData.mat'),whichSubject)); sensorData = tmp.sensorData;
     tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's%02d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
+%     tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 'eye', 's%02d_epochswithms.mat'),whichSubject)); msepochidx = cat(1,tmp.allEpochsWithMS{:});
+
 
     % ------------------ Make design matrix ------------------------------
     design = zeros(length(conditions), 3);
@@ -141,6 +144,11 @@ for whichSubject = subjects
     % ---- Define first epochs in order to remove later ------------------
     if removeFirstEpoch, badEpochs(1:6:end) = 1; end
     
+%     % ---- Label epochs with microsaccades as bad epochs ------------------
+%     onlyMS = ones(1,length(badEpochs));
+%     onlyMS(msepochidx)=0;
+%     if removeMsEpochs, badEpochs(find(onlyMS')) = 1; end
+%     
     % -------------- Remove bad epochs and channels ----------------------
     sensorData      = sensorData(:,~badEpochs, ~badChannels);
     design          = design(~badEpochs,:);
