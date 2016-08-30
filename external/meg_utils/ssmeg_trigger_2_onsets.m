@@ -7,7 +7,9 @@ if notDefined('which_data'); which_data = 'meg'; end
 
 switch which_data
     case 'eye'
+        % Get the times
         inds                = triggers(:,2);
+        % Skip all the frame triggers, keep only the start of a new epoch
         keep_inds           = inds(1:12:end);
         
         if which_subject == 6;        
