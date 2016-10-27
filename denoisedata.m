@@ -17,14 +17,16 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 %                Note when using this option, opt.npoolmethod has no effect
 %
 % evalfun   : function handle or a cell of function handles (to compute the
-%             output responses of interest for evaluation
+%             output responses of interest for evaluation)
+%               (default = evokedfun)
 %
 % opt       : options
 %     npoolmethod : noise pool selection method (see selectnoisepool for details)
 %                   (default = {'r2','n',75})
 %     epochgroup  : for grouping epochs together for denoising [epoch x 1] vector
+%                   (default = 1:nepoch)
 %     npcs2try    : number of pcs to try. if empty, then trying up to the
-%                   number of channels in noisepool. (default = [])
+%                   number of channels in noisepool. (default = 10)
 %     pcchoose    : how to choose the number of PCs for the denoised model 
 %                    (default: 1.05)
 %                    If positive, then choose the smallest number of PCs,
@@ -36,12 +38,12 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 %                    option, we do not go through trying to use each number
 %                    of PCs (see opt.npcs2try)
 %     xvalratio   : how to split training and test data for cross
-%                   validation. could be a number between 0 to 1, defining
-%                   the ratio of test data (relative to training data). 
-%                   or -1, which does leave-one-out (default). 
+%                   validation. a number between 0 to 1, defining
+%                   the ratio of test data (relative to training data).
+%                   or -1, which does leave-one-out (default = -1). 
 %     fitbaseline : whether to add constant term in glm 
 %                   when false, mean is projected out from design matrix and
-%                   data (default)
+%                   data (default = false)
 %     resampling  : how to do resampling for noise channel selection
 %                   (cell 1) and actual evaluation (cell 2)
 %                   options: 'full', 'xval', or 'boot' (default
@@ -49,7 +51,8 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 %     pccontrolmode: how to compute null pcs for control
 %                    0: do nothing (default). 1: permute fourier phase. 
 %                    2: permute assignment to epochs. 3: use white fourier
-%                    amplitude but keep fourier phase. 4: use random pcs      
+%                    amplitude but keep fourier phase. 4: use random pcs 
+%                       (default = 0)
 %     preprocessfun: function handle (e.g. bbFilter) to apply to data before
 %                    computing pcs, removing pcs and computing evalfun 
 %                    (but not before computing stimfun)
@@ -63,12 +66,8 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 %                    format of [m x time samples x epoch], where m is the
 %                    number of extra regressors, and time samples and epoch
 %                    are the same as the 2nd and 3rd dimensions of data
-%                    (default: [])
-%     badepochs   :  epochs to ignore. either a binary vector or a vector
-%                    of indices
-%     badchannels :  channels to ignore. either a binary vector or a vector
-%                    of indices
-%     verbose     :  whether to print messages to screen (default: true)
+%                    (default: [])     
+%     verbose     :  whether to print messages to screen (default: false)
 % 
 % OUTPUTS:
 % -----------------
@@ -88,8 +87,8 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 % first, get data dimensions 
 [nchan,ntime,nepoch] = size(data); 
 % handle inputs and options 
-if notDefined('evokedfun'), evokedfun = @(x)getstimlocked(x,opt.freq); end
-if notDefined('evalfun'),   evalfun   = @(x)getbroadband(x,opt.freq);  end
+if notDefined('evokedfun'), error('evokedfun needs to be defined');    end
+if notDefined('evalfun'),   evalfun   = evokedfun;                     end
 if notDefined('opt'),       opt       = struct();                      end
 if ~isfield(opt,'npoolmethod'),   opt.npoolmethod = {'r2','n',75};     end
 if ~isfield(opt,'epochgroup'),    opt.epochgroup  = 1:nepoch;          end
