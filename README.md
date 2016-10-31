@@ -6,7 +6,7 @@ This denoising suite is was developed on MATLAB Version 8.4
 
 ———————————————————————————
 
-Matlab toolbox dependencies 
+————————————— Matlab toolbox dependencies —————————————
 
 ———————————————————————————
 
