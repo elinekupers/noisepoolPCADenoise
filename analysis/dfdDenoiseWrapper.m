@@ -41,7 +41,7 @@ badChannelThreshold = 0.2;
 badEpochThreshold   = 0.2;
 use3Channels        = false;
 removeFirstEpoch    = true;
-removeMsEpochs      = true;
+removeMsEpochs      = false;
 
 %% Get frequencies to define stimulus locked and asynchronous broadband power
 % Data are sampled at 1000 Hz and epoched in one-second bins. Hence
@@ -74,6 +74,9 @@ evalfun             = @(x)getbroadband(x,keep_frequencies,1000);  % function han
 opt.resampling      = {'boot','boot'};
 opt.pcselmethod     = 'snr';
 opt.verbose         = true;
+if use3Channels;    opt.use3Channels     = 1; else opt.use3Channels     = 0; end
+if removeFirstEpoch;opt.removeFirstEpoch = 1; else opt.removeFirstEpoch = 0; end
+if removeMsEpochs;  opt.removeMsEpochs   = 1; else opt.removeMsEpochs   = 0; end
 
 switch howToDenoise % Define denoise other parameters (see denoisedata.m)
     case 1 % Denoise with exactly 10 PC regressors
@@ -145,10 +148,10 @@ for whichSubject = subjects
     if removeFirstEpoch, badEpochs(1:6:end) = 1; end
     
 %     % ---- Label epochs with microsaccades as bad epochs ------------------
-%     onlyMS = ones(1,length(badEpochs));
-%     onlyMS(msepochidx)=0;
-%     if removeMsEpochs, badEpochs(find(onlyMS')) = 1; end
-%     
+    onlyMS = ones(1,length(badEpochs));
+    onlyMS(msepochidx)=0;
+    if removeMsEpochs, badEpochs(find(onlyMS')) = 1; end
+     
     % -------------- Remove bad epochs and channels ----------------------
     sensorData      = sensorData(:,~badEpochs, ~badChannels);
     design          = design(~badEpochs,:);
@@ -179,15 +182,9 @@ for whichSubject = subjects
             [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
         end
   
-        %% ------------------ Define file name ---------------------------
-        if use3Channels
-            fname = sprintf(fullfile(dfdRootPath,'analysis','data', ['s%02d_denoisedData' postFix '_w3chan']),whichSubject);
-        elseif removeFirstEpoch
-            fname = sprintf(fullfile(dfdRootPath,'analysis','data', ['s%02d_denoisedData' postFix '_rm1epoch']),whichSubject);
-        else
-            fname = sprintf(fullfile(dfdRootPath,'analysis','data', ['s%02d_denoisedData' postFix]), whichSubject);   
-        end
-                
+        % ------------------ Define file name ---------------------------
+        fname = sprintf(fullfile(dfdRootPath,'analysis','data', ['s%02d_denoisedData' postFix]), whichSubject);   
+            
         % ----------------- Save denoised broadband data -----------------
         results.opt.preprocessfun   = func2str(results.opt.preprocessfun);
         optbb.preprocessfun         = func2str(optbb.preprocessfun);

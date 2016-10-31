@@ -30,12 +30,11 @@ exampleAnalysis      :  Folder with code and possibility
 		to download and store data to run analysis from 
 		the paper and make all manuscript figures.
 		
-		Contains:
-		- data folder:
+Contains: - data folder:
 		Empty folder to store data. Example data downloaded 
-		 by dfdDownloadSampleData will be written here by default.
-		 This folder contains a .gitignore file to prevent 
-		 large data files from being added to the repository. 
+		by dfdDownloadSampleData will be written here by default.
+		This folder contains a .gitignore file to prevent 
+		large data files from being added to the repository. 
 		- denoise_subfunctions folder:
 		 Folder with subfunctions used by the dfdDenoiseWrapper
 		 in order to denoise the data of all subjects for this 
