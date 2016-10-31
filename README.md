@@ -15,14 +15,18 @@ Signal Processing Toolbox (v 6.22)
 Neural Network Toolbox (v 8.2.1)
 
 —————————————————————————————
+
 ——————— Other toolbox dependencies —————
+
 ——————————————————————————————
 
 Fieldtrip toolbox (v ??)
 
-—————————————————————————————————————————————————
-————————————————————— Folder structure —————————————————————
-—————————————————————————————————————————————————
+—————————————————————————————
+
+————————————————— Folder structure —————————————————
+
+—————————————————
 
 alternativeAnalysis  :  (Under construction) Folder with 
 		scripts to use alternative analyses, such as 
@@ -78,9 +82,11 @@ dfdAddFieldtripPaths.m	: Add paths of Fieldtrip toolbox to plot
 		data on a sensormap or to use ICA function.
 
 
-—————————————————————————————————————————
-——-——-—— General flow of denoise data function -——-——-
-—————————————————————————————————————————
+——————————————————————————————————
+
+—————————— General flow of denoise data function —————————————————
+
+——————————————————————————————————
 
 INPUT:
 
