@@ -25,7 +25,7 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 %                   (default = {'r2','n',75})
 %     epochgroup  : for grouping epochs together for denoising [epoch x 1] vector
 %                   (default = 1:nepoch)
-%     npcs2try    : number of pcs to try. if empty, then trying up to the
+%     npcs2try    : number of pcs to try. if empty, then try up to the
 %                   number of channels in noisepool. (default = 10)
 %     pcchoose    : how to choose the number of PCs for the denoised model 
 %                    (default: 1.05)
@@ -47,7 +47,7 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 %     resampling  : how to do resampling for noise channel selection
 %                   (cell 1) and actual evaluation (cell 2)
 %                   options: 'full', 'xval', or 'boot' (default
-%                   {'xval','xval'})
+%                   {'boot','boot'})
 %     pccontrolmode: how to compute null pcs for control
 %                    0: do nothing (default). 1: permute fourier phase. 
 %                    2: permute assignment to epochs. 3: use white fourier
@@ -67,7 +67,7 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 %                    number of extra regressors, and time samples and epoch
 %                    are the same as the 2nd and 3rd dimensions of data
 %                    (default: [])     
-%     verbose     :  whether to print messages to screen (default: false)
+%     verbose     :  whether to print messages to screen (default: true)
 % 
 % OUTPUTS:
 % -----------------
@@ -95,15 +95,15 @@ if ~isfield(opt,'epochgroup'),    opt.epochgroup  = 1:nepoch;          end
 if ~isfield(opt,'npcs2try'),      opt.npcs2try    = 10;                end
 if ~isfield(opt,'fitbaseline'),   opt.fitbaseline = false;             end
 if ~isfield(opt,'xvalratio'),     opt.xvalratio   = -1;                end
-if ~isfield(opt,'resampling'),    opt.resampling  = {'xval','xval'};   end
+if ~isfield(opt,'resampling'),    opt.resampling  = {{'boot','boot'}}; end
 if ~isfield(opt,'pccontrolmode'), opt.pccontrolmode = 0;               end
-if ~isfield(opt,'pcselmethod'),   opt.pcselmethod = 'r2';              end
+if ~isfield(opt,'pcselmethod'),   opt.pcselmethod = 'snr';             end
 if ~isfield(opt,'pcchoose'),      opt.pcchoose    = 1.05;              end
 if ~isfield(opt,'pcn'),           opt.pcn         = 10;                end
 if ~isfield(opt,'preprocessfun'), opt.preprocessfun = [];              end
 if ~isfield(opt,'savepcs'),       opt.savepcs     = false;             end
 if ~isfield(opt,'extraregressors'), opt.extraregressors = [];          end
-if ~isfield(opt,'verbose'),       opt.verbose     = false;             end
+if ~isfield(opt,'verbose'),       opt.verbose     = true;              end
 
 if opt.verbose
     fprintf('---------------------------------------------------------------------\n');

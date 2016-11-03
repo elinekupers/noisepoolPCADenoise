@@ -71,9 +71,6 @@ evokedfun           = @(x)getstimlocked(x,sl_freq_i); % function handle to deter
 evalfun             = @(x)getbroadband(x,keep_frequencies,1000);  % function handle to compuite broadband with a sample rate of 1 kHz
 
 % Define options for denoising that are equal for each type of denoising
-opt.resampling      = {'boot','boot'};
-opt.pcselmethod     = 'snr';
-opt.verbose         = true;
 
 switch howToDenoise % Define denoise other parameters (see denoisedata.m)
     case 1 % Denoise with exactly 10 PC regressors
