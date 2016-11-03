@@ -1,3 +1,4 @@
+
 function onsets = ssmeg_trigger_2_onsets(triggers, which_subject,which_data)
 % Find epoch onsets from triggers
 %
@@ -24,6 +25,8 @@ switch which_data
             which_subject       = 7; % Now we inserted the blank periods, we can treat this subject like subject 7 
         else
             blank = [];
+            % HACK: Not sure if we need this, can't remember why I did this so better check!
+%             which_subject       = 7;
         end
         
         onsets = sort([keep_inds;blank]);
