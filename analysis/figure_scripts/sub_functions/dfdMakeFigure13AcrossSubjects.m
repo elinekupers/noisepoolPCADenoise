@@ -14,12 +14,12 @@ function dfdMakeFigure13AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigur
 % function.
 
 %% Compute SNR across subjects
-contrasts = [1 0 0; 0 1 0; 0 0 1; 0 1 -1]; % Full, Left, Right and L-R
+contrasts = [1 0 0; 0 1 0; 0 0 1; 0 -1 1]; % Full, Right, Left and L-R
 computeSNR    = @(x) nanmean(x,3) ./ nanstd(x, [], 3);
 contrastNames = {
     'Full'...
-    'Left'...
     'Right'...
+    'Left'...
     'Left-Right'
     };
 

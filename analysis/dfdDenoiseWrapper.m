@@ -1,14 +1,15 @@
 function dfdDenoiseWrapper(subjects, howToDenoise)
 %
 % dfdDenoiseWrapper(subjects, howToDenoise)
-%
+% ---------------------------------------------------------------- 
 % INPUTS:
-% subjects  : Vector of subject numbers one would like to denoise
-% howToDenoise: 1, 2, or 3, meaning:
-%                   1: denoise with exactly 10 PC regressors
-%                   2: denoise with each of 0 to 10 PC regressors
-%                   3: various controls
-%               [default=1]
+% -----------------
+% subjects     : Vector of subject numbers one would like to denoise
+% howToDenoise : 1, 2, or 3, meaning:
+%                   1) denoise with exactly 10 PC regressors
+%                   2) denoise with each of 0 to 10 PC regressors
+%                   3) various controls
+%                [default=1]
 %
 % DESCRIPTION: Wrapper function to denoise multiple MEG visual steady
 % state data sets. The results of the denoising are written to file and can
@@ -36,12 +37,12 @@ end
 % ------------------------------------------------------------------------
 
 % Preprocessing parameters to remove bad channels and epochs (see dfdPreprocessData)
-varThreshold        = [0.05 20];%[0.05 30];
+varThreshold        = [0.05 20];
 badChannelThreshold = 0.2;
 badEpochThreshold   = 0.2;
-use3Channels        = false;
-removeFirstEpoch    = true;
-removeMsEpochs      = false;
+use3Channels        = false; if use3Channels;     opt.use3Channels     = 1; end
+removeFirstEpoch    = true;  if removeFirstEpoch; opt.removeFirstEpoch = 1; end
+removeMsEpochs      = false; if removeMsEpochs;   opt.removeMsEpochs   = 1; end
 
 %% Get frequencies to define stimulus locked and asynchronous broadband power
 % Data are sampled at 1000 Hz and epoched in one-second bins. Hence
@@ -69,11 +70,6 @@ bb_frequencies      = f(ab_i);
 % Define functions to define noise pool and signal of interest
 evokedfun           = @(x)getstimlocked(x,sl_freq_i); % function handle to determine noise pool
 evalfun             = @(x)getbroadband(x,keep_frequencies,1000);  % function handle to compuite broadband with a sample rate of 1 kHz
-
-% Define options for denoising that are equal for each type of denoising
-if use3Channels;    opt.use3Channels     = 1; else opt.use3Channels     = 0; end
-if removeFirstEpoch;opt.removeFirstEpoch = 1; else opt.removeFirstEpoch = 0; end
-if removeMsEpochs;  opt.removeMsEpochs   = 1; else opt.removeMsEpochs   = 0; end
 
 switch howToDenoise % Define denoise other parameters (see denoisedata.m)
     case 1 % Denoise with exactly 10 PC regressors
@@ -121,7 +117,9 @@ for whichSubject = subjects
     % ------------------ Load data and design ----------------------------
     tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's%02d_sensorData.mat'),whichSubject)); sensorData = tmp.sensorData;
     tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's%02d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
-%     tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 'eye', 's%02d_epochswithms.mat'),whichSubject)); msepochidx = cat(1,tmp.allEpochsWithMS{:});
+    
+    if removeMsEpochs,
+    tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 'eye', 's%02d_epochswithms.mat'),whichSubject)); msepochidx = cat(1,tmp.allEpochsWithMS{:}); end
 
 
     % ------------------ Make design matrix ------------------------------
@@ -144,10 +142,12 @@ for whichSubject = subjects
     % ---- Define first epochs in order to remove later ------------------
     if removeFirstEpoch, badEpochs(1:6:end) = 1; end
     
-%     % ---- Label epochs with microsaccades as bad epochs ------------------
-    onlyMS = ones(1,length(badEpochs));
-    onlyMS(msepochidx)=0;
-    if removeMsEpochs, badEpochs(find(onlyMS')) = 1; end
+    % ---- Label epochs with microsaccades as bad epochs ------------------
+    if removeMsEpochs, 
+        onlyMS = ones(1,length(badEpochs));
+        onlyMS(msepochidx)=0;
+        badEpochs(find(onlyMS')) = 1; 
+    end
      
     % -------------- Remove bad epochs and channels ----------------------
     sensorData      = sensorData(:,~badEpochs, ~badChannels);
@@ -169,7 +169,7 @@ for whichSubject = subjects
             optbb.pccontrolmode   = nrControl;
             if nrControl == 0;    % do nothing to postFix in filename
             else postFix          = sprintf('_control%d',nrControl); end
-            [results,evalout,~,denoisedts_bb] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
+            [results,evalout,~,denoisedts_bb] = denoisedata(design,sensorData,evokedfun,evalfun,optbb); %#ok<ASGLU>
             if saveDenoisedts; save(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's%02d_denoisedts.mat'),whichSubject),'denoisedts_bb'); end
             
         elseif nrControl == 5
