@@ -7,10 +7,10 @@ This denoising suite was developed on MATLAB Version 8.4 and is described in the
 Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J. Heeger, Jonathan Winawer
 
 
-——————— Matlab toolbox dependencies —————
-Statistics Toolbox (v 9.1)
-Signal Processing Toolbox (v 6.22)
-Neural Network Toolbox (v 8.2.1)
+** Matlab toolbox dependencies**
+* Statistics Toolbox (v 9.1)
+* Signal Processing Toolbox (v 6.22)
+* Neural Network Toolbox (v 8.2.1)
 
 
 ————————— Other toolbox dependencies ———————
