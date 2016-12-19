@@ -75,54 +75,41 @@ OUTPUT:
 ——-—- Example 1: Download raw data and denoise -------
 —————————————————————————————————————————————————————-
 
-% Prepare data sets.  In the Matlab prompt, type:
-dfdAddPaths
-dfdAddFieldtripPath
+	% Prepare data sets.  In the Matlab prompt, type:
+	addpath(genpath(pwd))
+	dfdAddFieldtripPath
 
-% Define path to save data
-savePth = '~/myFolder/denoiseproject/exampleAnalysis/data';
+	% Download the sample data. Slow. Do this once to download 8 raw data sets.
+	dfdDownloadSampleData([],1:8,'raw');  
 
-dfdDownloadSampleData(savePth,1:8,'raw') % Slow. Do this once to download 8 raw data sets.
+	% Denoise with exactly 10 PCs. Slow. Do this once to denoise 8 data sets.
+	dfdDenoiseWrapper(1:8,1); % 
 
-% Denoise with exactly 10 PCs
-dfdDenoiseWrapper(1:8,1) 				 % Slow. Do this once to denoise 8 data sets.
+	% Denoise up to 10 PCs. Slow. Do this once to denoise 8 data sets.
+	dfdDenoiseWrapper(1:8,2); 
 
-% Denoise up to 10 PCs
-dfdDenoiseWrapper(1:8,2) 				 % Slow. Do this once to denoise 8 data sets.
+	% Denoise with control methods. Slow. Do this once to denoise 8 data sets.
+	dfdDenoiseWrapper(1:8,3) 				 % 	
 
-% Denoise with control methods
-dfdDenoiseWrapper(1:8,3) 				 % Slow. Do this once to denoise 8 data sets.
+	%  Recreate figure 4 from manuscript. 
+	dfdMakeFigure4();
 
-% Denoise for Supplementary Figure 1
-dfdDenoiseVaryEpochLength(1:8) 		     % Slow. Do this once to denoise 8 data sets.
-
-% Denoise for Supplementary Figure 2
-dfdDenoiseDifferentNPCsNoisePools(1:8) 	 % Slow. Do this once to denoise 8 data sets.
-
-
-%  Recreate figure 4 from manuscript. 
-dfdMakeFigure4()
-
-%  Recreate all figures from manuscript. 
-DFDmakeallfigures()
+	%  Recreate all figures from manuscript. 
+	dfdMakeallfigures();
 
 —————————————————————————————————————————————————————-
 —— Example 2: Download denoised data and plot fig7 ---
 —————————————————————————————————————————————————————-
 
-% Prepare data sets.  In the Matlab prompt, type:
-dfdAddPaths
-dfdAddFieldtripPath
+	% Prepare data sets.  
+	addpath(genpath(pwd));
+	dfdAddFieldtripPath();
 
-% Define path to save data
-savePth = '~/myFolder/denoiseproject/exampleAnalysis/data';
+	% Download sample data. Slow. Do this once to download 8 raw data sets.
+	dfdDownloadSampleData([],1:8,'denoised 10 pcs') 
+	
+	% Denoise with exactly 10 PCs. Slow. Do this once to denoise 8 data sets.
+	dfdDenoiseWrapper(1:8,1) 				
 
-dfdDownloadSampleData(savePth,1:8,'denoised 10 pcs') % Slow. 
-										 % Do this once to download 8 denoised data sets.
-
-% Denoise with exactly 10 PCs
-dfdDenoiseWrapper(1:8,1) 				 % Slow. Do this once to denoise 8 data sets.
-
-%  Recreate figure 7 from manuscript. 
-dfdMakeFigure7()
-
+	%  Recreate figure 7 from manuscript. 
+	dfdMakeFigure7()
