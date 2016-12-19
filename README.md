@@ -2,91 +2,67 @@ Welcome to our Denoise project code repository!
 
 General purpose denoising suite that denoises EEG/MEG/ECoG data
 
-This denoising suite is was developed on MATLAB Version 8.4
+This denoising suite was developed on MATLAB Version 8.4 and is described in the manuscript in preparation,
+*Broadband spectral responses in visual cortex revealed by a new MEG denoising algorithm*
+Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J. Heeger, Jonathan Winawer
 
-———————————————————————————
 
 ——————— Matlab toolbox dependencies —————
-
-———————————————————————————
-
 Statistics Toolbox (v 9.1)
 Signal Processing Toolbox (v 6.22)
 Neural Network Toolbox (v 8.2.1)
 
-——————————————————————————————
 
 ————————— Other toolbox dependencies ———————
-
-——————————————————————————————
-
 Fieldtrip toolbox (v ??)
 
-—————————————————————————————
 
 ————————————— Folder structure ——————————————
 
-————————————————————————————
 
-alternativeAnalysis  :  (Under construction) Folder with 
-		scripts to use alternative analyses, such as 
-		independent component analysis (ICA), to denoise MEG code.
+denoisedata.m:  Main function to denoise time series.
 
-exampleAnalysis      :  Folder with code and possibility
-		to download and store data to run analysis from 
-		the paper and make all manuscript figures.
+dfdAddPaths.m:  Add paths with functions to make this repository run smoothly.
 		
-Contains: - data folder:
-		Empty folder to store data. Example data downloaded 
-		by dfdDownloadSampleData will be written here by default.
-		This folder contains a .gitignore file to prevent 
-		large data files from being added to the repository. 
+dfdAddFieldtripPaths.m: Add paths of Fieldtrip toolbox to plot data on a sensormap or to use ICA function.
+
+external (folder): Contains functions from other toolboxes, repositories or researchers 
+
+analysis (folder): Contains code to download, store, and analyze data from manuscript
+	
+	analysis contents:
+		data (folder):
+			Empty folder to store data. Example data downloaded 
+			by dfdDownloadSampleData will be written here by default.
+			This folder contains a .gitignore file to prevent 
+			large data files from being added to the repository. 
 		
-		- denoise_subfunctions folder:
-		 Folder with subfunctions used by the dfdDenoiseWrapper
-		 in order to denoise the data of all subjects for this 
-		 particular steady state study.
+		denoise_subfunctions (folder):
+			Folder with subfunctions used by the dfdDenoiseWrapper
+			in order to denoise the data of all subjects for this 
+			particular steady state study.
 		 
-		- figure_scripts folder:
-		 Functions to make figures 4-12 plus two supplementary
-		 figures from the manuscript.
+		figure_scripts (folder):
+		 Functions to make figures 4-14 for the manuscript.
 		 
-		- figures folder:
-		Empty folder where figures will be saved in .eps format,
-		 if requested. This folder contains a .gitignore file to prevent 
-		 large image files from being added to the repository.
+		figures (folder):
+			Empty folder where figures made by figure_scipts will be saved.
+			This folder contains a .gitignore file to prevent 
+			large image files from being added to the repository.
 		 
-		- dfdDenoiseWrapper.m:
-		Function to denoise data for all subjects in three different
-		ways. (1) Denoise with exactly 10 principle components (PCs) 
-		(2) Denoise with all PCs between 0 and 10. 
-		(3) Denoise with various control methods, for example scramble 
-		the phases of the Fourier component, etc.
+		dfdDownloadSampleData.m: 
+			Function to download sample data for all subjects from the web.
+
+		dfdDenoiseWrapper.m:
+			Function to denoise sample data for all subjects 
 		
-		- dfdDownloadSampleData.m: 
-		Function to download
-		sample data for all subjects from the web.
 		
-		- dfdMakeAllFigures.m:
-		Script to make all figures from the manuscript.
+		dfdMakeAllFigures.m:
+			Script to make all figures from the manuscript.
 
-External	 	     :  General functions from other 
-		toolboxes, repositories or researchers 
-
-denoisedata.m		 :  Main function to denoise time series.
-
-dfdAddPaths.m		 :  Add paths with functions to make 
-		this repository run smoothly.
-		
-dfdAddFieldtripPaths.m	: Add paths of Fieldtrip toolbox to plot
-		data on a sensormap or to use ICA function.
-
-
-——————————————————————————————————
 
 —————————— General flow of denoise data function —————————————————
 
-——————————————————————————————————
 
 INPUT:
 
