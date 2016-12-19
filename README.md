@@ -21,24 +21,13 @@ Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J. Heeger, Jon
 * dfdAddFieldtripPaths.m: Add paths of Fieldtrip toolbox to plot data on a sensormap or to use ICA function.
 * external (folder): Contains functions from other toolboxes, repositories or researchers 
 * analysis (folder): Contains code to download, store, and analyze data from manuscript	
-* data (folder): Empty folder to store data. Example data downloaded by dfdDownloadSampleData will be written here by default. This folder contains a .gitignore file to prevent large data files from being added to the repository. 
-* denoise_subfunctions (folder): Folder with subfunctions used by the dfdDenoiseWrapper in order to denoise the data of all subjects for this particular steady state study.
-* figure_scripts (folder): Functions to make figures 4-14 for the manuscript.
-		 
-		figures (folder):
-			Empty folder where figures made by figure_scipts will be saved.
-			This folder contains a .gitignore file to prevent 
-			large image files from being added to the repository.
-		 
-		dfdDownloadSampleData.m: 
-			Function to download sample data for all subjects from the web.
-
-		dfdDenoiseWrapper.m:
-			Function to denoise sample data for all subjects 
-		
-		
-		dfdMakeAllFigures.m:
-			Script to make all figures from the manuscript.
+ * data (folder): Empty folder to store data. Example data downloaded by dfdDownloadSampleData will be written here by default. This folder contains a .gitignore file to prevent large data files from being added to the repository. 
+ * denoise_subfunctions (folder): Folder with subfunctions used by the dfdDenoiseWrapper in order to denoise the data of all subjects for this particular steady state study.
+ * figure_scripts (folder): Functions to make figures 4-14 for the manuscript.
+ * figures (folder): Empty folder where figures made by figure_scipts will be saved. This folder contains a .gitignore file to prevent large image files from being added to the repository.
+ * dfdDownloadSampleData.m: Function to download sample data for all subjects from the web.
+ * dfdDenoiseWrapper.m: Function to denoise sample data for all subjects 
+ * dfdMakeAllFigures.m: Script to make all figures from the manuscript.
 
 **General flow of denoise data function**
 
