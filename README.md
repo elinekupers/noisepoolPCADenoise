@@ -12,10 +12,8 @@ Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J. Heeger, Jon
 * Signal Processing Toolbox (v 6.22)
 * Neural Network Toolbox (v 8.2.1)
 
-
 **Other toolbox dependencies**
 * Fieldtrip toolbox (v ??)
-
 
 **Folder structure**
 * denoisedata.m:  Main function to denoise time series.
@@ -23,20 +21,9 @@ Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J. Heeger, Jon
 * dfdAddFieldtripPaths.m: Add paths of Fieldtrip toolbox to plot data on a sensormap or to use ICA function.
 * external (folder): Contains functions from other toolboxes, repositories or researchers 
 * analysis (folder): Contains code to download, store, and analyze data from manuscript	
-	analysis contents:
-		data (folder):
-			Empty folder to store data. Example data downloaded 
-			by dfdDownloadSampleData will be written here by default.
-			This folder contains a .gitignore file to prevent 
-			large data files from being added to the repository. 
-		
-		denoise_subfunctions (folder):
-			Folder with subfunctions used by the dfdDenoiseWrapper
-			in order to denoise the data of all subjects for this 
-			particular steady state study.
-		 
-		figure_scripts (folder):
-		 Functions to make figures 4-14 for the manuscript.
+* data (folder): Empty folder to store data. Example data downloaded by dfdDownloadSampleData will be written here by default. This folder contains a .gitignore file to prevent large data files from being added to the repository. 
+* denoise_subfunctions (folder): Folder with subfunctions used by the dfdDenoiseWrapper in order to denoise the data of all subjects for this particular steady state study.
+* figure_scripts (folder): Functions to make figures 4-14 for the manuscript.
 		 
 		figures (folder):
 			Empty folder where figures made by figure_scipts will be saved.
