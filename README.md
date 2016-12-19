@@ -7,29 +7,22 @@ This denoising suite was developed on MATLAB Version 8.4 and is described in the
 Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J. Heeger, Jonathan Winawer
 
 
-** Matlab toolbox dependencies**
+**Matlab toolbox dependencies**
 * Statistics Toolbox (v 9.1)
 * Signal Processing Toolbox (v 6.22)
 * Neural Network Toolbox (v 8.2.1)
 
 
-————————— Other toolbox dependencies ———————
-Fieldtrip toolbox (v ??)
+**Other toolbox dependencies**
+* Fieldtrip toolbox (v ??)
 
 
-————————————— Folder structure ——————————————
-
-
-denoisedata.m:  Main function to denoise time series.
-
-dfdAddPaths.m:  Add paths with functions to make this repository run smoothly.
-		
-dfdAddFieldtripPaths.m: Add paths of Fieldtrip toolbox to plot data on a sensormap or to use ICA function.
-
-external (folder): Contains functions from other toolboxes, repositories or researchers 
-
-analysis (folder): Contains code to download, store, and analyze data from manuscript
-	
+**Folder structure**
+* denoisedata.m:  Main function to denoise time series.
+* dfdAddPaths.m:  Add paths with functions to make this repository run smoothly.		
+* dfdAddFieldtripPaths.m: Add paths of Fieldtrip toolbox to plot data on a sensormap or to use ICA function.
+* external (folder): Contains functions from other toolboxes, repositories or researchers 
+* analysis (folder): Contains code to download, store, and analyze data from manuscript	
 	analysis contents:
 		data (folder):
 			Empty folder to store data. Example data downloaded 
@@ -60,8 +53,7 @@ analysis (folder): Contains code to download, store, and analyze data from manus
 		dfdMakeAllFigures.m:
 			Script to make all figures from the manuscript.
 
-
-—————————— General flow of denoise data function —————————————————
+**General flow of denoise data function**
 
 
 INPUT:
