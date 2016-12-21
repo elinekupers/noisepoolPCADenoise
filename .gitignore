@@ -1,5 +1,6 @@
 *.m~
 ._*
+*.DS_Store
 rsync_aliases.sh
 hpcreadme.rtf
 readme.rtf
