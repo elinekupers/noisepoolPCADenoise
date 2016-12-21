@@ -83,10 +83,6 @@ switch howToDenoise % Define denoise other parameters (see denoisedata.m)
         postFix               = '';
         saveDenoisedts        = true;
         
-        %% TEST (REMOVE ME)
-        optbb.resampling      = {'xval','xval'};
-        %%
-        
     case 2 % Denoise with each of 0 to 10 PC regressors
         opt.pcchoose          = 1.05;   % Get threshold for optimal nr of PCs
         opt.npcs2try          = '';     % empy string means up to nr of channels in noise pool
