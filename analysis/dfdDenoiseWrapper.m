@@ -170,7 +170,7 @@ for whichSubject = subjects
             optbb.pccontrolmode   = nrControl;
             if nrControl == 0;    % do nothing to postFix in filename
             else postFix          = sprintf('_control%d',nrControl); end
-            [results,evalout,~,denoisedts_bb] = denoisedata(design,sensorData,evokedfun,evalfun,optbb); %#ok<ASGLU>
+            [results,evalout,~,denoisedts_bb] = denoisedata(design,sensorData,evokedfun,evalfun,optbb); 
             if saveDenoisedts; save(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's%02d_denoisedts.mat'),whichSubject),'denoisedts_bb'); end
             
         elseif nrControl == 5

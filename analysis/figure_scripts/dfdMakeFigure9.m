@@ -15,7 +15,7 @@ function dfdMakeFigure9()
 % function. 
 
 %% Choices to make:                                              
-whichSubject    = 9;        % Subject 1 is the example subject.
+whichSubject    = 1;        % Subject 1 is the example subject.
 figureDir       = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to save images?
 dataDir         = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?
 saveFigures     = true;     % Save figures in the figure folder?
@@ -28,7 +28,7 @@ data_hdr        = [];
 bb = prepareData(dataDir,whichSubject,9);
 
 %% Plot stimulus-locked signal, broadband before and after denoising on sensormap
-figure('position',[1,600,1400,800], 'Name', 'Figure 9 example subject', 'NumberTitle', 'off');
+figure('position',[1,600,1400,800], 'Name', 'Figure 9, example subject', 'NumberTitle', 'off');
 condNames = {'Stim Full','Stim Left','Stim Right'};
 for icond = 1:3
     % get broadband snr for before and after denoising

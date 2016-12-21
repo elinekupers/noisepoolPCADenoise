@@ -65,7 +65,9 @@ for icond = 1:3
     % format figure and make things pretty 
     set(gca,'xlim',[0.2,nnull+0.8],'ylim',[-1,5]);
     makeprettyaxes(gca,9,9);
-    set(gca,'XTickLabel',types(neworder),'XTickLabelRotation',45)
+    set(gca,'XTickLabel',types(neworder));
+%     set(gca,'XTickLabelRotation',45);
+    set(get(gca,'XLabel'),'Rotation',45); 
     ylabel('Difference in SNR (post-pre)')
 end
 

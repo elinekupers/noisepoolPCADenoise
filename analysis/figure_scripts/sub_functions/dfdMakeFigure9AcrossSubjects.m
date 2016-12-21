@@ -15,7 +15,7 @@ function dfdMakeFigure9AcrossSubjects()
 % function.
 
 %% Choices to make:
-whichSubjects    = [13,15,17,19];        % Subject 1 is the example subject.
+whichSubjects    = [1:8]; %[13,15,17,19];        % Subject 1 is the example subject.
 % whichSubjects    = [9:12];%[14,16,18,20];        % Subject 1 is the example subject.
 figureDir       = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to save images?
 dataDir         = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?
@@ -67,7 +67,7 @@ end
 
 
 %% Plot stimulus-locked signal, broadband before and after denoising on sensormap
-figure('position',[1,600,1400,800], 'Name', 'Figure 9 group data', 'NumberTitle', 'off');
+figure('position',[1,600,1400,800], 'Name', 'Figure 9, group data', 'NumberTitle', 'off');
 for icond = 1:numel(contrastNames)
     
     % get broadband snr before denoising

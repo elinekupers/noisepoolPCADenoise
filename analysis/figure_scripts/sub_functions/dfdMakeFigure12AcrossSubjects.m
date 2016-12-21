@@ -1,7 +1,7 @@
-function dfdMakeFigure13AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
+function dfdMakeFigure12AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
 %% Function to reproduce Figure 13 (Spatialmap) across CiNet dataset subjects
 %
-% dfdMakeFigure5AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
+% dfdMakeFigure12AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
 %
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
@@ -90,5 +90,5 @@ for row = 1:4 % stimulus contrasts
 end
 
 if saveFigures
-    figurewrite(sprintf(fullfile(figureDir,'figure13_AcrossSubject%d_bipolar_threshold%d_%s'),whichSubject, threshold, figName),[],0,'.',1);
+    figurewrite(sprintf(fullfile(figureDir,'figure12_AcrossSubject%d_bipolar_threshold%d_%s'),whichSubject, threshold, figName),[],0,'.',1);
 end

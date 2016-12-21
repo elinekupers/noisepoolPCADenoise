@@ -13,7 +13,7 @@ function dfdMakeFigure10()
 % function.
 
 %% Choices to make:
-whichSubjects        = 6:8;
+whichSubjects        = 1:8;
 dataDir              = fullfile(dfdRootPath, 'analysis', 'data');   % Where to save data?
 figureDir            = fullfile(dfdRootPath, 'analysis', 'figures');% Where to save images?
 saveFigures          = true;   % Save figures in the figure folder?
