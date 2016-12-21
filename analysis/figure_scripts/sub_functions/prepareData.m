@@ -5,7 +5,7 @@ switch whichFigure
         % Load denoised data
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_sensorData.mat'),whichSubject));
-        load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));
+        load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_denoisedts.mat'),whichSubject));
         
         exampleChannel = 42;
@@ -38,42 +38,42 @@ switch whichFigure
         
     case {5, 13, 14}
         % Load denoised stimulus locked and broadband data
-        bb = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject)); 
-        sl = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_sl.mat'),whichSubject));
+        bb = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject)); 
+        sl = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_sl.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         data = {bb,sl};
         
     case 7
-        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_full_rm1epoch_bb.mat'),whichSubject));        
+        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_full_bb.mat'),whichSubject));        
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         
     case 8
-        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));
+        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         
     case 9
-        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));
+        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         
     case 10
-        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_onlyMS_rm1epoch_bb.mat'),whichSubject));
+        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         
     case 11
         for nrControl = 1:5
-            data_controls{nrControl} = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_control%d_rm1epoch_bb.mat'),whichSubject,nrControl)); %#ok<AGROW>
+            data_controls{nrControl} = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_control%d_bb.mat'),whichSubject,nrControl)); %#ok<AGROW>
         end
-        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));
+        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject)); 
         data = {data,data_controls};
         
     case 12
-        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_sl.mat'),whichSubject));
+        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_sl.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
     
     case 'SF1'
         data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_varyEpochLength_NrPCs_bb.mat'), whichSubject));
-        data1 = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_rm1epoch_bb.mat'),whichSubject));
+        data1 = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject));
         data.badEpochs = data1.badEpochs;
         data.badChannels = data1.badChannels;
         

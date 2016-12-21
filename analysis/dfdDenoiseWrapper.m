@@ -40,6 +40,7 @@ end
 varThreshold        = [0.05 20];
 badChannelThreshold = 0.2;
 badEpochThreshold   = 0.2;
+opt.verbose         = true;
 use3Channels        = false; if use3Channels;     opt.use3Channels     = 1; end
 removeFirstEpoch    = true;  if removeFirstEpoch; opt.removeFirstEpoch = 1; end
 removeMsEpochs      = false; if removeMsEpochs;   opt.removeMsEpochs   = 1; end
@@ -81,6 +82,10 @@ switch howToDenoise % Define denoise other parameters (see denoisedata.m)
         nrControlModes        = 0;
         postFix               = '';
         saveDenoisedts        = true;
+        
+        %% TEST (REMOVE ME)
+        optbb.resampling      = {'xval','xval'};
+        %%
         
     case 2 % Denoise with each of 0 to 10 PC regressors
         opt.pcchoose          = 1.05;   % Get threshold for optimal nr of PCs
