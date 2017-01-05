@@ -107,7 +107,7 @@ if ~exist('exampleChannel','var')
     
     if whichFigure == 5;
         design = [];
-    elseif whichFigure == 13;
+    elseif whichFigure == 12;
         design = [];
     elseif whichFigure == 14;
         design = [];

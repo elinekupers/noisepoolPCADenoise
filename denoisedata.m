@@ -398,8 +398,8 @@ function [out,datast] = evalmodel(design,data,func,how,opt)
 % beta   : betas for the fit [nperms x channels]
 
 % check inputs
-if ~isfield(opt,'xvalmaxperm'), opt.xvalmaxperm = 100;   end
-if ~isfield(opt,'nboot'),       opt.nboot = 100;   end
+if ~isfield(opt,'xvalmaxperm'), opt.xvalmaxperm = 1000;   end
+if ~isfield(opt,'nboot'),       opt.nboot = 1000;   end
 
 % datast should be dimensions [epochs x channels]
 datast = func(data);

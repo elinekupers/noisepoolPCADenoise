@@ -126,5 +126,5 @@ for icond = 1:numel(contrastNames)
 end
 
 if saveFigures
-    printnice(gcf,0,figureDir,sprintf('figure5_AcrossSubject%d_bipolar_threshold%d_raw',whichSubject, threshold));
+    print(fullfile(figureDir,sprintf('figure5_AcrossSubject%d_bipolar_threshold%d_raw',whichSubject, threshold)), '-depsc');
 end

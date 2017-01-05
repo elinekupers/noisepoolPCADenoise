@@ -32,7 +32,7 @@ end
 %% Load denoised data of all subjects
 for whichSubject = whichSubjects
     subjnum = find(whichSubject==whichSubjects);
-    data = prepareData(dataDir,whichSubject,13);
+    data = prepareData(dataDir,whichSubject,12);
     bb(subjnum) = data{1};
     sl(subjnum) = data{2};
     
