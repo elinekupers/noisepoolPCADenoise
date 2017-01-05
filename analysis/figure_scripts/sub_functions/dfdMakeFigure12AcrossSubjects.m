@@ -14,7 +14,8 @@ function dfdMakeFigure12AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigur
 % function.
 
 %% Compute SNR across subjects
-contrasts = [1 0 0; 0 1 0; 0 0 1; 0 -1 1]; % Full, Right, Left and L-R
+contrasts = [eye(3); 0 1 -1];
+contrasts = bsxfun(@rdivide, contrasts, sqrt(sum(contrasts.^2,2)));
 computeSNR    = @(x) nanmean(x,3) ./ nanstd(x, [], 3);
 contrastNames = {
     'Full'...

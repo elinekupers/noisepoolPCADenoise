@@ -14,7 +14,8 @@ function dfdMakeFigure14AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigur
 % function.
 
 %% Compute SNR across subjects
-contrasts = [1 0 0; 0 1 0; 0 0 1; 0 1 -1]; % Full, Left, Right and L-R
+contrasts = [eye(3); 0 1 -1];
+contrasts = bsxfun(@rdivide, contrasts, sqrt(sum(contrasts.^2,2)));
 computeSNR    = @(x) nanmean(x,3) ./ nanstd(x, [], 3);
 contrastNames = {
     'Full'...
@@ -23,11 +24,11 @@ contrastNames = {
     'Left-Right'
     };
 
-if isequal(whichSubjects,[1:8]);
+if isequal(whichSubjects,1:8)
     str = {'SL raw' 'BB raw' 'BB MEG Denoise'}; figName = 'RAW';
-elseif isequal(whichSubjects,[21:28]);
+elseif isequal(whichSubjects,21:28)
     str = {'SL raw' 'BB CALM' 'BB CALM + MEG Denoise'}; figName = 'CALM';
-elseif isequal(whichSubjects,[29:36]);
+elseif isequal(whichSubjects,29:36)
     str = {'SL raw' 'BB TSPCA' 'BB TSPCA + MEG Denoise'}; figName = 'TSPCA';    
 end
 
@@ -92,5 +93,5 @@ for row = 1:4 % stimulus contrasts
 end
 
 if saveFigures
-    figurewrite(sprintf(fullfile(figureDir,'figure14_AcrossSubject%d_bipolar_threshold%d_%s'),whichSubject, threshold, figName),[],0,'.',1);
+    hgexport(gcf,fullfile(sprintf(figureDir,'figure14_AcrossSubject%d_bipolar_threshold%d_%s'),whichSubject, threshold, figName));
 end

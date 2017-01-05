@@ -23,8 +23,8 @@ saveFigures     = true;     % Save figures in the figure folder?
 threshold       = 0;
 
 %% Compute SNR across subjects
-contrasts = [1 0 0; 0 1 0; 0 0 1; 0 1 -1]; % Full, Left, Right and L-R
-
+contrasts = [eye(3); 0 1 -1];
+contrasts = bsxfun(@rdivide, contrasts, sqrt(sum(contrasts.^2,2))); % Full, Left, Right and L-R
 computeSNR    = @(x) nanmean(x,3) ./ nanstd(x, [], 3);
 % computeSignal = @(x) nanmean(x,3);
 
@@ -126,5 +126,5 @@ for icond = 1:numel(contrastNames)
 end
 
 if saveFigures
-    print(fullfile(figureDir,sprintf('figure5_AcrossSubject%d_bipolar_threshold%d_raw',whichSubject, threshold)), '-depsc');
+    hgexport(gcf,fullfile(figureDir,sprintf('figure5_AcrossSubject%d_bipolar_threshold%d_raw.eps',whichSubject, threshold)));
 end
