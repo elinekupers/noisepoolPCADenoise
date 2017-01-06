@@ -21,7 +21,7 @@ badChannels = results.badChannels; clear results
 % the data matrix after removing bad channels (exampleChannel in actual
 % channel space)
 
-startEpoch = 1;
+startEpoch = 503;
 nrEpochs   = 36;
 
 chanNum0 = exampleIndex;
