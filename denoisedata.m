@@ -22,7 +22,7 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 %
 % opt       : options
 %     npoolmethod : noise pool selection method (see selectnoisepool for details)
-%                   (default = {'r2','n',75})
+%                   (default = {'snr','n',75})
 %     epochgroup  : for grouping epochs together for denoising [epoch x 1] vector
 %                   (default = 1:nepoch)
 %     npcs2try    : number of pcs to try. if empty, then try up to the
@@ -90,7 +90,7 @@ function [results,evalout,denoisedspec,denoisedts] = denoisedata(design,data,evo
 if notDefined('evokedfun'), error('evokedfun needs to be defined');    end
 if notDefined('evalfun'),   evalfun   = evokedfun;                     end
 if notDefined('opt'),       opt       = struct();                      end
-if ~isfield(opt,'npoolmethod'),   opt.npoolmethod = {'r2','n',75};     end
+if ~isfield(opt,'npoolmethod'),   opt.npoolmethod = {'snr','n',75};     end
 if ~isfield(opt,'epochgroup'),    opt.epochgroup  = 1:nepoch;          end
 if ~isfield(opt,'npcs2try'),      opt.npcs2try    = 10;                end
 if ~isfield(opt,'fitbaseline'),   opt.fitbaseline = false;             end
