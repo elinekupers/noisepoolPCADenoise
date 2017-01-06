@@ -26,6 +26,9 @@ switch whichFigure
         [sensorData, badChannels0, badEpochs0] = dfdPreprocessData(sensorData(:,:,dataChannels), ...
             varThreshold, badChannelThreshold, badEpochThreshold, use3Channels);
         
+        % ---- Define first epochs in order to remove later ------------------
+        badEpochs0(1:6:end) = 1; 
+
         % Remove bad channels and bad epochs from data and conditions
         sensorData = sensorData(:,~badEpochs0, ~badChannels0);
                  

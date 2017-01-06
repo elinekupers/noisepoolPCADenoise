@@ -40,6 +40,17 @@ for dd = 1:2 % for either pre and post denoising
     % blank conditions
     meanXfreqs{dd}(1,:) = mean(epoch_vals_full);
     meanXfreqs{dd}(2,:) = mean(epoch_vals_blank);
+    
+    pct = prctile(meanXfreqs{dd}(1,:), [16, 50, 84]);
+    signal = pct(2);
+    noise  = (pct(3)-pct(1))/2;
+    fprintf('Signal: %4.2f\tNoise: %4.2f\tSNR:%4.2f\n', signal, noise, signal/noise);
+
+    pct = prctile(meanXfreqs{dd}(2,:), [16, 50, 84]);
+    signal = pct(2);
+    noise  = (pct(3)-pct(1))/2;
+    fprintf('Signal: %4.2f\tNoise: %4.2f\tSNR:%4.2f\n', signal, noise, signal/noise);
+
 end
 
 % Set up figure and plot
@@ -70,8 +81,14 @@ for dd = dataToPlot;
     ylim([0,0.45]);set(gca,'ytick',0:0.2:0.4);
     xlabel('Mean power (fT^2)'); ylabel('Fraction of bootstraps');
     makeprettyaxes(gca,9,9);
+
+    pct = prctile(diffMeanFreq, [16, 50, 84]);
+    signal = pct(2);
+    noise  = (pct(3)-pct(1))/2;
+    fprintf('Signal: %4.2f\tNoise: %4.2f\tSNR:%4.2f\n', signal, noise, signal/noise);
     
 end
+
 
 
 if saveFigures
