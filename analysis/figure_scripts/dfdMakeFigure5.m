@@ -30,8 +30,7 @@ sl = data{2};
 
 %% Plot stimulus-locked signal, broadband before and after denoising on sensormap
 figure('position',[1,600,1400,800]); set(gcf, 'Name', 'Figure 5, Example subject', 'NumberTitle', 'off');
-condNames = {'Stim Full','Stim Left','Stim Right'};
-contrastNames = [condNames 'Left minus Right'];
+contrastNames = {'Stim Full','Stim Left','Stim Right','Left minus Right'};
 contrasts = [eye(3); 0 1 -1];
 contrasts = bsxfun(@rdivide, contrasts, sqrt(sum(contrasts.^2,2)));
 yscaleAB = [repmat([-8,-4,0,4,8],3,1);[-5,-2.5,0,2.5,5]];
@@ -57,7 +56,7 @@ for icond = 1:size(contrasts,1)
     ab_snr1(abs(ab_snr1) < threshold) = 0;
     sl_snr1(abs(sl_snr1) < threshold) = 0;
    
-    if icond > 3 % then we are plotting l-r rather than one condition
+    if icond > 3 % then we are plotting l-r rather than one condition and change the colormap limits
         climsAB = [-5.5363, 5.5363]; 
     end
 
@@ -66,17 +65,17 @@ for icond = 1:size(contrasts,1)
     [~,ch] = megPlotMap(sl_snr1,climsSL,gcf,'bipolar',sprintf('%s : Stimulus Locked Original', contrastNames{icond}),data_hdr,cfg);
     makeprettyaxes(ch,9,9);
     set(ch,'YTick',[-20,-10,0,10,20]);
-    title(sprintf('SL no DN %s', contrastNames{icond}))
     
     subplot(4,2,(icond-1)*2+2)
-    [~,ch] = megPlotMap(ab_snr1,climsAB,gcf,'bipolar',sprintf('%s Original', contrastNames{icond}),data_hdr,cfg);
+    [~,ch] = megPlotMap(ab_snr1,climsAB,gcf,'bipolar',sprintf('%s : Broadband Original', contrastNames{icond}),data_hdr,cfg);
     makeprettyaxes(ch,9,9);
     set(ch,'YTick',yscaleAB(icond,:));
-    title(sprintf('Broadband Pre %s', contrastNames{icond}))
 
 end
 
-if saveFigures
+ if saveFigures
+    % Note: our function figurewrite is extremely slow with Matlab 2016b,
+    % therefore we use hgexport()
     hgexport(gcf,fullfile(figureDir, sprintf('figure5_examplesubject%d_bipolar_thresh%d.eps',whichSubject, threshold)));
 end
 

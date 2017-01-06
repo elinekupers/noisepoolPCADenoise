@@ -28,13 +28,9 @@ dataAll = [];
 for whichSubject = whichSubjects
     fprintf('Load data subject %d \n', whichSubject);
     % Load data, design, and get example subject
-    dataAll = prepareData(dataDir,whichSubject,13);
+    dataAll = prepareData(dataDir,whichSubject,13); 
 
-
-%% Plot SNR vs number of PCs change for all channels 
-
-% Get results for everybody and top10 channels for everybody
-
+    % Get results for everybody and top10 channels for everybody
     allpcchan{whichSubject} = getTop10(dataAll.results);
     allresults{whichSubject} = dataAll.results;
 end
@@ -61,7 +57,7 @@ for t = 1:numel(datatypes);
 end
 
 if saveFigures
-        figurewrite(fullfile(figureDir,'Figure13_s_n_full_sat'),[],0,'.',1);
+   hgexport(gcf,fullfile(figureDir,'Figure13_s_n_full_sat')));
 end
 
 

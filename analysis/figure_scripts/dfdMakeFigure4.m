@@ -18,7 +18,6 @@ function dfdMakeFigure4()
 % function. 
 
 
-
 %% Choices to make:
 whichSubject    = 1;     % Subject 1 has the example channel.
 figureDir       = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to save images?
