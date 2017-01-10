@@ -130,8 +130,8 @@ for whichSubject = subjects
     design(conditions==7,3) = 1; % condition 7 is right field
     % condition 3 is blank
     
-    % ------------- Combine channels if NeuroMag360 data -------------
-    if whichSubject > 8
+    % ------------- Combine channels if CiNet data -------------
+    if whichSubject > 8 && whichSubject < 21 
         optbb.npoolmethod = {'r2','n',100};
         optsl.npoolmethod = {'r2','n',100};
     end
@@ -144,10 +144,15 @@ for whichSubject = subjects
     if removeFirstEpoch, badEpochs(1:6:end) = 1; end
     
     % ---- Label epochs with microsaccades as bad epochs ------------------
-    if removeMsEpochs, 
+    if removeMsEpochs 
         onlyMS = ones(1,length(badEpochs));
         onlyMS(msepochidx)=0;
         badEpochs(find(onlyMS')) = 1; 
+    end
+    
+    % ---- If CALM or TSPCA data, make sure we use 1000 ms epochs, one second shifted ----
+    if whichSubject > 20 || whichSubject < 29
+        sensorData = sensorData(2:end,:,:);
     end
      
     % -------------- Remove bad epochs and channels ----------------------
