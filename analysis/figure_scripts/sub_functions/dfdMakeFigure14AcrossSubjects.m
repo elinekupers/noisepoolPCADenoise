@@ -1,8 +1,19 @@
-function dfdMakeFigure14AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
+function data = dfdMakeFigure14AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
 %% Function to reproduce Figure 14 (Spatialmap) across CiNet dataset subjects
 %
-% dfdMakeFigure12AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
+% data = dfdMakeFigure14AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
 %
+% INPUTS:
+% whichSubjects : (element or vector) subject number of datasets you want to plot (see
+%                   subjectDescription.rtf for info about datasets)
+% figureDir     : (string) folder where to save the figure
+% dataDir       : (string) folder where to find the data
+% saveFigures   : (boolean) save the figure
+% threshold     : (element) number to set limit for colormap
+%
+% OUTPUTS:
+% data          : (cell) data of the plotted meshes
+
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
 % This figure will show an interpolated spatial map of the SNR values in
@@ -17,7 +28,7 @@ function dfdMakeFigure14AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigur
 contrasts = [eye(3); 0 1 -1];
 contrasts = bsxfun(@rdivide, contrasts, sqrt(sum(contrasts.^2,2)));
 computeSNR    = @(x) nanmean(x,3) ./ nanstd(x, [], 3);
-contrastNames = {'Full','Right','Left','Left-Right'};
+contrastNames = {'Full','Left','Right','Left-Right'};
 
 if isequal(whichSubjects,[9:12]);
     str = {'SL raw' 'BB raw' 'BB MEG Denoise'}; figName = 'RAW';

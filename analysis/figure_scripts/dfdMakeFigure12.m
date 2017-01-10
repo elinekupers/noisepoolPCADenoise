@@ -1,7 +1,7 @@
 function dfdMakeFigure12
-%% Function to reproduce Figure 12 (Spatialmap) across CiNet dataset subjects
+%% Function to reproduce Figure 12 (Spatialmap) across NYU dataset subjects having no, CALM or TSPCA preprocessing
 %
-% dfdMakeFigure5AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
+% dfdMakeFigure12AcrossSubjects()
 %
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
@@ -18,24 +18,22 @@ figureDir           = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to s
 dataDir             = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?
 saveFigures     	= false;     % Save figures in the figure folder?
 threshold           = 0;
-
-num_cols = 7;
-meshData = cell(1,num_cols);
+numCols             = 7;
+meshData            = cell(1,numCols);
 %% Get denoising results for raw (no preprocessing) data
 % Makes columns 1,2,5
 whichSubjectsRaw    = 1:8;                % Raw
-meshData([1 2 5]) = dfdMakeFigure14AcrossSubjects(whichSubjectsRaw,figureDir,dataDir,saveFigures,threshold);
+meshData([1 2 5]) = dfdMakeFigure12AcrossSubjects(whichSubjectsRaw,figureDir,dataDir,saveFigures,threshold);
 
 %% Get denoising results for CALM preprocessed data
 % Makes columns 3,6
 whichSubjectsCALM   = 21:28;              % CALM
-meshData([1 3 6]) = dfdMakeFigure14AcrossSubjects(whichSubjectsCALM,figureDir,dataDir,saveFigures,threshold);
+meshData([1 3 6]) = dfdMakeFigure12AcrossSubjects(whichSubjectsCALM,figureDir,dataDir,saveFigures,threshold);
 
 %% Get denoising results for TSPCA preprocessed data
 % Makes columns 4,7
 whichSubjectsTSPCA  = 29:36;              % TSPCA
-meshData([1 4 7]) =  dfdMakeFigure14AcrossSubjects(whichSubjectsTSPCA,figureDir,dataDir,saveFigures,threshold);
-
+meshData([1 4 7]) =  dfdMakeFigure12AcrossSubjects(whichSubjectsTSPCA,figureDir,dataDir,saveFigures,threshold);
 
 %% Make bar graph
 

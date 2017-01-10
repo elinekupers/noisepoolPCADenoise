@@ -2,7 +2,7 @@ function dfdMakeFigure14()
 
 %% Function to reproduce Figure 14 (Spatialmap) across all subjects of CiNet dataset
 %
-% dfdMakeFigure12()
+% dfdMakeFigure14()
 %
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
@@ -19,15 +19,17 @@ figureDir           = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to s
 dataDir             = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?
 saveFigures     	= true;     % Save figures in the figure folder?
 threshold           = 0;
+numCols             = 7;
+meshData            = cell(1,numCols);
 
 %% Get denoising results for raw data
 whichSubjectsRaw    = 9:12;                % Raw
-dfdMakeFigure14AcrossSubjects(whichSubjectsRaw,figureDir,dataDir,saveFigures,threshold)
+meshData([1 3]) = dfdMakeFigure14AcrossSubjects(whichSubjectsRaw,figureDir,dataDir,saveFigures,threshold);
 
 
 %% Get denoising results for tsss data
 whichSubjectsTSSS   = [14,16,18,20];       % TSSS
-dfdMakeFigure14AcrossSubjects(whichSubjectsTSSS,figureDir,dataDir,saveFigures,threshold)
+meshData([2 4]) = dfdMakeFigure14AcrossSubjects(whichSubjectsTSSS,figureDir,dataDir,saveFigures,threshold);
 
 %% Make bar graph
 

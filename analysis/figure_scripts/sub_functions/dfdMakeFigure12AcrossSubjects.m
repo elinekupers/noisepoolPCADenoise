@@ -1,7 +1,18 @@
 function data = dfdMakeFigure12AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
-%% Function to reproduce Figure 12 (Spatialmap) across CiNet dataset subjects
+%% Function to reproduce Figure 12 (Spatialmap) across NYU dataset subjects having no, CALM or TSPCA preprocessing
 %
-% dfdMakeFigure5AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
+% data = dfdMakeFigure12AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
+%
+% INPUTS:
+% whichSubjects : (element or vector) subject number of datasets you want to plot (see
+%                   subjectDescription.rtf for info about datasets)
+% figureDir     : (string) folder where to save the figure
+% dataDir       : (string) folder where to find the data
+% saveFigures   : (boolean) save the figure
+% threshold     : (element) number to set limit for colormap
+%
+% OUTPUTS:
+% data          : (cell) data of the plotted meshes
 %
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
@@ -88,5 +99,5 @@ for row = 1:4 % stimulus contrasts
 end
 
 if saveFigures
-    hgexport(gcf,fullfile(figureDir,sprintf('figure14_AcrossSubject%d_bipolar_threshold%d_%s',whichSubject, threshold, figName)));
+    hgexport(gcf,fullfile(figureDir,sprintf('figure12_AcrossSubject%d_threshold%d_%s',whichSubject, threshold, figName)));
 end
