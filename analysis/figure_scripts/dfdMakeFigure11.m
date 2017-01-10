@@ -38,8 +38,10 @@ for k = 1:length(whichSubjects)
     % compute the difference between pre and post
     for icond = 1:3
         for nn = 1:length(results_null)
-            snr_pre  = getsignalnoise(results_null{nn}.results.origmodel,icond);
-            snr_post = getsignalnoise(results_null{nn}.results.finalmodel,icond);
+            the_contrast = [0 0 0];
+            the_contrast(icond) = 1;
+            snr_pre  = getsignalnoise(results_null{nn}.results.origmodel,the_contrast);
+            snr_post = getsignalnoise(results_null{nn}.results.finalmodel,the_contrast);
             snr_diff(k,nn,icond) = mean(snr_post(pcchan)-snr_pre(pcchan));
         end
     end
@@ -50,7 +52,8 @@ fH = figure('position',[0,300,700,300]);
 % define what the different conditions are 
 types = {'MEG Denoise','Order shuffled','Random Amplitude','Phase-scrambled','Replace PCs with random values','All channels in noisepool'}; % 
 % re-arrange the order of the bars 
-neworder = [1,5,6];
+%neworder = [1,5,6];
+neworder = [1,4,6];
 newtypes = types(neworder);
 
 snr_diff2 = snr_diff(:,neworder,:);
@@ -59,7 +62,7 @@ for icond = 1:3
     subplot(1,3,icond);
     % mean and sem across subjects 
     mn  = mean(snr_diff2(:,:,icond));
-    sem = std(snr_diff2(:,:,icond))/sqrt(8);
+    sem = std(snr_diff2(:,:,icond))/sqrt(length(whichSubjects));
     bar(1:nnull, mn,'EdgeColor','none','facecolor',colors(icond,:)); hold on
     errorbar2(1:nnull,mn,sem,1,'-','color',colors(icond,:));
     % format figure and make things pretty 

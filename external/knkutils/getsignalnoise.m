@@ -3,14 +3,14 @@ function out = getsignalnoise(model,whichContrasts,whichOutput,badChannels)
 % whichbeta: condition number, e.g., 1, or 1:3
 % type: what to return, e.g., 'SNR'
 num_conditions = size(model.beta,1);
-num_contrasts  = size(whichContrasts,1);
-if notDefined('type'), whichOutput = 'SNR'; end
+if notDefined('whichOutput'), whichOutput = 'SNR'; end
 if notDefined('whichContrasts'), whichContrasts = eye(num_conditions); end
 if notDefined('badChannels') 
     if size(model.beta,2) > 157; badChannels = zeros(1, 204);
     else, badChannels = zeros(1, 157); end; 
 end
 
+num_contrasts  = size(whichContrasts,1);
 assert(isequal(size(whichContrasts, 2), num_conditions))
 
 % Combine boots of channels if using Elekta system

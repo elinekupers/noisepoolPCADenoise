@@ -1,4 +1,4 @@
-function dfdMakeFigure5()
+function dfdMakeFigure5(whichSubject)
 %% Function to reproduce Figure 5 (Spatialmap) from example subject 
 %
 % dfdMakeFigure5()
@@ -14,7 +14,9 @@ function dfdMakeFigure5()
 % function. 
 
 %% Choices to make:                                              
-whichSubject    = 1;        % Subject 1 is the example subject.
+if notDefined('whichSubject')
+    whichSubject    = 1;        % Subject 1 is the example subject.
+end
 figureDir       = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to save images?
 dataDir         = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?
 saveFigures     = true;     % Save figures in the figure folder?
@@ -77,7 +79,7 @@ end
     % Note: our function figurewrite is extremely slow with Matlab 2016b,
     % therefore we use hgexport()
     hgexport(gcf,fullfile(figureDir, sprintf('figure5_examplesubject%d_bipolar_thresh%d.eps',whichSubject, threshold)));
-end
+ end
 
 %% Now call dfdMakeFigure5AcrossSubjects
 dfdMakeFigure5AcrossSubjects();

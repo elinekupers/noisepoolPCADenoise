@@ -32,7 +32,7 @@ for k = 1:length(whichSubjects)
     % Before
     subplot(2,8,k)
     
-    ab_snr1 = getsignalnoise(data.results.origmodel(1),  1, 'SNR',data.badChannels);
+    ab_snr1 = getsignalnoise(data.results.origmodel(1),  [1 0 0], 'SNR',data.badChannels);
     ab_snr1 = to157chan(ab_snr1,~data.badChannels,'nans');
     [~,ch] = megPlotMap(ab_snr1,[-8,8],gcf,'bipolar',sprintf('S %d', k));
     set(ch,'YTick',[-8,-4,0,4,8]);
@@ -40,7 +40,7 @@ for k = 1:length(whichSubjects)
     
     % After
     subplot(2,8,length(whichSubjects)+k)
-    ab_snr2 = getsignalnoise(data.results.finalmodel(1),  1, 'SNR',data.badChannels);
+    ab_snr2 = getsignalnoise(data.results.finalmodel(1),  [1 0 0], 'SNR',data.badChannels);
     ab_snr2 = to157chan(ab_snr2,~data.badChannels,'nans');
     [~,ch] = megPlotMap(ab_snr2,[-8,8],gcf,'bipolar',sprintf('S %d', k));
     set(ch,'YTick',[-8,-4,0,4,8]);
