@@ -1,7 +1,7 @@
-function dfdMakeFigure12AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
-%% Function to reproduce Figure 13 (Spatialmap) across CiNet dataset subjects
+function data = dfdMakeFigure12AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
+%% Function to reproduce Figure 12 (Spatialmap) across CiNet dataset subjects
 %
-% dfdMakeFigure12AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
+% dfdMakeFigure5AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
 %
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
@@ -17,23 +17,20 @@ function dfdMakeFigure12AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigur
 contrasts = [eye(3); 0 1 -1];
 contrasts = bsxfun(@rdivide, contrasts, sqrt(sum(contrasts.^2,2)));
 computeSNR    = @(x) nanmean(x,3) ./ nanstd(x, [], 3);
-contrastNames = {
-    'Full'...
-    'Right'...
-    'Left'...
-    'Left-Right'
-    };
+contrastNames = {'Full','Left','Right','Left-Right'};
 
-if isequal(whichSubjects,[9:12]);
+if isequal(whichSubjects,1:8)
     str = {'SL raw' 'BB raw' 'BB MEG Denoise'}; figName = 'RAW';
-elseif isequal(whichSubjects,[14,16,18,20]);
-    str = {'SL raw' 'BB TSSS' 'BB TSSS + MEG Denoise'}; figName = 'TSSS';
+elseif isequal(whichSubjects,21:28)
+    str = {'SL raw' 'BB CALM' 'BB CALM + MEG Denoise'}; figName = 'CALM';
+elseif isequal(whichSubjects,29:36)
+    str = {'SL raw' 'BB TSPCA' 'BB TSPCA + MEG Denoise'}; figName = 'TSPCA';    
 end
 
 %% Load denoised data of all subjects
 for whichSubject = whichSubjects
     subjnum = find(whichSubject==whichSubjects);
-    data = prepareData(dataDir,whichSubject,12);
+    data = prepareData(dataDir,whichSubject,14);
     bb(subjnum) = data{1};
     sl(subjnum) = data{2};
     
@@ -84,12 +81,12 @@ for row = 1:4 % stimulus contrasts
     for col = 1:3 % types of analyses (sl, bb-pre, bb-post)
         subplot(4,3,3*(row-1)+col),
         if col == 1, clim = [-15 15]; else clim = [-4 4]; end
-        megPlotMap(dfd204to102(squeeze(mean(data{col}(row,:,:),3))), ...
+        megPlotMap(squeeze(mean(data{col}(row,:,:),3)), ...
             clim, [], cmap);        
         if row == 1, title(str{col}); end
     end
 end
 
 if saveFigures
-    figurewrite(sprintf(fullfile(figureDir,'figure12_AcrossSubject%d_bipolar_threshold%d_%s'),whichSubject, threshold, figName),[],0,'.',1);
+    hgexport(gcf,fullfile(figureDir,sprintf('figure14_AcrossSubject%d_bipolar_threshold%d_%s',whichSubject, threshold, figName)));
 end
