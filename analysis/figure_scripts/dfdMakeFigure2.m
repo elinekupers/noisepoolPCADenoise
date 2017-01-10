@@ -3,7 +3,7 @@ function dfdMakeFigure2()
 whichSubject    = 1;     % Subject 1 has the example channel.
 figureDir       = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to save images?
 dataDir         = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?
-saveFigures     = false;  % Save figures in the figure folder?
+saveFigures     = true;  % Save figures in the figure folder?
                                          
 % Define plot colors
 colors          = dfdGetColors(4);
@@ -21,7 +21,7 @@ badChannels = results.badChannels; clear results
 % the data matrix after removing bad channels (exampleChannel in actual
 % channel space)
 
-startEpoch = 503;
+startEpoch = 85;%503;
 nrEpochs   = 36;
 
 chanNum0 = exampleIndex;
@@ -48,7 +48,7 @@ end
 %% Plot power spectrum of the example time series - Fig 3B
 % chanNum0 41, epoch 4
 
-epochNum = startEpoch+2;
+epochNum = startEpoch+4;
 spec = abs(fft(squeeze(sensorData(chanNum0(end),:,:))))/size(sensorData,2)*2;
 this_data = spec(:,epochNum).^2; % calculate power
 
@@ -151,7 +151,7 @@ imagesc(design_colored); colormap(condColors)
 makeprettyaxes(gca,9,9); axis off;
 
 if saveFigures
-    figurewrite(fullfile(figuredir, 'figure2D_design'),[],-1,'.',1);
+    figurewrite(fullfile(figureDir, 'figure2D_design'),[],-1,'.',1);
 end
 
 %% calculate beta - Figure 3E
