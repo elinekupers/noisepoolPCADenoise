@@ -10,10 +10,12 @@ function savePth = dfdDownloadsampledata(savePth, whichSubjects, whichDataTypes)
 %                   [default = fullfile(dfdRootPath,'analysis','data')];
 %
 %   whichSubjects: Vector of one or more data sets (
-%       [1:8]:          Main experiment
-%       [19:12] :       Neuromag unprocessed
-%       [13 15 17 19] : Neuromag preprocessed with SSS denoising
-%       [14 16 18 20] : Neuromag preprocessed with tSSS denoising
+%       [1:8]:          NYU datasets 1-8
+%       [9:12] :        CiNet datasets 1-4
+%       [13 15 17 19] : CiNet datasets 1-4 with SSS denoising
+%       [14 16 18 20] : CiNet datasets 1-4 with tSSS denoising
+%       [21:28] :       NYU datasets 1-8, with CALM denoising
+%       [29:36] :       NYU datasets 1-8, with TSPCA denoising
 %                   [default=1:8]
 %
 %   whichDataTypes: Cell array of one or more of  {'raw' ...

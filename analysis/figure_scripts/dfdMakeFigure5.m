@@ -47,12 +47,13 @@ for icond = 1:size(contrasts,1)
     
 
 
-    if whichSubject < 9 % CiNet data is already converted when combining the channels
-        % convert NYU data back into 157-channel space  
-        sl_snr1 = to157chan(sl_snr1,~sl.badChannels,'nans');
-        ab_snr1 = to157chan(ab_snr1,~bb.badChannels,'nans');
-           
-    end
+    sl_snr1 = to157chan(sl_snr1,~sl.badChannels,'nans');
+    ab_snr1 = to157chan(ab_snr1,~bb.badChannels,'nans');
+
+    if length(bb.badChannels)>157
+        sl_snr1 = dfd204to102(sl_snr1);
+        ab_snr1 = dfd204to102(ab_snr1);
+    end  
     
     % Threshold if requested
     ab_snr1(abs(ab_snr1) < threshold) = 0;
@@ -75,6 +76,7 @@ for icond = 1:size(contrasts,1)
 
 end
 
+return
  if saveFigures
     % Note: our function figurewrite is extremely slow with Matlab 2016b,
     % therefore we use hgexport()

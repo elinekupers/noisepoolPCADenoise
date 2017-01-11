@@ -1,4 +1,4 @@
-function [fH,ch] = megPlotMap(sensor_data,clims,fH,cm,ttl,data_hdr,cfg)
+function [fH,ch] = megPlotMap(sensor_data,clims,fH,cm,ttl,data_hdr,cfg, varargin)
 
 if notDefined('cm'),       cm = 'parula';    end  % colormap
 if notDefined('ttl');      ttl = '';      end  % title string
@@ -46,6 +46,25 @@ opt = {'interpmethod','v4',... How to interpolate the data?
         'mask',cfg.layout.mask,... 
         'datmask', []};
 
+% check for input options (in paired parameter name / value)
+if exist('varargin', 'var')
+     for ii = 1:2:length(varargin)
+         % paired parameter and value
+         parname = varargin{ii};
+         val     = varargin{ii+1};
+         
+         % check wehther this parameter exists in the defaults
+         existingparnames = opt(1:2:end);
+         tmp = strfind(existingparnames, parname);
+         idx = find(cellfun(@(x) ~isempty(x), tmp));
+         
+         % if so, replace it; if not add it to the end of opt
+         if ~isempty(idx), opt{idx+1} = val;
+         else, opt{end+1} = parname; opt{end+1} = val; end
+            
+            
+     end
+end
 %% Do the plotting
 ft_plot_topo(chanX,chanY,cfg.data, opt{:});
 

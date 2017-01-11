@@ -13,20 +13,22 @@ end
 num_contrasts  = size(whichContrasts,1);
 assert(isequal(size(whichContrasts, 2), num_conditions))
 
-% Combine boots of channels if using Elekta system
-if size(model.beta,2) > 157
-    if sum(badChannels) >= 1
-        % Identify bad channels in data
-        dataIn = nan(num_conditions,204,100);
-        dataIn(:,~badChannels,:) = model.beta(:,:,:); 
-        beta = nanmean([dataIn(:,1:2:end,:);dataIn(:,2:2:end,:)],1);
-    else
-        beta = mean([model.beta(:,1:2:end,:);model.beta(:,2:2:end,:)],1);
-    end
-else
-    beta = model.beta;
+% % Combine boots of channels if using Elekta system
+% if size(model.beta,2) > 157
+%     if sum(badChannels) >= 1
+%         % Identify bad channels in data
+%         dataIn = nan(num_conditions,204,100);
+%         dataIn(:,~badChannels,:) = model.beta(:,:,:); 
+%         beta = nanmean([dataIn(:,1:2:end,:);dataIn(:,2:2:end,:)],1);
+%     else
+%         beta = mean([model.beta(:,1:2:end,:);model.beta(:,2:2:end,:)],1);
+%     end
+% else
+%     beta = model.beta;
+% 
+% end
 
-end
+beta = model.beta;
 
 % Signal is max of betas across conditions. Noise is mean of se across
 % conditions.

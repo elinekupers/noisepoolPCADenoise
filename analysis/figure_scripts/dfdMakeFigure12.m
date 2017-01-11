@@ -38,7 +38,7 @@ meshData([1 4 7]) =  dfdMakeFigure12AcrossSubjects(whichSubjectsTSPCA,figureDir,
 %% Make bar graph
 
 % Get top ten across conditions for each subject
-snr_diff = zeros(length(whichSubjectsRaw),size(meshData,2)-1,3); % All broadband columns
+snr_mn = zeros(length(whichSubjectsRaw),size(meshData,2)-1,3); % All broadband columns
 for whichSubject = 1:size(whichSubjectsRaw,2)
     
     
@@ -71,10 +71,8 @@ for whichSubject = 1:size(whichSubjectsRaw,2)
     for thisColumn = 2:size(meshData,2)
         % compute the difference between pre and post
         for icond = 1:3
-            snr_pre   = meshData{2}(icond,finalpcchan(whichSubject,:),whichSubject); % Second column is undenoised Broadband
-            snr_post  = meshData{thisColumn}(icond,finalpcchan(whichSubject,:),whichSubject);
-            
-            snr_diff(whichSubject,thisColumn-1,icond) = mean(snr_post-snr_pre);
+            snr_post  = meshData{thisColumn}(icond,finalpcchan(whichSubject,:),whichSubject);            
+            snr_mn(whichSubject,thisColumn-1,icond) = mean(snr_post);
             
         end
     end
@@ -86,7 +84,7 @@ for thisColumn = 1:size(meshData,2)-1
     for otherColumn = find([1:size(meshData,2)-1]~=thisColumn)
         for icond = 1:3
             
-            [h,p] = ttest(snr_diff(:,thisColumn,icond),snr_diff(:,otherColumn,icond));
+            [h,p] = ttest(snr_mn(:,thisColumn,icond),snr_mn(:,otherColumn,icond));
             
             out(thisColumn,otherColumn,icond) = p;
         end
@@ -98,26 +96,23 @@ fH = figure('position',[0,300,700,300]);
 % define what the different conditions are
 types = {'MEG Raw - Sanity check','CALM','TSPCA','MEG Denoise','MEG Denoise + CALM','MEG Denoise + TSPCA'}; %
 % re-arrange the order of the bars
-neworder = [1:6];
-newtypes = types(neworder);
 colors = dfdGetColors(3);
 
-snr_diff2 = snr_diff(:,neworder,:);
-nnull = length(neworder);
+nnull = length(types);
 for icond = 1:3
     subplot(1,3,icond);
     % mean and sem across subjects
-    mn  = mean(snr_diff2(:,:,icond));
-    sem = std(snr_diff2(:,:,icond))/sqrt(8);
+    mn  = mean(snr_mn(:,:,icond));
+    sem = std(snr_mn(:,:,icond))/sqrt(8);
     bar(1:nnull, mn,'EdgeColor','none','facecolor',colors(icond,:)); hold on
     errorbar2(1:nnull,mn,sem,1,'-','color',colors(icond,:));
     % format figure and make things pretty
-    set(gca,'xlim',[0.2,nnull+0.8],'ylim',[-1,5]);
+    set(gca,'xlim',[0.2,nnull+0.8],'ylim',[0,7]);
     makeprettyaxes(gca,9,9);
-    set(gca,'XTickLabel',types(neworder));
+    set(gca,'XTickLabel',types);
     set(gca,'XTickLabelRotation',45);
     %     set(get(gca,'XLabel'),'Rotation',45);
-    ylabel('Difference in broadband SNR (post-pre)')
+    ylabel('Broadband SNR')
 end
 
 if saveFigures

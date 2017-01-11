@@ -26,6 +26,9 @@ dataDir         = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save 
 fH = figure('position',[1,600,1400,800]); set(gcf, 'Color','w');
 
 %% Load denoised data of example subject
+numrows = ceil(sqrt(length(whichSubjects)));
+numcols = ceil(length(whichSubjects) / numrows);
+
 for whichSubject = whichSubjects
     [data] = prepareData(dataDir,whichSubject,5);
     bb = data{1};
@@ -38,9 +41,10 @@ for whichSubject = whichSubjects
     % Define binary color range
     clims = [0,1];
     
-    subplot(length(whichSubjects)/2, 2, find(whichSubject==whichSubjects));
+    subplot(numrows, numcols, find(whichSubject==whichSubjects));
     % Plot
-    [~,ch] = megPlotMap(noisepool,clims,gcf,'gray',sprintf('S%d',whichSubject));
+    [~,ch] = megPlotMap(noisepool,clims,gcf,'gray', ...
+        sprintf('S%d',whichSubject), [], [], 'interpmethod', 'nearest');
     makeprettyaxes(ch,9,9);
     colorbar('YTick',[0 1], 'YTicklabel',{'Not in noise pool','In noise pool'}, 'FontSize', 9)
 
