@@ -93,7 +93,7 @@ for row = 1:4 % stimulus contrasts
         subplot(4,3,3*(row-1)+col),
         if col == 1, clim = [-15 15]; else clim = [-4 4]; end
         megPlotMap(squeeze(mean(data{col}(row,:,:),3)), ...
-            clim, [], cmap);        
+            clim, [], cmap); drawnow;        
         if row == 1, title(str{col}); end
     end
 end
