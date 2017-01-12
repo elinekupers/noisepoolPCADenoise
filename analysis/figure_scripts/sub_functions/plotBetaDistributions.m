@@ -54,7 +54,7 @@ for dd = 1:2 % for either pre and post denoising
 end
 
 % Set up figure and plot
-fH = figure; set(fH,'position',[0,200,400,200], 'Name', plotstr, 'NumberTitle', 'off');
+fH = figure; set(fH,'position',[0,200,400,400], 'Name', plotstr, 'NumberTitle', 'off');
 if figNum == 4; dataToPlot = 1; elseif figNum == 6; dataToPlot = 1:2;
 else disp('This figure number does not contain a distribution panel'); end
 for dd = dataToPlot;
@@ -67,7 +67,7 @@ for dd = dataToPlot;
     bar(vals,n(:,1)/1000,'facecolor',colors(1,:),'edgecolor','none'); hold on;
     bar(vals,n(:,2)/1000,'facecolor',[0.5,0.5,0.5],'edgecolor','none');
     xlim([min(vals),max(vals)]); set(gca,'xtick',min(vals):4:max(vals));
-    ylim([0,0.45]);set(gca,'ytick',0:0.2:0.4);
+    ylim([0,0.5]);set(gca,'ytick',0:0.2:0.4);
     xlabel('Mean power (fT^2)'); ylabel('Fraction of bootstraps');
     makeprettyaxes(gca,9,9);
     
@@ -93,7 +93,7 @@ end
 
 if saveFigures
     if figNum == 4; fname = sprintf('Figure4cFullDistributionBootDiff%d',exampleChannel);
-    elseif figNum == 6; fname = sprintf('Figure7bFullDistributionBootDiff%d',exampleChannel); end    
+    elseif figNum == 6; fname = sprintf('Figure6bFullDistributionBootDiff%d',exampleChannel); end    
     figurewrite(fullfile(figureDir,fname),[],0,'.',1);    
 end
 end
