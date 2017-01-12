@@ -87,14 +87,15 @@ for thisColumn = 1:size(meshData,2)-1
             [h,p] = ttest(snr_mn(:,thisColumn,icond),snr_mn(:,otherColumn,icond));
             
             out(thisColumn,otherColumn,icond) = p;
+            
         end
     end
 end
-
+disp(out)
 %% Plot figure
 fH = figure('position',[0,300,700,300]);
 % define what the different conditions are
-types = {'MEG Raw - Sanity check','CALM','TSPCA','MEG Denoise','MEG Denoise + CALM','MEG Denoise + TSPCA'}; %
+types = {'Raw','CALM','TSPCA','MEG Denoise','MEG Denoise + CALM','MEG Denoise + TSPCA'}; %
 % re-arrange the order of the bars
 colors = dfdGetColors(3);
 

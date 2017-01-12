@@ -30,9 +30,9 @@ function printnice(figs,mode,directory,prefix)
 % NOTE: removed special eps pixel mode (see old printnice.m)
 % SEE: figurewrite.m
 
-warning('[%s]: Not printing. Change code to use hgepxort rather than printnice', mfilename);
-
-return
+% warning('[%s]: Not printing. Change code to use hgepxort rather than printnice', mfilename);
+% 
+% return
 %--------------------------------------------------------------
 
 % input

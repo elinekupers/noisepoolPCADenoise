@@ -38,29 +38,29 @@ snr_mn = zeros(length(whichSubjectsRaw),size(meshData,2)-1,3); % All broadband c
 for whichSubject = 1:size(whichSubjectsRaw,2)
     
     
-   for ii = [whichSubjectsRaw(whichSubject),whichSubjectsTSSS(whichSubject)]
-       thisSubjectIdx = ii==[whichSubjectsRaw(whichSubject),whichSubjectsTSSS(whichSubject)];
+    for ii = [whichSubjectsRaw(whichSubject),whichSubjectsTSSS(whichSubject)]
+        thisSubjectIdx = ii==[whichSubjectsRaw(whichSubject),whichSubjectsTSSS(whichSubject)];
         % Get noisepool info
         dd = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),ii));
-        badChannels = dd.badChannels; 
-        noisePool(thisSubjectIdx,:) = to157chan(dd.results.noisepool,~badChannels,1); clear dd   
-   end
-   noisePoolAcrossDenoisingConditions(whichSubject,:) = any(noisePool);
+        badChannels = dd.badChannels;
+        noisePool(thisSubjectIdx,:) = to157chan(dd.results.noisepool,~badChannels,1); clear dd
+    end
+    noisePoolAcrossDenoisingConditions(whichSubject,:) = any(noisePool);
     
-   % Extract data
-   theseData = zeros(size(meshData,2)-1,3,size(noisePool,2));
-   for thisColumn = 2:size(meshData,2)
-       theseData(thisColumn-1,:,:) = meshData{thisColumn}(1:3,:,whichSubject);
-   end
-
-   % Get max snr across the three conditions
-   thissnr = max(reshape(theseData,[],size(noisePool,2)));
-   thissnr(noisePoolAcrossDenoisingConditions(whichSubject,:)) = -inf;
-   [~,idx] = sort(thissnr,'descend');
-   thispcchan = false(size(noisePoolAcrossDenoisingConditions(whichSubject,:)));
-   thispcchan(idx(1:10))= 1;
+    % Extract data
+    theseData = zeros(size(meshData,2)-1,3,size(noisePool,2));
+    for thisColumn = 2:size(meshData,2)
+        theseData(thisColumn-1,:,:) = meshData{thisColumn}(1:3,:,whichSubject);
+    end
     
-   finalpcchan(whichSubject,:) = thispcchan;
+    % Get max snr across the three conditions
+    thissnr = max(reshape(theseData,[],size(noisePool,2)));
+    thissnr(noisePoolAcrossDenoisingConditions(whichSubject,:)) = -inf;
+    [~,idx] = sort(thissnr,'descend');
+    thispcchan = false(size(noisePoolAcrossDenoisingConditions(whichSubject,:)));
+    thispcchan(idx(1:10))= 1;
+    
+    finalpcchan(whichSubject,:) = thispcchan;
     
     
     for thisColumn = 2:size(meshData,2)
@@ -76,30 +76,39 @@ end
 %% Plot figure
 fH = figure('position',[0,300,700,300]);
 % define what the different conditions are
-types = {'MEG Raw - Sanity check','TSSS','MEG Denoise','MEG Denoise + TSSS'}; %
+types = {'Raw','TSSS','MEG Denoise','MEG Denoise + TSSS'}; %
 colors = dfdGetColors(3);
+
+plotOrder = [1 3 2 4];
+newOrder = types(plotOrder);
+
+satValues = 1-linspace(0.1,1,4);
+colorSaturated = varysat(colors,satValues);
 
 nnull = length(types);
 for icond = 1:3
-    subplot(1,3,icond);
+    subplot(1,3,icond); hold on;
     % mean and sem across subjects
-    mn  = mean(snr_mn(:,:,icond));
-    sem = std(snr_mn(:,:,icond))/sqrt(4);
-    bar(1:nnull, mn,'EdgeColor','none','facecolor',colors(icond,:)); hold on
-    errorbar2(1:nnull,mn,sem,1,'-','color',colors(icond,:));
-    
-%     plot(1:nnull, snr_mn(:,:,icond)', 'o-', ... 'Color', colors(icond,:)', ...
-%         'MarkerEdgeColor',colors(icond,:),'MarkerFaceColor', 'w')
-%     
+    %     mn  = mean(snr_mn(:,:,icond));
+    %     sem = std(snr_mn(:,:,icond))/sqrt(4);
+    %     bar(1:nnull, mn,'EdgeColor','none','facecolor',colors(icond,:)); hold on
+    %     errorbar2(1:nnull,mn,sem,1,'-','color',colors(icond,:));
+   for whichSubject = 1:4
+        plot([1 2], snr_mn(whichSubject,[1 3],icond), 'o-', 'Color', squeeze(colorSaturated(icond,whichSubject,:)), ...
+            'MarkerEdgeColor',colors(icond,:),'MarkerFaceColor', 'w', 'LineWidth', 2)
+        
+        plot([3 4], snr_mn(whichSubject,[2 4],icond), 'o-', 'Color', squeeze(colorSaturated(icond,whichSubject,:)), ...
+            'MarkerEdgeColor',colors(icond,:),'MarkerFaceColor', 'w', 'LineWidth', 2)
+   end
     % format figure and make things pretty
-    set(gca,'xlim',[0.2,nnull+0.8],'ylim',[0,8]);
+    set(gca,'xlim',[0.2,nnull+0.8],'ylim',[-3,12]);
     makeprettyaxes(gca,9,9);
-    set(gca,'XTickLabel',types);
+    set(gca,'XTickLabel',newOrder, 'XTick', 1:4);
     set(gca,'XTickLabelRotation',45);
-%     set(get(gca,'XLabel'),'Rotation',45);
+    %     set(get(gca,'XLabel'),'Rotation',45);
     ylabel('Broadband SNR')
 end
 
 if saveFigures
-    figurewrite(fullfile(figureDir,'figure14b_bargraphTSSS'),[],0,'.',1);
+    figurewrite(fullfile(figureDir,'figure14b_linegraphTSSS'),[],0,'.',1);
 end
