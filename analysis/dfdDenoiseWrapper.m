@@ -73,7 +73,7 @@ evokedfun           = @(x)getstimlocked(x,sl_freq_i); % function handle to deter
 evalfun             = @(x)getbroadband(x,keep_frequencies,1000);  % function handle to compuite broadband with a sample rate of 1 kHz
 
 switch howToDenoise % Define denoise other parameters (see denoisedata.m)
-    case 1 % Denoise with exactly 10 PC regressors
+    case {1, 4} % Denoise with exactly 10 PC regressors
         opt.pcchoose          = -10;   % Take 10 PCs
         opt.npcs2try          = [];
         optsl                 = opt;
@@ -102,6 +102,7 @@ switch howToDenoise % Define denoise other parameters (see denoisedata.m)
         nrControlModes        = 1:5;   % All control modes
         postFix               = 'control';  
         saveDenoisedts        = false;
+        
 end
 
 % ------------------------------------------------------------------------
@@ -151,7 +152,7 @@ for whichSubject = subjects
     end
     
     % ---- If CALM or TSPCA data, make sure we use 1000 ms epochs, one second shifted ----
-    if whichSubject > 20 || whichSubject < 29
+    if whichSubject > 20 && whichSubject < 29
         sensorData = sensorData(2:end,:,:);
     end
      
@@ -165,9 +166,14 @@ for whichSubject = subjects
 % ------------------------------------------------------------------------
 % -------------------- Denoise and save the data -------------------------
 % ------------------------------------------------------------------------
+if howToDenoise == 4
+    optbb.epochgroup = ones(1,size(sensorData,3));
+    optsl.epochgroup = ones(1,size(sensorData,3));
+    postFix          = '_denoise_all';   
+end
     
     % ------------------ Denoise for broadband analysis ------------------
-    for nrControl = nrControlModes;   
+    for nrControl = nrControlModes   
         
         optbb.preprocessfun   = @(x) bbFilter(x, bb_frequencies);
 

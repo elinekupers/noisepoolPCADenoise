@@ -1,32 +1,14 @@
-function out = getsignalnoise(model,whichContrasts,whichOutput,badChannels)
+function out = getsignalnoise(model,whichContrasts,whichOutput,varargin)
 % returns signal, noise, or snr from modelfit
 % whichbeta: condition number, e.g., 1, or 1:3
 % type: what to return, e.g., 'SNR'
 num_conditions = size(model.beta,1);
 if notDefined('whichOutput'), whichOutput = 'SNR'; end
 if notDefined('whichContrasts'), whichContrasts = eye(num_conditions); end
-if notDefined('badChannels') 
-    if size(model.beta,2) > 157; badChannels = zeros(1, 204);
-    else, badChannels = zeros(1, 157); end; 
-end
+
 
 num_contrasts  = size(whichContrasts,1);
 assert(isequal(size(whichContrasts, 2), num_conditions))
-
-% % Combine boots of channels if using Elekta system
-% if size(model.beta,2) > 157
-%     if sum(badChannels) >= 1
-%         % Identify bad channels in data
-%         dataIn = nan(num_conditions,204,100);
-%         dataIn(:,~badChannels,:) = model.beta(:,:,:); 
-%         beta = nanmean([dataIn(:,1:2:end,:);dataIn(:,2:2:end,:)],1);
-%     else
-%         beta = mean([model.beta(:,1:2:end,:);model.beta(:,2:2:end,:)],1);
-%     end
-% else
-%     beta = model.beta;
-% 
-% end
 
 beta = model.beta;
 

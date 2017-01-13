@@ -19,7 +19,7 @@ dataDir              = fullfile(dfdRootPath, 'analysis', 'data');   % Where to s
 figureDir            = fullfile(dfdRootPath, 'analysis', 'figures');% Where to save images?
 saveFigures          = true;   % Save figures in the figure folder?
 colors               = dfdGetColors(3);
-numOfControls        = 5;
+numOfControls        = 6;
 
 
 %% Prepare data for figure
@@ -50,10 +50,17 @@ end
 %% Plot figure
 fH = figure('position',[0,300,700,300]);
 % define what the different conditions are 
-types = {'MEG Denoise','Order shuffled','Random Amplitude','Phase-scrambled','Replace PCs with random values','All channels in noisepool'}; % 
+types = {'MEG Denoise',...                  1
+    'Order shuffled', ...                   2
+    'Random Amplitude', ...                 3
+    'Phase-scrambled',...                   4
+    'Replace PCs with random values', ...   5
+    'All channels in noisepool', ...        6
+    'Concatenate epochs for denoising' ...  7
+     }; % 
 % re-arrange the order of the bars 
 %neworder = [1,5,6];
-neworder = [1,4,6];
+neworder = [1, 7, 6, 4];
 newtypes = types(neworder);
 
 snr_diff2 = snr_diff(:,neworder,:);

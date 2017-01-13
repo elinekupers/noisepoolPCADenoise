@@ -66,6 +66,8 @@ switch whichFigure
         for nrControl = 1:5
             data_controls{nrControl} = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_control%d_bb.mat'),whichSubject,nrControl)); %#ok<AGROW>
         end
+        data_controls{6} = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_denoise_all_bb.mat'),whichSubject)); 
+        
         data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject)); 
         data = {data,data_controls};
