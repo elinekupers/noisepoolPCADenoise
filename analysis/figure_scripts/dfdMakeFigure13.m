@@ -57,7 +57,7 @@ for t = 1:numel(datatypes);
 end
 
 if saveFigures
-   hgexport(gcf,fullfile(figureDir,'Figure13_s_n_full_sat')));
+   figurewrite(fullfile(figureDir,'Figure13_s_n_full_sat'));
 end
 
 

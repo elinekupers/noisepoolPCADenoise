@@ -24,6 +24,7 @@ threshold       = 0;
 climsSL         = [-25.6723,25.6723];
 climsAB         = [-8,8];
 cmap            = 'bipolar';
+yscaleAB        = [repmat([-8,-4,0,4,8],3,1);[-5,-2.5,0,2.5,5]];
 
 %% Compute SNR across subjects
 contrasts = [eye(3); 0 1 -1];
@@ -91,7 +92,7 @@ for icond = 1:numel(contrastNames)
     ab_snr1(abs(ab_snr1) < threshold) = 0;
     
     % Change ranges colormap when contrast is Left-Right
-    if icond == 4; climsAB = [-5.5363, 5.5363];  end;
+    if icond == 4; climsAB = [-3.5363,3.5363];  end;
    
     % Make sure the channels are combined if CiNet data
     if size(sl_snr1,2) > 157
@@ -111,9 +112,11 @@ for icond = 1:numel(contrastNames)
     subplot(4,2,(icond-1)*2+2)
     [~,ch] = megPlotMap((ab_snr1),climsAB,gcf,cmap, sprintf('%s : Broadband Original', contrastNames{icond}));
     makeprettyaxes(ch,9,9);
+    set(ch,'YTick',yscaleAB(icond,:));
+
     
 end
 
 if saveFigures
-    hgexport(gcf,fullfile(figureDir,sprintf('figure5_AcrossSubjects%d_bipolar_threshold%d.eps',whichSubject, threshold)));
+    figurewrite(fullfile(figureDir, sprintf('figure5_AcrossSubjects%d_bipolar_threshold%d',whichSubject, threshold)),[],0,'.',1);
 end

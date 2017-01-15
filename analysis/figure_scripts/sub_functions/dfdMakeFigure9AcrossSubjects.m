@@ -89,7 +89,7 @@ for icond = 1:numel(contrastNames)
 %     clims_ab = [-6.4445,6.4445];
     if max(unique(whichSubjects)) < 9
         clims_ab = [-8,8];
-        if icond == 4; clims_ab = 3.3 * [-1 1];  end;
+        if icond == 4; clims_ab = 3.5363 * [-1 1];  end;
     else
         clims_ab = [-4,4];
         if icond == 4; clims_ab = [-4, 4];  end;
@@ -126,6 +126,5 @@ end
 
 
 if saveFigures
-    %printnice(gcf,0,figureDir,sprintf('figure9_AcrossSubject%d_bipolar_threshold%d_raw',whichSubject, threshold));
-    hgexport(gcf,fullfile(figureDir,sprintf('figure9_AcrossSubject%d_bipolar_threshold%d_raw',whichSubject, threshold)));
+   figurewrite(fullfile(figureDir, sprintf('figure9_AcrossSubject%d_bipolar_threshold%d',whichSubject, threshold)),[],0,'.',1);
 end

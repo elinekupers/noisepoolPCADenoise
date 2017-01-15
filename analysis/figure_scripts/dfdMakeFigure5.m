@@ -60,7 +60,7 @@ for icond = 1:size(contrasts,1)
     sl_snr1(abs(sl_snr1) < threshold) = 0;
    
     if icond > 3 % then we are plotting l-r rather than one condition and change the colormap limits
-        climsAB = [-5.5363, 5.5363]; 
+        climsAB = [-3.5363, 3.5363]; 
     end
 
     % plot spatial maps
@@ -76,11 +76,10 @@ for icond = 1:size(contrasts,1)
 
 end
 
-return
  if saveFigures
     % Note: our function figurewrite is extremely slow with Matlab 2016b,
     % therefore we use hgexport()
-    hgexport(gcf,fullfile(figureDir, sprintf('figure5_examplesubject%d_bipolar_thresh%d.eps',whichSubject, threshold)));
+    figurewrite(fullfile(figureDir, sprintf('figure5_examplesubject%d_bipolar_thresh%d.eps',whichSubject, threshold)),[],0,'.',1);
  end
 
 %% Now call dfdMakeFigure5AcrossSubjects

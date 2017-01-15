@@ -40,7 +40,7 @@ chanY  = cfg.layout.pos(1:length(sensor_data),2);
 % Define options for plotting
 opt = {'interpmethod','v4',... How to interpolate the data?
         'interplim','mask',... Mask the data such that it doesn't exceed the outline
-        'gridscale',670,... How fine do you want the grid?
+        'gridscale',170,... How fine do you want the grid?
         'outline',cfg.layout.outline,... Create the lines of the head, nose and ears
         'shading','flat', ... How to interpolate the in the outline
         'mask',cfg.layout.mask,... 

@@ -58,7 +58,7 @@ for icond = 1:4
     % Set colormap limits
 %     max_val = max(abs([ab_snr1a_LmnR, ab_snr2a_LmnR]));
 %     clims_ab = [-1,1].*[max_val,max_val];
-    if icond <= 3, clims_ab = 8.4445 * [-1 1]; else, clims_ab = 3.3 * [-1 1]; end
+    if icond <= 3, clims_ab = 8.4445 * [-1 1]; else, clims_ab = 3.5363 * [-1,1]; end
     
     subplot(4,2,(icond-1)*2+1)
     [~,ch] = megPlotMap(ab_snr1,clims_ab,gcf,'bipolar',sprintf('%s Original', condNames{icond}),data_hdr,cfg);
@@ -76,8 +76,7 @@ for icond = 1:4
 end
 
 if saveFigures
-    printnice(gcf, 0, figureDir, sprintf('figure9_examplesubject%d_bipolar_thresh%d_interpolated',whichSubject, threshold));
-    %hgexport(gcf, fullfile(figureDir, sprintf('figure9_examplesubject%d_bipolar_thresh%d_interpolated',whichSubject, threshold)));
+    figurewrite(fullfile(figureDir, sprintf('figure9_examplesubject%d_bipolar_thresh%d',whichSubject, threshold)),[],0,'.',1);
 end
 
 %% Now do the same but then across subjects
