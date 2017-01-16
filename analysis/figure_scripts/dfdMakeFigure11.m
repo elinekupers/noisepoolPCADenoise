@@ -81,6 +81,20 @@ for icond = 1:3
     ylabel('Difference in SNR (post-pre)')
 end
 
+% Statistics
+for thisColumn = 1:size(snr_diff2,2)-1
+    for otherColumn = find([1:size(snr_diff2,2)-1]~=thisColumn)
+        for icond = 1:3
+            
+            [h,p] = ttest(snr_diff2:,thisColumn,icond),snr_diff2(:,otherColumn,icond));
+            
+            out(thisColumn,otherColumn,icond) = p;
+            
+        end
+    end
+end
+disp(out)
+
 if saveFigures
     figurewrite(fullfile(figureDir,'figure11_control'),[],0,'.',1);
 end

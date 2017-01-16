@@ -95,10 +95,10 @@ for icond = 1:3
     %     errorbar2(1:nnull,mn,sem,1,'-','color',colors(icond,:));
    for whichSubject = 1:4
         plot([1 2], snr_mn(whichSubject,[1 3],icond), 'o-', 'Color', squeeze(colorSaturated(icond,whichSubject,:)), ...
-            'MarkerEdgeColor',colors(icond,:),'MarkerFaceColor', 'w', 'LineWidth', 2)
+            'MarkerEdgeColor',squeeze(colorSaturated(icond,whichSubject,:)),'MarkerFaceColor', squeeze(colorSaturated(icond,whichSubject,:)), 'LineWidth', 2)
         
         plot([3 4], snr_mn(whichSubject,[2 4],icond), 'o-', 'Color', squeeze(colorSaturated(icond,whichSubject,:)), ...
-            'MarkerEdgeColor',colors(icond,:),'MarkerFaceColor', 'w', 'LineWidth', 2)
+            'MarkerEdgeColor',squeeze(colorSaturated(icond,whichSubject,:)),'MarkerFaceColor', squeeze(colorSaturated(icond,whichSubject,:)), 'LineWidth', 2)
    end
     % format figure and make things pretty
     set(gca,'xlim',[0.2,nnull+0.8],'ylim',[-3,12]);
