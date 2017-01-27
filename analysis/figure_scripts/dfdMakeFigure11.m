@@ -6,7 +6,8 @@ function dfdMakeFigure11()
 % 
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
-% This figure will show ...
+% This figure will show a bargraph of broadband SNR difference before and
+% after denoising for MEG Denoise and various control analyses.
 %
 % This function assumes that data is downloaded with the DFDdownloaddata
 % function. 
