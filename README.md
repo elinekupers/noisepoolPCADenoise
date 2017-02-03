@@ -13,7 +13,7 @@ Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J. Heeger, Jon
 * Neural Network Toolbox (v 8.2.1)
 
 **Other toolbox dependencies**
-* Fieldtrip toolbox (v ??)
+* Fieldtrip toolbox (v 20170102)
 
 **Folder structure**
 * denoisedata.m:  Main function to denoise time series.
