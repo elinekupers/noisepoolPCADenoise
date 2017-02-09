@@ -161,11 +161,6 @@ for whichSubject = subjects
         onlyMS(msepochidx)=0;
         badEpochs(find(onlyMS')) = 1; 
     end
-    
-    % ---- If CALM or TSPCA data, make sure we use 1000 ms epochs, one second shifted ----
-    if whichSubject > 20 && whichSubject < 29
-        sensorData = sensorData(2:end,:,:);
-    end
      
     % -------------- Remove bad epochs and channels ----------------------
     sensorData      = sensorData(:,~badEpochs, ~badChannels);
