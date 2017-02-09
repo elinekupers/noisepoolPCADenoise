@@ -26,7 +26,7 @@ function savePth = dfdDownloadsampledata(savePth, whichSubjects, whichDataTypes)
 %                   'denoised 10 pcs' 'denoised 1-10 pcs' 'controls'}
 %                   [default='raw']
 %
-% INPUTS:
+% OUTPUTS:
 % -----------------
 %   savePth: path where data was written
 %
@@ -53,33 +53,33 @@ urlStr = [];
 fnames = [];
 
 % Define the URL strings for the individual files
-rawNYU =        {'ewtz9', 'gfhhk',  ... % conditions & data s01
-    'jzx8u', '5yw3e',   ... % conditions & data s02
-    'd8me2', 'zyrr2',   ... % conditions & data s03
-    '92jhd', '5p8hh',   ... % conditions & data s04
-    's7avt', 'hsbm2',   ... % conditions & data s05
-    '7a5nq', 'nsqex',   ... % conditions & data s06
-    'krdff', 'eycyu',   ... % conditions & data s07
-    '6cbqr', 'tjj3v'};      % conditions & data s08
+rawNYU =        {'ewtz9', 'gfhhk',  ...   conditions & data s01
+                'jzx8u', '5yw3e',   ...   conditions & data s02
+                'd8me2', 'zyrr2',   ...   conditions & data s03
+                '92jhd', '5p8hh',   ...   conditions & data s04
+                's7avt', 'hsbm2',   ...   conditions & data s05
+                '7a5nq', 'nsqex',   ...   conditions & data s06
+                'krdff', 'eycyu',   ...   conditions & data s07
+                '6cbqr', 'tjj3v'};      % conditions & data s08
 
 
-denoised10NYU = {'j6tzv', 'md8uu',  ... % denoised BB & SL s01
-    'ffgev', 'fk8kb',  ... % denoised BB & SL s02
-    'uu5b9', 'gw6up',  ... % denoised BB & SL s03
-    'tex2u', '8aaxj',  ... % denoised BB & SL s04
-    'ndw48', 'esvau',  ... % denoised BB & SL s05
-    'xpc78', 'zh9sr',  ... % denoised BB & SL s06
-    '8mrb5', 'sgeam',  ... % denoised BB & SL s07
-    'uspmn', 'q8tpt'};     % denoised BB & SL s08
+denoised10NYU = {'j6tzv', 'md8uu',  ...  denoised BB & SL s01
+                'ffgev', 'fk8kb',   ...  denoised BB & SL s02
+                'uu5b9', 'gw6up',   ...  denoised BB & SL s03
+                'tex2u', '8aaxj',   ...  denoised BB & SL s04
+                'ndw48', 'esvau',   ...  denoised BB & SL s05
+                'xpc78', 'zh9sr',   ...  denoised BB & SL s06
+                '8mrb5', 'sgeam',   ...  denoised BB & SL s07
+                'uspmn', 'q8tpt'};     % denoised BB & SL s08
 
-denoisedAllNYU = {'mf6nx','cw4fr',  ... % denoised BB & SL s01
-    '3suq7', 'u77bm', ... % denoised BB & SL s02
-    '9hkns', '74vy5', ... % denoised BB & SL s03
-    '8m4vq', 'h53z8', ... % denoised BB & SL s04
-    's6m42', 'auzuh', ... % denoised BB & SL s05
-    'f4r6m', 'ach36', ... % denoised BB & SL s06
-    'hveh9', 'cpf9x', ... % denoised BB & SL s07
-    'gvpky', '9es6q'};    % denoised BB & SL s08
+denoisedAllNYU = {'mf6nx','cw4fr',  ...   denoised BB & SL s01
+                '3suq7', 'u77bm',   ...   denoised BB & SL s02
+                '9hkns', '74vy5',   ...   denoised BB & SL s03
+                '8m4vq', 'h53z8',   ...   denoised BB & SL s04
+                's6m42', 'auzuh',   ...   denoised BB & SL s05
+                'f4r6m', 'ach36',   ...   denoised BB & SL s06
+                'hveh9', 'cpf9x',   ...   denoised BB & SL s07
+                'gvpky', '9es6q'};      % denoised BB & SL s08
 
 CALMNYU =       {'', '', ...
     '', '', ...
@@ -90,36 +90,36 @@ CALMNYU =       {'', '', ...
     '', '', ...
     '', ''};    % Rerun this first
 
-TSPCANYU =      {'7kczr', 'caf9g',  ... % conditions & data s29
-    'hf3rd', 'qx3xe',   ... % conditions & data s30
-    '57ya6', '337we',   ... % conditions & data s31
-    'zru9g', '6fsxf',   ... % conditions & data s32
-    'q8jpa', 'gca3t',   ... % conditions & data s33
-    'vqnw3', '27jnz',   ... % conditions & data s34
-    'pkzv7', '5fjqv',   ... % conditions & data s35
-    'jd2v8', 'kf29h'};      % conditions & data s36
+TSPCANYU =      {'7kczr', 'caf9g',  ...   conditions & data s29
+                'hf3rd', 'qx3xe',   ...   conditions & data s30
+                '57ya6', '337we',   ...   conditions & data s31
+                'zru9g', '6fsxf',   ...   conditions & data s32
+                'q8jpa', 'gca3t',   ...   conditions & data s33
+                'vqnw3', '27jnz',   ...   conditions & data s34
+                'pkzv7', '5fjqv',   ...   conditions & data s35
+                'jd2v8', 'kf29h'};      % conditions & data s36
 
-controlNYU =    {'43p8e', 's7qam', 'suj6e', 'avqwf', 's2xsa',...
-    '', '', ...
-    '', '', ...
-    '', '', ...
-    '', '', ...
-    '', '', ...
-    '', '', ...
-    '', ''};                % Rerun this first
+controlNYU =    {'43p8e', 's7qam', 'suj6e', 'avqwf', 's2xsa',   ... Control 1-5 s01
+                '6bfh6', '8xk5u', 'y4k2r', 'm77zu', '595cu',    ... Control 1-5 s02
+                'pevc7', '4r9xy','d827m', '5rw4y', 'kdfu8',     ... Control 1-5 s03
+                '3ctyg', '566es', '2f74r', '2wgs9', 'nfhea',    ... Control 1-5 s04
+                'uz55w', 'accqa','msxjr','b39gy', 'n7nyg',      ... Control 1-5 s05
+                'bj495', '4d5kr', 'cv4fp', 'vhtfy', '3nawg',    ... Control 1-5 s06
+                'pyvw5', 'swqhg', '4h8um', 'hfxz9', '8ykes',    ... Control 1-5 s07
+                '9p9hy', 'h2czn', 'nn64m', '7udf5', '5jraa'};     % Control 1-5 s08         
 
 rawCiNET =      {'k3vub','n7j57',   ... % conditions & data s09
-    'xdt9t', 'xz9d2',   ... % conditions & data s10
-    'tj6wn', '9znqn',   ... % conditions & data s11
-    'evkmk', 'suu3t'};      % conditions & data s12
+                'xdt9t', 'xz9d2',   ... % conditions & data s10
+                'tj6wn', '9znqn',   ... % conditions & data s11
+                'evkmk', 'suu3t'};      % conditions & data s12
 
-TSSSCiNET =     {'7xj4j', '5vgh7',  ... % conditions & data s14
-    '', '', ...
-    'csk7e', 'u9xsy',   ... % conditions & data s16
-    '', '', ...
-    'w7d7n', 'fq4t2',   ... % conditions & data s18
-    '', '', ...
-    'fwvcj', 'ctc99'};      % conditions & data s20
+TSSSCiNET =     {'7xj4j', '5vgh7',  ... conditions & data s14
+                '', '',             ... left out SSS data (s15)
+                'csk7e', 'u9xsy',   ... conditions & data s16
+                '', '',             ... left out SSS data (s17)
+                'w7d7n', 'fq4t2',   ... conditions & data s18
+                '', '',             ... left out SSS data (s19)
+                'fwvcj', 'ctc99'};      % conditions & data s20
 
 % Concatenate the raw url's since we count subjects
 raw = cat(2,rawNYU,rawCiNET,TSSSCiNET,CALMNYU,TSPCANYU);
