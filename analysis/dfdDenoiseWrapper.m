@@ -4,7 +4,9 @@ function dfdDenoiseWrapper(subjects, howToDenoise)
 % ---------------------------------------------------------------- 
 % INPUTS:
 % -----------------
-% subjects     : Vector of subject numbers one would like to denoise
+% subjects     : Vector of subject numbers one would like to denoise. See
+%                   subject description in analysis/data for corresponding
+%                   subject numbers
 % howToDenoise : 1, 2, or 3, meaning:
 %                   1) denoise with exactly 10 PC regressors
 %                   2) denoise with each of 0 to 10 PC regressors
@@ -16,9 +18,18 @@ function dfdDenoiseWrapper(subjects, howToDenoise)
 % be then be used to reproduce several of the published figures from the
 % paper the paper:
 %
-% AUTHORS. YEAR. TITLE. JOURNAL.
+% Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J.
+% Heeger, Jonathan Winawer. (YEAR) Broadband spectral responses in visual
+% cortex revealed by a new MEG denoising algorithm.
+% (JOURNAL. VOLUME. ISSUE. DOI.)
 
-% Example: dfdDenoiseWrapper(1, 1)
+% Example 1: Denoising subject 1 from NYU dataset with exactly 10 PCs
+%   dfdDenoiseWrapper(1, 1)
+% Example 2: Denoising all subjects from NYU dataset with all PCs
+%   dfdDenoiseWrapper(1:8, 2)
+% Example 3: Denoising all subjects from CiNet dataset with 10 PCs
+%   dfdDenoiseWrapper(9:12, 1)
+
 
 % ------------------------------------------------------------------------
 % --------------------------- Check options ------------------------------
@@ -28,7 +39,7 @@ function dfdDenoiseWrapper(subjects, howToDenoise)
 if notDefined('howToDenoise'), howToDenoise = 1; end
 
 % Check for data, download data if needed
-if isempty(dir(fullfile(dfdRootPath, 'analysis', 'data', 's0*.mat')));
+if isempty(dir(fullfile(dfdRootPath, 'analysis', 'data', 's0*.mat')))
     error('No data were found. Use dfdDownloadSampleData')
 end
 
@@ -41,9 +52,9 @@ varThreshold        = [0.05 20];
 badChannelThreshold = 0.2;
 badEpochThreshold   = 0.2;
 opt.verbose         = true;
-use3Channels        = false; if use3Channels;     opt.use3Channels     = 1; end
+use3Channels        = false; if use3Channels;     opt.use3Channels     = 1; end %#ok<UNRCH>
 removeFirstEpoch    = true;  if removeFirstEpoch; opt.removeFirstEpoch = 1; end
-removeMsEpochs      = false; if removeMsEpochs;   opt.removeMsEpochs   = 1; end
+removeMsEpochs      = false; if removeMsEpochs;   opt.removeMsEpochs   = 1; end %#ok<UNRCH>
 
 %% Get frequencies to define stimulus locked and asynchronous broadband power
 % Data are sampled at 1000 Hz and epoched in one-second bins. Hence
@@ -113,15 +124,15 @@ for whichSubject = subjects
     
     if whichSubject < 9,        dataChannels        = 1:157; % yokogawa MEG
     elseif whichSubject < 21,   dataChannels        = 1:204; % Elekta Neuromag
-    else                        dataChannels        = 1:157; % Synthetic subject
+    else                        dataChannels        = 1:157; %#ok<SEPEX> % Synthetic subject
     end
 
     % ------------------ Load data and design ----------------------------
     tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's%02d_sensorData.mat'),whichSubject)); sensorData = tmp.sensorData;
     tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's%02d_conditions.mat'),whichSubject)); conditions = tmp.conditions;
     
-    if removeMsEpochs,
-    tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 'eye', 's%02d_epochswithms.mat'),whichSubject)); msepochidx = cat(1,tmp.allEpochsWithMS{:}); end
+    if removeMsEpochs
+    tmp = load(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 'eye', 's%02d_epochswithms.mat'),whichSubject)); msepochidx = cat(1,tmp.allEpochsWithMS{:}); end %#ok<UNRCH>
 
 
     % ------------------ Make design matrix ------------------------------
@@ -146,7 +157,7 @@ for whichSubject = subjects
     
     % ---- Label epochs with microsaccades as bad epochs ------------------
     if removeMsEpochs 
-        onlyMS = ones(1,length(badEpochs));
+        onlyMS = ones(1,length(badEpochs)); %#ok<UNRCH>
         onlyMS(msepochidx)=0;
         badEpochs(find(onlyMS')) = 1; 
     end
@@ -179,9 +190,9 @@ end
 
         if (0 <= nrControl) && (nrControl <= 4)
             optbb.pccontrolmode   = nrControl;
-            if nrControl == 0;    % do nothing to postFix in filename
-            else postFix          = sprintf('_control%d',nrControl); end
-            [results,evalout,~,denoisedts_bb] = denoisedata(design,sensorData,evokedfun,evalfun,optbb); 
+            if nrControl == 0     % do nothing to postFix in filename
+            else postFix          = sprintf('_control%d',nrControl); end %#ok<SEPEX>
+            [results,evalout,~,denoisedts_bb] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);  %#ok<ASGLU>
             if saveDenoisedts; save(sprintf(fullfile(dfdRootPath, 'analysis', 'data', 's%02d_denoisedts.mat'),whichSubject),'denoisedts_bb'); end
             
         elseif nrControl == 5
