@@ -3,7 +3,7 @@ function savePth = dfdDownloadsampledata(savePth, whichSubjects, whichDataTypes)
 % algorithm for the paper:
 %   AUTHORS. YEAR. TITLE. JOURNAL. VOLUME. ISSUE. DOI.
 %
-% savePth = dfdDownloadSampleData(savePth, whichFiles)
+% savePth = dfdDownloadsampledata(savePth, whichFiles)
 %
 % Inputs
 %   savePth: Path to store data. 
@@ -142,8 +142,8 @@ for s = whichSubjects
     fprintf('Downloading subject %d .\n',s);
      
     for f = [(s*2)-1,(s*2)]
-        
-        fname = sprintf('s%02d%s.mat', s, fnames{mod(f,2)+1});
+            
+        fname = sprintf('s%02d%s.mat', s, fnames{~isodd(f)+1});
         
         readPth  = fullfile(dirProject, urlStr{f}, '?action=download&version=1');
         
