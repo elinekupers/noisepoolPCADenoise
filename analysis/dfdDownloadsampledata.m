@@ -1,12 +1,16 @@
 function savePth = dfdDownloadsampledata(savePth, whichSubjects, whichDataTypes)
 % Download sample MEG data sets to be denoised by the 'Denoise Field Data'
 % algorithm for the paper:
-%   AUTHORS. YEAR. TITLE. JOURNAL. VOLUME. ISSUE. DOI.
+%   Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J.
+% Heeger, Jonathan Winawer. (YEAR) Broadband spectral responses in visual
+% cortex revealed by a new MEG denoising algorithm.
+% (JOURNAL. VOLUME. ISSUE. DOI.)
 %
 % savePth = dfdDownloadsampledata(savePth, whichFiles)
-%
-% Inputs
-%   savePth: Path to store data. 
+% ----------------------------------------------------------------
+% INPUTS:
+% -----------------
+%   savePth: Path to store data.
 %                   [default = fullfile(dfdRootPath,'analysis','data')];
 %
 %   whichSubjects: Vector of one or more data sets (
@@ -22,9 +26,12 @@ function savePth = dfdDownloadsampledata(savePth, whichSubjects, whichDataTypes)
 %                   'denoised 10 pcs' 'denoised 1-10 pcs' 'controls'}
 %                   [default='raw']
 %
-% Output
+% INPUTS:
+% -----------------
 %   savePth: path where data was written
 %
+% EXAMPLES:
+% -----------------
 % Example 1: Download raw data from subject 1
 %   savePth = dfdDownloadSampleData([], 1, {'raw'});
 % Example 2: Download raw data from all subjects
@@ -47,82 +54,82 @@ fnames = [];
 
 % Define the URL strings for the individual files
 rawNYU =        {'ewtz9', 'gfhhk',  ... % conditions & data s01
-                'jzx8u', '5yw3e',   ... % conditions & data s02
-                'd8me2', 'zyrr2',   ... % conditions & data s03
-                '92jhd', '5p8hh',   ... % conditions & data s04
-                's7avt', 'hsbm2',   ... % conditions & data s05
-                '7a5nq', 'nsqex',   ... % conditions & data s06
-                'krdff', 'eycyu',   ... % conditions & data s07
-                '6cbqr', 'tjj3v'};      % conditions & data s08
-            
-            
+    'jzx8u', '5yw3e',   ... % conditions & data s02
+    'd8me2', 'zyrr2',   ... % conditions & data s03
+    '92jhd', '5p8hh',   ... % conditions & data s04
+    's7avt', 'hsbm2',   ... % conditions & data s05
+    '7a5nq', 'nsqex',   ... % conditions & data s06
+    'krdff', 'eycyu',   ... % conditions & data s07
+    '6cbqr', 'tjj3v'};      % conditions & data s08
+
+
 denoised10NYU = {'j6tzv', 'md8uu',  ... % denoised BB & SL s01
-                 'ffgev', 'fk8kb',  ... % denoised BB & SL s02
-                 'uu5b9', 'gw6up',  ... % denoised BB & SL s03
-                 'tex2u', '8aaxj',  ... % denoised BB & SL s04
-                 'ndw48', 'esvau',  ... % denoised BB & SL s05
-                 'xpc78', 'zh9sr',  ... % denoised BB & SL s06
-                 '8mrb5', 'sgeam',  ... % denoised BB & SL s07
-                 'uspmn', 'q8tpt'};     % denoised BB & SL s08
-                    
+    'ffgev', 'fk8kb',  ... % denoised BB & SL s02
+    'uu5b9', 'gw6up',  ... % denoised BB & SL s03
+    'tex2u', '8aaxj',  ... % denoised BB & SL s04
+    'ndw48', 'esvau',  ... % denoised BB & SL s05
+    'xpc78', 'zh9sr',  ... % denoised BB & SL s06
+    '8mrb5', 'sgeam',  ... % denoised BB & SL s07
+    'uspmn', 'q8tpt'};     % denoised BB & SL s08
+
 denoisedAllNYU = {'mf6nx','cw4fr',  ... % denoised BB & SL s01
-                  '3suq7', 'u77bm', ... % denoised BB & SL s02
-                  '9hkns', '74vy5', ... % denoised BB & SL s03
-                  '8m4vq', 'h53z8', ... % denoised BB & SL s04
-                  's6m42', 'auzuh', ... % denoised BB & SL s05
-                  'f4r6m', 'ach36', ... % denoised BB & SL s06
-                  'hveh9', 'cpf9x', ... % denoised BB & SL s07
-                  'gvpky', '9es6q'};    % denoised BB & SL s08
+    '3suq7', 'u77bm', ... % denoised BB & SL s02
+    '9hkns', '74vy5', ... % denoised BB & SL s03
+    '8m4vq', 'h53z8', ... % denoised BB & SL s04
+    's6m42', 'auzuh', ... % denoised BB & SL s05
+    'f4r6m', 'ach36', ... % denoised BB & SL s06
+    'hveh9', 'cpf9x', ... % denoised BB & SL s07
+    'gvpky', '9es6q'};    % denoised BB & SL s08
 
 CALMNYU =       {'', '', ...
-                '', '', ...
-                '', '', ...
-                '', '', ...
-                '', '', ...
-                '', '', ...
-                '', '', ...
-                '', ''};    % Rerun this first
-                
+    '', '', ...
+    '', '', ...
+    '', '', ...
+    '', '', ...
+    '', '', ...
+    '', '', ...
+    '', ''};    % Rerun this first
+
 TSPCANYU =      {'7kczr', 'caf9g',  ... % conditions & data s29
-                'hf3rd', 'qx3xe',   ... % conditions & data s30
-                '57ya6', '337we',   ... % conditions & data s31
-                'zru9g', '6fsxf',   ... % conditions & data s32
-                'q8jpa', 'gca3t',   ... % conditions & data s33
-                'vqnw3', '27jnz',   ... % conditions & data s34
-                'pkzv7', '5fjqv',   ... % conditions & data s35
-                'jd2v8', 'kf29h'};      % conditions & data s36
- 
-controlNYU =    {'', '', ...
-                '', '', ...
-                '', '', ...
-                '', '', ...
-                '', '', ...
-                '', '', ...
-                '', '', ...
-                '', ''};                % Rerun this first
+    'hf3rd', 'qx3xe',   ... % conditions & data s30
+    '57ya6', '337we',   ... % conditions & data s31
+    'zru9g', '6fsxf',   ... % conditions & data s32
+    'q8jpa', 'gca3t',   ... % conditions & data s33
+    'vqnw3', '27jnz',   ... % conditions & data s34
+    'pkzv7', '5fjqv',   ... % conditions & data s35
+    'jd2v8', 'kf29h'};      % conditions & data s36
+
+controlNYU =    {'43p8e', 's7qam', 'suj6e', 'avqwf', 's2xsa',...
+    '', '', ...
+    '', '', ...
+    '', '', ...
+    '', '', ...
+    '', '', ...
+    '', '', ...
+    '', ''};                % Rerun this first
 
 rawCiNET =      {'k3vub','n7j57',   ... % conditions & data s09
-                'xdt9t', 'xz9d2',   ... % conditions & data s10
-                'tj6wn', '9znqn',   ... % conditions & data s11
-                'evkmk', 'suu3t'};      % conditions & data s12
-        
-TSSSCiNET =     {'7xj4j', '5vgh7',  ... % conditions & data s14
-                '', '', ...
-                'csk7e', 'u9xsy',   ... % conditions & data s16
-                '', '', ...
-                'w7d7n', 'fq4t2',   ... % conditions & data s18
-                '', '', ...
-                'fwvcj', 'ctc99'};      % conditions & data s20        
+    'xdt9t', 'xz9d2',   ... % conditions & data s10
+    'tj6wn', '9znqn',   ... % conditions & data s11
+    'evkmk', 'suu3t'};      % conditions & data s12
 
-% Concatenate the raw url's since we count subjects         
+TSSSCiNET =     {'7xj4j', '5vgh7',  ... % conditions & data s14
+    '', '', ...
+    'csk7e', 'u9xsy',   ... % conditions & data s16
+    '', '', ...
+    'w7d7n', 'fq4t2',   ... % conditions & data s18
+    '', '', ...
+    'fwvcj', 'ctc99'};      % conditions & data s20
+
+% Concatenate the raw url's since we count subjects
 raw = cat(2,rawNYU,rawCiNET,TSSSCiNET,CALMNYU,TSPCANYU);
-       
+
 % Get postfix of data file
 for ii = 1:length(whichDataTypes)
     switch lower(whichDataTypes{ii})
         case 'raw'
-            urlStr = [urlStr raw]; 
-            fnames = [fnames, {'_conditions'},{'_sensorData'}];            
+            urlStr = [urlStr raw]; %#ok<*AGROW>
+            fnames = [fnames, {'_conditions'},{'_sensorData'}];
         case 'denoised 10 pcs'
             urlStr = [urlStr denoised10NYU];
             fnames = [fnames, {'_denoisedData_bb'},{'_denoisedData_sl'}];
@@ -131,27 +138,33 @@ for ii = 1:length(whichDataTypes)
             fnames = [fnames, {'_denoisedData_full_bb'},{'_denoisedData_full_sl'}];
         case 'controls'
             urlStr = [urlStr controlNYU];
-            fnames = [fnames, {'_denoisedData_control%d_bb'},{'_denoisedData_control%d_sl'}];
+            fnames = [fnames, {'_denoisedData_control'}];
     end
 end
 fnames = unique(fnames);
 
 % Read / write the sample data
 for s = whichSubjects
-        
+    
     fprintf('Downloading subject %d .\n',s);
-     
-    for f = [(s*2)-1,(s*2)]
-            
-        fname = sprintf('s%02d%s.mat', s, fnames{~isodd(f)+1});
-        
-        readPth  = fullfile(dirProject, urlStr{f}, '?action=download&version=1');
-        
-        writePth = fullfile(savePth, fname);
-        websave(writePth,readPth);
-        
+    
+    for f = 1:length(fnames)
+        if fnames{f} ~= '_denoisedData_control'
+            fname = sprintf('s%02d%s.mat', s, fnames{f});
+            readPth  = fullfile(dirProject, urlStr{f}, '?action=download&version=1');
+            writePth = fullfile(savePth, fname);
+            websave(writePth,readPth);
+        else
+            for ncontrol = 1:5
+                fname = sprintf('s%02d%s%d_bb.mat', s, fnames{f}, ncontrol);
+                readPth  = fullfile(dirProject, urlStr{ncontrol+(5*(s-1))}, '?action=download&version=1');
+                writePth = fullfile(savePth, fname);
+                websave(writePth,readPth);
+            end
+        end
     end
 end
+
 
 fprintf('Downloading is done!\n');
 
