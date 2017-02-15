@@ -1,5 +1,12 @@
 function dfdMakeFigure2()
 
+%% Function to reproduce Figure 2 Methods figure 
+
+% Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J.
+% Heeger, Jonathan Winawer. (YEAR) Broadband spectral responses in visual
+% cortex revealed by a new MEG denoising algorithm.
+% (JOURNAL. VOLUME. ISSUE. DOI.)
+
 whichSubject    = 1;     % Subject 1 has the example channel.
 figureDir       = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to save images?
 dataDir         = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?

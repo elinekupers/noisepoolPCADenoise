@@ -4,7 +4,10 @@ function dfdMakeFigure6()
 %
 % dfdMakeFigure6()
 %
-% AUTHORS. TITLE. JOURNAL. YEAR.
+% Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J.
+% Heeger, Jonathan Winawer. (YEAR) Broadband spectral responses in visual
+% cortex revealed by a new MEG denoising algorithm.
+% (JOURNAL. VOLUME. ISSUE. DOI.)
 %
 % This figure will show subject's the broadband spectra before and after denoising from 60-150 Hz.
 % Bootstrapped fullfield signal (mean across bootstraps) and noise component (std across bootstraps) 

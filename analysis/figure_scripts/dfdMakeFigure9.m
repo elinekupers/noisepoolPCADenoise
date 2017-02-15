@@ -4,7 +4,10 @@ function dfdMakeFigure9(whichSubject)
 %
 % dfdMakeFigure9()
 %
-% AUTHORS. TITLE. JOURNAL. YEAR.
+% Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J.
+% Heeger, Jonathan Winawer. (YEAR) Broadband spectral responses in visual
+% cortex revealed by a new MEG denoising algorithm.
+% (JOURNAL. VOLUME. ISSUE. DOI.)
 %
 % This figure will show an interpolated spatial map of the SNR values in 
 % each channel for the broadband signals before and
