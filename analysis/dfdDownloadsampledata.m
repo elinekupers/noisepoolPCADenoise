@@ -23,7 +23,7 @@ function savePth = dfdDownloadsampledata(savePth, whichSubjects, whichDataTypes)
 %                   [default=1:8]
 %
 %   whichDataTypes: Cell array of one or more of  {'raw' ...
-%                   'denoised 10 pcs' 'denoised 1-10 pcs' 'controls'}
+%                   'denoised 10 pcs' 'denoised all pcs' 'controls'}
 %                   [default='raw']
 %
 % OUTPUTS:
@@ -81,23 +81,23 @@ denoisedAllNYU = {'mf6nx','cw4fr',  ...   denoised BB & SL s01
                 'hveh9', 'cpf9x',   ...   denoised BB & SL s07
                 'gvpky', '9es6q'};      % denoised BB & SL s08
 
-CALMNYU =       {'', '', ...
-    '', '', ...
-    '', '', ...
-    '', '', ...
-    '', '', ...
-    '', '', ...
-    '', '', ...
-    '', ''};    % Rerun this first
+CALMNYU =       {'584hr', 'd92qf', ...    conditions & data s21
+                'buqgg', '226gd', ...     conditions & data s22
+                'g8cjm', 'xnmqq', ...     conditions & data s23
+                '9y9ed', 'd92wr', ...     conditions & data s24
+                '554gw', 'vnzjy', ...     conditions & data s25
+                'kncfc', 'bqgz2', ...     conditions & data s26
+                'yzegk', 'cp24s', ...     conditions & data s27
+                'xtu4k', '8hgpy'};      % conditions & data s28
 
-TSPCANYU =      {'7kczr', 'caf9g',  ...   conditions & data s29
-                'hf3rd', 'qx3xe',   ...   conditions & data s30
-                '57ya6', '337we',   ...   conditions & data s31
-                'zru9g', '6fsxf',   ...   conditions & data s32
-                'q8jpa', 'gca3t',   ...   conditions & data s33
-                'vqnw3', '27jnz',   ...   conditions & data s34
-                'pkzv7', '5fjqv',   ...   conditions & data s35
-                'jd2v8', 'kf29h'};      % conditions & data s36
+TSPCANYU =      {'6fwkd', 'wghxr',  ...   conditions & data s29
+                '9jpyr', 'tj3cc',   ...   conditions & data s30
+                'uw3ap', '2pexw',   ...   conditions & data s31
+                'r5re8', 'qj4d2',   ...   conditions & data s32
+                'th6xy', '8g3m4',   ...   conditions & data s33
+                '8r97t', '6c947',   ...   conditions & data s34
+                '6ufrt', 'y28mr',   ...   conditions & data s35
+                'z5kq7', 'b3fs8'};      % conditions & data s36
 
 controlNYU =    {'43p8e', 's7qam', 'suj6e', 'avqwf', 's2xsa',   ... Control 1-5 s01
                 '6bfh6', '8xk5u', 'y4k2r', 'm77zu', '595cu',    ... Control 1-5 s02
