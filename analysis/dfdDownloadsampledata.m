@@ -99,14 +99,14 @@ TSPCANYU =      {'6fwkd', 'wghxr',  ...   conditions & data s29
                 '6ufrt', 'y28mr',   ...   conditions & data s35
                 'z5kq7', 'b3fs8'};      % conditions & data s36
 
-controlNYU =    {'43p8e', 's7qam', 'suj6e', 'avqwf', 's2xsa',   ... Control 1-5 s01
-                '6bfh6', '8xk5u', 'y4k2r', 'm77zu', '595cu',    ... Control 1-5 s02
-                'pevc7', '4r9xy','d827m', '5rw4y', 'kdfu8',     ... Control 1-5 s03
-                '3ctyg', '566es', '2f74r', '2wgs9', 'nfhea',    ... Control 1-5 s04
-                'uz55w', 'accqa','msxjr','b39gy', 'n7nyg',      ... Control 1-5 s05
-                'bj495', '4d5kr', 'cv4fp', 'vhtfy', '3nawg',    ... Control 1-5 s06
-                'pyvw5', 'swqhg', '4h8um', 'hfxz9', '8ykes',    ... Control 1-5 s07
-                '9p9hy', 'h2czn', 'nn64m', '7udf5', '5jraa'};     % Control 1-5 s08         
+controlNYU =    {'43p8e', 's7qam', 'suj6e', 'avqwf', 's2xsa', 'ugj6g',   ... Control 1-6 s01
+                '6bfh6', '8xk5u', 'y4k2r', 'm77zu', '595cu', '364bq',    ... Control 1-6 s02
+                'pevc7', '4r9xy','d827m', '5rw4y', 'kdfu8', 'gxgja',     ... Control 1-6 s03
+                '3ctyg', '566es', '2f74r', '2wgs9', 'nfhea', 'ezr3e',    ... Control 1-6 s04
+                'uz55w', 'accqa','msxjr','b39gy', 'n7nyg', 'zwgeb',      ... Control 1-6 s05
+                'bj495', '4d5kr', 'cv4fp', 'vhtfy', '3nawg', 'wk38v',    ... Control 1-6 s06
+                'pyvw5', 'swqhg', '4h8um', 'hfxz9', '8ykes', 'aj2hy',    ... Control 1-6 s07
+                '9p9hy', 'h2czn', 'nn64m', '7udf5', '5jraa', 'wx3de'};     % Control 1-6 s08         
 
 rawCiNET =      {'k3vub','n7j57',   ... % conditions & data s09
                 'xdt9t', 'xz9d2',   ... % conditions & data s10
@@ -155,9 +155,9 @@ for s = whichSubjects
             writePth = fullfile(savePth, fname);
             websave(writePth,readPth);
         else
-            for ncontrol = 1:5
+            for ncontrol = 1:6
                 fname = sprintf('s%02d%s%d_bb.mat', s, fnames{f}, ncontrol);
-                readPth  = fullfile(dirProject, urlStr{ncontrol+(5*(s-1))}, '?action=download&version=1');
+                readPth  = fullfile(dirProject, urlStr{ncontrol+(6*(s-1))}, '?action=download&version=1');
                 writePth = fullfile(savePth, fname);
                 websave(writePth,readPth);
             end
