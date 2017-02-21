@@ -1,7 +1,7 @@
-function data = dfdMakeFigure14AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
-%% Function to reproduce Figure 14 (Spatialmap) across CiNet dataset subjects
+function data = dfdMakeFigure13AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
+%% Function to reproduce Figure 13 (Spatialmap) across CiNet dataset subjects
 %
-% data = dfdMakeFigure14AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
+% data = dfdMakeFigure13AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
 %
 % INPUTS:
 % whichSubjects : (element or vector) subject number of datasets you want to plot (see
@@ -39,7 +39,7 @@ end
 %% Load denoised data of all subjects
 for whichSubject = whichSubjects
     subjnum = find(whichSubject==whichSubjects);
-    data = prepareData(dataDir,whichSubject,12);
+    data = prepareData(dataDir,whichSubject,13);
     bb(subjnum) = data{1};
     sl(subjnum) = data{2};
     
@@ -97,5 +97,5 @@ for row = 1:4 % stimulus contrasts
 end
 
 if saveFigures
-    hgexport(gcf, fullfile(figureDir,sprintf('figure12_AcrossSubject%d_bipolar_threshold%d_%s',whichSubject, threshold, figName)));
+    hgexport(gcf, fullfile(figureDir,sprintf('figure13_AcrossSubject%d_threshold%d_%s',whichSubject, threshold, figName)));
 end

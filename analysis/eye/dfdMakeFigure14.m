@@ -1,4 +1,4 @@
-function dfdMakeFigure15()
+function dfdMakeFigure14()
 %
 % Function to get ms rate per condition, plot mean rate over time
 % (directional histograms and bootstrapped distributions).

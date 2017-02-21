@@ -7,6 +7,3 @@
 
 2. hpf function has hardcoded numbers like sample rate is 1000. should we change this?
 
-7. Why is the script to make figure 6 saying that epochs are being grouped by 6?
-
-

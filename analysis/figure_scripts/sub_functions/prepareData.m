@@ -1,7 +1,7 @@
 function [data,design,exampleIndex,exampleChannel] = prepareData(dataDir,whichSubject,whichFigure)
 
 switch whichFigure
-    case {4, 6}
+    case {2, 5}
         % Load denoised data
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_sensorData.mat'),whichSubject));
@@ -39,15 +39,19 @@ switch whichFigure
         denoisedts = denoisedts_bb;
         data = {sensorData,denoisedts{1}}; 
         
-    case {5, 12, 14}
+    case {3, 11, 13}
         % Load denoised stimulus locked and broadband data
         bb = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject)); 
         sl = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_sl.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         data = {bb,sl};
         
-    case 7
+    case 6
         data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_full_bb.mat'),whichSubject));        
+        load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
+        
+    case 7
+        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         
     case 8
@@ -59,10 +63,6 @@ switch whichFigure
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         
     case 10
-        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject));
-        load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
-        
-    case 11
         for nrControl = 1:5
             data_controls{nrControl} = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_control%d_bb.mat'),whichSubject,nrControl)); %#ok<AGROW>
         end
@@ -72,7 +72,7 @@ switch whichFigure
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject)); 
         data = {data,data_controls};
         
-    case 13
+    case 12
         data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_sl.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
     
@@ -110,13 +110,13 @@ if ~exist('exampleChannel','var')
     design(conditions == 5,2) = 1; % Right
     design(conditions == 7,3) = 1; % Left
     
-    if whichFigure == 5;
-        design = [];
-    elseif whichFigure == 12;
-        design = [];
-    elseif whichFigure == 14;
+    if whichFigure == 3
         design = [];
     elseif whichFigure == 11
+        design = [];
+    elseif whichFigure == 13
+        design = [];
+    elseif whichFigure == 10
         design = design(~data{1}.badEpochs,:);
     else
         design = design(~data.badEpochs,:);

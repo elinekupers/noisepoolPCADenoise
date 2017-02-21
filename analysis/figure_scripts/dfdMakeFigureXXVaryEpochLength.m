@@ -1,4 +1,4 @@
-function dfdMakeFigureVaryEpochLength()
+function dfdMakeFigureXXVaryEpochLength()
 
 %% Function to reproduce Supplementary Figure 1 with SNR pre-post difference
 % for different epoch lengths and different epoch length against used npcs.

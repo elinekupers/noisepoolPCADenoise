@@ -8,11 +8,15 @@
 if isempty(which('ft_prepare_layout')), dfdAddFieldtripPath, end
 
 % Make all figures
-dfdMakeFigure4;
+dfdMakeFigure2;
+dfdMakeFigure3;
+
 dfdMakeFigure5;
 dfdMakeFigure6;
+
 dfdMakeFigure7;
 dfdMakeFigure8;
+
 dfdMakeFigure9;
 dfdMakeFigure10;
 dfdMakeFigure11; 

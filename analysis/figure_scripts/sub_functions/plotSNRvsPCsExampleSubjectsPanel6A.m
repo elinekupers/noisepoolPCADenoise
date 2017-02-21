@@ -1,4 +1,4 @@
-function fH = plotSNRvsPCsExampleSubjectsPanel7A(dataAll,exampleSessions,condColors,axmax,figureDir,saveFigures, plotstr)
+function fH = plotSNRvsPCsExampleSubjectsPanel6A(dataAll,exampleSessions,condColors,axmax,figureDir,saveFigures, plotstr)
 
 % Define colors
 linecolors=copper(157);
@@ -40,5 +40,5 @@ for k = 1:length(exampleSessions)
     end
 end
 if saveFigures
-   figurewrite(fullfile(figureDir,'Figure7SNRvPCsExampleSubjectsBB'),[],0,'.',1);
+   figurewrite(fullfile(figureDir,'Figure6SNRvPCsExampleSubjectsBB'),[],0,'.',1);
 end

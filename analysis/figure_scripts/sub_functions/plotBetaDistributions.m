@@ -55,7 +55,7 @@ end
 
 % Set up figure and plot
 fH = figure; set(fH,'position',[0,200,400,400], 'Name', plotstr, 'NumberTitle', 'off');
-if figNum == 4; dataToPlot = 1; elseif figNum == 6; dataToPlot = 1:2;
+if figNum == 2; dataToPlot = 1; elseif figNum == 5; dataToPlot = 1:2;
 else disp('This figure number does not contain a distribution panel'); end
 for dd = dataToPlot;
     subplot(2,2,dd);
@@ -79,6 +79,7 @@ for dd = dataToPlot;
     bar(vals,n/1000,'facecolor','k','edgecolor','none'); hold on;
     xlim([0,10]); set(gca,'xtick',0:4:10);
     ylim([0,0.45]);set(gca,'ytick',0:0.2:0.4);
+    
     xlabel('Mean power (fT^2)'); ylabel('Fraction of bootstraps');
     makeprettyaxes(gca,9,9);
 
@@ -87,13 +88,15 @@ for dd = dataToPlot;
     noise  = (pct(3)-pct(1))/2;
     fprintf('Signal: %4.2f\tNoise: %4.2f\tSNR:%4.2f\n', signal, noise, signal/noise);
     
+    
+    
 end
 
 
 
 if saveFigures
-    if figNum == 4; fname = sprintf('Figure4cFullDistributionBootDiff%d',exampleChannel);
-    elseif figNum == 6; fname = sprintf('Figure6bFullDistributionBootDiff%d',exampleChannel); end    
+    if figNum == 2; fname = sprintf('Figure2cFullDistributionBootDiff%d',exampleChannel);
+    elseif figNum == 5; fname = sprintf('Figure5bFullDistributionBootDiff%d',exampleChannel); end    
     figurewrite(fullfile(figureDir,fname),[],0,'.',1);    
 end
 end

@@ -1,6 +1,6 @@
-function dfdMakeFigure8()
-%% Function to reproduce Figure 8AB S, N pre-post denoising
-% for top ten channels of all subjects
+function dfdMakeFigure8(whichSubject)
+%% Function to reproduce Figure 8 (Spatialmap) from example subject and across subjects
+% after denoising
 %
 % dfdMakeFigure8()
 %
@@ -9,60 +9,80 @@ function dfdMakeFigure8()
 % cortex revealed by a new MEG denoising algorithm.
 % (JOURNAL. VOLUME. ISSUE. DOI.)
 %
-% This figure will show subject's the broadband spectra before and after denoising from 60-150 Hz.
-% Bootstrapped fullfield signal (mean across bootstraps) and noise component (std across bootstraps) 
-% and the difference between the two distributions are plotted before and
-% after denoising. 
+% This figure will show an interpolated spatial map of the SNR values in 
+% each channel for the broadband signals before and
+% after using the denoising algorithm. The four separate conditions (Full,
+% left, right and left-right hemifield stimulation are shown separately). 
 %
 % This function assumes that data is downloaded with the DFDdownloaddata
 % function. 
 
-%% Choices to make:
-whichSubjects    = [1:8];     % Subject 1 has the example channel.
+%% Choices to make: 
+
+if ~exist('whichSubject', 'var')
+    whichSubject    = 1;        % Subject 1 is the example subject.
+end
 figureDir       = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to save images?
 dataDir         = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?
-saveFigures     = true;  % Save figures in the figure folder?
-figureNumber    = 8;
-                                         
-% Define plotting parameters
-colors          = dfdGetColors(3);
+saveFigures     = true;     % Save figures in the figure folder?
+threshold       = 0;        % Set threshold for colormap. If no threshold set value to 0
+cfg             = [];
+data_hdr        = [];
 
-%% Get data
-dataAll = [];
-for whichSubject = whichSubjects
-    fprintf('Load data subject %d \n', whichSubject);
-    % Load data, design, and get example subject
-    dataAll{whichSubject} = prepareData(dataDir,whichSubject,7);
-end
 
-%% Plot SNR vs number of PCs change for all channels 
+%% Load denoised data of example subject
+bb = prepareData(dataDir,whichSubject,8);
 
-% Get results for everybody and top10 channels for everybody
-for k = whichSubjects
-    allpcchan{k} = getTop10(dataAll{k}.results);
-    allresults{k} = dataAll{k}.results;
-end
+%% Plot stimulus-locked signal, broadband before and after denoising on sensormap
+figure('position',[1,600,1400,800], 'Name', 'Figure 8, example subject', 'NumberTitle', 'off');
+condNames = {'Stim Full','Stim Left','Stim Right' 'Stim Left - Right'};
+contrasts = [eye(3); [0 1 -1]/sqrt(2)];
+for icond = 1:4
+    
+    % get broadband snr for before and after denoising
+    ab_snr1 = getsignalnoise(bb.results.origmodel(1),  contrasts(icond,:), 'SNR',bb.badChannels);
+    ab_snr2 = getsignalnoise(bb.results.finalmodel(1), contrasts(icond,:), 'SNR',bb.badChannels);
+    
 
-% get colors for plotting
-% vary saturation for different subjects
-satValues = 1-linspace(0.1,1,8);
-colorRGB = varysat(colors,satValues);
-
-% plot before and after
-fH = figure('position',[0,300,500,400]); set(gcf, 'Color','w', 'Name', 'Figure 8A&B', 'NumberTitle', 'off');
-datatypes = {'Noise','Signal'};
-for t = 1:numel(datatypes);
-    for icond = 1:3
-        subplot(numel(datatypes),3,((t-1)*3+icond))
-        plotBeforeAfter(allresults,1,allpcchan,datatypes{t},icond,[],squeeze(colorRGB(icond,:,:)));
-        xlim([0.5,2.5]);
-        makeprettyaxes(gca,9,9);
-        ylim([-2,10]);
-    end
+    % Replace bad channels with NaNs
+    ab_snr1 = to157chan(ab_snr1,~bb.badChannels,'nans');
+    ab_snr2 = to157chan(ab_snr2,~bb.badChannels,'nans');
+                
+    if length(bb.badChannels)>157
+        ab_snr1 = dfd204to102(ab_snr1);
+        ab_snr2 = dfd204to102(ab_snr2);
+    end        
+    
+    % Threshold
+    ab_snr1(abs(ab_snr1) < threshold) = 0;
+    ab_snr2(abs(ab_snr2) < threshold) = 0;
+    
+    
+    % Set colormap limits
+%     max_val = max(abs([ab_snr1a_LmnR, ab_snr2a_LmnR]));
+%     clims_ab = [-1,1].*[max_val,max_val];
+    if icond <= 3, clims_ab = 8.4445 * [-1 1]; else, clims_ab = 3.5363 * [-1,1]; end
+    
+%     subplot(4,2,(icond-1)*2+1)
+%     [~,ch] = megPlotMap(ab_snr1,clims_ab,gcf,'bipolar',sprintf('%s Original', condNames{icond}),data_hdr,cfg);
+%     makeprettyaxes(ch,9,9);
+%     set(ch,'YTick',[-8,-4,0,4,8]);
+%     title(sprintf('Broadband Pre %s', condNames{icond}))
+    
+    subplot(4,2,(icond-1)*2+2)
+    [~,ch] = megPlotMap(ab_snr2,clims_ab,gcf,'bipolar',sprintf('%s : Denoised PC %d',condNames{icond}, bb.results.pcnum(1)),data_hdr,cfg);
+    makeprettyaxes(ch,9,9);
+    set(ch,'YTick',[-8,-4,0,4,8]);
+    title(sprintf('Broadband Post %s', condNames{icond}))
+    drawnow();
+    
 end
 
 if saveFigures
-        figurewrite(fullfile(figureDir,'Figure8_s_n_full_sat'),[],0,'.',1);
+    figurewrite(fullfile(figureDir, sprintf('figure8_examplesubject%d_bipolar_thresh%d',whichSubject, threshold)),[],0,'.',1);
 end
 
+return
+%% Now do the same but then across subjects
+dfdMakeFigure9AcrossSubjects()
 

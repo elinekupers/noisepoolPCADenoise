@@ -1,8 +1,8 @@
-function dfdMakeFigure9AcrossSubjects()
+function dfdMakeFigure8AcrossSubjects()
 
-%% Function to reproduce Figure 9 (Spatialmap) across all subjects
+%% Function to reproduce Figure 8 (Spatialmap) across all subjects
 %
-% dfdMakeFigure9AcrossSubjects()
+% dfdMakeFigure8AcrossSubjects()
 %
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
@@ -67,7 +67,7 @@ end
 
 
 %% Plot stimulus-locked signal, broadband before and after denoising on sensormap
-figure('position',[1,600,1400,800], 'Name', 'Figure 9, group data', 'NumberTitle', 'off');
+figure('position',[1,600,1400,800], 'Name', 'Figure 8, group data', 'NumberTitle', 'off');
 for icond = 1:numel(contrastNames)
     
     % get broadband snr before denoising
@@ -126,5 +126,5 @@ end
 
 
 if saveFigures
-   figurewrite(fullfile(figureDir, sprintf('figure9_AcrossSubject%d_bipolar_threshold%d',whichSubject, threshold)),[],0,'.',1);
+   figurewrite(fullfile(figureDir, sprintf('figure8_AcrossSubject%d_bipolar_threshold%d',whichSubject, threshold)),[],0,'.',1);
 end

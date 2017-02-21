@@ -55,6 +55,6 @@ for dd = 1
 end
 
 if saveFigures
-    figurewrite(sprintf(fullfile(figureDir,'figure4AFullSpectrumChannel%d'),exampleChannel),[],0,'.',1);
+    figurewrite(sprintf(fullfile(figureDir,'figure2AFullSpectrumChannel%d'),exampleChannel),[],0,'.',1);
 end
 end

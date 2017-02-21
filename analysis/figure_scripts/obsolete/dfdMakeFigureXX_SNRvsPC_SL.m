@@ -1,9 +1,9 @@
-function dfdMakeFigure12()
-%% Function to reproduce Figure 12A SNR against PCs removed for 3 example subjects 
-% and Figure 12b, SNR for top ten channels against PCs removed for all
+function dfdMakeFigureXX_SNRvsPC_SL()
+%% Function to reproduce Figure 6A SNR against PCs removed for 3 example subjects 
+% and Figure 6b, SNR for top ten channels against PCs removed for all
 % subjects in stimulus-locked signals
 %
-% dfdMakeFigure12()
+% dfdMakeFigureXX_SNRvsPC_SL()
 %
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %

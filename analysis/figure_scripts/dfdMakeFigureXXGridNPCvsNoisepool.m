@@ -1,4 +1,4 @@
-function dfdMakeFigureGridNPCvsNoisepool()
+function dfdMakeFigureXXGridNPCvsNoisepool()
 
 %% Function to reproduce Supplementary Figure 2 
 

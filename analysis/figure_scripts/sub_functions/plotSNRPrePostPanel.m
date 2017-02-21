@@ -24,7 +24,7 @@ fH = figure('position',[0,300,500,200]); set(gcf, 'Color','w', 'Name', plotstr, 
 
 if saveFigures
     if isequal(figureNumber,7)
-        figurewrite(fullfile(figureDir,'Figure7C_snr_full_sat'),[],0,'.',1);
+        figurewrite(fullfile(figureDir,'Figure6C_snr_full_sat'),[],0,'.',1);
     elseif isequal(figureNumber,11)
         figurewrite(fullfile(figureDir,'Figure11D_snr_full_sat'),[],0,'.',1);
     end

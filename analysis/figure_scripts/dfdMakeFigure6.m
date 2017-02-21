@@ -1,6 +1,6 @@
 function dfdMakeFigure6()
-%% Function to reproduce Figure 6AB spectra and beta distributionsof full 
-% field vs blank, pre-post denoising for one example subject (S1).
+%% Function to reproduce Figure 7ABCD S, N, SNR pre-post denoising
+% for top ten channels of all subjects
 %
 % dfdMakeFigure6()
 %
@@ -18,29 +18,29 @@ function dfdMakeFigure6()
 % function. 
 
 %% Choices to make:
-whichSubject    = 1;     % Subject 1 has the example channel.
+whichSubjects    = [1:8];     % Subject 1 has the example channel.
+exampleSessions = 1;
 figureDir       = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to save images?
 dataDir         = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?
 saveFigures     = true;  % Save figures in the figure folder?
-figNum          = 6;     % To call corresponding part of subfunction
+figureNumber    = 6;
                                          
-% Define plot colors
-colors          = dfdGetColors(4);
-% Define whether to average in log or not
-avgLogFlg       = false;
+% Define plotting parameters
+colors          = dfdGetColors(3);
+axmax           = 10;    % How far out do you want to plot the number of PCs
 
-% Load data, design, and get example subject
-[data,design,exampleIndex,exampleChannel] = prepareData(dataDir,whichSubject,6);
+dataAll = [];
+for whichSubject = whichSubjects
+    fprintf('Load data subject %d \n', whichSubject);
+    % Load data, design, and get example subject
+    [dataAll{whichSubject},design{whichSubject}] = prepareData(dataDir,whichSubject,7);
+end
 
-% Define conditions: Full, right, left, off
-condEpochs1 = {design{1}(:,1)==1, design{1}(:,2)==1, design{1}(:,3)==1, all(design{1}==0,2)};
-condEpochs2 = {design{2}(:,1)==1, design{2}(:,2)==1, design{2}(:,3)==1, all(design{2}==0,2)};
+%% Plot SNR vs number of PCs change for all channels 
 
-condEpochs = {condEpochs1 condEpochs2};
+fH(1) = plotSNRvsPCsExampleSubjectsPanel6A(dataAll,exampleSessions,colors,axmax,figureDir,saveFigures, 'Figure 6a');
 
+fH(2) = plotSNRvsPCsAllSubjectsPanel7B(dataAll,colors,axmax,figureDir,saveFigures, 'Figure 6b');
 
-%% Plot spectrum before and after denoising
-fH(1) = plotSpectraPanelBeforeAfterDenoising(data, exampleIndex, exampleChannel, condEpochs, avgLogFlg, colors, saveFigures, figureDir, figNum, 'Figure 6a');
+fH(3) = plotSNRPrePostPanel(dataAll,whichSubjects,colors,figureDir,saveFigures,figureNumber, 'Figure 6c');
 
-%% Plot signal and noise distributions before and after denoising
-fH(2) = plotBetaDistributions(data, exampleIndex, exampleChannel, condEpochs, colors, saveFigures, figureDir, figNum, 'Figure 6b'); %#ok<NASGU>
