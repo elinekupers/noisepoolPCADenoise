@@ -84,12 +84,13 @@ for whichSubject = 1:8
         
     end
     
-    if saveFigures
-        % Note: our function figurewrite is extremely slow with Matlab 2016b,
-        % therefore we use hgexport()
-        figurewrite(fullfile(figureDir, sprintf('SF1_individualsubject%d_thresh%d',whichSubject, threshold)),[],0,'.',1);
-    end
+
     
 end
 
+    if saveFigures
+        % Note: our function figurewrite is extremely slow with Matlab 2016b,
+        % therefore we use hgexport()
+        figurewrite(fullfile(figureDir, sprintf('SF1_individual_thresh%d', threshold)),[],0,'.',1);
+    end
 

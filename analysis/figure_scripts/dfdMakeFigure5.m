@@ -30,7 +30,7 @@ colors          = dfdGetColors(4);
 avgLogFlg       = false;
 
 % Load data, design, and get example subject
-[data,design,exampleIndex,exampleChannel] = prepareData(dataDir,whichSubject,6);
+[data,design,exampleIndex,exampleChannel] = prepareData(dataDir,whichSubject,5);
 
 % Define conditions: Full, right, left, off
 condEpochs1 = {design{1}(:,1)==1, design{1}(:,2)==1, design{1}(:,3)==1, all(design{1}==0,2)};

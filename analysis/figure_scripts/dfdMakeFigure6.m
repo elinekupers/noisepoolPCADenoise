@@ -1,12 +1,12 @@
 function dfdMakeFigure6()
-%% Function to reproduce Figure 7ABCD S, N, SNR pre-post denoising
+%% Function to reproduce Figure 6ABCD S, N, SNR pre-post denoising
 % for top ten channels of all subjects
 %
 % dfdMakeFigure6()
 %
 % Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J.
-% Heeger, Jonathan Winawer. (YEAR) Broadband spectral responses in visual
-% cortex revealed by a new MEG denoising algorithm.
+% Heeger, Jonathan Winawer. (YEAR) A non-invasive, quantitative study of
+% broadband spectral responses in human visual cortex
 % (JOURNAL. VOLUME. ISSUE. DOI.)
 %
 % This figure will show subject's the broadband spectra before and after denoising from 60-150 Hz.
@@ -33,14 +33,14 @@ dataAll = [];
 for whichSubject = whichSubjects
     fprintf('Load data subject %d \n', whichSubject);
     % Load data, design, and get example subject
-    [dataAll{whichSubject},design{whichSubject}] = prepareData(dataDir,whichSubject,7);
+    [dataAll{whichSubject},design{whichSubject}] = prepareData(dataDir,whichSubject,6);
 end
 
 %% Plot SNR vs number of PCs change for all channels 
 
-fH(1) = plotSNRvsPCsExampleSubjectsPanel6A(dataAll,exampleSessions,colors,axmax,figureDir,saveFigures, 'Figure 6a');
+fH(1) = plotSNRvsPCsExampleSubjectsPanel6A(dataAll,exampleSessions,colors,axmax,figureDir,saveFigures, 'Figure 6A');
 
-fH(2) = plotSNRvsPCsAllSubjectsPanel7B(dataAll,colors,axmax,figureDir,saveFigures, 'Figure 6b');
+fH(2) = plotSNRvsPCsAllSubjectsPanel6B(dataAll,colors,axmax,figureDir,saveFigures, 'Figure 6B');
 
-fH(3) = plotSNRPrePostPanel(dataAll,whichSubjects,colors,figureDir,saveFigures,figureNumber, 'Figure 6c');
+fH(3) = plotSNRPrePostPanel(dataAll,whichSubjects,colors,figureDir,saveFigures,figureNumber, 'Figure 6C');
 

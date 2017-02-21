@@ -63,11 +63,11 @@ for icond = 1:4
 %     clims_ab = [-1,1].*[max_val,max_val];
     if icond <= 3, clims_ab = 8.4445 * [-1 1]; else, clims_ab = 3.5363 * [-1,1]; end
     
-%     subplot(4,2,(icond-1)*2+1)
-%     [~,ch] = megPlotMap(ab_snr1,clims_ab,gcf,'bipolar',sprintf('%s Original', condNames{icond}),data_hdr,cfg);
-%     makeprettyaxes(ch,9,9);
-%     set(ch,'YTick',[-8,-4,0,4,8]);
-%     title(sprintf('Broadband Pre %s', condNames{icond}))
+    subplot(4,2,(icond-1)*2+1)
+    [~,ch] = megPlotMap(ab_snr1,clims_ab,gcf,'bipolar',sprintf('%s Original', condNames{icond}),data_hdr,cfg);
+    makeprettyaxes(ch,9,9);
+    set(ch,'YTick',[-8,-4,0,4,8]);
+    title(sprintf('Broadband Pre %s', condNames{icond}))
     
     subplot(4,2,(icond-1)*2+2)
     [~,ch] = megPlotMap(ab_snr2,clims_ab,gcf,'bipolar',sprintf('%s : Denoised PC %d',condNames{icond}, bb.results.pcnum(1)),data_hdr,cfg);
@@ -82,7 +82,6 @@ if saveFigures
     figurewrite(fullfile(figureDir, sprintf('figure8_examplesubject%d_bipolar_thresh%d',whichSubject, threshold)),[],0,'.',1);
 end
 
-return
 %% Now do the same but then across subjects
-dfdMakeFigure9AcrossSubjects()
+dfdMakeFigure8AcrossSubjects()
 
