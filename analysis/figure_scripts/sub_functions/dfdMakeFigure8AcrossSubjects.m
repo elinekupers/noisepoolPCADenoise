@@ -40,8 +40,8 @@ contrastNames = {
 
 for whichSubject = whichSubjects
     subjnum = find(whichSubjects==whichSubject);
-    data = prepareData(dataDir,whichSubject,5);
-    bb(subjnum) = data{1};
+    data = prepareData(dataDir,whichSubject,8);
+    bb(subjnum) = data;
     
     num_channels = size(bb(subjnum).results.origmodel.beta,2);
     num_boots    = size(bb(subjnum).results.origmodel.beta,3);

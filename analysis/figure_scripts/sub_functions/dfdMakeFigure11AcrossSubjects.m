@@ -35,13 +35,13 @@ if isequal(whichSubjects,1:8)
 elseif isequal(whichSubjects,21:28)
     str = {'SL raw' 'BB CALM' 'BB CALM + MEG Denoise'}; figName = 'CALM';
 elseif isequal(whichSubjects,29:36)
-    str = {'SL raw' 'BB TSPCA' 'BB TSPCA + MEG Denoise'}; figName = 'TSPCA';    
+    str = {'SL raw' 'BB TSPCA' 'BB TSPCA + MEG Denoise'}; figName = 'TSPCA';
 end
 
 %% Load denoised data of all subjects
 for whichSubject = whichSubjects
     subjnum = find(whichSubject==whichSubjects);
-    data = prepareData(dataDir,whichSubject,14);
+    data = prepareData(dataDir,whichSubject,11);
     bb(subjnum) = data{1};
     sl(subjnum) = data{2};
     
@@ -91,13 +91,19 @@ figure,set(gcf, 'Name', figName)
 for row = 1:4 % stimulus contrasts
     for col = 1:3 % types of analyses (sl, bb-pre, bb-post)
         subplot(4,3,3*(row-1)+col),
-        if col == 1, clim = [-15 15]; else clim = [-4 4]; end
-        megPlotMap(squeeze(mean(data{col}(row,:,:),3)), ...
-            clim, [], cmap); drawnow;        
-        if row == 1, title(str{col}); end
+        if col == 1, clim = [-25.6723,25.6723]; 
+        else 
+            if row == 4; clim = [-5.445, 5.445]; 
+            else; clim = [-8.4445, 8.4445]; 
+            end; 
+        end
+            
+            megPlotMap(squeeze(mean(data{col}(row,:,:),3)), ...
+                clim, [], cmap); drawnow;
+            if row == 1, title(str{col}); end
+        end
     end
-end
-
-if saveFigures
-    hgexport(gcf,fullfile(figureDir,sprintf('figure11_AcrossSubject%d_threshold%d_%s',whichSubject, threshold, figName)));
-end
+    
+    if saveFigures
+        hgexport(gcf,fullfile(figureDir,sprintf('figure11_AcrossSubject%d_threshold%d_%s',whichSubject, threshold, figName)));
+    end
