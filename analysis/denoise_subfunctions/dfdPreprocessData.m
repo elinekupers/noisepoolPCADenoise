@@ -66,8 +66,10 @@ end
 
 % Check how many sensors there are, if there are more than 192, it will be
 % a neuromag360 dataset and we need a different layout for interpolation
-if size(sensorDataIn,3) > 192;
-    sensorPositions = 'neuromag360xyz';
+if size(sensorDataIn,3) > 204 % Yokogawa Con MEG file has 208 channels
+    sensorPositions = 'con_example_hdr';
+elseif size(sensorDataIn,3) > 192
+    sensorPositions = 'neuromag360xyz';  % Neuro MEG file has 204 
 else
     sensorPositions = [];
 end
@@ -78,7 +80,7 @@ clear sensorDataIn
 return
 
 function outliers = meg_find_bad_epochs(ts, thresh)
-if ~exist('thresh', 'var') || isempty(thresh),
+if ~exist('thresh', 'var') || isempty(thresh)
     thresh = [0.1 10];
 end
 

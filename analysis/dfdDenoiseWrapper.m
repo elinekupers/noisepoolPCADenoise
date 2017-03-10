@@ -39,7 +39,7 @@ function dfdDenoiseWrapper(subjects, howToDenoise)
 if notDefined('howToDenoise'), howToDenoise = 1; end
 
 % Check for data, download data if needed
-if isempty(dir(fullfile(dfdRootPath, 'analysis', 'data', 's0*.mat')))
+if isempty(dir(fullfile(dfdRootPath, 'analysis', 'data', 's*.mat')))
     error('No data were found. Use dfdDownloadSampleData')
 end
 
@@ -122,9 +122,11 @@ end
 
 for whichSubject = subjects
     
-    if whichSubject < 9,        dataChannels        = 1:157; % yokogawa MEG
+    if whichSubject < 9,        dataChannels        = 1:157; % yokogawa MEG 157 channels
     elseif whichSubject < 21,   dataChannels        = 1:204; % Elekta Neuromag
-    else                        dataChannels        = 1:157; %#ok<SEPEX> % Synthetic subject
+    elseif whichSubject == 99;  dataChannels        = 1:157; % Synthetic subject
+    elseif whichSubject > 36,   dataChannels        = 1:208; % yokogawa MEG 208 channels
+    else                        dataChannels        = 1:157;  %#ok<SEPEX>
     end
 
     % ------------------ Load data and design ----------------------------
@@ -143,7 +145,10 @@ for whichSubject = subjects
     % condition 3 is blank
     
     % ------------- Combine channels if CiNet data -------------
-    if whichSubject > 8 && whichSubject < 21 
+    if length(dataChannels) == 157
+        optbb.npoolmethod = {'r2','n',75};
+        optsl.npoolmethod = {'r2','n',75};
+    else
         optbb.npoolmethod = {'r2','n',100};
         optsl.npoolmethod = {'r2','n',100};
     end

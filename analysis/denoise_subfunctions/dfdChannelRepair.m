@@ -12,10 +12,10 @@ function sensorDataOut = dfdChannelRepair(sensorDataIn, outliers, method, sensor
 % OUTPUTS
 %   sensorDataOut: data array, same size as sensorDataIn
 if notDefined('verbose'); verbose = false; end
-if notDefined('sensorPositions'), 
+if notDefined('sensorPositions') 
     hdr = load('meg160_example_hdr.mat'); hdr = hdr.hdr;
     net.xyz = hdr.grad.chanpos;
-elseif strcmp(sensorPositions, 'neuromag360xyz');
+elseif strcmp(sensorPositions, 'neuromag360xyz')
     load('neuromag360_sample_cfg_combined');    
     channels = cfg.cfg.channel;
     hdr = load('neuromag360_sample_hdr.mat'); hdr = hdr.hdr;
@@ -25,7 +25,9 @@ elseif strcmp(sensorPositions, 'neuromag360xyz');
     end
     
     net.xyz = hdr.grad.chanpos(idx,:);
-    
+elseif strcmp(sensorPositions, 'con_example_hdr')
+    hdr = load('con_example_hdr.mat'); hdr = hdr.hdr;
+    net.xyz = hdr.grad.chanpos;
 end
 
 % get data sizes
