@@ -13,7 +13,9 @@ Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J. Heeger, Jon
 * Neural Network Toolbox (v 8.2.1)
 
 **Other toolbox dependencies**
-* Fieldtrip toolbox (v 20170102)
+* Fieldtrip toolbox (v 20170102) - For visualization
+* MGL (v 2.0) - For eyetracking analysis
+* MrTools (v unknown) - For eyetracking analysis
 
 **Folder structure**
 * denoisedata.m:  Main function to denoise time series.
