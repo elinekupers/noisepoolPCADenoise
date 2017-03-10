@@ -3,29 +3,53 @@ function [fH,ch] = megPlotMap(sensor_data,clims,fH,cm,ttl,data_hdr,cfg, varargin
 if notDefined('cm'),       cm = 'parula';    end  % colormap
 if notDefined('ttl');      ttl = '';      end  % title string
 if notDefined('fH'),       fH = gcf;      end
-if notDefined('data_hdr'), data_hdr = load('meg160_example_hdr.mat'); data_hdr = data_hdr.hdr; end
+% if notDefined('data_hdr'), data_hdr = load('meg160_example_hdr.mat'); data_hdr = data_hdr.hdr; end
 if notDefined('cfg'),      cfg = []; end
 
 % Define other params
 fs = 14; % font size
 renderer = 'zbuffer';
 
-%% Handle data
+%% Handle data header
 % If more than 157, it is the uncombined Neuromag dataset, or less it is
 % the combined Neuromag
-if length(sensor_data) < 157 || length(sensor_data) > 157
-    
-    % Create layout
-    if length(sensor_data) > 157; cfg.layout = 'neuromag306planar';
-    elseif length(sensor_data) < 157; cfg.layout = 'neuromag306cmb'; end
-    
-    cfg.layout = ft_prepare_layout(cfg, 'neuromag360_sample_hdr_combined.mat'); 
-    
-    % Otherwise it is the Yokogawa dataset, which we might have to clip
-elseif length(sensor_data) >= 157
-    % Define plotting options
-    cfg.layout = ft_prepare_layout(cfg, data_hdr); 
-end
+if isempty(cfg)
+
+    if length(sensor_data) <= 102 % Combined NeuroMag 204 channel MEG
+        cfg.layout = 'neuromag306cmb'; % Use standard layout in Fieltrip
+    elseif length(sensor_data) <= 104 % Combined Yokogawa 208 channel MEG
+        data_hdr = load('yokogawa_con_example_hdr.mat'); data_hdr = data_hdr.hdr;
+        cfg.layout = ft_prepare_layout(cfg, data_hdr); % Create our own layout with Fieltrip function
+    elseif length(sensor_data) <= 157 % Uncombined/standard Yokogawa 157 channel MEG
+        data_hdr = load('meg160_example_hdr.mat'); data_hdr = data_hdr.hdr;
+        cfg.layout = ft_prepare_layout(cfg, data_hdr); % Create our own layout with Fieltrip function
+    elseif length(sensor_data) <= 204 % Uncombined NeuroMag 204 planar channel MEG
+        cfg.layout = 'neuromag306planar';
+    elseif length(sensor_data) <= 208
+        data_hdr = load('yokogawa_con_example_hdr.mat'); data_hdr = data_hdr.hdr;
+        cfg.layout = ft_prepare_layout(cfg, data_hdr);
+    else
+        error(sprintf('(%s): Can''t find MEG layout configuration', mfilename))
+    end
+        
+        
+        
+        
+        
+        
+%         157 || length(sensor_data) > 157
+%     
+%     % Create layout
+%     if length(sensor_data) > 157; cfg.layout = 'neuromag306planar';
+%     elseif length(sensor_data) < 157; cfg.layout = 'neuromag306cmb'; end
+%     
+%     cfg.layout = ft_prepare_layout(cfg, 'neuromag360_sample_hdr_combined.mat'); 
+%     
+%     % Otherwise it is the Yokogawa dataset, which we might have to clip
+% elseif length(sensor_data) >= 157
+%     % Define plotting options
+%     cfg.layout = ft_prepare_layout(cfg, data_hdr);
+% end
 
 % Check data
 cfg.data = sensor_data';
