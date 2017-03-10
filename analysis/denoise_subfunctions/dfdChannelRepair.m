@@ -25,8 +25,8 @@ elseif strcmp(sensorPositions, 'neuromag360xyz')
     end
     
     net.xyz = hdr.grad.chanpos(idx,:);
-elseif strcmp(sensorPositions, 'con_example_hdr')
-    hdr = load('con_example_hdr.mat'); hdr = hdr.hdr;
+elseif strcmp(sensorPositions, 'yokogawa_con_example_hdr')
+    hdr = load('yokogawa_con_example_hdr.mat'); hdr = hdr.hdr;
     net.xyz = hdr.grad.chanpos;
 end
 
