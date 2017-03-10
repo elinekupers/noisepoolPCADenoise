@@ -18,7 +18,7 @@ fH = figure('position',[0,300,500,200]); set(gcf, 'Color','w', 'Name', plotstr, 
         plotBeforeAfter(allresults,1,allpcchan,'SNR',icond,[],squeeze(colorRGB(icond,:,:)));
         xlim([0.5,2.5]);
         makeprettyaxes(gca,9,9);
-        if isequal(figureNumber,7);  ylim([-2,10]);
+        if isequal(figureNumber,6);  ylim([-2,10]);
         else ylim([0,40]); end;
     end
 

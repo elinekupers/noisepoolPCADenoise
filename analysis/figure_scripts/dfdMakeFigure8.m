@@ -37,6 +37,7 @@ bb = prepareData(dataDir,whichSubject,8);
 figure('position',[1,600,1400,800], 'Name', 'Figure 8, example subject', 'NumberTitle', 'off');
 condNames = {'Stim Full','Stim Left','Stim Right' 'Stim Left - Right'};
 contrasts = [eye(3); [0 1 -1]/sqrt(2)];
+yscaleAB = [repmat([-8,-4,0,4,8],3,1);[-5,-2.5,0,2.5,5]];
 for icond = 1:4
     
     % get broadband snr for before and after denoising
@@ -48,7 +49,7 @@ for icond = 1:4
     ab_snr1 = to157chan(ab_snr1,~bb.badChannels,'nans');
     ab_snr2 = to157chan(ab_snr2,~bb.badChannels,'nans');
                 
-    if length(bb.badChannels)>157
+    if length(bb.badChannels)>157 && length(bb.badChannels) <= 204
         ab_snr1 = dfd204to102(ab_snr1);
         ab_snr2 = dfd204to102(ab_snr2);
     end        
@@ -66,13 +67,13 @@ for icond = 1:4
     subplot(4,2,(icond-1)*2+1)
     [~,ch] = megPlotMap(ab_snr1,clims_ab,gcf,'bipolar',sprintf('%s Original', condNames{icond}),data_hdr,cfg);
     makeprettyaxes(ch,9,9);
-    set(ch,'YTick',[-8,-4,0,4,8]);
+    set(ch,'YTick',yscaleAB(icond,:));
     title(sprintf('Broadband Pre %s', condNames{icond}))
     
     subplot(4,2,(icond-1)*2+2)
     [~,ch] = megPlotMap(ab_snr2,clims_ab,gcf,'bipolar',sprintf('%s : Denoised PC %d',condNames{icond}, bb.results.pcnum(1)),data_hdr,cfg);
     makeprettyaxes(ch,9,9);
-    set(ch,'YTick',[-8,-4,0,4,8]);
+    set(ch,'YTick',yscaleAB(icond,:));
     title(sprintf('Broadband Post %s', condNames{icond}))
     drawnow();
     

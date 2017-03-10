@@ -18,7 +18,7 @@ function dfdMakeFigure6()
 % function. 
 
 %% Choices to make:
-whichSubjects    = [1:8];     % Subject 1 has the example channel.
+whichSubjects   = [1:8];     % Subject 1 has the example channel.
 exampleSessions = 1;
 figureDir       = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to save images?
 dataDir         = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?

@@ -36,7 +36,7 @@ sl = data{2};
 %% Plot stimulus-locked signal, broadband before and after denoising on sensormap
 figure('position',[1,600,1400,800]); set(gcf, 'Name', 'Figure 5, Example subject', 'NumberTitle', 'off');
 contrastNames = {'Stim Full','Stim Left','Stim Right','Left minus Right'};
-contrasts = [0 1 -1]; %[eye(3); 0 1 -1];
+contrasts = [eye(3); 0 1 -1];
 contrasts = bsxfun(@rdivide, contrasts, sqrt(sum(contrasts.^2,2)));
 yscaleAB = [repmat([-8,-4,0,4,8],3,1);[-5,-2.5,0,2.5,5]];
 climsSL = [-25.6723,25.6723];
@@ -53,7 +53,7 @@ for icond = 1:size(contrasts,1)
     sl_snr1 = to157chan(sl_snr1,~sl.badChannels,'nans');
     ab_snr1 = to157chan(ab_snr1,~bb.badChannels,'nans');
 
-    if length(bb.badChannels)>157
+    if length(bb.badChannels)>157 && length(bb.badChannels) <= 204
         sl_snr1 = dfd204to102(sl_snr1);
         ab_snr1 = dfd204to102(ab_snr1);
     end  
@@ -62,9 +62,9 @@ for icond = 1:size(contrasts,1)
     ab_snr1(abs(ab_snr1) < threshold) = 0;
     sl_snr1(abs(sl_snr1) < threshold) = 0;
    
-%     if icond > 3 % then we are plotting l-r rather than one condition and change the colormap limits
+     if icond > 3 % then we are plotting l-r rather than one condition and change the colormap limits
         climsAB = [-3.5363, 3.5363]; 
-%     end
+     end
 
     % plot spatial maps
     subplot(4,2,(icond-1)*2+1)
@@ -85,7 +85,6 @@ end
     figurewrite(fullfile(figureDir, sprintf('figure3_examplesubject%d_thresh%d',whichSubject, threshold)),[],0,'.',1);
  end
 
- return
 %% Now call dfdMakeFigure3AcrossSubjects
 dfdMakeFigure3AcrossSubjects();
 

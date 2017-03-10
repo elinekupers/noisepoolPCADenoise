@@ -1,15 +1,17 @@
 function fH = plotSNRvsPCsExampleSubjectsPanel6A(dataAll,exampleSessions,condColors,axmax,figureDir,saveFigures, plotstr)
 
-% Define colors
-linecolors=copper(157);
-
 n = length(dataAll);
+
+% Define colors
+linecolors=copper(size(dataAll{n}.results.origmodel.beta,2));
 
 fH = figure('position',[1,200,600,200]); set(fH, 'Color', 'w', 'Name', plotstr, 'NumberTitle', 'off')
 for k = 1:length(exampleSessions)
     
     dataAllind = ~cellfun(@isempty,dataAll);
     dataAll = dataAll(dataAllind);
+    
+    
     
     % get snr
     snr = (cat(3,dataAll{k}.evalout(:,1).beta_md)) ./ cat(3,dataAll{k}.evalout(:,1).beta_se);
@@ -28,11 +30,11 @@ for k = 1:length(exampleSessions)
         
         % plot snr change for noisepool
         noisepooltrend = squeeze(mean(snr(icond,dataAll{k}.results.noisepool,:),2));
-
+        
         
         plot(0:axmax, xvaltrend(1:axmax+1,:), 'color', condColors(icond,:), 'linewidth',2);
         plot(0:axmax, noisepooltrend(1:axmax+1,:), 'color', condColors(icond,:), 'linewidth',2,'linestyle',':');
-
+        
         % plot(axmax+1, xvaltrend(51,:), 'o', 'color', condColors(icond,:));
         axis square; xlim([0,axmax]);
         ylim([-5,15]); % if SL: ylim([0,50])
@@ -40,5 +42,5 @@ for k = 1:length(exampleSessions)
     end
 end
 if saveFigures
-   figurewrite(fullfile(figureDir,'Figure6SNRvPCsExampleSubjectsBB'),[],0,'.',1);
+    figurewrite(fullfile(figureDir,'Figure6SNRvPCsExampleSubjectsBB'),[],0,'.',1);
 end
