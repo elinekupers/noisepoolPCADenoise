@@ -1,6 +1,6 @@
 function fH = plotSpectraPanelBeforeAfterDenoising(data, exampleIndex, exampleChannel, condEpochs, avgLogFlg, colors, saveFigures, figureDir, figNum, plotstr)
 
-%% Set up figure 2B
+%% Set up figure
 fH = figure; set(fH,'position',[0,300,200,350], 'Name', plotstr, 'NumberTitle', 'off')
 
 % define axes
@@ -8,10 +8,10 @@ f = (0:999);
 xl = [60 150];
 fok = f;
 
-if figNum == 5;
+if figNum == 6
     fok(f<=xl(1) | f>=xl(2) | mod(f,60) < 2 | mod(f,60) > 58 | mod(f,72) < 2 | mod(f,96) < 2 | mod(f,108) < 2 | mod(f,144)<2) = [];
     xt = [];
-elseif figNum == 2;
+elseif figNum == 4
     fok(f<=xl(1) | f>=xl(2) | mod(f,60) < 2 | mod(f,60) > 58) = [];
     xt = [12:12:72, 96,144];
 else disp('This figure number does not contain a spectra panel')
@@ -84,8 +84,8 @@ for dd = 1:2
 end
 
 if saveFigures
-    if figNum == 2; fname = sprintf('figure2bHighFreqSpectrumChannel%d',exampleChannel);
-    elseif figNum == 5; fname = sprintf('figure5AHighFreqSpectrumChannel%d',exampleChannel); end
+    if figNum == 4; fname = sprintf('figure4bHighFreqSpectrumChannel%d',exampleChannel);
+    elseif figNum == 6; fname = sprintf('figure6AHighFreqSpectrumChannel%d',exampleChannel); end
     figurewrite(fullfile(figureDir,fname),[],0,'.',1); 
 end
 

@@ -1,4 +1,4 @@
-function dfdMakeFigure14()
+function dfdMakeFigure15()
 %
 % Function to get ms rate per condition, plot mean rate over time
 % (directional histograms and bootstrapped distributions).
@@ -160,7 +160,7 @@ for nn = 1:numel(conds)
     epochsWithMS = [];
     
     % For each second (==epoch)
-    for epoch = 1:size(eyexyVel,2);
+    for epoch = 1:size(eyexyVel,2)
         
         % Define microsaccades
         [sacRaw,radius] = microsacc(squeeze(eyexyPos(:,epoch,:)),squeeze(eyexyVel(:,epoch,:)),vThres,msMinDur);

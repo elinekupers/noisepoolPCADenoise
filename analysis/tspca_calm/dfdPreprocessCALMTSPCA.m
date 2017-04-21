@@ -29,23 +29,23 @@ addpath(genpath('~/matlab/git/meg_utils'));
 % -------------- Load data -------------
 % --------------------------------------
 
-dataDir             = '/Volumes/server/Projects/MEG/SSMEG/';
+dataDir             = '/Volumes/server/Projects/MEG/NYUAD/';
 subjectPths         = dir(fullfile(dataDir,'*SSMEG*'));
-howToDenoise        = 'TSPCA'; 
+howToDenoise        = 'CALM'; 
 sizeOfBlocks        = 20000;
 nearNeighbors       = 0;
-excludedChannels    = [];
+excludedChannels    = [21,34];
 doWeZeroSaturatedChannels = 'no';
-channelForSaturatingChannels = 168;
+channelForSaturatingChannels = 234; %168;
 doWeUseVibrationalChannels = 'no';
 
 switch howToDenoise
-    case TSPCA
-        postFix = 'TSPCA';
+    case 'TSPCA'
+        postFix = howToDenoise;
         shifts  = [-100:100];
     
-    case CALM
-        postFix = 'CALM';
+    case 'CALM'
+        postFix = howToDenoise;
         shifts  = 1;
 end
 
@@ -63,13 +63,13 @@ for whichSubject = whichSubjects
     subjPth    = '*SSMEG*';
     d = dir(fullfile(dataPth, subjPth));
     
-    rawFile   = fullfile(dataDir, subjectPths(whichSubject).name, 'raw', d(1).name);
+    rawFile   = fullfile(dataDir, subjectPths(whichSubject).name, 'raw', d(2).name);
     
     % Get data [timepoints x channels]
     data = sqdread(rawFile);
     
-    rawFileName = sprintf('%s.sqd',  d(1).name(1:end-4));
-    denoisedFileName = sprintf('%s_%s.sqd',  d(1).name(1:end-4), postFix);
+    rawFileName = sprintf('%s_01.con',  d(1).name(1:end-4));
+    denoisedFileName = sprintf('%s_%s.con',  d(1).name(1:end-4), postFix);
     
     copyfile(fullfile(dataPth,rawFileName),fullfile(dataPth,denoisedFileName));
     sqdwrite(fullfile(dataPth,rawFileName),fullfile(dataPth,denoisedFileName), 'data', data);

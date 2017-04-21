@@ -1,7 +1,7 @@
-function data = dfdMakeFigure11AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
-%% Function to reproduce Figure 11 (Spatialmap) across NYU dataset subjects having no, CALM or TSPCA preprocessing
+function data = dfdMakeFigure14AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
+%% Function to reproduce Figure 14 (Spatialmap) across CiNet dataset subjects
 %
-% data = dfdMakeFigure11AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
+% data = dfdMakeFigure14AcrossSubjects(whichSubjects,figureDir,dataDir,saveFigures,threshold)
 %
 % INPUTS:
 % whichSubjects : (element or vector) subject number of datasets you want to plot (see
@@ -13,7 +13,7 @@ function data = dfdMakeFigure11AcrossSubjects(whichSubjects,figureDir,dataDir,sa
 %
 % OUTPUTS:
 % data          : (cell) data of the plotted meshes
-%
+
 % AUTHORS. TITLE. JOURNAL. YEAR.
 %
 % This figure will show an interpolated spatial map of the SNR values in
@@ -30,18 +30,16 @@ contrasts = bsxfun(@rdivide, contrasts, sqrt(sum(contrasts.^2,2)));
 computeSNR    = @(x) nanmean(x,3) ./ nanstd(x, [], 3);
 contrastNames = {'Full','Left','Right','Left-Right'};
 
-if isequal(whichSubjects,1:8)
+if isequal(whichSubjects,[9:12])
     str = {'SL raw' 'BB raw' 'BB MEG Denoise'}; figName = 'RAW';
-elseif isequal(whichSubjects,21:28)
-    str = {'SL raw' 'BB CALM' 'BB CALM + MEG Denoise'}; figName = 'CALM';
-elseif isequal(whichSubjects,29:36)
-    str = {'SL raw' 'BB TSPCA' 'BB TSPCA + MEG Denoise'}; figName = 'TSPCA';
+elseif isequal(whichSubjects,[14,16,18,20])
+    str = {'SL raw' 'BB TSSS' 'BB TSSS + MEG Denoise'}; figName = 'TSSS';
 end
 
 %% Load denoised data of all subjects
 for whichSubject = whichSubjects
     subjnum = find(whichSubject==whichSubjects);
-    data = prepareData(dataDir,whichSubject,11);
+    data = prepareData(dataDir,whichSubject,14);
     bb(subjnum) = data{1};
     sl(subjnum) = data{2};
     
@@ -91,19 +89,13 @@ figure,set(gcf, 'Name', figName)
 for row = 1:4 % stimulus contrasts
     for col = 1:3 % types of analyses (sl, bb-pre, bb-post)
         subplot(4,3,3*(row-1)+col),
-        if col == 1, clim = [-25.6723,25.6723]; 
-        else 
-            if row == 4; clim = [-5.445, 5.445]; 
-            else; clim = [-8.4445, 8.4445]; 
-            end; 
-        end
-            
-            megPlotMap(squeeze(mean(data{col}(row,:,:),3)), ...
-                clim, [], cmap); drawnow;
-            if row == 1, title(str{col}); end
-        end
+        if col == 1, clim = [-15 15]; else clim = [-4 4]; end
+        megPlotMap(dfd204to102(squeeze(mean(data{col}(row,:,:),3))), ...
+            clim, [], cmap); drawnow;       
+        if row == 1, title(str{col}); end
     end
-    
-    if saveFigures
-        hgexport(gcf,fullfile(figureDir,sprintf('figure11_AcrossSubject%d_threshold%d_%s',whichSubject, threshold, figName)));
-    end
+end
+
+if saveFigures
+    hgexport(gcf, fullfile(figureDir,sprintf('figure14_AcrossSubject%d_threshold%d_%s',whichSubject, threshold, figName)));
+end

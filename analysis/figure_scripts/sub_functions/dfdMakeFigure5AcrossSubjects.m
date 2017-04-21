@@ -1,6 +1,6 @@
-function dfdMakeFigure3AcrossSubjects
+function dfdMakeFigure5AcrossSubjects
 
-%% Function to reproduce Figure 3 (Spatialmap) across all subjects
+%% Function to reproduce Figure 5 (Spatialmap) across all subjects
 %
 % dfdMakeFigure5AcrossSubjects()
 %
@@ -42,7 +42,7 @@ contrastNames = {
 
 for whichSubject = whichSubjects
     subjnum = find(whichSubjects==whichSubject);
-    data = prepareData(dataDir,whichSubject,3);
+    data = prepareData(dataDir,whichSubject,5);
     bb = data{1}; sl = data{2}; clear data;
     
     % Get information, assuming this is the same for SL and BB data
@@ -75,7 +75,7 @@ for whichSubject = whichSubjects
 end
 
 %% Plot stimulus-locked signal, broadband before on sensormap
-figure('position',[1,600,1400,800]); set(gcf, 'Name', 'Figure 3, Group Data', 'NumberTitle', 'off')
+figure('position',[1,600,1400,800]); set(gcf, 'Name', 'Figure 5, Group Data', 'NumberTitle', 'off')
 
 for icond = 1:numel(contrastNames)
     
@@ -118,5 +118,5 @@ for icond = 1:numel(contrastNames)
 end
 
 if saveFigures
-    figurewrite(fullfile(figureDir, sprintf('figure3_AcrossSubjects%d_threshold%d',whichSubject, threshold)),[],0,'.',1);
+    figurewrite(fullfile(figureDir, sprintf('figure5_AcrossSubjects%d_threshold%d',whichSubject, threshold)),[],0,'.',1);
 end

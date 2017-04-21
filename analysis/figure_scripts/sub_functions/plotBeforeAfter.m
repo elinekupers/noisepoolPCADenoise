@@ -21,7 +21,7 @@ vals2all = [];
 for k = nsess
     results = allresults{k};
     
-    % pcchan can be a list of user-specified channels 
+    % pcchan can be a list of user-specified channels
     if iscell(doTop10)
         pcchan = doTop10{k};
     else % otherwise, toggle between the top10 channels or all non-noise channels
@@ -38,14 +38,14 @@ for k = nsess
     end
     
     % nconds x nchannels
-%     ab_signal1 = abs(results.origmodel(whichfun).beta_md(:,pcchan));
+    %     ab_signal1 = abs(results.origmodel(whichfun).beta_md(:,pcchan));
     ab_signal1 = (results.origmodel(whichfun).beta_md(:,pcchan));
-
+    
     ab_noise1  = results.origmodel(whichfun).beta_se(:,pcchan);
     
-%     ab_signal2 = abs(results.finalmodel(whichfun).beta_md(:,pcchan));
+    %     ab_signal2 = abs(results.finalmodel(whichfun).beta_md(:,pcchan));
     ab_signal2 = (results.finalmodel(whichfun).beta_md(:,pcchan));
-
+    
     ab_noise2  = results.finalmodel(whichfun).beta_se(:,pcchan);
     ab_snr1    = ab_signal1./ab_noise1;
     ab_snr2    = ab_signal2./ab_noise2;
@@ -63,7 +63,7 @@ for k = nsess
             vals2 = mean(ab_noise2(whichConds,:),1);
     end
     
-    % take the mean or median across channels 
+    % take the mean or median across channels
     vals1all = cat(1, vals1all, funXchan(vals1));
     vals2all = cat(1, vals2all, funXchan(vals2));
 end
@@ -86,3 +86,12 @@ if ~iscell(doTop10)
     ttl = sprintf('Cond: %s, %s across %s channels', condName, func2str(funXchan), st);
     title(ttl);
 end
+
+% Statistics
+% Get p value by bootstrapping
+p = 2*(.5-abs(.5-mean(bootstrp(10000, @median, vals1all - vals2all )>0)));
+sprintf('Median of 10000x bootstrapped p value: %d \n',p)
+% Or traditional statistics
+% [~,p] = ttest(vals1all,vals2all);
+% sprintf('P value of paired t-test: %d \n',p)
+

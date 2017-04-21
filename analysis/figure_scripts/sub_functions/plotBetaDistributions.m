@@ -55,7 +55,7 @@ end
 
 % Set up figure and plot
 fH = figure; set(fH,'position',[0,200,400,400], 'Name', plotstr, 'NumberTitle', 'off');
-if figNum == 2; dataToPlot = 1; elseif figNum == 5; dataToPlot = 1:2;
+if figNum == 4; dataToPlot = 1; elseif figNum == 6; dataToPlot = 1:2;
 else disp('This figure number does not contain a distribution panel'); end
 for dd = dataToPlot;
     subplot(2,2,dd);
@@ -95,8 +95,8 @@ end
 
 
 if saveFigures
-    if figNum == 2; fname = sprintf('Figure2cFullDistributionBootDiff%d',exampleChannel);
-    elseif figNum == 5; fname = sprintf('Figure5bFullDistributionBootDiff%d',exampleChannel); end    
+    if figNum == 4; fname = sprintf('Figure4cFullDistributionBootDiff%d',exampleChannel);
+    elseif figNum == 6; fname = sprintf('Figure6bFullDistributionBootDiff%d',exampleChannel); end    
     figurewrite(fullfile(figureDir,fname),[],0,'.',1);    
 end
 end

@@ -30,7 +30,7 @@ numrows = ceil(sqrt(length(whichSubjects)));
 numcols = ceil(length(whichSubjects) / numrows);
 
 for whichSubject = whichSubjects
-    [data] = prepareData(dataDir,whichSubject,5);
+    [data] = prepareData(dataDir,whichSubject,3);
     bb = data{1};
 
     % Get noisepool data

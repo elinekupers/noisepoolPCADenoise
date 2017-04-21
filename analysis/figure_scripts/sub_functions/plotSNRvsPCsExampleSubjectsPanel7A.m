@@ -1,4 +1,7 @@
-function fH = plotSNRvsPCsExampleSubjectsPanel6A(dataAll,exampleSessions,condColors,axmax,figureDir,saveFigures, plotstr)
+function fH = plotSNRvsPCsExampleSubjectsPanel7A(dataAll,exampleSessions,condColors,axmax,figureDir,saveFigures, plotstr)
+
+%% SNR increase for each MEG channel as a function of number of PCs removed for one example subject -
+%% Fig. 7A
 
 n = length(dataAll);
 
@@ -11,6 +14,8 @@ for k = 1:length(exampleSessions)
     dataAllind = ~cellfun(@isempty,dataAll);
     dataAll = dataAll(dataAllind);
     
+    % Define colors
+    linecolors=copper(size(dataAll{k}.results.origmodel.beta,2));
     
     
     % get snr
@@ -42,5 +47,5 @@ for k = 1:length(exampleSessions)
     end
 end
 if saveFigures
-    figurewrite(fullfile(figureDir,'Figure6SNRvPCsExampleSubjectsBB'),[],0,'.',1);
+    figurewrite(fullfile(figureDir,'Figure7SNRvPCsExampleSubjectsBB'),[],0,'.',1);
 end

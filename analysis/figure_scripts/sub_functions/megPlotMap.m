@@ -17,6 +17,7 @@ if isempty(cfg)
 
     if length(sensor_data) <= 102 % Combined NeuroMag 204 channel MEG
         cfg.layout = 'neuromag306cmb'; % Use standard layout in Fieltrip
+        cfg.layout = ft_prepare_layout(cfg);
     elseif length(sensor_data) <= 104 % Combined Yokogawa 208 channel MEG
         data_hdr = load('yokogawa_con_example_hdr.mat'); data_hdr = data_hdr.hdr;
         cfg.layout = ft_prepare_layout(cfg, data_hdr); % Create our own layout with Fieltrip function
@@ -25,6 +26,7 @@ if isempty(cfg)
         cfg.layout = ft_prepare_layout(cfg, data_hdr); % Create our own layout with Fieltrip function
     elseif length(sensor_data) <= 204 % Uncombined NeuroMag 204 planar channel MEG
         cfg.layout = 'neuromag306planar';
+        cfg.layout = ft_prepare_layout(cfg);
     elseif length(sensor_data) <= 208
         data_hdr = load('yokogawa_con_example_hdr.mat'); data_hdr = data_hdr.hdr;
         cfg.layout = ft_prepare_layout(cfg, data_hdr);

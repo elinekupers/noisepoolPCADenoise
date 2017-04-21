@@ -1,7 +1,7 @@
-function fH = plotSNRvsPCsAllSubjectsPanel6B(dataAll,condColors,axmax,figureDir,saveFigures, plotstr)
+function fH = plotSNRvsPCsAllSubjectsPanel7B(dataAll,condColors,axmax,figureDir,saveFigures, plotstr)
 
 %% SNR increase as a function of number of PCs removed for all subjects -
-%% Fig. 6B
+%% Fig. 7B
 
 % get the trend for the top 10 channels of all sessions
 snr_top10 = [];
@@ -46,7 +46,7 @@ for icond = 1:3
 end
 
 if saveFigures
-    figurewrite(fullfile(figureDir,'Figure6BSNRvPCsAllSubjsBB'),[],0,'.',1);
+    figurewrite(fullfile(figureDir,'Figure7BSNRvPCsAllSubjsBB'),[],0,'.',1);
 end
 
 
