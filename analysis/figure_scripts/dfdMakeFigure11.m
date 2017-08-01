@@ -101,6 +101,7 @@ thisComparisonColumn = 1; % Which column do you want to compare the rest of your
 
     for otherColumn = find([1:size(snr_diff2,2)]~=thisComparisonColumn)
         for icond = 1:3
+            
             % Get p value by bootstrapping
             p = 2*(.5-abs(.5-mean(bootstrp(10000, @median, snr_diff2(:,thisComparisonColumn,icond) - snr_diff2(:,otherColumn,icond) )>0)));
             outBoot(otherColumn,icond) = p;

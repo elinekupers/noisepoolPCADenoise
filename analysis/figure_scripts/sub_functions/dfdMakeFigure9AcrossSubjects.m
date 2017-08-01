@@ -126,5 +126,6 @@ end
 
 
 if saveFigures
-   figurewrite(fullfile(figureDir, sprintf('figure9_AcrossSubject%d_bipolar_threshold%d',whichSubject, threshold)),[],0,'.',1);
+     hgexport(gcf,fullfile(figureDir, sprintf('figure9_AcrossSubject%d_bipolar_threshold%d',whichSubject, threshold)));
+%    figurewrite(fullfile(figureDir, sprintf('figure9_AcrossSubject%d_bipolar_threshold%d',whichSubject, threshold)),[],0,'.',1);
 end

@@ -30,7 +30,8 @@ dfdMakeFigure14; % Topographic maps and comparisons of Cinet data (MEG Denoise a
 dfdMakeFigure15; % Microsaccade histograms and topographic meshes with(out) microsaccades
 
 % Make supplementary figures
-dfdMakeFigureSF1; % Topographic maps of SL and BB before denoising, all stimulus conditions, all individual subjects
-dfdMakeFigureSF2; % Topographic maps of BB after denoising, all stimulus conditions, all individual subjects
+dfdMakeFigureS1; % Synthetic dataset and the effect of denoising on known data
+dfdMakeFigureS2; % Topographic maps of SL and BB before denoising, all stimulus conditions, all individual subjects
+dfdMakeFigureS3; % Topographic maps of BB after denoising, all stimulus conditions, all individual subjects
 
 

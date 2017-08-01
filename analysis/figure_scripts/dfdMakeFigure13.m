@@ -60,7 +60,7 @@ for t = 1:numel(datatypes);
 end
 
 if saveFigures
-   figurewrite(fullfile(figureDir,'Figure13_s_n_full_sat'));
+   figurewrite(fullfile(figureDir,'Figure13_s_n_full_sat'),[],0,'.',1);
 end
 
 

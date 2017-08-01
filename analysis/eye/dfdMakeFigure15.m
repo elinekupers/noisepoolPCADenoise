@@ -3,6 +3,8 @@ function dfdMakeFigure15()
 % Function to get ms rate per condition, plot mean rate over time
 % (directional histograms and bootstrapped distributions).
 
+% dfdMakeFigure15()
+
 % Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J.
 % Heeger, Jonathan Winawer. (YEAR) Broadband spectral responses in visual
 % cortex revealed by a new MEG denoising algorithm.

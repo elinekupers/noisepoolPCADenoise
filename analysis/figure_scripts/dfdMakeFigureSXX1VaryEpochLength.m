@@ -1,14 +1,16 @@
-function dfdMakeFigureXXVaryEpochLength()
+function dfdMakeFigureSXX1VaryEpochLength()
 
-%% Function to reproduce Supplementary Figure 1 with SNR pre-post difference
+%% Function to reproduce an obsolete supplementary Figure with SNR pre-post difference
 % for different epoch lengths and different epoch length against used npcs.
 % for top ten channels of all subjects
 %
-% dfdFigureVaryEpochLength()
+% dfdMakeFigureSXX1VaryEpochLength()
 %
-% AUTHORS. TITLE. JOURNAL. YEAR.
+% Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J.
+% Heeger, Jonathan Winawer. (YEAR) A non-invasive, quantitative study of
+% broadband spectral responses in human visual cortex
+% (JOURNAL. VOLUME. ISSUE. DOI.)
 %
-% This figure will show ...
 %
 % This function assumes that data is downloaded with the DFDdownloaddata
 % function and then analyzed by dfdDenoiseVaryEpochLength.
@@ -21,7 +23,7 @@ figureDir            = fullfile(dfdRootPath, 'analysis', 'figures');% Where to s
 saveFigures          = true;     % Save figures in the figure folder?
 condColors           = dfdGetColors(3);
 dataAll              = [];
-figureNumber         = 'SF1';
+figureNumber         = 'SFXX1';
 epochDurs            = [1,3,6,12,24,36,72,1080];
 npcs                 = [5,10:10:70];
 

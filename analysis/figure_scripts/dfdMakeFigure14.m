@@ -91,11 +91,15 @@ colorSaturated = varysat(colors,satValues);
 nnull = length(types);
 for icond = 1:3
     subplot(1,3,icond); hold on;
+    
+    % BAR PLOT
     % mean and sem across subjects
     %     mn  = mean(snr_mn(:,:,icond));
     %     sem = std(snr_mn(:,:,icond))/sqrt(4);
     %     bar(1:nnull, mn,'EdgeColor','none','facecolor',colors(icond,:)); hold on
     %     errorbar2(1:nnull,mn,sem,1,'-','color',colors(icond,:));
+
+   % OR A LINE PLOT...
    for whichSubject = 1:4
         plot([1 2], snr_mn(whichSubject,[1 3],icond), 'o-', 'Color', squeeze(colorSaturated(icond,whichSubject,:)), ...
             'MarkerEdgeColor',squeeze(colorSaturated(icond,whichSubject,:)),'MarkerFaceColor', squeeze(colorSaturated(icond,whichSubject,:)), 'LineWidth', 2)
@@ -113,5 +117,6 @@ for icond = 1:3
 end
 
 if saveFigures
-    figurewrite(fullfile(figureDir,'figure14b_linegraphTSSS'),[],0,'.',1);
+    hgexport(gcf,fullfile(figureDir,'figure14b_linegraphTSSS'));
+%     figurewrite(fullfile(figureDir,'figure14b_linegraphTSSS'),[],0,'.',1);
 end

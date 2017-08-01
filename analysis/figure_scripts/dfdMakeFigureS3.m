@@ -1,7 +1,7 @@
-function dfdMakeFigureSF2()
-%% Function to reproduce Supplementary Figure 1 (Spatialmap) from example subject
+function dfdMakeFigure3()
+%% Function to reproduce Supplementary Figure 3 
 %
-% dfdMakeFigureSF2()
+% dfdMakeFigureS3()
 %
 % Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J.
 % Heeger, Jonathan Winawer. (YEAR) Broadband spectral responses in visual
@@ -26,18 +26,18 @@ threshold       = 0;        % Set threshold for colormap. If no threshold set va
 cfg             = [];
 data_hdr        = [];
 
-%% Plot stimulus-locked signal, broadband before and after denoising on sensormap
-fh1 = figure('position',[1,600,1400,800]); set(gcf, 'Name', 'SF2, Individual subjects BB Post denoising', 'NumberTitle', 'off');
+%% Plot stimulus-locked signal, broadband after denoising on sensormap
+fH1 = figure('position',[1,600,1400,800]); set(gcf, 'Name', 'SF2, Individual subjects BB Post denoising', 'NumberTitle', 'off');
 
 for whichSubject = 1:8
     %% Load denoised data of example subject
     bb = prepareData(dataDir,whichSubject,8);
     
-    %% Plot stimulus-locked signal, broadband before and after denoising on sensormap
+    %% Plot stimulus-locked signal, broadband after denoising on sensormap
     contrasts = [eye(3); [0 1 -1]/sqrt(2)];
     for icond = 1:4
         
-        % get broadband snr for before and after denoising
+        % get broadband snr for after denoising
         ab_snr2 = getsignalnoise(bb.results.finalmodel(1), contrasts(icond,:), 'SNR',bb.badChannels);
         
         
@@ -57,16 +57,16 @@ for whichSubject = 1:8
         subplot(4,8,whichSubject+(icond*8)-8)
         [~,ch] = megPlotMap(ab_snr2,clims_ab,gcf,'bipolar',sprintf('S%d',whichSubject),data_hdr,cfg);
         makeprettyaxes(ch,9,9);
-        set(ch,'YTick',[-8,-4,0,4,8]);
+        set(ch,'YTick',[-8,-4,0,4,8]); if icond > 3; set(ch,'YTick',[-5,-2.5,0,2.5,5]); end
         drawnow();
         
     end
     
-    
-    
 end
 
 if saveFigures
-    figurewrite(fullfile(figureDir, sprintf('SF2_individualsubject_thresh%d', threshold)),[],0,'.',1);
+    % Figurewrite takes a long time saving, so let's use hgexport for now
+%     figurewrite(fullfile(figureDir, sprintf('SF2_individualsubject_thresh%d', threshold)),[],0,'.',1);
+    hgexport(fH1, fullfile(figureDir, sprintf('S3_individualsubject_thresh%d', threshold)));
 end
 

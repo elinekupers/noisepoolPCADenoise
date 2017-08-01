@@ -11,7 +11,7 @@ function dfdMakeFigure5AcrossSubjects
 % using the denoising algorithm. The three separate conditions (Full,
 % left, right hemifield stimulation are shown separately).
 %
-% This function assumes that data is downloaded with the DFDdownloaddata
+% This function assumes that data is downloaded with the dfdDownloaddata
 % function.
 
 %% Choices to make:
@@ -118,5 +118,6 @@ for icond = 1:numel(contrastNames)
 end
 
 if saveFigures
-    figurewrite(fullfile(figureDir, sprintf('figure5_AcrossSubjects%d_threshold%d',whichSubject, threshold)),[],0,'.',1);
+%     figurewrite(fullfile(figureDir, sprintf('figure5_AcrossSubjects%d_threshold%d',whichSubject, threshold)),[],0,'.',1);
+    hgexport(gcf,fullfile(figureDir, sprintf('figure5_AcrossSubjects%d_threshold%d',whichSubject, threshold)));
 end

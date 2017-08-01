@@ -9,16 +9,14 @@ function dfdMakeFigure4()
 % cortex revealed by a new MEG denoising algorithm.
 % (JOURNAL. VOLUME. ISSUE. DOI.)
 %
-% This figure will show (a) an the Fourier transformed amplitudes of an example 
-% channel for baseline and full flicker condition. (b) High frequency
-% portion before and after high pass filtering. (c) Distribution of broadband 
-% and stimulus-locked SNR values (Fiu.  
-% each channel for the stimulus locked signal, broadband signals before and
-% after using the denoising algorithm. The three separate conditions (Full,
-% left, right hemifield stimulation are shown separately). 
+% This figure will show (a) an the Fourier transformed amplitudes of an
+% example channel for baseline and full flicker condition. (b) High
+% frequency portion before and after high pass filtering. (c) Distribution
+% of broadband and stimulus-locked SNR values (signal-blue and noise-gray
+% (upper) and difference-black (lower)).
 %
 % This function assumes that data is downloaded with the dfdDownloaddata
-% function. 
+% function.
 
 
 %% Choices to make:

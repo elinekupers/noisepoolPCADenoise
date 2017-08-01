@@ -135,5 +135,6 @@ for icond = 1:3
 end
 
 if saveFigures
-    figurewrite(fullfile(figureDir,'figure12b_bargraphCALMTSPCA'),[],0,'.',1);
+    hgexport(fH, fullfile(figureDir,'figure12b_bargraphCALMTSPCA'));
+%     figurewrite(fullfile(figureDir,'figure12b_bargraphCALMTSPCA'),[],0,'.',1);
 end

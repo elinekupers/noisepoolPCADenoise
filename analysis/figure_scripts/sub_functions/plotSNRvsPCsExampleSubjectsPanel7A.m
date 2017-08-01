@@ -1,4 +1,4 @@
-function fH = plotSNRvsPCsExampleSubjectsPanel7A(dataAll,exampleSessions,condColors,axmax,figureDir,saveFigures, plotstr)
+function fH = plotSNRvsPCsExampleSubjectsPanel7A(dataAll,exampleSessions,condColors,axmax,figureDir,saveFigures, ylims, plotstr)
 
 %% SNR increase for each MEG channel as a function of number of PCs removed for one example subject -
 %% Fig. 7A
@@ -23,7 +23,7 @@ for k = 1:length(exampleSessions)
     
     % plot for each condition
     for icond = 1:3 % Full, left, right
-        subplot(k,3,(k-1)*3+icond);
+        subplot(length(exampleSessions),3,(k-1)*3+icond);
         hold on;
         this_snr = squeeze(snr(icond,:,:))';
         % plot each channel's snr as a function of number of pc's
@@ -42,10 +42,11 @@ for k = 1:length(exampleSessions)
         
         % plot(axmax+1, xvaltrend(51,:), 'o', 'color', condColors(icond,:));
         axis square; xlim([0,axmax]);
-        ylim([-5,15]); % if SL: ylim([0,50])
+        ylim([ylims(1),ylims(2)]); % if SL: ylim([0,50]) 
+        set(gca,'ytick',[0:5:ylims(2)],'XTick',[0:5:axmax,axmax+2],'XTickLabel', [0:5:axmax  75]); 
         makeprettyaxes(gca,9,9);
     end
 end
 if saveFigures
-    figurewrite(fullfile(figureDir,'Figure7SNRvPCsExampleSubjectsBB'),[],0,'.',1);
+    figurewrite(fullfile(figureDir,'FigureSF3SNRvPCsData'),[],0,'.',1);
 end

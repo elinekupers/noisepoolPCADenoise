@@ -14,7 +14,7 @@ function dfdMakeFigure8()
 % and the difference between the two distributions are plotted before and
 % after denoising. 
 %
-% This function assumes that data is downloaded with the DFDdownloaddata
+% This function assumes that data is downloaded with the dfdDownloaddata
 % function. 
 
 %% Choices to make:

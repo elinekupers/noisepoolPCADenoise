@@ -1,10 +1,13 @@
-function dfdMakeFigureXXGridNPCvsNoisepool()
+function dfdMakeFigureSXX2GridNPCvsNoisepool()
 
-%% Function to reproduce Supplementary Figure 2 
+%% Function to reproduce an obsolete supplementary figure 
 
-% dfdMakeFigureGridNPCvsNoisepool()
+% dfdMakeFigureSXX2GridNPCvsNoisepool()
 %
-% AUTHORS. TITLE. JOURNAL. YEAR.
+% Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J.
+% Heeger, Jonathan Winawer. (YEAR) A non-invasive, quantitative study of
+% broadband spectral responses in human visual cortex
+% (JOURNAL. VOLUME. ISSUE. DOI.)
 %
 % This figure will show a grid for the three conditions (full, left, right), 
 % where the difference in SNR before and after denoising is plotted for number
@@ -20,7 +23,7 @@ dataDir              = fullfile(dfdRootPath, 'analysis', 'data');   % Where to s
 figureDir            = fullfile(dfdRootPath, 'analysis', 'figures');% Where to save images?
 saveFigures          = true;     % Save figures in the figure folder?
 dataAll              = [];
-figureNumber         = 'SF2';
+figureNumber         = 'SFXX2';
 npools               = [5,10:10:140];
 npcs                 = [5,10:10:130];
 

@@ -51,7 +51,8 @@ for k = 1:length(whichSubjects)
 end
 
 if saveFigures
-    figurewrite(fullfile(figureDir,'figure10ab_BeforeAfter'),[],0,'.',1);
+    hgexport(gcf,fullfile(figureDir,'figure10ab_BeforeAfter'));
+%     figurewrite(fullfile(figureDir,'figure10ab_BeforeAfter'),[],0,'.',1);
 end
 
 

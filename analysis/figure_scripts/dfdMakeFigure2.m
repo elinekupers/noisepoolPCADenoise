@@ -1,6 +1,6 @@
 function dfdMakeFigure2()
 
-%% Function to reproduce Figure 16, a Methods figure 
+%% Function to reproduce Figure 2, a Methods figure 
 
 % Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J.
 % Heeger, Jonathan Winawer. (YEAR) Broadband spectral responses in visual
@@ -131,7 +131,6 @@ if saveFigures
 end
 
 %% Find channel location - Figure 3A, inset
-% fprintf('original channel number is: %d\n', megGetOrigChannel(chanNum0,badChannels,false));
 figure;
 chanloc = ones(1,size(sensorData,1))*0.5;
 chanloc(chanNum0(end))=1;

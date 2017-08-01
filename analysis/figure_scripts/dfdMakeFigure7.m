@@ -24,7 +24,10 @@ figureDir       = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to save 
 dataDir         = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?
 saveFigures     = true;  % Save figures in the figure folder?
 figureNumber    = 7;
-                                         
+ylims7A           = [-5,15];
+ylims7B           = [-1,12];
+
+
 % Define plotting parameters
 colors          = dfdGetColors(3);
 axmax           = 10;    % How far out do you want to plot the number of PCs
@@ -38,9 +41,9 @@ end
 
 %% Plot SNR vs number of PCs change for all channels 
 
-fH(1) = plotSNRvsPCsExampleSubjectsPanel7A(dataAll,exampleSessions,colors,axmax,figureDir,saveFigures, 'Figure 7A');
+fH(1) = plotSNRvsPCsExampleSubjectsPanel7A(dataAll,exampleSessions,colors,axmax,figureDir,saveFigures, ylims7A, 'Figure 7A');
 
-fH(2) = plotSNRvsPCsAllSubjectsPanel7B(dataAll,colors,axmax,figureDir,saveFigures, 'Figure 7B');
+fH(2) = plotSNRvsPCsAllSubjectsPanel7B(dataAll,colors,axmax,figureDir,saveFigures, ylims7B,'Figure 7B');
 
 fH(3) = plotSNRPrePostPanel(dataAll,whichSubjects,colors,figureDir,saveFigures,figureNumber, 'Figure 7C');
 

@@ -1,4 +1,4 @@
-function dfdMakeFigure9(whichSubject)
+function fH = dfdMakeFigure9(whichSubject)
 %% Function to reproduce Figure 9 (Spatialmap) from example subject and across subjects
 % after denoising
 %
@@ -34,7 +34,6 @@ data_hdr        = [];
 bb = prepareData(dataDir,whichSubject,9);
 
 %% Plot stimulus-locked signal, broadband before and after denoising on sensormap
-figure('position',[1,600,1400,800], 'Name', 'Figure 9, example subject', 'NumberTitle', 'off');
 condNames = {'Stim Full','Stim Left','Stim Right' 'Stim Left - Right'};
 contrasts = [eye(3); [0 1 -1]/sqrt(2)];
 yscaleAB = [repmat([-8,-4,0,4,8],3,1);[-5,-2.5,0,2.5,5]];
