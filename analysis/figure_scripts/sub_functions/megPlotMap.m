@@ -62,6 +62,7 @@ sensorData(badChannels)=0;
 thisdata = weightMatrix*sensorData';
 cfg.data = thisdata';
 
+%% this is an old method, now we interpolate nearby channels and replace nan channel
 % cfg.data(isnan(cfg.data)) = nanmedian(sensor_data);
 % cfg.data(isinf(cfg.data)) = max(sensor_data);
 
