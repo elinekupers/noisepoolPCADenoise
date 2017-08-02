@@ -16,6 +16,7 @@ renderer = 'zbuffer';
 if isempty(cfg)
     
     if length(sensorData) <= 102 % Combined NeuroMag 204 channel MEG
+%         data_hdr = load('neuromag360_sample_hdr_combined.mat'); data_hdr = data_hdr.hdr;
         cfg.layout = 'neuromag306cmb'; % Use standard layout in Fieltrip
         cfg.layout = ft_prepare_layout(cfg);
     elseif length(sensorData) <= 104 % Combined Yokogawa 208 channel MEG
@@ -38,33 +39,32 @@ end
 
 
 %% Check data for NaNs and interpolate
-net.xyz = data_hdr.grad.chanpos;
-nChannels = length(sensorData);
+% net.xyz = data_hdr.grad.chanpos;
+% nChannels = length(sensorData);
+% 
+% % compute distance matrix, which will be used for weighting channels for
+% % interpolation
+% connectivityMatrix      = eye(nChannels);
+% distances               = squareform(pdist(net.xyz), 'tomatrix');
+% mn                      = min(distances(distances(:)>0));
+% distances(distances==0) = mn/2;
+% distances = distances .* (1-eye(nChannels));
+% 
+% % Initialize the sensorDataOut matrix
+% badChannels     = isnan(sensorData);
+% goodChannels    = ~badChannels;
+% 
+% weightMatrix = connectivityMatrix;
+% weightMatrix(:,badChannels) = 0;
+% weightMatrix(badChannels, goodChannels) = 1./distances(badChannels, goodChannels);
+% weightMatrix = bsxfun(@rdivide, weightMatrix, sum(weightMatrix,2));
+% 
+% sensorData(badChannels)=0;
+% thisdata = weightMatrix*sensorData';
 
-% compute distance matrix, which will be used for weighting channels for
-% interpolation
-connectivityMatrix      = eye(nChannels);
-distances               = squareform(pdist(net.xyz), 'tomatrix');
-mn                      = min(distances(distances(:)>0));
-distances(distances==0) = mn/2;
-distances = distances .* (1-eye(nChannels));
-
-% Initialize the sensorDataOut matrix
-badChannels     = isnan(sensorData);
-goodChannels    = ~badChannels;
-
-weightMatrix = connectivityMatrix;
-weightMatrix(:,badChannels) = 0;
-weightMatrix(badChannels, goodChannels) = 1./distances(badChannels, goodChannels);
-weightMatrix = bsxfun(@rdivide, weightMatrix, sum(weightMatrix,2));
-
-sensorData(badChannels)=0;
-thisdata = weightMatrix*sensorData';
-cfg.data = thisdata';
-
-%% this is an old method, now we interpolate nearby channels and replace nan channel
-% cfg.data(isnan(cfg.data)) = nanmedian(sensor_data);
-% cfg.data(isinf(cfg.data)) = max(sensor_data);
+cfg.data = sensorData;
+cfg.data(isnan(cfg.data)) = nanmedian(sensorData);
+cfg.data(isinf(cfg.data)) = max(sensorData);
 
 %% Handle configuration
 % Get channel X,Y positions
