@@ -2,7 +2,8 @@ function fH = plotSpectraPanelBeforeDenoising(data, exampleIndex, exampleChannel
 
 %% set up figure 4A
 fH = figure('position',[0,300,500,500]); clf(fH); set(fH, 'Name', plotstr, 'NumberTitle', 'off');
-% define axes
+
+% Define axes
 f = (0:999);
 xl = [8 150];
 fok = f;
@@ -16,7 +17,7 @@ for dd = 1
     spec = abs(fft(squeeze(data{dd}(exampleIndex,:,:))))/size(data{dd},2)*2;
     
     hold on;
-    for ii = [1,4];
+    for ii = [1,4]
         % compute power for epochs corresponding to a condition and
         % trim data to specific frequencies
         this_data = spec(:,condEpochs{ii}).^2;

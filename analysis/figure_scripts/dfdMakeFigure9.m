@@ -37,6 +37,8 @@ bb = prepareData(dataDir,whichSubject,9);
 condNames = {'Stim Full','Stim Left','Stim Right' 'Stim Left - Right'};
 contrasts = [eye(3); [0 1 -1]/sqrt(2)];
 yscaleAB = [repmat([-8,-4,0,4,8],3,1);[-5,-2.5,0,2.5,5]];
+
+fH = figure;
 for icond = 1:4
     
     % get broadband snr for before and after denoising
@@ -84,5 +86,6 @@ if saveFigures
 end
 
 %% Now do the same but then across subjects
-dfdMakeFigure9AcrossSubjects()
-
+if whichSubject ~= 99
+    dfdMakeFigure9AcrossSubjects()
+end
