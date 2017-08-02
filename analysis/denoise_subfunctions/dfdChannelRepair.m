@@ -15,6 +15,9 @@ if notDefined('verbose'); verbose = false; end
 if notDefined('sensorPositions') 
     hdr = load('meg160_example_hdr.mat'); hdr = hdr.hdr;
     net.xyz = hdr.grad.chanpos;
+elseif strcmp(sensorPositions, 'meg160_example_hdr');
+    hdr = load('meg160_example_hdr.mat'); hdr = hdr.hdr;
+    net.xyz = hdr.grad.chanpos; 
 elseif strcmp(sensorPositions, 'neuromag360xyz')
     load('neuromag360_sample_cfg_combined');    
     channels = cfg.cfg.channel;
