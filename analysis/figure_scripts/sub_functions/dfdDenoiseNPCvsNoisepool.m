@@ -43,10 +43,6 @@ bb_frequencies      = f(ab_i);
 evokedfun           = @(x)getstimlocked(x,sl_freq_i); % function handle to determine noise pool
 evalfun             = @(x)getbroadband(x,keep_frequencies,1000);  % function handle to compuite broadband with a sample rate of 1 kHz
 
-% Define options for denoising that are equal for each type of denoising
-opt.resampling      = {'boot','boot'};
-opt.pcselmethod     = 'snr';
-
 % Denoise with exactly 10 PC regressors
 opt.preprocessfun     =  @(x) bbFilter(x, bb_frequencies);
 opt.verbose           = true;
@@ -91,7 +87,7 @@ for whichSubject = whichSubjects
             fprintf('Denoising.. Using %d channels in noisepool and %d pcs to denoise \n',npools(np), npcs(nc))
             if npcs(nc)>npools(np), continue; end
             opt.npcs2try      = [];    
-            opt.npoolmethod   = {'r2','n',npools(np)};
+            opt.npoolmethod   = {'snr','n',npools(np)};
             opt.pcchoose      = -npcs(nc);
             [results] = denoisedata(design,sensorData,evokedfun,evalfun,opt);
             

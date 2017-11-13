@@ -197,7 +197,7 @@ end
             
         elseif nrControl == 5
             optbb.pccontrolmode   = 0;
-            optbb.npoolmethod     = {'r2','n',size(sensorData,1)};
+            optbb.npoolmethod     = {'snr','n',size(sensorData,1)};
             postFix               = sprintf('_control%d',nrControl);
             [results,evalout] = denoisedata(design,sensorData,evokedfun,evalfun,optbb);
         end

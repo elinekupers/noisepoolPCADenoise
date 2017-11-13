@@ -54,7 +54,7 @@ bb_frequencies      = f(ab_i);
 opt.resampling        = {'boot','boot'};
 opt.pcselmethod       = 'snr';
 opt.preprocessfun     = @(x) bbFilter(x, bb_frequencies);  % preprocess data with a high pass filter for broadband analysis
-opt.npoolmethod       = {'r2','n',75};
+opt.npoolmethod       = {'snr','n',75};
 opt.verbose           = true;
 
 % Define functions to define noise pool and signal of interest
@@ -147,4 +147,4 @@ for whichSubject = subjects
 end
 
   
-endx
+end
