@@ -31,7 +31,9 @@ dfdMakeFigure15; % Microsaccade histograms and topographic meshes with(out) micr
 
 % Make supplementary figures
 dfdMakeFigureS1; % Synthetic dataset and the effect of denoising on known data
-dfdMakeFigureS2; % Topographic maps of SL and BB before denoising, all stimulus conditions, all individual subjects
-dfdMakeFigureS3; % Topographic maps of BB after denoising, all stimulus conditions, all individual subjects
+dfdMakeFigureS2; % Show the effect of denoising when varying number of channels in noisepool and pcs removed
+dfdMakeFigureS3; % Show the effect of denoising when varying length of timepoints in epochs
+dfdMakeFigureS4; % Topographic maps of SL and BB before denoising, all stimulus conditions, all individual subjects
+dfdMakeFigureS5; % Topographic maps of BB after denoising, all stimulus conditions, all individual subjects
 
 

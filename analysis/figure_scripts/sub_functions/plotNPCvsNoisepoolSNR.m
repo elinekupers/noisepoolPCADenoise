@@ -58,5 +58,5 @@ for icond = 1:3
 end
 
 if saveFigures
-    printnice(gcf, [1 300], fullfile(figureDir),'SF2GridSubjMean_NPCSvsNoisePool');
+    printnice(gcf, [], fullfile(figureDir),'SF2GridSubjMean_NPCSvsNoisePool');
 end
