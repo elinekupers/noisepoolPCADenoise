@@ -1,4 +1,4 @@
-function dfdMakeSyntheticDataSet()
+function dfdMakeSyntheticDataSet_pinknoise()
 
 % Function to create a synthetic data set 
 %
@@ -44,7 +44,7 @@ stimulusLockedFrequency       = 12;
 numNoiseBasis                 = 10;    % Number of independent bases for correlated noise
 responseAmp.uncorrelatedNoise = 1;
 responseAmp.stimulusLocked    = 2;
-% responseAmp.broadband         = 2;
+responseAmp.broadband         = 2;
 responseAmp.correlatedNoise   = 5;
 
 % Where to save data?
