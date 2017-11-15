@@ -143,6 +143,6 @@ fH(3) = plotSNRvsPCsAllSubjectsPanel7B({data},colors,axmax,figureDir,saveFigures
 fH(4) = plotNoisepool(whichSubject);
 
 %% Plot topographic maps before and after denoising
-fH(5) = dfdMakeFigure9(whichSubject); for ax = 2:2:16; set(fH(5).Children(ax),'CLim', [-20 20]); end
-                                        for ax = 1:2:15; set(fH(5).Children(ax), 'YTick', [-20 -10 0 10 20]); end
+fH(5) = dfdMakeFigure9(whichSubject); %for ax = 2:2:16; set(fH(5).Children(ax),'CLim', [-ylimsSF1D(2) ylimsSF1D(2)]); end
+                                        %for ax = 1:2:15; set(fH(5).Children(ax), 'YTick', [-20 -10 0 10 20]); end
 
