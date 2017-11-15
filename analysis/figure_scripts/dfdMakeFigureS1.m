@@ -112,22 +112,22 @@ for dd = 1:2
     spec = abs(fft(squeeze(data{dd}(exampleIndex,:,:))))/size(data{dd},2)*2;
     
     hold on;
-    for ii = [1,4]
+    for conditions = [1,4]
         % compute power for epochs corresponding to a condition and
         % trim data to specific frequencies
-        this_data = spec(:,condEpochs{dd}{ii}).^2;
+        this_data = spec(:,condEpochs{dd}{conditions}).^2;
         this_data = this_data(fok+1,:);
         
         mn = prctile(this_data,[16,50,84],2);
         
         % Plot the data
-        plot(fok, mn(:,2),  '-',  'Color', colors(ii,:), 'LineWidth', 1);
+        plot(fok, mn(:,2),  '-',  'Color', colors(conditions,:), 'LineWidth', 1);
         set(gca,'ytick',10.^yt, 'ylim',10.^yl,'YScale', 'log');
         set(gca, 'XLim', xl, 'XTick', xt, 'XScale', 'log', 'YScale','log');
         
         % label figure, add stimulus harmonic lines, and make it look nice
         xlabel('Frequency (Hz)'); ylabel('Power (fT^2)');
-        title('After denoising');
+        if dd == 1, title('Before denoising'), else title('After denoising'); end
         yl2 = get(gca, 'YLim');
         for ii =12:12:180, plot([ii ii], yl2, 'k--'); end
         makeprettyaxes(gca,9,9);

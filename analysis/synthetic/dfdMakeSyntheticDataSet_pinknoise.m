@@ -136,13 +136,17 @@ sensorData(:,conditions==7, [sensors.right]) = ...
 
 % ------------------- COMPONENT 3: UNCORRELATED NOISE  --------------------
 % Add Gaussian white noise to all sensors, all conditions
+sz = [samplesPerEpoch, numEpochs, numChannels];
 sensorData = sensorData + ...
-    responseAmp.uncorrelatedNoise * zscore(randn(samplesPerEpoch, numEpochs, numChannels));
+    responseAmp.uncorrelatedNoise * zscore(generatepinknoisedata(sz));
 
 
 % ------------------- COMPONENT 4: CORRELATED NOISE  ----------------------
 % Create basis functions that are correlated
-correlatedBasis = randn(samplesPerEpoch * numEpochs, numNoiseBasis);
+%correlatedBasis = randn(samplesPerEpoch * numEpochs, numNoiseBasis);
+sz = [samplesPerEpoch, numEpochs, numNoiseBasis];
+correlatedBasis = zscore(generatepinknoisedata(sz));
+correlatedBasis = reshape(correlatedBasis, [], numNoiseBasis);
 mixingMatrix    = randn(numNoiseBasis, numChannels);
 mixingMatrix    = bsxfun(@rdivide, mixingMatrix, sqrt(sum(mixingMatrix.^2)));
 correlatedNoise = correlatedBasis * mixingMatrix;

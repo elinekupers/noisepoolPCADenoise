@@ -52,8 +52,7 @@ varThreshold        = [0.05 20];
 badChannelThreshold = 0.2;
 badEpochThreshold   = 0.2;
 opt.verbose         = true;
-use3Channels        = false; if use3Channels;     opt.use3Channels     = 1; end %#ok<UNRCH>
-removeFirstEpoch    = false;  if removeFirstEpoch; opt.removeFirstEpoch = 1; end
+removeFirstEpoch    = true;  if removeFirstEpoch; opt.removeFirstEpoch = 1; end
 removeMsEpochs      = false; if removeMsEpochs;   opt.removeMsEpochs   = 1; end %#ok<UNRCH>
 
 %% Get frequencies to define stimulus locked and asynchronous broadband power
@@ -156,7 +155,7 @@ for whichSubject = subjects
     
     % ------------------ Preprocess data ---------------------------------
     [sensorData, badChannels, badEpochs] = dfdPreprocessData(sensorData(:,:,dataChannels), ...
-        varThreshold, badChannelThreshold, badEpochThreshold, use3Channels);
+        varThreshold, badChannelThreshold, badEpochThreshold);
     
     % ---- Define first epochs in order to remove later ------------------
     if removeFirstEpoch, badEpochs(1:6:end) = 1; end
