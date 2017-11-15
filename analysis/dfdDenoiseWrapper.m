@@ -53,7 +53,7 @@ badChannelThreshold = 0.2;
 badEpochThreshold   = 0.2;
 opt.verbose         = true;
 use3Channels        = false; if use3Channels;     opt.use3Channels     = 1; end %#ok<UNRCH>
-removeFirstEpoch    = true;  if removeFirstEpoch; opt.removeFirstEpoch = 1; end
+removeFirstEpoch    = false;  if removeFirstEpoch; opt.removeFirstEpoch = 1; end
 removeMsEpochs      = false; if removeMsEpochs;   opt.removeMsEpochs   = 1; end %#ok<UNRCH>
 
 %% Get frequencies to define stimulus locked and asynchronous broadband power
@@ -125,6 +125,7 @@ for whichSubject = subjects
     if whichSubject < 9,        dataChannels        = 1:157; % yokogawa MEG 157 channels
     elseif whichSubject < 21,   dataChannels        = 1:204; % Elekta Neuromag
     elseif whichSubject == 99;  dataChannels        = 1:157; % Synthetic subject
+    elseif whichSubject == 98;  dataChannels        = 1:157; % Synthetic subject with pink noise
     elseif whichSubject > 36,   dataChannels        = 1:208; % yokogawa MEG 208 channels
     else                        dataChannels        = 1:157;  %#ok<SEPEX>
     end

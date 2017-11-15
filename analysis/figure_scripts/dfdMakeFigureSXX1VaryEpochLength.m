@@ -41,8 +41,7 @@ fH = plotEpochLengthVersusSNR(whichSubjects,dataAll,epochDurs,condColors,saveFig
 %% number of PCs removed. 
 % Some specs:
 %  - Noisepool selection by SNR,
-%  - Highpass filtered,
 %  - 10 PCs removed
-%  - bootstrapped 100 x. 
+%  - bootstrapped 1000x. 
 
 fH = plotEpochLengthVersusNPCsVersusSNR(whichSubjects,dataAll,epochDurs,npcs,saveFigures,figureDir); %#ok<*NASGU>

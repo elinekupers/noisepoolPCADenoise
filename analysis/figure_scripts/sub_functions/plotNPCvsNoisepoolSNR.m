@@ -17,20 +17,21 @@ for whichSubject = whichSubjects
             results = results{1};
             if isempty(results), continue; end
             
-            % get top 10
-            pcchan = getTop10(results);
+                % get top 10
+                pcchan = getTop10(results);
+          
+                bb_signal_pre = results.origmodel(1).beta_md(:,pcchan);
+                bb_noise_pre  = results.origmodel(1).beta_se(:,pcchan);
             
-            % get snr before and after, nconds x nchannels
-            ab_signal1 = results.origmodel.beta_md(:,pcchan);
-            ab_noise1  = results.origmodel.beta_se(:,pcchan);
-            ab_signal2 = results.finalmodel.beta_md(:,pcchan);
-            ab_noise2  = results.finalmodel.beta_se(:,pcchan);
-            ab_snr1    = ab_signal1./ab_noise1;
-            ab_snr2    = ab_signal2./ab_noise2;
-            % get snr difference for each condition (post-pre)
-            for icond = 1:3
-                allvals(np,nc,icond) = mean(ab_snr2(icond,:))-mean(ab_snr1(icond,:));
-            end
+            	bb_signal_post = results.finalmodel(1).beta_md(:,pcchan);
+                bb_noise_post  = results.finalmodel(1).beta_se(:,pcchan);
+            
+                bb_snr_pre     = bb_signal_pre./bb_noise_pre;
+                bb_snr_post    = bb_signal_post./bb_noise_post;
+            
+                
+                allvals(np,nc,:) = mean((bb_snr_post-bb_snr_pre),2);
+                
         end
     end
     % concate across sessions
@@ -39,7 +40,7 @@ end
 
 %%
 fH = figure('position',[0,300,450,900],'color','w');
-clims = [[0,4];[0,2.5];[0,2.5]];
+clims = [[0,4];[0,3];[0,3]];
 conditionNames = {'FULL','RIGHT','LEFT'};
 for icond = 1:3
     subplot(3,1,icond);
@@ -57,5 +58,5 @@ for icond = 1:3
 end
 
 if saveFigures
-    hgexport(gcf, fullfile(figureDir,'SF2GridSubjMean_NPCSvsNoisePool'));
+    printnice(gcf, [1 300], fullfile(figureDir),'SF2GridSubjMean_NPCSvsNoisePool');
 end

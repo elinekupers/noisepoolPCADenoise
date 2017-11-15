@@ -20,14 +20,18 @@ for npsIdx = 2; % Corresponding to 10 pcs (1 = 5 PCs, 2 = 10 PCs, in steps of 10
         
         % compute the difference between pre and post
         for nn = 1:length(epochDurs)
-            % get top 10 channels. note the choice of top 10 changes for each glm
-            % result returned (for each epoch duration)
-            %pcchan = getTop10(results_all(nn),whichfun);
-            for icond = 1:3
-                snr_pre  = getsignalnoise(results_all(nn).origmodel(1),icond,'SNR');
-                snr_post = getsignalnoise(results_all(nn).finalmodel(1),icond,'SNR');
-                snr_diff(whichSubject,nn,icond) = mean(snr_post(pcchan)-snr_pre(pcchan));
-            end
+            
+            bb_signal_pre = results_all(nn).origmodel(1).beta_md(:,pcchan);
+            bb_noise_pre  = results_all(nn).origmodel(1).beta_se(:,pcchan);
+            
+            bb_signal_post = results_all(nn).finalmodel(1).beta_md(:,pcchan);
+            bb_noise_post  = results_all(nn).finalmodel(1).beta_se(:,pcchan);
+            
+            bb_snr_pre     = bb_signal_pre./bb_noise_pre;
+            bb_snr_post    = bb_signal_post./bb_noise_post;
+             
+            snr_diff(whichSubject,nn,:) = mean((bb_snr_post-bb_snr_pre),2);
+            
         end
         
     end
@@ -55,6 +59,8 @@ for npsIdx = 2; % Corresponding to 10 pcs (1 = 5 PCs, 2 = 10 PCs, in steps of 10
         xlim([0.5,1500]); set(gca,'xtick',epochDurs,'xscale','log');
         ylim([0,7]); set(gca, 'YTick', [-2:2:7])
         ylabel('Difference in SNR (post-pre)');
+        xlabel('Epoch length (s)');
+
         makeprettyaxes(gca,9,9);
     end
     

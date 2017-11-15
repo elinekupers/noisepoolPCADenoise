@@ -25,7 +25,7 @@ figureDir       = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to save 
 dataDir         = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?
 saveFigures     = true;  % Save figures in the figure folder?
 figureNumber    = 'SF1';
-ylimsSF1D       = [-1, 28];
+ylimsSF1D       = [-1, 5]; % for pink noise data we have to lower the ylimita (was [-20 20]);
 
 % Define plotting parameters
 colors          = dfdGetColors(4);
@@ -140,7 +140,7 @@ data = prepareData(dataDir,whichSubject,'SF1');
 fH(3) = plotSNRvsPCsAllSubjectsPanel7B({data},colors,axmax,figureDir,saveFigures,ylimsSF1D, 'Figure SF1D');
 
 %% Plot noise pool
-fH(4) = plotNoisepool(99);
+fH(4) = plotNoisepool(whichSubject);
 
 %% Plot topographic maps before and after denoising
 fH(5) = dfdMakeFigure9(whichSubject); for ax = 2:2:16; set(fH(5).Children(ax),'CLim', [-20 20]); end
