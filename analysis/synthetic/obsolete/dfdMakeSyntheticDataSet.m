@@ -1,4 +1,4 @@
-function dfdMakeSyntheticDataSet_pinknoise()
+function dfdMakeSyntheticDataSet()
 
 % Function to create a synthetic data set 
 %
@@ -120,33 +120,29 @@ sensorData(:,conditions==7, [sensors.right]) = ...
 sz = size(sensorData(:,conditions==1, [sensors.left sensors.right]));
 sensorData(:,conditions==1, [sensors.left sensors.right]) = ...
     sensorData(:,conditions==1, [sensors.left sensors.right]) + ...
-    responseAmp.broadband * zscore(generatepinknoisedata(sz));
+    responseAmp.broadband * zscore(randn(sz));
 
 % For left field epochs, fill the left sensor data with broadband time series
 sz = size(sensorData(:,conditions==1, [sensors.left]));
 sensorData(:,conditions==5, [sensors.left]) = ...
     sensorData(:,conditions==5, [sensors.left]) + ...
-    responseAmp.broadband * zscore(generatepinknoisedata(sz));
+    responseAmp.broadband * zscore(randn(sz));
 
 % For right field epochs, fill the right sensor data with broadband time series
 sz = size(sensorData(:,conditions==7, [sensors.right]));
 sensorData(:,conditions==7, [sensors.right]) = ...
     sensorData(:,conditions==7, [sensors.right]) + ...
-    responseAmp.broadband * zscore(generatepinknoisedata(sz));
+    responseAmp.broadband * zscore(randn(sz));
 
 % ------------------- COMPONENT 3: UNCORRELATED NOISE  --------------------
 % Add Gaussian white noise to all sensors, all conditions
-sz = [samplesPerEpoch, numEpochs, numChannels];
 sensorData = sensorData + ...
-    responseAmp.uncorrelatedNoise * zscore(generatepinknoisedata(sz));
+    responseAmp.uncorrelatedNoise * zscore(randn(samplesPerEpoch, numEpochs, numChannels));
 
 
 % ------------------- COMPONENT 4: CORRELATED NOISE  ----------------------
 % Create basis functions that are correlated
-%correlatedBasis = randn(samplesPerEpoch * numEpochs, numNoiseBasis);
-sz = [samplesPerEpoch, numEpochs, numNoiseBasis];
-correlatedBasis = zscore(generatepinknoisedata(sz));
-correlatedBasis = reshape(correlatedBasis, [], numNoiseBasis);
+correlatedBasis = randn(samplesPerEpoch * numEpochs, numNoiseBasis);
 mixingMatrix    = randn(numNoiseBasis, numChannels);
 mixingMatrix    = bsxfun(@rdivide, mixingMatrix, sqrt(sum(mixingMatrix.^2)));
 correlatedNoise = correlatedBasis * mixingMatrix;
@@ -157,18 +153,3 @@ sensorData       = sensorData + correlatedNoise * responseAmp.correlatedNoise;
 %% ------------------------- Save it --------------------------------------
 save(fullfile(dataDir, 's99_sensorData'), 'sensorData');
 save(fullfile(dataDir, 's99_conditions'), 'conditions');
-
-
-
-end
-
-function pinkdata = generatepinknoisedata(sz)
-
-    alpha = 1; % = 1/f (pink noise)
-    for chan = 1:sz(3)
-        pinkdata(:,:,chan) = generatepinknoise1D(sz(1),alpha,sz(2),1);
-    end
-
-end
-
-
