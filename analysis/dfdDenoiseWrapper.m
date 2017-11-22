@@ -124,7 +124,6 @@ for whichSubject = subjects
     if whichSubject < 9,        dataChannels        = 1:157; % yokogawa MEG 157 channels
     elseif whichSubject < 21,   dataChannels        = 1:204; % Elekta Neuromag
     elseif whichSubject == 99;  dataChannels        = 1:157; % Synthetic subject
-    elseif whichSubject == 98;  dataChannels        = 1:157; % Synthetic subject with pink noise
     elseif whichSubject > 36,   dataChannels        = 1:208; % yokogawa MEG 208 channels
     else                        dataChannels        = 1:157;  %#ok<SEPEX>
     end

@@ -41,7 +41,7 @@ end
 %%
 fH = figure('position',[0,300,450,900],'color','w');
 clims = [[0,4];[0,3];[0,3]];
-conditionNames = {'FULL','RIGHT','LEFT'};
+conditionNames = {'FULL','LEFT','RIGHT'};
 for icond = 1:3
     subplot(3,1,icond);
     imagesc(1:length(npcs),1:length(npools),mean(allSubjectsResults(:,:,icond,:),4),clims(icond,:));

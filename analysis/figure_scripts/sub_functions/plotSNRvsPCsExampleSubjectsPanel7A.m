@@ -38,7 +38,7 @@ for k = 1:length(exampleSessions)
         
         
         plot(0:axmax, xvaltrend(1:axmax+1,:), 'color', condColors(icond,:), 'linewidth',2);
-        plot(0:axmax, noisepooltrend(1:axmax+1,:), 'color', condColors(icond,:), 'linewidth',2,'linestyle',':');
+        plot(0:axmax, noisepooltrend(1:axmax+1,:), 'color', condColors(icond,:), 'linewidth',5,'linestyle',':');
         
         % plot(axmax+1, xvaltrend(51,:), 'o', 'color', condColors(icond,:));
         axis square; xlim([0,axmax]);

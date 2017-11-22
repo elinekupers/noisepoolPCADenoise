@@ -20,12 +20,11 @@ function dfdMakeFigureS1()
 
 %% Choices to make:
 whichSubject    = 99;     % Subject 99 has the synthetic dataset.
-exampleSessions = 1;      % this session contains 10 basis functions
 figureDir       = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to save images?
 dataDir         = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?
 saveFigures     = true;  % Save figures in the figure folder?
 figureNumber    = 'SF1';
-ylimsSF1D       = [-1, 5]; % for pink noise data we have to lower the ylimita (was [-20 20]);
+ylimsSF1D       = [-1, 8]; 
 
 % Define plotting parameters
 colors          = dfdGetColors(4);
@@ -52,7 +51,7 @@ xl = [8 150];
 fok = f;
 fok(f<=xl(1) | f>=xl(2) | mod(f,60) < 2 | mod(f,60) > 58 ) = [];
 xt = [12:12:72, 96,144];
-yt = -2:2;
+yt = -4:2;
 yl=[yt(1),yt(end)];
 
 % Compute spectrum
@@ -102,7 +101,7 @@ xl = [60 150];
 fok = f;
 fok(f<=xl(1) | f>=xl(2) | mod(f,60) < 2 | mod(f,60) > 58 | mod(f,72) < 2 | mod(f,96) < 2 | mod(f,108) < 2 | mod(f,144)<2) = [];
 xt = [];
-yt = -3:0;
+yt = -5:-1;
 yl=[yt(1),yt(end)];
 
 for dd = 1:2
@@ -135,8 +134,12 @@ for dd = 1:2
     end
 end
 
+if saveFigures
+    figurewrite(sprintf(fullfile(figureDir,'figureS1BBeforeAfterSpectrumChannel%d'),exampleChannel),[],0,'.',1);
+end
+
 %% Plot SNR vs number of PCs change for all channels
-data = prepareData(dataDir,whichSubject,'SF1');
+data = prepareData(dataDir,whichSubject,figureNumber);
 fH(3) = plotSNRvsPCsAllSubjectsPanel7B({data},colors,axmax,figureDir,saveFigures,ylimsSF1D, 'Figure SF1D');
 
 %% Plot noise pool
