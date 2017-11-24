@@ -46,11 +46,11 @@ for icond = 1:3
     set(gca,'ydir','normal');
     set(gca,'xtick',1:length(epochDurs),'ytick',1:length(npcs),...
         'xticklabel',cellstr(num2str(epochDurs','%d')),'yticklabel',cellstr(num2str(npcs','%d')));
-    %axis image;
+    axis image;
     set(gca,'tickdir','out'); box off
     ch = colorbar; makeprettyaxes(ch,9,9);
-    xlabel('Epochs denoised at a time')
-    ylabel('Nr of pcs removed from data (75 channels in NP)')
+    xlabel('Number of epochs denoised at a time')
+    ylabel('Number of pcs removed from data')
 end
 
 if saveFigures

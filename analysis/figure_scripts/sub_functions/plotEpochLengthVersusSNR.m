@@ -41,7 +41,7 @@ for npsIdx = 2; % Corresponding to 10 pcs (1 = 5 PCs, 2 = 10 PCs, in steps of 10
     % define colors - vary saturation across individual subjects
     satValues = 1-linspace(0.1,1,8);
     colorRGB = varysat(condColors,satValues);
-    
+    ylims = {[0,7],[0,5],[0,5]};
     % set up figure and plot
     fH = figure('position',[0,300,250,600]); clf;
     set(fH, 'Name', sprintf('%d PCs used for denoising', npcs(npsIdx)), 'NumberTitle', 'off');
@@ -57,10 +57,10 @@ for npsIdx = 2; % Corresponding to 10 pcs (1 = 5 PCs, 2 = 10 PCs, in steps of 10
         % format axes and make figure pretty
         set(gca,'xscale','log');
         xlim([0.5,1500]); set(gca,'xtick',epochDurs,'xscale','log');
-        ylim([0,7]); set(gca, 'YTick', [-2:2:7])
+        ylim(ylims{icond}); set(gca, 'YTick', [-2:2:ylims{icond}(2)])
         ylabel('Difference in SNR (post-pre)');
-        xlabel('Epoch length (s)');
-
+        xlabel('Number of epochs denoised at a time');
+        axis square;
         makeprettyaxes(gca,9,9);
     end
     
