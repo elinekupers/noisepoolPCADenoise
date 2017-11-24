@@ -64,10 +64,7 @@ switch whichFigure
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject)); 
         data = {data,data_controls};
         
-    case 13
-        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_sl.mat'),whichSubject));
-        load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
-    
+  
     case 'SF1'
         data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_full_bb.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
@@ -89,7 +86,11 @@ switch whichFigure
         clear data1
 
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
-        
+    
+    case 'SF6'
+        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_sl.mat'),whichSubject));
+        load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
+    
 
 end
 

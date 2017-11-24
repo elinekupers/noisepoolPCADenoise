@@ -25,9 +25,8 @@ dfdMakeFigure9; % Topographic maps of BB before and BB after denoising, S1 and a
 dfdMakeFigure10; % Topographic maps of BB after denoising, both-hemifield stimulus, all individual subjects
 dfdMakeFigure11; % Comparison of MEG Denoise and control analyses
 dfdMakeFigure12; % Topographic maps and comparisons of MEG Denoise and other denosing algorithm
-dfdMakeFigure13; % Effect of denoising on stimulus-locked SNR
-dfdMakeFigure14; % Topographic maps and comparisons of Cinet data (MEG Denoise and TSSS algorithm)
-dfdMakeFigure15; % Microsaccade histograms and topographic meshes with(out) microsaccades
+dfdMakeFigure13; % Topographic maps and comparisons of Cinet data (MEG Denoise and TSSS algorithm)
+dfdMakeFigure14; % Microsaccade histograms and topographic meshes with(out) microsaccades
 
 % Make supplementary figures
 dfdMakeFigureS1; % Synthetic dataset and the effect of denoising on known data
@@ -35,5 +34,6 @@ dfdMakeFigureS2; % Show the effect of denoising when varying number of channels 
 dfdMakeFigureS3; % Show the effect of denoising when varying length of timepoints in epochs
 dfdMakeFigureS4; % Topographic maps of SL and BB before denoising, all stimulus conditions, all individual subjects
 dfdMakeFigureS5; % Topographic maps of BB after denoising, all stimulus conditions, all individual subjects
+dfdMakeFigureS6; % Effect of denoising on stimulus-locked SNR
 
 
