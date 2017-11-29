@@ -51,7 +51,7 @@ for whichSubject    = 1%:8;
     
     
     
-    % Inspect time series
+    %% Inspect time series by plotting each pc time series separate
 %     figure; 
 %     for ii = 1:size(pcs)
 %         clf;
@@ -62,8 +62,7 @@ for whichSubject    = 1%:8;
 %      waitforbuttonpress;
 %     end
     
-    % Take one channel and compute the envelope
-    
+    %% Or take one channel and compute the envelope
     thischan = 5;
     thisepoch = 10;
     
@@ -71,10 +70,29 @@ for whichSubject    = 1%:8;
     envelope = hilbert(thisnoise);
     figure; plot(0:999,thisnoise); hold on;
     plot(0:999,abs(envelope));
+    xlabel('Time (ms)')
+    ylabel('Amplitude (fT)')
+    title(sprintf('Time series of epoch %d, channel %d',thisepoch, thischan))
+    legend('Noise data', 'Envelope of noise data')
+    
     
     figure; plot(0:999, abs(fft(envelope)));
-    xlim([0 150]); xlabel('Frequency (Hz)')
+    xlim([0 150]); xlabel('Frequency (Hz)'); ylabel('Amplitude');
+    title('Fourier transform of one epoch time series envelope')
     
+    meannoise = mean(noisedata(thischan,:,:),3);
+    envelope = hilbert(meannoise);
+    figure; plot(0:999,meannoise); hold on;
+    plot(0:999,abs(envelope));
+    xlabel('Time (ms)')
+    ylabel('Amplitude (fT)')
+    title(sprintf('Mean Time series across epochs, channel %d', thischan))
+    legend('Mean noise data', 'Envelope of mean noise data')
+    
+    
+    figure; plot(0:999, abs(fft(envelope)));
+    xlim([0 150]); xlabel('Frequency (Hz)'); ylabel('Amplitude');
+    title('Fourier transform of mean time series envelope')
     
 end
 
