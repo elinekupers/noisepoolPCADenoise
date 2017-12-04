@@ -18,13 +18,22 @@ for whichSubject    = 1%:8;
     % Plot the variance explained by the PCs of the noise data
     
     explained = zeros(size(noisedata,1),size(noisedata,3));
+   
     for ii = 1:size(noisedata,3)
         [coeff, score, latent, tsquared, explained(:,ii)] = pca(noisedata(:,:,ii)'); 
     end
+   
     
     figure; hold on;
-    plot(explained, 'Color',cmap(size(noisedata,3),:));
+    for ii = 1:size(noisedata,3); plot(explained(:,ii), 'Color', cmap(ii,:)); end
     plot(mean(explained,2),'k--','LineWidth',2)
+    xlabel('Number of PC'); ylabel('Percentage of variance explained');
+    title('Variance explained by PCs'); set(gca,'FontSize',20)
+    
+    figure; hold all;
+    for ii = 1:size(noisedata,3); plot(explained(:,ii), 'Color', cmap(ii,:)); end
+    plot(mean(explained,2),'k--','LineWidth',2);
+    xlim([0 10]);
     xlabel('Number of PC'); ylabel('Percentage of variance explained');
     title('Variance explained by PCs'); set(gca,'FontSize',20)
     
@@ -44,7 +53,7 @@ for whichSubject    = 1%:8;
     
     xlim([60 150]); ylim(10.^[1.5, 2.5]); set(gca,'XScale','log','YScale','log');
     xlabel('Frequency (Hz)'); ylabel('Amplitude (fT)');
-    title(sprintf('Spectrum of noise 10 PCs'))
+    title(sprintf('Spectrum of noise 10 PCs')); set(gca,'FontSize',20)
     
     
     % Plot mean spectrum of noise sensors
@@ -56,6 +65,7 @@ for whichSubject    = 1%:8;
     xlim([0 150]);   set(gca,'XScale','log','YScale','log');
     xlabel('Frequency (Hz)'); ylabel('Amplitude (fT)');
     title(sprintf('Mean spectrum of noisedata from %d noise sensors', 75))
+    set(gca,'FontSize',20)
     
     
     
@@ -71,33 +81,37 @@ for whichSubject    = 1%:8;
 %     end
     
     %% Or take one channel and compute the envelope
-%     thischan = 5;
-%     thisepoch = 10;
-%     
-%     thisnoise = noisedata(thischan,:,thisepoch);
-%     envelope = hilbert(thisnoise);
-%     figure; plot(0:999,thisnoise); hold on;
-%     xlabel('Time (ms)')
-%     ylabel('Amplitude (fT)')
-%     title(sprintf('Time series of epoch %d, channel %d',thisepoch, thischan))
-%     legend('Noise data', 'Envelope of noise data')
-%     
-%     figure; plot(0:999, abs(fft(envelope)));
-%     xlim([0 150]); xlabel('Frequency (Hz)'); ylabel('Amplitude');
-%     title('Fourier transform of one epoch time series envelope')
+    thischan = 5;
+    thisepoch = 10;
+    
+    thisnoise = noisedata(thischan,:,thisepoch);
+    envelope = hilbert(thisnoise);
+    figure; plot(0:999,thisnoise); hold on;
+    xlabel('Time (ms)')
+    ylabel('Amplitude (fT)')
+    title(sprintf('Time series of epoch %d, channel %d',thisepoch, thischan))
+    legend('Noise data', 'Envelope of noise data')
+    
+    figure; plot(0:999, abs(fft(envelope)));
+    xlim([0 150]); xlabel('Frequency (Hz)'); ylabel('Amplitude');
+    title('Fourier transform of one epoch time series envelope')
     
     
     %% Or the mean of envelopes across epochs
     
-    envelope =  zeros(size(pcs{1},1),length(pcs));
-    for ii = 1:867  
-        envelope(:,ii) = hilbert(pcs{ii}(:,1));
+    envelope =  zeros(size(pcs{1},1),size(pcs{1},2),length(pcs));
+    for ii = 1:867
+        for jj = 1:10
+            envelope(:,jj,ii) = hilbert(pcs{ii}(:,jj));
+        end
     end
     
-    amps_envelope = abs(fft(envelope))/length(size(envelope,1))*2;
+    envelope = reshape(envelope,1000,[]);
+    amps_envelope = abs(fft(abs(envelope)));
     
-    figure; plot(0:999,mean(amps_envelope,2));
-    xlim([0 151]); ylim([200 450]); xlabel('Frequency (Hz)'); ylabel('Absolute amplitudes (fT)');
+    figure; plot(0:999,mean(amps_envelope,2), 'LineWidth',2);
+    hold on; for ll = 1:7; plot(ll*[12 12], [0 12], 'k--'); end
+    xlim([0 151]); ylim([0 12]); xlabel('Frequency (Hz)'); ylabel('Absolute amplitudes (fT)');
     title('Fourier transform of mean time series envelope');
     set(gca,'TickDir','out','FontSize',20); box off
     
