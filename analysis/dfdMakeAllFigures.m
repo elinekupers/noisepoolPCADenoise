@@ -13,7 +13,10 @@
 
 % Fieldtrip toolbox is needed to plot topographic maps (see:
 % http://www.fieldtriptoolbox.org/)
-if isempty(which('ft_prepare_layout')), dfdAddFieldtripPath, end
+if isempty(which('ft_prepare_layout')) 
+    pth = '~/matlab/git/toolboxes/Fieldtrip/';
+    dfdAddFieldtripPath(pth)
+end
 
 dfdMakeFigure2; % Panels of preprocessing pipeline Methods figure
 dfdMakeFigure4; % Spectrum of channel 42, S1 before denoising
