@@ -499,17 +499,17 @@ switch how
         % 	- 50th prctile for the median, 
         %   - average of +/- 34 prctile for the confidence interval 
         %temp = prctile(beta,[16 50 84],3);
-        %beta_se_old = (temp(:,:,3) - temp(:,:,1))/2;
+        %beta_se_old = diff(temp(:,:,[1 3]),[],3)/2;
         %beta_md_old = temp(:,:,2);
         
         % newer method is parametric, using the mean (of the data) for the
         % beta estimate, and the standard deviation of the bootstraps for
         % the confidence interval
-        beta_se = std(beta,[],3);
-        beta_md = design \ datast;
+        beta_sd = std(beta,[],3);
+        beta_mn = design \ datast;
                 
         % save into output struct
-        out = struct('r2',r2,'beta',beta,'beta_md',beta_md,'beta_se',beta_se,'epochs_boot', epochs_boot, 'r2boot', r2boot);
+        out = struct('r2',r2,'beta',beta,'beta_mn',beta_mn,'beta_sd',beta_sd,'epochs_boot', epochs_boot, 'r2boot', r2boot);
         
     otherwise
         error('(denoisedata:evalmodel) resampling method not parsed: %s', how);
@@ -565,7 +565,7 @@ switch metric
     case 'r2'
         val = model.r2;
     case 'snr'
-        val = max(abs(model.beta_md),[],1) ./ mean(model.beta_se,1);
+        val = max(abs(model.beta_mn),[],1) ./ mean(model.beta_sd,1);
 end
 
 
