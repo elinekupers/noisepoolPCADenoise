@@ -20,11 +20,11 @@ for whichSubject = whichSubjects
                 % get top 10
                 pcchan = getTop10(results);
           
-                bb_signal_pre = results.origmodel(1).beta_md(:,pcchan);
-                bb_noise_pre  = results.origmodel(1).beta_se(:,pcchan);
+                bb_signal_pre = results.origmodel(1).beta_mn(:,pcchan);
+                bb_noise_pre  = results.origmodel(1).beta_sd(:,pcchan);
             
-            	bb_signal_post = results.finalmodel(1).beta_md(:,pcchan);
-                bb_noise_post  = results.finalmodel(1).beta_se(:,pcchan);
+            	bb_signal_post = results.finalmodel(1).beta_mn(:,pcchan);
+                bb_noise_post  = results.finalmodel(1).beta_sd(:,pcchan);
             
                 bb_snr_pre     = bb_signal_pre./bb_noise_pre;
                 bb_snr_post    = bb_signal_post./bb_noise_post;

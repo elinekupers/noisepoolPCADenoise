@@ -19,7 +19,7 @@ for k = 1:length(exampleSessions)
     
     
     % get snr
-    snr = (cat(3,dataAll{k}.evalout(:,1).beta_md)) ./ cat(3,dataAll{k}.evalout(:,1).beta_se);
+    snr = (cat(3,dataAll{k}.evalout(:,1).beta_mn)) ./ cat(3,dataAll{k}.evalout(:,1).beta_sd);
     
     % plot for each condition
     for icond = 1:3 % Full, left, right

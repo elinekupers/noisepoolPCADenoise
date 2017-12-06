@@ -41,14 +41,18 @@ for dd = 1:2 % for either pre and post denoising
     meanXfreqs{dd}(1,:) = mean(epoch_vals_full);
     meanXfreqs{dd}(2,:) = mean(epoch_vals_blank);
     
-    pct = prctile(meanXfreqs{dd}(1,:), [16, 50, 84]);
-    signal = pct(2);
-    noise  = (pct(3)-pct(1))/2;
+%     pct = prctile(meanXfreqs{dd}(1,:), [16, 50, 84]);
+%     signal = pct(2);
+%     noise  = (pct(3)-pct(1))/2;
+    signal = mean(mean(this_data_full));
+    noise = mean(std(epoch_vals_full,[],2));
     fprintf('Signal: %4.2f\tNoise: %4.2f\tSNR:%4.2f\n', signal, noise, signal/noise);
 
-    pct = prctile(meanXfreqs{dd}(2,:), [16, 50, 84]);
-    signal = pct(2);
-    noise  = (pct(3)-pct(1))/2;
+%     pct = prctile(meanXfreqs{dd}(2,:), [16, 50, 84]);
+%     signal = pct(2);
+%     noise  = (pct(3)-pct(1))/2;
+    signal = mean(mean(this_data_blank,2));
+    noise = mean(std(epoch_vals_blank,[],2));
     fprintf('Signal: %4.2f\tNoise: %4.2f\tSNR:%4.2f\n', signal, noise, signal/noise);
 
 end

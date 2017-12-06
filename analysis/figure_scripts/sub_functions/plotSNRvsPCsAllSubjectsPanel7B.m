@@ -11,7 +11,7 @@ dataAll = dataAll(dataAllind);
 
 for k = 1:numel(dataAll)
 
-    snr = (cat(3,dataAll{k}.evalout(:,1).beta_md)) ./ cat(3,dataAll{k}.evalout(:,1).beta_se);    
+    snr = (cat(3,dataAll{k}.evalout(:,1).beta_mn)) ./ cat(3,dataAll{k}.evalout(:,1).beta_sd);    
     xvaltrend = [];
     for icond = 1:3
         this_snr = squeeze(snr(icond,:,[1:axmax+1 76]))';

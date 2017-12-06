@@ -16,11 +16,11 @@ for whichSubject = whichSubjects
         for nn = 1:length(epochDurs)
             pcchan = getTop10(results_all(nn));
             
-            bb_signal_pre = results_all(nn).origmodel(1).beta_md(:,pcchan);
-            bb_noise_pre  = results_all(nn).origmodel(1).beta_se(:,pcchan);
+            bb_signal_pre = results_all(nn).origmodel(1).beta_mn(:,pcchan);
+            bb_noise_pre  = results_all(nn).origmodel(1).beta_sd(:,pcchan);
             
-            bb_signal_post = results_all(nn).finalmodel(1).beta_md(:,pcchan);
-            bb_noise_post  = results_all(nn).finalmodel(1).beta_se(:,pcchan);
+            bb_signal_post = results_all(nn).finalmodel(1).beta_mn(:,pcchan);
+            bb_noise_post  = results_all(nn).finalmodel(1).beta_sd(:,pcchan);
             
             bb_snr_pre     = bb_signal_pre./bb_noise_pre;
             bb_snr_post    = bb_signal_post./bb_noise_post;
