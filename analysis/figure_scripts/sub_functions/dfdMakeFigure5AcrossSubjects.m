@@ -118,6 +118,6 @@ for icond = 1:numel(contrastNames)
 end
 
 if saveFigures
-%     figurewrite(fullfile(figureDir, sprintf('figure5_AcrossSubjects%d_threshold%d',whichSubject, threshold)),[],0,'.',1);
-    hgexport(gcf,fullfile(figureDir, sprintf('figure5_AcrossSubjects%d_threshold%d',whichSubject, threshold)));
+%      figurewrite(fullfile(figureDir, sprintf('figure5_AcrossSubjects%d_threshold%d',whichSubject, threshold)),[],0,'.',1);
+     hgexport(gcf,fullfile(figureDir, sprintf('figure5_AcrossSubjects%d_threshold%d',whichSubject, threshold)));
 end

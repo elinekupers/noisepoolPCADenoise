@@ -1,6 +1,6 @@
 function dfdMakeFigureS1()
-%% Function to reproduce supplementary Figure 3 SNR pre-post denoising
-% when removing pcs from a synthetic data set that contains 5 or 10 bases
+%% Function to reproduce supplementary Figure 1 SNR pre-post denoising
+% when removing pcs from a synthetic data set that contains 10 bases
 % functions
 %
 % dfdMakeFigureS1()
@@ -89,9 +89,6 @@ if saveFigures
 end
 
 %% Broadband before and after denoising
-
-% Get data
-[data,~,exampleIndex] = prepareData(dataDir,whichSubject,6);
 
 % Set up figure
 fH(2) = figure; set(fH,'position',[0,300,200,350], 'Name', 'S1B and C, spectra zoom before and after denoising', 'NumberTitle', 'off')

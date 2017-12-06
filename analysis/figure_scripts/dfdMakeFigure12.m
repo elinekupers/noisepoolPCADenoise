@@ -47,7 +47,8 @@ for whichSubject = 1:size(whichSubjectsRaw,2)
     
    for ii = [whichSubjectsRaw(whichSubject),whichSubjectsCALM(whichSubject),whichSubjectsTSPCA(whichSubject)]
        thisSubjectIdx = find(ii==[whichSubjectsRaw(whichSubject),whichSubjectsCALM(whichSubject),whichSubjectsTSPCA(whichSubject)]);
-   % Get noisepool info
+        
+       % Get noisepool info
         dd = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),ii));
         badChannels = dd.badChannels; 
         noisePool(thisSubjectIdx,:) = to157chan(dd.results.noisepool,~badChannels,1); clear dd   
@@ -100,7 +101,7 @@ disp(outBoot)
 %% Plot figure
 fH = figure('position',[0,300,700,300],'Name', 'Figure 12B', 'NumberTitle', 'off');
 % define what the different conditions are
-types = {'Raw','CALM','TSPCA','MEG Denoise','MEG Denoise + CALM','MEG Denoise + TSPCA'}; %
+types = {'Raw','CALM','TSPCA','noisepool-PCA','noisepool-PCA + CALM','noisepool-PCA + TSPCA'}; %
 % re-arrange the order of the bars
 colors = dfdGetColors(3);
 
@@ -135,6 +136,6 @@ for icond = 1:3
 end
 
 if saveFigures
-    hgexport(fH, fullfile(figureDir,'figure12b_bargraphCALMTSPCA'));
-%     figurewrite(fullfile(figureDir,'figure12b_bargraphCALMTSPCA'),[],0,'.',1);
+%     hgexport(fH, fullfile(figureDir,'figure12b_bargraphCALMTSPCA'));
+    figurewrite(fullfile(figureDir,'figure12b_bargraphCALMTSPCA'),[],0,'.',1);
 end

@@ -38,7 +38,7 @@ condNames = {'Stim Full','Stim Left','Stim Right' 'Stim Left - Right'};
 contrasts = [eye(3); [0 1 -1]/sqrt(2)];
 yscaleAB = [repmat([-8,-4,0,4,8],3,1);[-5,-2.5,0,2.5,5]];
 
-fH = figure;
+fH = figure('position',[1,600,1400,800], 'Name', 'Figure 9, Subject 1', 'NumberTitle', 'off');
 for icond = 1:4
     
     % get broadband snr for before and after denoising
@@ -81,8 +81,10 @@ for icond = 1:4
 end
 
 if saveFigures
-    hgexport(gcf,fullfile(figureDir, sprintf('figure9_examplesubject%d_bipolar_thresh%d',whichSubject, threshold)));
-%     figurewrite(fullfile(figureDir, sprintf('figure9_examplesubject%d_bipolar_thresh%d',whichSubject, threshold)),[],0,'.',1);
+      % Only use figure write when producing MS high quality figure, since
+      % it takes time
+     hgexport(gcf,fullfile(figureDir, sprintf('figure9_examplesubject%d_bipolar_thresh%d',whichSubject, threshold)));
+%     figurewrite(fullfile(figureDir, sprintf('figure9_examplesubject%d_bipolar_thresh%d_diff',whichSubject, threshold)),[],0,'.',1);
 end
 
 %% Now do the same but then across subjects

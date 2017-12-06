@@ -126,6 +126,7 @@ end
 
 
 if saveFigures
+    % Only use figure write when producing MS high quality figure
      hgexport(gcf,fullfile(figureDir, sprintf('figure9_AcrossSubject%d_bipolar_threshold%d',whichSubject, threshold)));
-%    figurewrite(fullfile(figureDir, sprintf('figure9_AcrossSubject%d_bipolar_threshold%d',whichSubject, threshold)),[],0,'.',1);
+%    figurewrite(fullfile(figureDir, sprintf('figure9_AcrossSubject%d_bipolar_threshold%d_diff',whichSubject, threshold)),[],0,'.',1);
 end
