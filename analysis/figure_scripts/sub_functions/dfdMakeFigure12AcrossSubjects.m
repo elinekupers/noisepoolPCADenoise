@@ -31,11 +31,11 @@ computeSNR    = @(x) nanmean(x,3) ./ nanstd(x, [], 3);
 contrastNames = {'Full','Left','Right','Left-Right'};
 
 if isequal(whichSubjects,1:8)
-    str = {'SL raw' 'BB raw' 'BB MEG Denoise'}; figName = 'RAW';
+    str = {'SL raw' 'BB raw' 'BB noisepool-PCA'}; figName = 'RAW';
 elseif isequal(whichSubjects,21:28)
-    str = {'SL raw' 'BB CALM' 'BB CALM + MEG Denoise'}; figName = 'CALM';
+    str = {'SL raw' 'BB CALM' 'BB CALM + noisepool-PCA'}; figName = 'CALM';
 elseif isequal(whichSubjects,29:36)
-    str = {'SL raw' 'BB TSPCA' 'BB TSPCA + MEG Denoise'}; figName = 'TSPCA';
+    str = {'SL raw' 'BB TSPCA' 'BB TSPCA + noisepool-PCA'}; figName = 'TSPCA';
 end
 
 %% Load denoised data of all subjects

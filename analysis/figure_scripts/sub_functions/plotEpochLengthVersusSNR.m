@@ -21,11 +21,11 @@ for npsIdx = 2; % Corresponding to 10 pcs (1 = 5 PCs, 2 = 10 PCs, in steps of 10
         % compute the difference between pre and post
         for nn = 1:length(epochDurs)
             
-            bb_signal_pre = results_all(nn).origmodel(1).beta_md(:,pcchan);
-            bb_noise_pre  = results_all(nn).origmodel(1).beta_se(:,pcchan);
+            bb_signal_pre = results_all(nn).origmodel(1).beta_mn(:,pcchan);
+            bb_noise_pre  = results_all(nn).origmodel(1).beta_sd(:,pcchan);
             
-            bb_signal_post = results_all(nn).finalmodel(1).beta_md(:,pcchan);
-            bb_noise_post  = results_all(nn).finalmodel(1).beta_se(:,pcchan);
+            bb_signal_post = results_all(nn).finalmodel(1).beta_mn(:,pcchan);
+            bb_noise_post  = results_all(nn).finalmodel(1).beta_sd(:,pcchan);
             
             bb_snr_pre     = bb_signal_pre./bb_noise_pre;
             bb_snr_post    = bb_signal_post./bb_noise_post;

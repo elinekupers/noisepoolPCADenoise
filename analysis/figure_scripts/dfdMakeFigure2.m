@@ -166,7 +166,7 @@ nboot = 1000;
 epochs_boot = randi(nepochs,nboot,nepochs);
 
 % define figure properties
-ylims = {[0,150],[0,5]};
+ylims = {[0,160],[0,5]};
 fH = figure('position',[0,300,150,200]);
 
 % mean subtract design matrix
@@ -188,13 +188,16 @@ for whichfun = 1:2 % loop through the functions (1: stimlocked, 2: broadband)
         beta = cat(2,beta,beta_boot);
     end
     % calculate the median and std of bootstrapped beta
-    beta_range = prctile(beta,[16 50 84],2)';
-    beta_se = diff(beta_range([1 3],:))/2;
+%     beta_range = prctile(beta,[16 50 84],2)';
+%     beta_se = diff(beta_range([1 3],:))/2;
+    beta_mn = design2 \ spects;
+    beta_sd = std(beta,[],2);
+    
     
     % plot it and make it pretty
     subplot(2,1,whichfun);
-    bar(beta_range(2,:),'EdgeColor','none','facecolor',[0.5,0.5,0.5]);
-    errorbar2(1:3,beta_range(2,:),beta_range([1,3],:),1,'k-');
+    bar(beta_mn,'EdgeColor','none','facecolor',[0.5,0.5,0.5]);
+    errorbar2(1:3,beta_mn,beta_sd,1,'k-');
     set(gca,'xlim',[0.2,3.8],'ylim',ylims{whichfun},'ytick',ylims{whichfun});
     makeprettyaxes(gca,9,9);
 end

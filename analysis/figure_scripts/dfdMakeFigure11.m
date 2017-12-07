@@ -54,12 +54,12 @@ end
 %% Plot figure
 fH = figure('position',[0,300,700,300],'Name', 'Figure 11', 'NumberTitle', 'off');
 % define what the different conditions are 
-types = {'MEG Denoise',...                  1
+types = {'noisepool-PCA',...                  1
     'Order shuffled', ...                   2
     'Random Amplitude', ...                 3
     'Phase-scrambled',...                   4
     'Replace PCs with random values', ...   5
-    'All channels in noisepool', ...        6
+    'All channels in noise pool', ...        6
     'Concatenate epochs for denoising' ...  7
      }; % 
 % re-arrange the order of the bars 

@@ -82,7 +82,7 @@ end
  if saveFigures
     % Note: our function figurewrite is extremely slow with Matlab 2016b,
     % therefore we use hgexport()
-%     figurewrite(fullfile(figureDir, sprintf('figure5_examplesubject%d_thresh%d',whichSubject, threshold)),[],0,'.',1);
+%      figurewrite(fullfile(figureDir, sprintf('figure5_examplesubject%d_thresh%d',whichSubject, threshold)),[],0,'.',1);
     hgexport(gcf,fullfile(figureDir, sprintf('figure5_examplesubject%d_thresh%d',whichSubject, threshold)))
  end
 
