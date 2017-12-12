@@ -22,6 +22,7 @@ function [xFiltered, hipassfilter, freqs] = filterdata(x,fs,lcutoff,ftsd,exclude
 %   [xFiltered, hipassfilter, freqs] = filterdata(x,1000, [], [], 20:20:1000);
 %   figure; plot(abs(fft(x))); hold on, plot(abs(fft(xFiltered)), 'r'); xlim([0 200])
 %   figure; plot(abs(fft(xFiltered))./abs(fft(x))); xlim([0 200])
+
 if notDefined('lcutoff'), lcutoff = 60; end
 if notDefined('ftsd'),    ftsd = lcutoff; end
 
