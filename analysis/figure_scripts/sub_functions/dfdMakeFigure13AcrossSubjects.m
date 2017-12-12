@@ -31,9 +31,9 @@ computeSNR    = @(x) nanmean(x,3) ./ nanstd(x, [], 3);
 contrastNames = {'Full','Left','Right','Left-Right'};
 
 if isequal(whichSubjects,[9:12])
-    str = {'SL raw' 'BB raw' 'BB MEG Denoise'}; figName = 'RAW';
+    str = {'SL raw' 'BB raw' 'BB noisepool-PCA'}; figName = 'RAW';
 elseif isequal(whichSubjects,[14,16,18,20])
-    str = {'SL raw' 'BB TSSS' 'BB TSSS + MEG Denoise'}; figName = 'TSSS';
+    str = {'SL raw' 'BB TSSS' 'BB TSSS + noisepool-PCA'}; figName = 'TSSS';
 end
 
 %% Load denoised data of all subjects
@@ -97,5 +97,8 @@ for row = 1:4 % stimulus contrasts
 end
 
 if saveFigures
-    hgexport(gcf, fullfile(figureDir,sprintf('figure13_AcrossSubject%d_threshold%d_%s',whichSubject, threshold, figName)));
+%     hgexport(gcf, fullfile(figureDir,sprintf('figure13_AcrossSubject%d_threshold%d_%s',whichSubject, threshold, figName)));
+    figurewrite(fullfile(figureDir,sprintf('figure14a_TSSS_%s',figName)),[],0,'.',1);
+
 end
+

@@ -48,5 +48,5 @@ for k = 1:length(exampleSessions)
     end
 end
 if saveFigures
-    figurewrite(fullfile(figureDir,'FigureSF3SNRvPCsData'),[],0,'.',1);
+    figurewrite(fullfile(figureDir,'FigureSNRvPCsData'),[],0,'.',1);
 end

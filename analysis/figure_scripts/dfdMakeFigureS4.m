@@ -1,97 +1,148 @@
 function dfdMakeFigureS4()
-%% Function to reproduce Supplementary Figure 4 (Spatialmap)
+%% Function to reproduce supplementary Figure 4 SNR pre-post denoising
+% when removing pcs from a synthetic data set that contains 10 bases
+% functions
 %
 % dfdMakeFigureS4()
 %
 % Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J.
-% Heeger, Jonathan Winawer. (YEAR) Broadband spectral responses in visual
-% cortex revealed by a new MEG denoising algorithm.
+% Heeger, Jonathan Winawer. (YEAR) A non-invasive, quantitative study of
+% broadband spectral responses in human visual cortex
 % (JOURNAL. VOLUME. ISSUE. DOI.)
 %
-% This figure will show an interpolated spatial map of the SNR values in
-% each channel for the stimulus locked signal, broadband signals before
-% using the denoising algorithm for all individual subjects. The three
-% separate conditions (Full, left, right hemifield stimulation are shown
-% separately).
+% This figure will show the simulated broadband response before and after denoising.
+% Bootstrapped fullfield signal (mean across bootstraps) and noise component (std across bootstraps)
+% and the difference between the two distributions are plotted before and
+% after denoising.
 %
-% This function assumes that data is downloaded with the dfdDownloadsampledata
+% This function assumes that data is downloaded with the DFDdownloaddata
 % function.
 
 %% Choices to make:
-
+whichSubject    = 99;     % Subject 99 has the synthetic dataset.
 figureDir       = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to save images?
 dataDir         = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?
-saveFigures     = true;     % Save figures in the figure folder?
-threshold       = 0;        % Set threshold for colormap. If no threshold set value to 0
-cfg             = [];
-data_hdr        = [];
+saveFigures     = true;  % Save figures in the figure folder?
+figureNumber    = 'SF4';
+ylimsSF1D       = [-1, 8]; 
 
-%% Plot stimulus-locked signal, broadband before denoising on sensormap
-fH1 = figure('position',[1,600,1400,800]); set(gcf, 'Name', 'S4A, Individual subjects SL', 'NumberTitle', 'off');
-fH2 = figure('position',[1,600,1400,800]); set(gcf, 'Name', 'S4B, Individual subjects BB Pre denoising', 'NumberTitle', 'off');
+% Define plotting parameters
+colors          = dfdGetColors(4);
+axmax           = 75;    % How far out do you want to plot the number of PCs
 
-for whichSubject = 1:8
+fprintf('Load data subject %d \n', whichSubject);
+% Load data, design, and get example subject
+[data,design,exampleIndex,exampleChannel] = prepareData(dataDir,whichSubject,4);
+
+% Define conditions: Full, right, left, off
+condEpochs1 = {design{1}(:,1)==1, design{1}(:,2)==1, design{1}(:,3)==1, all(design{1}==0,2)};
+condEpochs2 = {design{2}(:,1)==1, design{2}(:,2)==1, design{2}(:,3)==1, all(design{2}==0,2)};
+
+condEpochs = {condEpochs1 condEpochs2};
+
+%% Create power spectrum, before denoising
+
+% Set up figure
+fH(1) = figure('position',[0,300,500,500]); clf(fH(1)); set(fH(1), 'Name', 'S4A, Power spectrum', 'NumberTitle', 'off');
+
+% Define axes
+f = (0:999);
+xl = [8 150];
+fok = f;
+fok(f<=xl(1) | f>=xl(2) | mod(f,60) < 2 | mod(f,60) > 58 ) = [];
+xt = [12:12:72, 96,144];
+yt = -4:2;
+yl=[yt(1),yt(end)];
+
+% Compute spectrum
+spec = abs(fft(squeeze(data{1}(exampleIndex,:,:))))/size(data{1},2)*2;
+
+hold on;
+for ii = [1,4] % For both-field and blank stimulus
     
+    % Compute power for epochs corresponding to a condition and
+    % trim data to specific frequencies
+    this_data = spec(:,condEpochs{1}{ii}).^2;
+    this_data = this_data(fok+1,:);
     
-    %% Load denoised data of example subject
-    [data] = prepareData(dataDir,whichSubject,5);
-    bb = data{1};
-    sl = data{2};
+    % Compute median and confidence interval across epochs
+    mn = prctile(this_data,[16,50,84],2);
     
-    % contrastNames = {'Stim Full','Stim Left','Stim Right','Left minus Right'};
-    contrasts = [eye(3); 0 1 -1];
-    contrasts = bsxfun(@rdivide, contrasts, sqrt(sum(contrasts.^2,2)));
-    yscaleAB = [repmat([-8,-4,0,4,8],3,1);[-5,-2.5,0,2.5,5]];
-    climsSL = [-25.6723,25.6723];
-    climsAB = [-8.4445, 8.4445];
+    % Plot median
+    plot(fok, mn(:,2),  '-',  'Color', colors(ii,:), 'LineWidth', 1);
     
-    for icond = 1:size(contrasts,1)
-        % get stimulus-locked snr
-        sl_snr1 = getsignalnoise(sl.results.origmodel(1),contrasts(icond,:), 'SNR',sl.badChannels);
-        % get broadband snr for before denoising
-        ab_snr1 = getsignalnoise(bb.results.origmodel(1),  contrasts(icond,:), 'SNR',bb.badChannels);
+end
+
+% Format x and y axes
+set(gca, 'XLim', xl, 'XTick', xt, 'XScale', 'log', 'YScale','log');
+set(gca, 'ytick',10.^yt, 'ylim',10.^yl,'YScale', 'log');
+
+% Label figure, add stimulus harmonic lines, and make it look nice
+xlabel('Frequency (Hz)'); ylabel('Power (fT^2)');
+title('Before denoising');
+yl2 = get(gca, 'YLim');
+for ii =12:12:180, plot([ii ii], yl2, 'k--'); end
+makeprettyaxes(gca,9,9);
+
+if saveFigures
+    figurewrite(sprintf(fullfile(figureDir,'figureS4AFullSpectrumChannel%d'),exampleChannel),[],0,'.',1);
+end
+
+%% Broadband before and after denoising
+
+% Set up figure
+fH(2) = figure; set(fH,'position',[0,300,200,350], 'Name', 'S4B and C, spectra zoom before and after denoising', 'NumberTitle', 'off')
+
+% Rescale axes and remove harmonics
+xl = [60 150];
+fok = f;
+fok(f<=xl(1) | f>=xl(2) | mod(f,60) < 2 | mod(f,60) > 58 | mod(f,72) < 2 | mod(f,96) < 2 | mod(f,108) < 2 | mod(f,144)<2) = [];
+xt = [];
+yt = -5:-1;
+yl=[yt(1),yt(end)];
+
+for dd = 1:2
+    subplot(2,1,dd);
+    
+    % compute spectrum
+    spec = abs(fft(squeeze(data{dd}(exampleIndex,:,:))))/size(data{dd},2)*2;
+    
+    hold on;
+    for conditions = [1,4]
+        % compute power for epochs corresponding to a condition and
+        % trim data to specific frequencies
+        this_data = spec(:,condEpochs{dd}{conditions}).^2;
+        this_data = this_data(fok+1,:);
         
-        sl_snr1 = to157chan(sl_snr1,~sl.badChannels,'nans');
-        ab_snr1 = to157chan(ab_snr1,~bb.badChannels,'nans');
+        mn = prctile(this_data,[16,50,84],2);
         
-        if length(bb.badChannels)>157
-            sl_snr1 = dfd204to102(sl_snr1);
-            ab_snr1 = dfd204to102(ab_snr1);
-        end
+        % Plot the data
+        plot(fok, mn(:,2),  '-',  'Color', colors(conditions,:), 'LineWidth', 1);
+        set(gca,'ytick',10.^yt, 'ylim',10.^yl,'YScale', 'log');
+        set(gca, 'XLim', xl, 'XTick', xt, 'XScale', 'log', 'YScale','log');
         
-        % Threshold if requested
-        ab_snr1(abs(ab_snr1) < threshold) = 0;
-        sl_snr1(abs(sl_snr1) < threshold) = 0;
-        
-        if icond > 3 % then we are plotting l-r rather than one condition and change the colormap limits
-            climsAB = [-3.5363, 3.5363];
-        end
-        
-        % plot spatial maps
-        set(0,'CurrentFigure',fH1)
-        subplot(4,8,whichSubject+(icond*8)-8)
-        [~,ch] = megPlotMap(sl_snr1,climsSL,gcf,'bipolar',sprintf('S%d',whichSubject),data_hdr,cfg);
-        makeprettyaxes(ch,9,9);
-        set(ch,'YTick',[-20,-10,0,10,20]);
-        
-        set(0,'CurrentFigure',fH2)
-        subplot(4,8,whichSubject+(icond*8)-8)
-        [~,ch] = megPlotMap(ab_snr1,climsAB,gcf,'bipolar',sprintf('S%d',whichSubject),data_hdr,cfg);
-        makeprettyaxes(ch,9,9);
-        set(ch,'YTick',yscaleAB(icond,:));
+        % label figure, add stimulus harmonic lines, and make it look nice
+        xlabel('Frequency (Hz)'); ylabel('Power (fT^2)');
+        if dd == 1, title('Before denoising'), else title('After denoising'); end
+        yl2 = get(gca, 'YLim');
+        for ii =12:12:180, plot([ii ii], yl2, 'k--'); end
+        makeprettyaxes(gca,9,9);
         
     end
-    
-    
-    
 end
 
 if saveFigures
-    % Note: our function figurewrite is extremely slow with Matlab 2016b,
-    % therefore we use hgexport()
-    %         figurewrite(fullfile(figureDir, sprintf('SF1_individual_thresh%d', threshold)),[],0,'.',1);
-    hgexport(fH1,fullfile(figureDir, sprintf('S4A_individual_thresh%d', threshold)));
-    hgexport(fH2,fullfile(figureDir, sprintf('S4B_individual_thresh%d', threshold)));
-
+    figurewrite(sprintf(fullfile(figureDir,'figureS1BBeforeAfterSpectrumChannel%d'),exampleChannel),[],0,'.',1);
 end
+
+%% Plot SNR vs number of PCs change for all channels
+data = prepareData(dataDir,whichSubject,figureNumber);
+fH(3) = plotSNRvsPCsAllSubjectsPanel7B({data},colors,axmax,figureDir,saveFigures,ylimsSF1D, 'Figure SF4D');
+
+%% Plot noise pool
+fH(4) = plotNoisepool(whichSubject);
+
+%% Plot topographic maps before and after denoising
+fH(5) = dfdMakeFigure9(whichSubject); %for ax = 2:2:16; set(fH(5).Children(ax),'CLim', [-ylimsSF1D(2) ylimsSF1D(2)]); end
+                                        %for ax = 1:2:15; set(fH(5).Children(ax), 'YTick', [-20 -10 0 10 20]); end
 

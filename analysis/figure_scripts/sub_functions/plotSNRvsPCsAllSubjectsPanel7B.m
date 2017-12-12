@@ -46,7 +46,7 @@ for icond = 1:3
 end
 
 if saveFigures
-    figurewrite(fullfile(figureDir,'FigureSF3BSNRvPCsData'),[],0,'.',1);
+    figurewrite(fullfile(figureDir,'FigureSNRvPCsData'),[],0,'.',1);
 end
 
 

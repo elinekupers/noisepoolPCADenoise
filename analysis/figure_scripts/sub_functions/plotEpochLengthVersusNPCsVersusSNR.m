@@ -54,5 +54,5 @@ for icond = 1:3
 end
 
 if saveFigures
-    printnice(gcf, [1 300], fullfile(figureDir),'SuppFigure_Epochdur_Subjmean_vs_NPCS');
+    printnice(gcf, [1 300], fullfile(figureDir),'SF3_Epochdur_Subjmean_vs_NPCS');
 end

@@ -64,12 +64,8 @@ switch whichFigure
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject)); 
         data = {data,data_controls};
         
-  
+   
     case 'SF1'
-        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_full_bb.mat'),whichSubject));
-        load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
-        
-    case 'SF2'
         data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_NCPSvsNoisePool_bb.mat'), whichSubject));
         data1 = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject));
         data.badEpochs = data1.badEpochs;
@@ -77,7 +73,7 @@ switch whichFigure
 
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         
-    case 'SF3'
+    case 'SF2'
         data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_varyEpochLength_NrPCs_bb.mat'), whichSubject));
         data1 = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject));
         data.badEpochs = data1.badEpochs;
@@ -87,7 +83,12 @@ switch whichFigure
 
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
     
-    case 'SF6'
+     case 'SF4'
+        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_full_bb.mat'),whichSubject));
+        load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
+        
+        
+    case 'SF7'
         data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_sl.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
     

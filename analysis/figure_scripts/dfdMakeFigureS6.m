@@ -1,6 +1,5 @@
 function dfdMakeFigureS6()
-%% Function to reproduce Supplementary Figure 6AB S, N pre-post denoising
-% for top ten channels of all subjects for stimulus locked signal
+%% Function to reproduce Supplementary Figure 6 
 %
 % dfdMakeFigureS6()
 %
@@ -9,58 +8,64 @@ function dfdMakeFigureS6()
 % cortex revealed by a new MEG denoising algorithm.
 % (JOURNAL. VOLUME. ISSUE. DOI.)
 %
-% This figure will SNR, signal (mean across bootstraps) and noise (std
-% across bootstraps) components of subject's stimulus.
-
+% This figure will show an interpolated spatial map of the SNR values in
+% each channel for the stimulus locked signal, broadband signals before and
+% after using the denoising algorithm for all individual subjects.
+% The three separate conditions (Full, left, right hemifield stimulation are
+% shown separately).
 %
-% This function assumes that data is downloaded with the DFDdownloaddata
-% function. 
+% This function assumes that data is downloaded with the dfdDownloadsampledata
+% function.
 
 %% Choices to make:
-whichSubjects    = [1:8];     % Subject 1 has the example channel.
+
 figureDir       = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to save images?
 dataDir         = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?
-saveFigures     = true;  % Save figures in the figure folder?
-figureNumber    = 'SF6';
-                                         
-% Define plotting parameters
-colors          = dfdGetColors(3);
+saveFigures     = true;     % Save figures in the figure folder?
+threshold       = 0;        % Set threshold for colormap. If no threshold set value to 0
+cfg             = [];
+data_hdr        = [];
 
-%% Get data
-dataAll = [];
-for whichSubject = whichSubjects
-    fprintf('Load data subject %d \n', whichSubject);
-    % Load data, design, and get example subject
-    dataAll = prepareData(dataDir,whichSubject,figureNumber); 
+%% Plot stimulus-locked signal, broadband after denoising on sensormap
+fH1 = figure('position',[1,600,1400,800]); set(gcf, 'Name', 'SF6, Individual subjects BB Post denoising', 'NumberTitle', 'off');
 
-    % Get results for everybody and top10 channels for everybody
-    allpcchan{whichSubject} = getTop10(dataAll.results);
-    allresults{whichSubject} = dataAll.results;
-end
-
-clear dataAll
-
-% get colors for plotting
-% vary saturation for different subjects
-satValues = 1-linspace(0.1,1,8);
-colorRGB = varysat(colors,satValues);
-
-% plot before and after
-fH = figure('position',[0,300,500,400],'Name', 'Figure S6', 'NumberTitle', 'off'); set(gcf, 'Color','w');
-datatypes = {'SNR','Signal','Noise'};
-for t = 1:numel(datatypes);
-    for icond = 1:3
-        subplot(numel(datatypes),3,((t-1)*3+icond))
-        plotBeforeAfter(allresults,1,allpcchan,datatypes{t},icond,[],squeeze(colorRGB(icond,:,:)));
-        xlim([0.5,2.5]);
-        makeprettyaxes(gca,9,9);
-        if t==1; yt = [0,40]; elseif t==2; yt= [0,130]; else yt = [0,6]; end
-        ylim(yt);
+for whichSubject = 1:8
+    %% Load denoised data of example subject
+    bb = prepareData(dataDir,whichSubject,8);
+    
+    %% Plot stimulus-locked signal, broadband after denoising on sensormap
+    contrasts = [eye(3); [0 1 -1]/sqrt(2)];
+    for icond = 1:4
+        
+        % get broadband snr for after denoising
+        ab_snr2 = getsignalnoise(bb.results.finalmodel(1), contrasts(icond,:), 'SNR',bb.badChannels);
+        
+        
+        % Replace bad channels with NaNs
+        ab_snr2 = to157chan(ab_snr2,~bb.badChannels,'nans');
+        
+        if length(bb.badChannels)>157
+            ab_snr2 = dfd204to102(ab_snr2);
+        end
+        
+        % Threshold
+        ab_snr2(abs(ab_snr2) < threshold) = 0;
+        
+        % Set colormap limits
+        if icond <= 3, clims_ab = 8.4445 * [-1 1]; else, clims_ab = 3.5363 * [-1,1]; end
+        
+        subplot(4,8,whichSubject+(icond*8)-8)
+        [~,ch] = megPlotMap(ab_snr2,clims_ab,gcf,'bipolar',sprintf('S%d',whichSubject),data_hdr,cfg);
+        makeprettyaxes(ch,9,9);
+        set(ch,'YTick',[-8,-4,0,4,8]); if icond > 3; set(ch,'YTick',[-5,-2.5,0,2.5,5]); end
+        drawnow();
+        
     end
+    
 end
 
 if saveFigures
-   figurewrite(fullfile(figureDir,'FigureS6_s_n_full_sat'),[],0,'.',1);
+    % Figurewrite takes a long time saving, so let's use hgexport for now
+    hgexport(fH1, fullfile(figureDir, sprintf('S6_individualsubject_thresh%d', threshold)));
 end
-
 
