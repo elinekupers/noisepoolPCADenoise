@@ -11,6 +11,7 @@ function dfdDenoiseWrapper(subjects, howToDenoise)
 %                   1) denoise with exactly 10 PC regressors
 %                   2) denoise with each of 0 to 10 PC regressors
 %                   3) various controls
+%                   4) control that uses all channels in the noise pool
 %                [default=1]
 %
 % DESCRIPTION: Wrapper function to denoise multiple MEG visual steady
