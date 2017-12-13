@@ -11,18 +11,6 @@ function dfdMakeFigure14()
 % (JOURNAL. VOLUME. ISSUE. DOI.)
 
 %% -------------------------------------
-% -------------- Add paths -------------
-% --------------------------------------
-
-% Note: Think about how putting these functions in our repository
-toolbox_pth = '/Volumes/server/Projects/MEG/Eyetracking_scripts/';
-
-% Add necessary paths:
-addpath(fullfile(toolbox_pth));
-addpath(genpath(fullfile(toolbox_pth,'toolboxes','mgl')));
-addpath(genpath(fullfile(toolbox_pth,'toolboxes','mrToolsUtilities')));
-
-%% -------------------------------------
 % ------------ Define Params -----------
 % --------------------------------------
 
@@ -381,6 +369,8 @@ for nn = 1:4;
 end
 
 
-if saveFigs; hgexport(gcf, fullfile(savePath, sprintf('MSVectorCircularDistributionEpoch_subject%02d',whichSubject))); end
+if saveFigs
+    hgexport(gcf, fullfile(savePath, sprintf('MSVectorCircularDistributionEpoch_subject%02d',whichSubject))); 
+end
 
 

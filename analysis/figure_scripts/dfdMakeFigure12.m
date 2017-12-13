@@ -136,6 +136,8 @@ for icond = 1:3
 end
 
 if saveFigures
-%     hgexport(fH, fullfile(figureDir,'figure12b_bargraphCALMTSPCA'));
-    figurewrite(fullfile(figureDir,'figure12b_bargraphCALMTSPCA'),[],0,'.',1);
+    % Only use figure write when producing high quality manuscript figure
+    % (since it is very slow)
+    hgexport(fH, fullfile(figureDir,'figure12b_bargraphCALMTSPCA'));
+%     figurewrite(fullfile(figureDir,'figure12b_bargraphCALMTSPCA'),[],0,'.',1);
 end

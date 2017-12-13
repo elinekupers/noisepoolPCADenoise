@@ -91,19 +91,21 @@ figure,set(gcf, 'Name', figName)
 for row = 1:4 % stimulus contrasts
     for col = 1:3 % types of analyses (sl, bb-pre, bb-post)
         subplot(4,3,3*(row-1)+col),
-        if col == 1, clim = [-25.6723,25.6723]; 
-        else 
-            if row == 4; clim = [-5.445, 5.445]; 
-            else; clim = [-8.4445, 8.4445]; 
-            end; 
+        if col == 1, clim = [-25.6723,25.6723];
+        else
+            if row == 4; clim = [-5.445, 5.445];
+            else; clim = [-8.4445, 8.4445];
+            end;
         end
-            
-            megPlotMap(squeeze(mean(data{col}(row,:,:),3)), ...
-                clim, [], cmap); drawnow;
-            if row == 1, title(str{col}); end
-        end
+        
+        megPlotMap(squeeze(mean(data{col}(row,:,:),3)), ...
+            clim, [], cmap); drawnow;
+        if row == 1, title(str{col}); end
     end
-    
-    if saveFigures
-        hgexport(gcf,fullfile(figureDir,sprintf('figure12_AcrossSubject%d_threshold%d_%s',whichSubject, threshold, figName)));
-    end
+end
+
+if saveFigures
+    % Only use figure write when producing high quality manuscript figure
+    % (since it is very slow)
+    hgexport(gcf,fullfile(figureDir,sprintf('figure12_AcrossSubject%d_threshold%d_%s',whichSubject, threshold, figName)));
+end

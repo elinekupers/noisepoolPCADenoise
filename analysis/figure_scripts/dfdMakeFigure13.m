@@ -117,6 +117,8 @@ for icond = 1:3
 end
 
 if saveFigures
+    % Only use figure write when producing high quality manuscript figure
+    % (since it is very slow)
     hgexport(gcf,fullfile(figureDir,'figure13b_linegraphTSSS'));
 %     figurewrite(fullfile(figureDir,'figure14b_linegraphTSSS'),[],0,'.',1);
 end
