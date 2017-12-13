@@ -507,7 +507,17 @@ switch how
         % the confidence interval
         beta_sd = std(beta,[],3);
         beta_mn = design \ datast;
-                
+             
+%         figure; set(gca, 'ColorOrder',dfdGetColors(3)'); hold on;
+%         plot(beta_md_old', beta_mn', '.', [-10 180], [-10 180], 'k-', 'MarkerSize', 25);
+%         axis([-10 180 -10 180]); axis square
+%         xlabel('Median across bootstraps'); ylabel('Mean of sample data'); set(gca, 'FontSize', 20)
+%         
+%         figure; set(gca, 'ColorOrder',dfdGetColors(3)'); hold on;
+%         plot(beta_se_old', beta_sd', '.', [0 9], [0 9], 'k-', 'MarkerSize', 25);
+%         axis([0 9, 0 9]); axis square
+%         xlabel('68% CI across bootstraps'); ylabel('SD across bootstraps'); set(gca, 'FontSize', 20) 
+%         
         % save into output struct
         out = struct('r2',r2,'beta',beta,'beta_mn',beta_mn,'beta_sd',beta_sd,'epochs_boot', epochs_boot, 'r2boot', r2boot);
         
