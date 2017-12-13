@@ -51,8 +51,10 @@ for k = 1:length(whichSubjects)
 end
 
 if saveFigures
-%     hgexport(gcf,fullfile(figureDir,'figure10ab_BeforeAfter'));
-    figurewrite(fullfile(figureDir,'figure10ab_BeforeAfter'),[],0,'.',1);
+    % Only use figure write when producing high quality manuscript figure
+    % (since it is very slow)
+    hgexport(gcf,fullfile(figureDir,'figure10ab_BeforeAfter'));
+%     figurewrite(fullfile(figureDir,'figure10ab_BeforeAfter'),[],0,'.',1);
 end
 
 

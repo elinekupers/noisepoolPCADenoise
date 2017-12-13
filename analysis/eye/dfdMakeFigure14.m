@@ -381,6 +381,8 @@ for nn = 1:4;
 end
 
 
-if saveFigs; hgexport(gcf, fullfile(savePath, sprintf('MSVectorCircularDistributionEpoch_subject%02d',whichSubject))); end
+if saveFigs
+    hgexport(gcf, fullfile(savePath, sprintf('MSVectorCircularDistributionEpoch_subject%02d',whichSubject))); 
+end
 
 

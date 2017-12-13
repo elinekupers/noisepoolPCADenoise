@@ -97,8 +97,10 @@ for row = 1:4 % stimulus contrasts
 end
 
 if saveFigures
-%     hgexport(gcf, fullfile(figureDir,sprintf('figure13_AcrossSubject%d_threshold%d_%s',whichSubject, threshold, figName)));
-    figurewrite(fullfile(figureDir,sprintf('figure14a_TSSS_%s',figName)),[],0,'.',1);
+    % Only use figure write when producing high quality manuscript figure
+    % (since it is very slow)
+    hgexport(gcf, fullfile(figureDir,sprintf('figure13_AcrossSubject%d_threshold%d_%s',whichSubject, threshold, figName)));
+%     figurewrite(fullfile(figureDir,sprintf('figure14a_TSSS_%s',figName)),[],0,'.',1);
 
 end
 
