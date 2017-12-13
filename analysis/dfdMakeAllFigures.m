@@ -32,11 +32,12 @@ dfdMakeFigure13; % Topographic maps and comparisons of Cinet data (MEG Denoise a
 dfdMakeFigure14; % Microsaccade histograms and topographic meshes with(out) microsaccades
 
 % Make supplementary figures
-dfdMakeFigureS1; % Synthetic dataset and the effect of denoising on known data
-dfdMakeFigureS2; % Show the effect of denoising when varying number of channels in noisepool and pcs removed
-dfdMakeFigureS3; % Show the effect of denoising when varying length of timepoints in epochs
-dfdMakeFigureS4; % Topographic maps of SL and BB before denoising, all stimulus conditions, all individual subjects
-dfdMakeFigureS5; % Topographic maps of BB after denoising, all stimulus conditions, all individual subjects
-dfdMakeFigureS6; % Effect of denoising on stimulus-locked SNR
+dfdMakeFigureS1; % Show the effect of denoising when varying number of channels in noisepool and pcs removed
+dfdMakeFigureS2; % Show the effect of denoising when varying length of timepoints in epochs
+dfdMakeFigureS3; % Synthetic dataset and the effect of denoising on known data
+dfdMakeFigureS4; % Summary statistics of noise time series
+dfdMakeFigureS5; % Topographic maps of SL and BB before denoising, all stimulus conditions, all individual subjects
+dfdMakeFigureS6; % Topographic maps of BB after denoising, all stimulus conditions, all individual subjects
+dfdMakeFigureS7; % Effect of denoising on stimulus-locked SNR
 
 
