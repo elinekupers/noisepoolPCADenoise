@@ -10,6 +10,17 @@ function dfdMakeFigure14()
 % cortex revealed by a new MEG denoising algorithm.
 % (JOURNAL. VOLUME. ISSUE. DOI.)
 
+% This script needs mgl and mrTools toolboxes!
+% https://github.com/justingardner/mgl
+% https://github.com/justingardner/mrTools
+% 
+% pth = '/Volumes/server/Projects/MEG/Eyetracking_scripts/toolboxes/mgl/'
+% addpath(genpath(pth))
+
+% pth = '/Volumes/server/Projects/MEG/Eyetracking_scripts/toolboxes/mrTools/'
+% addpath(genpath(pth))
+
+
 %% -------------------------------------
 % ------------ Define Params -----------
 % --------------------------------------
