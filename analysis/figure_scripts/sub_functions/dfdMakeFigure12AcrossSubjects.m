@@ -107,5 +107,6 @@ end
 if saveFigures
     % Only use figure write when producing high quality manuscript figure
     % (since it is very slow)
+%     figurewrite(fullfile(figureDir,sprintf('figure12_AcrossSubject%d_threshold%d_%s',whichSubject, threshold, figName)),[],0,'.',1);
     hgexport(gcf,fullfile(figureDir,sprintf('figure12_AcrossSubject%d_threshold%d_%s',whichSubject, threshold, figName)));
 end

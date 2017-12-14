@@ -5,8 +5,8 @@
 % broadband spectral responses in human visual cortex
 % (JOURNAL. VOLUME. ISSUE. DOI.)
 
-% This is a script that will make all figures except 1, 3 (Methods) and 16
-% (Discussion) from the MS: A non-invasive, quantitative study of
+% This is a script that will make all figures except 1, 3 (Methods) and S7
+% (Supplement) from the MS: A non-invasive, quantitative study of
 % broadband spectral responses in human visual cortex
 
 % Eline Kupers, Feb 2017
@@ -26,9 +26,9 @@ dfdMakeFigure7; % Effect of denoising on broadband SNR
 dfdMakeFigure8; % Effect of denoising on broadband signal and noise
 dfdMakeFigure9; % Topographic maps of BB before and BB after denoising, S1 and across subjects
 dfdMakeFigure10; % Topographic maps of BB after denoising, both-hemifield stimulus, all individual subjects
-dfdMakeFigure11; % Comparison of MEG Denoise and control analyses
-dfdMakeFigure12; % Topographic maps and comparisons of MEG Denoise and other denosing algorithm
-dfdMakeFigure13; % Topographic maps and comparisons of Cinet data (MEG Denoise and TSSS algorithm)
+dfdMakeFigure11; % Comparison of Noisepool-PCA and control analyses
+dfdMakeFigure12; % Topographic maps and comparisons of Noisepool-PCA and other denosing algorithm
+dfdMakeFigure13; % Topographic maps and comparisons of Cinet data (Noisepool-PCA and TSSS algorithm)
 dfdMakeFigure14; % Microsaccade histograms and topographic meshes with(out) microsaccades
 
 % Make supplementary figures
