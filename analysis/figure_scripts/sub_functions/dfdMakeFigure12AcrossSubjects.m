@@ -87,7 +87,7 @@ data{2} = sBBBeforeAcrossSubjects;
 data{3} = sBBAfterAcrossSubjects;
 cmap = bipolar;
 
-figure,set(gcf, 'Name', figName)
+figure,set(gcf, 'Name', figName,'position',[1,600,1400,800])
 for row = 1:4 % stimulus contrasts
     for col = 1:3 % types of analyses (sl, bb-pre, bb-post)
         subplot(4,3,3*(row-1)+col),

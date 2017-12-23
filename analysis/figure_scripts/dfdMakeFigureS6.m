@@ -65,7 +65,9 @@ for whichSubject = 1:8
 end
 
 if saveFigures
-    % Figurewrite takes a long time saving, so let's use hgexport for now
+%      Note: our function figurewrite is extremely slow with Matlab 2016b,
+    % we only use it to create the high quality MS figures, otherwise we use hgexport()
+%     figurewrite(fullfile(figureDir, sprintf('SF6_individualsubjects_thresh%d', threshold)),[],0,'.',1);
     hgexport(fH1, fullfile(figureDir, sprintf('S6_individualsubject_thresh%d', threshold)));
 end
 

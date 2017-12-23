@@ -46,7 +46,7 @@ satValues = 1-linspace(0.1,1,8);
 colorRGB = varysat(colors,satValues);
 
 % plot before and after
-fH = figure('position',[0,300,500,400],'Name', 'Figure S7', 'NumberTitle', 'off'); set(gcf, 'Color','w');
+fH = figure('position',[0,300,400,600],'Name', 'Figure S7', 'NumberTitle', 'off'); set(gcf, 'Color','w');
 datatypes = {'SNR','Signal','Noise'};
 for t = 1:numel(datatypes);
     for icond = 1:3
@@ -54,7 +54,7 @@ for t = 1:numel(datatypes);
         plotBeforeAfter(allresults,1,allpcchan,datatypes{t},icond,[],squeeze(colorRGB(icond,:,:)));
         xlim([0.5,2.5]);
         makeprettyaxes(gca,9,9);
-        if t==1; yt = [0,40]; elseif t==2; yt= [0,130]; else yt = [0,6]; end
+        if t==1; yt = [0,40]; elseif t==2; yt= [0,130]; else yt = [0,7]; end
         ylim(yt);
     end
 end

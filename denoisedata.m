@@ -498,9 +498,9 @@ switch how
         % non-parametric, based on percentils of the bootstrap:
         % 	- 50th prctile for the median, 
         %   - average of +/- 34 prctile for the confidence interval 
-        %temp = prctile(beta,[16 50 84],3);
-        %beta_se_old = diff(temp(:,:,[1 3]),[],3)/2;
-        %beta_md_old = temp(:,:,2);
+        % temp = prctile(beta,[16 50 84],3);
+        % beta_se_old = diff(temp(:,:,[1 3]),[],3)/2;
+        % beta_md_old = temp(:,:,2);
         
         % newer method is parametric, using the mean (of the data) for the
         % beta estimate, and the standard deviation of the bootstraps for
@@ -508,16 +508,22 @@ switch how
         beta_sd = std(beta,[],3);
         beta_mn = design \ datast;
              
-%         figure; set(gca, 'ColorOrder',dfdGetColors(3)'); hold on;
-%         plot(beta_md_old', beta_mn', '.', [-10 180], [-10 180], 'k-', 'MarkerSize', 25);
-%         axis([-10 180 -10 180]); axis square
-%         xlabel('Median across bootstraps'); ylabel('Mean of sample data'); set(gca, 'FontSize', 20)
-%         
-%         figure; set(gca, 'ColorOrder',dfdGetColors(3)'); hold on;
-%         plot(beta_se_old', beta_sd', '.', [0 9], [0 9], 'k-', 'MarkerSize', 25);
-%         axis([0 9, 0 9]); axis square
-%         xlabel('68% CI across bootstraps'); ylabel('SD across bootstraps'); set(gca, 'FontSize', 20) 
-%         
+        % figure; set(gca, 'ColorOrder',dfdGetColors(3)'); hold on;
+        % plot(beta_md_old', beta_mn', '.', [-10 180], [-10 180], 'k-', 'MarkerSize', 25);
+        % axis([-10 180 -10 180]); axis square
+        % xlabel('Median across bootstraps'); ylabel('Mean of sample data'); set(gca, 'FontSize', 20)
+         
+        % figure; set(gca, 'ColorOrder',dfdGetColors(3)'); hold on;
+        % plot(beta_se_old', beta_sd', '.', [0 9], [0 9], 'k-', 'MarkerSize', 25);
+        % axis([0 9, 0 9]); axis square
+        % xlabel('68% CI across bootstraps'); ylabel('SD across bootstraps'); set(gca, 'FontSize', 20) 
+ 
+        % calculate Coefficient of Determination between the two methods: 
+        %   codSD = 1- ( sum((beta_sd-beta_se_old).^2) / ...
+        %                   sum((beta_sd+beta_se_old).^2))
+        %   codMN = 1- ( sum((beta_mn-beta_md_old).^2) / ...
+        %       sum((beta_mn+beta_md_old).^2))
+   
         % save into output struct
         out = struct('r2',r2,'beta',beta,'beta_mn',beta_mn,'beta_sd',beta_sd,'epochs_boot', epochs_boot, 'r2boot', r2boot);
         

@@ -1,5 +1,5 @@
 function dfdMakeFigureS5()
-%% Function to reproduce Supplementary Figure 4 (Spatialmap)
+%% Function to reproduce Supplementary Figure 5 (Spatialmap)
 %
 % dfdMakeFigureS5()
 %
@@ -49,7 +49,7 @@ for whichSubject = 1:8
         % get stimulus-locked snr
         sl_snr1 = getsignalnoise(sl.results.origmodel(1),contrasts(icond,:), 'SNR',sl.badChannels);
         % get broadband snr for before denoising
-        ab_snr1 = getsignalnoise(bb.results.origmodel(1),  contrasts(icond,:), 'SNR',bb.badChannels);
+        ab_snr1 = getsignalnoise(bb.results.origmodel(1),contrasts(icond,:), 'SNR',bb.badChannels);
         
         sl_snr1 = to157chan(sl_snr1,~sl.badChannels,'nans');
         ab_snr1 = to157chan(ab_snr1,~bb.badChannels,'nans');
@@ -88,8 +88,10 @@ end
 
 if saveFigures
     % Note: our function figurewrite is extremely slow with Matlab 2016b,
-    % therefore we use hgexport()
-    %         figurewrite(fullfile(figureDir, sprintf('SF1_individual_thresh%d', threshold)),[],0,'.',1);
+    % we only use it to create the high quality MS figures, otherwise we use hgexport()
+%     figurewrite(fullfile(figureDir, sprintf('SF5A_individual_thresh%d', threshold)),fH1,0,'.',1);
+%     figurewrite(fullfile(figureDir, sprintf('SF5B_individual_thresh%d', threshold)),fH2,0,'.',1);
+
     hgexport(fH1,fullfile(figureDir, sprintf('S5A_individual_thresh%d', threshold)));
     hgexport(fH2,fullfile(figureDir, sprintf('S5B_individual_thresh%d', threshold)));
 

@@ -44,6 +44,9 @@ for whichSubject    = 1%:8;
     title('Variance explained by PCs');
     makeprettyaxes(gca,9,9);
     
+    mnExpl = cumsum(mean(explained,2));
+    sprintf('Percentage explained at 10 PCs: %2.2f \n', mnExpl(10));
+    
     if saveFigures
         figurewrite(fullfile(figureDir,'figureVarExpl'),[],0,'.',1);
     end
@@ -58,7 +61,7 @@ for whichSubject    = 1%:8;
     makeprettyaxes(gca,9,9);
     
     if saveFigures
-        figurewrite(fullfile(figureDir,'figureVarExpl_inset'),[],0,'.',1);
+%         figurewrite(fullfile(figureDir,'figureVarExpl_inset'),[],0,'.',1);
     end
     
     %% Panel B 
@@ -85,14 +88,14 @@ for whichSubject    = 1%:8;
     makeprettyaxes(gca,9,9);
     
     if saveFigures
-        figurewrite(fullfile(figureDir,'figureSpectrumPCs'),[],0,'.',1);
+%         figurewrite(fullfile(figureDir,'figureSpectrumPCs'),[],0,'.',1);
     end
     
     
     %% Panel C and D
     
     % Take one epoch from one PC and compute the envelope
-    thispc = 1;
+    thispc = 2;
     thisepoch = 10;
     
     thisnoise = pcs{thisepoch}(:,thispc);
@@ -120,12 +123,14 @@ for whichSubject    = 1%:8;
     makeprettyaxes(gca,9,9);
     
     if saveFigures
-        figurewrite(fullfile(figureDir,sprintf('figureNoiseDataEnvelope_pc%d_epoch%d',thispc, thisepoch)),[],0,'.',1);
+%         figurewrite(fullfile(figureDir,sprintf('figureNoiseDataEnvelope_pc%d_epoch%d',thispc, thisepoch)),[],0,'.',1);
     end
     
     % And make an inset
     figure; plot(0:999, abs(fft(abs(envelope))));
-    xlim([0 150]); ylim([0 275]); xlabel('Frequency (Hz)'); ylabel('Amplitude');
+    hold on; for ll = 1:7; plot(ll*[12 12], [0 275], 'k'); end
+    xlim([0 150]); ylim([0 250]); xlabel('Frequency (Hz)'); ylabel('Amplitude');
+     
     title('Fourier transform of one epoch time series envelope')
     makeprettyaxes(gca,9,9);
     
@@ -153,7 +158,7 @@ for whichSubject    = 1%:8;
     makeprettyaxes(gca,9,9);
     
     if saveFigures
-        figurewrite(fullfile(figureDir,'figureMeanNoiseDataEnvelope'),[],0,'.',1);
+%         figurewrite(fullfile(figureDir,'figureMeanNoiseDataEnvelope'),[],0,'.',1);
     end
     
 end
