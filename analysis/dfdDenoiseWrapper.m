@@ -162,9 +162,9 @@ for whichSubject = subjects
     
     % ---- Label epochs with microsaccades as bad epochs ------------------
     if removeMsEpochs 
-        onlyMS = ones(1,length(badEpochs)); %#ok<UNRCH>
-        onlyMS(msepochidx)=0;
-        badEpochs(find(onlyMS')) = 1; 
+        withMS = zeros(1,length(badEpochs)); %#ok<UNRCH>
+        withMS(msepochidx)=1;
+        badEpochs(find(withMS')) = 1; 
     end
      
     % -------------- Remove bad epochs and channels ----------------------
@@ -208,7 +208,7 @@ end
         % ----------------- Save denoised broadband data -----------------
         results.opt.preprocessfun   = func2str(results.opt.preprocessfun);
         optbb.preprocessfun         = func2str(optbb.preprocessfun);
-        parsave([fname '_bb.mat'], 'results', results, 'evalout', evalout, 'badChannels', badChannels, 'badEpochs', badEpochs, 'opt', optbb)
+        parsave([fname '_withonlyms_bb.mat'], 'results', results, 'evalout', evalout, 'badChannels', badChannels, 'badEpochs', badEpochs, 'opt', optbb)
                 
         % ----------- Denoise and save stimulus-locked analysis ----------
         [results,evalout] = denoisedata(design,sensorData,evokedfun,evokedfun,optsl);

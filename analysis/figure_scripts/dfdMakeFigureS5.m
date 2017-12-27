@@ -34,7 +34,7 @@ for whichSubject = 1:8
     
     
     %% Load denoised data of example subject
-    [data] = prepareData(dataDir,whichSubject,5);
+    [data] = prepareData(dataDir,whichSubject,'SF5');
     bb = data{1};
     sl = data{2};
     

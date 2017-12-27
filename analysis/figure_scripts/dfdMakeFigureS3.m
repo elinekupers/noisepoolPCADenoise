@@ -38,8 +38,9 @@ for whichSubject    = 1%:8;
     
     % Plot variance explained by PCs
     figure; hold on;
-    for ii = 1:size(noisedata,3); plot(explained(:,ii), 'Color', cmap(ii,:)); end
-    plot(mean(explained,2),'k--','LineWidth',2)
+    for ii = 1:size(noisedata,3); plot(cumsum(explained(:,ii)), 'Color', cmap(ii,:)); end
+    plot(cumsum(mean(explained,2)),'k--','LineWidth',2);
+    xlim([0 75]), ylim([0 100])
     xlabel('Number of PC'); ylabel('Percentage of variance explained');
     title('Variance explained by PCs');
     makeprettyaxes(gca,9,9);
@@ -53,15 +54,15 @@ for whichSubject    = 1%:8;
     
     % Plot inset of variance explained by PCs
     figure; hold all;
-    for ii = 1:size(noisedata,3); plot(explained(:,ii), 'Color', cmap(ii,:)); end
-    plot(mean(explained,2),'k--','LineWidth',2);
-    xlim([0 10]);
+    for ii = 1:size(noisedata,3); plot(cumsum(explained(:,ii)), 'Color', cmap(ii,:)); end
+    plot(cumsum(mean(explained,2)),'k--','LineWidth',2);
+    xlim([0 10]); ylim([0 100]);
     xlabel('Number of PC'); ylabel('Percentage of variance explained');
     title('Variance explained by PCs');
     makeprettyaxes(gca,9,9);
     
     if saveFigures
-%         figurewrite(fullfile(figureDir,'figureVarExpl_inset'),[],0,'.',1);
+         figurewrite(fullfile(figureDir,'figureVarExpl_inset'),[],0,'.',1);
     end
     
     %% Panel B 
@@ -88,7 +89,7 @@ for whichSubject    = 1%:8;
     makeprettyaxes(gca,9,9);
     
     if saveFigures
-%         figurewrite(fullfile(figureDir,'figureSpectrumPCs'),[],0,'.',1);
+        figurewrite(fullfile(figureDir,'figureSpectrumPCs'),[],0,'.',1);
     end
     
     
@@ -117,16 +118,6 @@ for whichSubject    = 1%:8;
     end
     
     % Plot amplitude spectrum of envelope
-    figure; plot(0:999, abs(fft(abs(envelope))));
-    xlim([0 150]);  ylim([0 1000]); xlabel('Frequency (Hz)'); ylabel('Amplitude');
-    title('Fourier transform of one epoch time series envelope')
-    makeprettyaxes(gca,9,9);
-    
-    if saveFigures
-%         figurewrite(fullfile(figureDir,sprintf('figureNoiseDataEnvelope_pc%d_epoch%d',thispc, thisepoch)),[],0,'.',1);
-    end
-    
-    % And make an inset
     figure; plot(0:999, abs(fft(abs(envelope))));
     hold on; for ll = 1:7; plot(ll*[12 12], [0 275], 'k'); end
     xlim([0 150]); ylim([0 250]); xlabel('Frequency (Hz)'); ylabel('Amplitude');
@@ -158,7 +149,7 @@ for whichSubject    = 1%:8;
     makeprettyaxes(gca,9,9);
     
     if saveFigures
-%         figurewrite(fullfile(figureDir,'figureMeanNoiseDataEnvelope'),[],0,'.',1);
+        figurewrite(fullfile(figureDir,'figureMeanNoiseDataEnvelope'),[],0,'.',1);
     end
     
 end

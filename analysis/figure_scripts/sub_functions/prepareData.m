@@ -39,7 +39,7 @@ switch whichFigure
         denoisedts = denoisedts_bb;
         data = {sensorData,denoisedts{1}}; 
         
-    case {5, 12, 14}
+    case {5, 12, 14, 'SF5'}
         % Load denoised stimulus locked and broadband data
         bb = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject)); 
         sl = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_sl.mat'),whichSubject));
@@ -50,7 +50,7 @@ switch whichFigure
         data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_full_bb.mat'),whichSubject));        
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         
-    case {8, 9, 10}
+    case {8, 9, 10, 'SF6'}
         data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_bb.mat'),whichSubject));
         load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
         
@@ -81,12 +81,7 @@ switch whichFigure
         
         clear data1
 
-        load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
-    
-     case 'SF4'
-        data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_full_bb.mat'),whichSubject));
-        load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
-        
+        load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));     
         
     case 'SF7'
         data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_sl.mat'),whichSubject));
