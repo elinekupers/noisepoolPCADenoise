@@ -91,12 +91,13 @@ for otherColumn = find([1:size(meshData,2)-1]~=thisComparisonColumn)
         p = 2*(.5-abs(.5-mean(bootstrp(10000, @median, snr_mn(:,thisComparisonColumn,icond) - snr_mn(:,otherColumn,icond) )>0)));
         outBoot(otherColumn,icond) = p;
         
-        % Traditional statistics
-        %             [h,p] = ttest(snr_diff2(:,thisComparisonColumn,icond),snr_diff2(:,otherColumn,icond));
-        %             out(otherColumn,icond) = p;
+%         Traditional statistics
+        [h,p] = ttest(snr_mn(:,thisComparisonColumn,icond),snr_mn(:,otherColumn,icond));
+        out(otherColumn,icond) = p;
     end
 end
 disp(outBoot)
+disp(out)
 
 %% Plot figure
 fH = figure('position',[0,300,700,300],'Name', 'Figure 12B', 'NumberTitle', 'off');
