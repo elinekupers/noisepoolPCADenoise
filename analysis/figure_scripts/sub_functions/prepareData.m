@@ -85,8 +85,7 @@ switch whichFigure
         
     case 'SF7'
         data = load(sprintf(fullfile(dataDir, 's%02d_denoisedData_sl.mat'),whichSubject));
-        load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));
-    
+        load(sprintf(fullfile(dataDir, 's%02d_conditions.mat'),whichSubject));     
 
 end
 
@@ -107,10 +106,8 @@ if ~exist('exampleChannel','var')
     
     if whichFigure == 4
         design = [];
-%     elseif whichFigure == 13
+%     elseif whichFigure == 14
 %         design = [];
-    elseif whichFigure == 15
-        design = [];
     elseif iscell(data)
         design = design(~data{1}.badEpochs,:);
     else
