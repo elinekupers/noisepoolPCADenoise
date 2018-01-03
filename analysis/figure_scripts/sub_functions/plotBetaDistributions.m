@@ -17,21 +17,21 @@ for dd = 1:2 % for either pre and post denoising
     spec = abs(fft(squeeze(data{dd}(exampleIndex,:,:))))/size(data{dd},2)*2;
     
     % get power for full and blank epochs, at the specified frequencies
-    this_data_full = spec(fok+1,condEpochs{dd}{1}).^2;
-    this_data_blank = spec(fok+1,condEpochs{dd}{4}).^2;
+    this_data_full{dd} = spec(fok+1,condEpochs{dd}{1}).^2;
+    this_data_blank{dd} = spec(fok+1,condEpochs{dd}{4}).^2;
     
     % set up randomized indicies for bootstrapping
-    nepochs_full = size(this_data_full,2);
+    nepochs_full = size(this_data_full{dd},2);
     epochs_boot_full = randi(nepochs_full,nboot,nepochs_full);
-    nepochs_blank = size(this_data_blank,2);
+    nepochs_blank = size(this_data_blank{dd},2);
     epochs_boot_blank = randi(nepochs_blank,nboot,nepochs_blank);
     
     % bootstrap mean across epochs
     epoch_vals_full = zeros(length(fok),nboot);
     epoch_vals_blank = zeros(length(fok),nboot);
     for nn = 1:nboot
-        this_data_full_boot  = this_data_full(:,epochs_boot_full(nn,:));
-        this_data_blank_boot = this_data_blank(:,epochs_boot_blank(nn,:));
+        this_data_full_boot  = this_data_full{dd}(:,epochs_boot_full(nn,:));
+        this_data_blank_boot = this_data_blank{dd}(:,epochs_boot_blank(nn,:));
         epoch_vals_full(:,nn)  = mean(this_data_full_boot,2);
         epoch_vals_blank(:,nn) = mean(this_data_blank_boot,2);
     end
@@ -44,14 +44,14 @@ for dd = 1:2 % for either pre and post denoising
 %     pct = prctile(meanXfreqs{dd}(1,:), [16, 50, 84]);
 %     signal = pct(2);
 %     noise  = (pct(3)-pct(1))/2;
-    signal = mean(mean(this_data_full));
+    signal = mean(mean(this_data_full{dd}));
     noise = mean(std(epoch_vals_full,[],2));
     fprintf('Signal: %4.2f\tNoise: %4.2f\tSNR:%4.2f\n', signal, noise, signal/noise);
 
 %     pct = prctile(meanXfreqs{dd}(2,:), [16, 50, 84]);
 %     signal = pct(2);
 %     noise  = (pct(3)-pct(1))/2;
-    signal = mean(mean(this_data_blank,2));
+    signal = mean(mean(this_data_blank{dd},2));
     noise = mean(std(epoch_vals_blank,[],2));
     fprintf('Signal: %4.2f\tNoise: %4.2f\tSNR:%4.2f\n', signal, noise, signal/noise);
 
@@ -87,9 +87,13 @@ for dd = dataToPlot;
     xlabel('Mean power (fT^2)'); ylabel('Fraction of bootstraps');
     makeprettyaxes(gca,9,9);
 
-    pct = prctile(diffMeanFreq, [16, 50, 84]);
-    signal = pct(2);
-    noise  = (pct(3)-pct(1))/2;
+%     pct = prctile(diffMeanFreq, [16, 50, 84]);
+%     signal = pct(2);
+%     noise = (pct(3)-pct(1))/2;
+%     fprintf('PCT BOOTSTRP MEASURE Signal: %4.2f\tNoise: %4.2f\tSNR:%4.2f\n', signal, noise, signal/noise);
+
+    signal = mean(mean(this_data_full{dd},2)-mean(this_data_blank{dd},2));
+    noise  = std(diffMeanFreq); 
     fprintf('Signal: %4.2f\tNoise: %4.2f\tSNR:%4.2f\n', signal, noise, signal/noise);
     
     
