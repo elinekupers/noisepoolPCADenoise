@@ -85,7 +85,7 @@ for icond = 1:3
 %     end
     
     % Or a BOXPLOT
-     boxplot(snr_diff2(:,:,icond), 'Colors',colors(icond,:), 'BoxStyle','outline', 'Widths',0.2,'MedianStyle','target')
+     boxplot(snr_diff2(:,:,icond), 'Colors',colors(icond,:), 'BoxStyle','outline', 'Widths',0.2)
     
     % format figure and make things pretty 
     set(gca,'xlim',[0.2,nnull+0.8],'ylim',[-3,6]);
