@@ -10,7 +10,7 @@ switch whichFigure
         
         exampleChannel = 42;
         
-        % preprocessing parameters (see dfdPreprocessData)
+        % preprocessing parameters (see nppPreprocessData)
         varThreshold        = [0.05 20];
         badChannelThreshold = 0.2;
         badEpochThreshold   = 0.2;
@@ -23,7 +23,7 @@ switch whichFigure
         use3Channels        = false;
         
         % Preprocess raw sensordata
-        [sensorData, badChannels0, badEpochs0] = dfdPreprocessData(sensorData(:,:,dataChannels), ...
+        [sensorData, badChannels0, badEpochs0] = nppPreprocessData(sensorData(:,:,dataChannels), ...
             varThreshold, badChannelThreshold, badEpochThreshold, use3Channels);
         
         % ---- Define first epochs in order to remove later ------------------

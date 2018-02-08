@@ -20,8 +20,8 @@ function fH = plotNoisepool(whichSubjects)
 % plotNoisePool(1:8)
 
 %% Choices to make:                                              
-figureDir       = fullfile(dfdRootPath, 'analysis', 'figures'); % Where to save images?
-dataDir         = fullfile(dfdRootPath, 'analysis', 'data');    % Where to save data?
+figureDir       = fullfile(nppRootPath, 'analysis', 'figures'); % Where to save images?
+dataDir         = fullfile(nppRootPath, 'analysis', 'data');    % Where to save data?
 
 fH = figure('position',[1,600,1400,800]); set(gcf, 'Color','w');
 
