@@ -1,9 +1,9 @@
-Welcome to our Denoise project code repository!
+Welcome to our Noisepool-PCA code repository!
 
 General purpose denoising suite that denoises EEG/MEG/ECoG data
 
 This denoising suite was developed on MATLAB Version 8.4 and is described in the manuscript in preparation,
-*Broadband spectral responses in visual cortex revealed by a new MEG denoising algorithm*
+*A non-invasive, quantitative study of broadband spectral responses in human visual cortex*
 Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J. Heeger, Jonathan Winawer
 
 
@@ -19,17 +19,17 @@ Eline Kupers, Helena X. Wang, Kaoru Amano, Kendrick N. Kay, David J. Heeger, Jon
 
 **Folder structure**
 * denoisedata.m:  Main function to denoise time series.
-* dfdAddPaths.m:  Add paths with functions to make this repository run smoothly.		
-* dfdAddFieldtripPaths.m: Add paths of Fieldtrip toolbox to plot data on a sensormap or to use ICA function.
+* nppAddPaths.m:  Add paths with functions to make this repository run smoothly.		
+* nppAddFieldtripPaths.m: Add paths of Fieldtrip toolbox to plot data on a sensormap or to use ICA function.
 * external (folder): Contains functions from other toolboxes, repositories or researchers 
 * analysis (folder): Contains code to download, store, and analyze data from manuscript	
- * data (folder): Empty folder to store data. Example data downloaded by dfdDownloadSampleData will be written here by default. This folder contains a .gitignore file to prevent large data files from being added to the repository. 
- * denoise_subfunctions (folder): Folder with subfunctions used by the dfdDenoiseWrapper in order to denoise the data of all subjects for this particular steady state study.
+ * data (folder): Empty folder to store data. Example data downloaded by nppDownloadSampleData will be written here by default. This folder contains a .gitignore file to prevent large data files from being added to the repository. 
+ * denoise_subfunctions (folder): Folder with subfunctions used by the nppDenoiseWrapper in order to denoise the data of all subjects for this particular steady state study.
  * figure_scripts (folder): Functions to make figures 4-14 for the manuscript.
  * figures (folder): Empty folder where figures made by figure_scipts will be saved. This folder contains a .gitignore file to prevent large image files from being added to the repository.
- * dfdDownloadSampleData.m: Function to download sample data for all subjects from the web.
- * dfdDenoiseWrapper.m: Function to denoise sample data for all subjects 
- * dfdMakeAllFigures.m: Script to make all figures from the manuscript.
+ * nppDownloadSampleData.m: Function to download sample data for all subjects from the web.
+ * nppDenoiseWrapper.m: Function to denoise sample data for all subjects 
+ * nppMakeAllFigures.m: Script to make all figures from the manuscript.
 
 **General flow of denoise data function**
 
@@ -79,25 +79,25 @@ OUTPUT:
 
 	% Prepare data sets.  In the Matlab prompt, type:
 	addpath(genpath(pwd))
-	dfdAddFieldtripPath
+	nppAddFieldtripPath
 
 	% Download the sample data. Slow. Do this once to download 8 raw data sets.
-	dfdDownloadSampleData([],1:8,'raw');  
+	nppDownloadSampleData([],1:8,'raw');  
 
 	% Denoise with exactly 10 PCs. Slow. Do this once to denoise 8 data sets.
-	dfdDenoiseWrapper(1:8,1); % 
+	nppDenoiseWrapper(1:8,1); % 
 
 	% Denoise up to 10 PCs. Slow. Do this once to denoise 8 data sets.
-	dfdDenoiseWrapper(1:8,2); 
+	nppDenoiseWrapper(1:8,2); 
 
 	% Denoise with control methods. Slow. Do this once to denoise 8 data sets.
-	dfdDenoiseWrapper(1:8,3) 				 % 	
+	nppDenoiseWrapper(1:8,3) 				 % 	
 
 	%  Recreate figure 4 from manuscript. 
-	dfdMakeFigure4();
+	nppMakeFigure4();
 
 	%  Recreate all figures from manuscript. 
-	dfdMakeallfigures();
+	nppMakeallfigures();
 
 —————————————————————————————————————————————————————-
 —— Example 2: Download denoised data and plot fig7 ---
@@ -105,13 +105,13 @@ OUTPUT:
 
 	% Prepare data sets.  
 	addpath(genpath(pwd));
-	dfdAddFieldtripPath();
+	nppAddFieldtripPath();
 
 	% Download sample data. Slow. Do this once to download 8 raw data sets.
-	dfdDownloadSampleData([],1:8,'denoised 10 pcs') 
+	nppDownloadSampleData([],1:8,'denoised 10 pcs') 
 	
 	% Denoise with exactly 10 PCs. Slow. Do this once to denoise 8 data sets.
-	dfdDenoiseWrapper(1:8,1) 				
+	nppDenoiseWrapper(1:8,1) 				
 
 	%  Recreate figure 7 from manuscript. 
-	dfdMakeFigure7()
+	nppMakeFigure7()

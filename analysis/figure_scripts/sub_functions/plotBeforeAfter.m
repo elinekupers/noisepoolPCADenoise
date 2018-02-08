@@ -92,6 +92,6 @@ end
 p = 2*(.5-abs(.5-mean(bootstrp(10000, @median, vals1all - vals2all )>0)));
 sprintf('Median of 10000x bootstrapped p value: %d \n',p)
 % Or traditional statistics
-% [~,p] = ttest(vals1all,vals2all);
-% sprintf('P value of paired t-test: %d \n',p)
+[~,p] = ttest(vals1all,vals2all);
+sprintf('P value of paired t-test: %d \n',p)
 
