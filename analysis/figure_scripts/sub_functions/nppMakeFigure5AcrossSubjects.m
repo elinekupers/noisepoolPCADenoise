@@ -51,13 +51,13 @@ for whichSubject = whichSubjects
     numContrasts = length(contrasts);
     
     % Stimulus-locked: Compute SNR for contrasts
-    tmp_data = reshape(sl.results.origmodel.beta,3,[]);
+    tmp_data = reshape(sl.results.origmodel.beta,size(contrasts,2),[]);
     tmp      = contrasts*tmp_data;
     tmp      = reshape(tmp, numContrasts, numChannels, numBoots);
     sSL      = computeSNR(tmp)';
     
     % Broadband before denoising: Compute SNR for contrasts
-    tmp_data = reshape(bb.results.origmodel.beta,3,[]);
+    tmp_data = reshape(bb.results.origmodel.beta,size(contrasts,2),[]);
     tmp = contrasts*tmp_data;
     tmp = reshape(tmp, numContrasts, numChannels,numBoots);
     sBBBefore = computeSNR(tmp)';
