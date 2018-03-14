@@ -1,7 +1,7 @@
 
 function epoched_data = trial2epoch(trial_data)
  
-% Let's define a trial as Kaoru's epoched data (12 s, 12001 time
+% Define a trial epoched data (12 s, 12000 time
 % points) and an epoch as our desired 1 s (1000 time point)
 n_epochs_per_trial                  = 12;
 nchannels                           = size(trial_data{1}, 2);
