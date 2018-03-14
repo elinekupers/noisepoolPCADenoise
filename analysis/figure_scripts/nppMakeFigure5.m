@@ -44,9 +44,9 @@ climsAB = [-8.4445, 8.4445];
 
 for icond = 1:size(contrasts,1)
     % get stimulus-locked snr
-    sl_snr1 = getsignalnoise(sl.results.origmodel(1),contrasts(icond,:), 'SNR',sl.badChannels);
+    sl_snr1 = getsignalnoise(sl.results.origmodel(1), contrasts(icond,:), 'SNR', sl.badChannels);
     % get broadband snr for before and after denoising
-    ab_snr1 = getsignalnoise(bb.results.origmodel(1),  contrasts(icond,:), 'SNR',bb.badChannels);
+    ab_snr1 = getsignalnoise(bb.results.origmodel(1), contrasts(icond,:), 'SNR', bb.badChannels);
     
 
 
