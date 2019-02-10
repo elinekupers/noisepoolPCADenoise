@@ -3,7 +3,7 @@ Welcome to our Noisepool-PCA code repository!
 General purpose denoising suite that denoises EEG/MEG/ECoG data
 
 This denoising suite was developed on MATLAB Version 8.4 and is described in the publication:
-*A non-invasive, quantitative study of broadband spectral responses in human visual cortex.*
+*A non-invasive, quantitative study of broadband spectral responses in human visual cortex*
 by Kupers ER, Wang HX, Amano K, Kay KN, Heeger DJ, et al. (2018) PLOS ONE 13(3): e0193107.
 https://doi.org/10.1371/journal.pone.0193107
 
