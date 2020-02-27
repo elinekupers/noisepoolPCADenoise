@@ -41,7 +41,12 @@ for k = 1:size(timelims,1)
     %s.xyPos  = s.xyPos ./ PIX2DEG;
     
     % compute velocity
-    s(k).xyVel  = vecvel(s(k).xyPos,smpRate,3);
+    if smpRate >= 500
+        type = 3;
+    else
+        type = 2;
+    end
+    s(k).xyVel  = vecvel(s(k).xyPos,smpRate,type);
     
     % save eye data information
     s(k).eyeInfo.smpRate     = smpRate;
