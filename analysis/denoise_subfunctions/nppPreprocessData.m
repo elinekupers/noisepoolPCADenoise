@@ -58,10 +58,11 @@ outliers(:,badChannels) = 1;
 
 % Plot outiers for epochs and channels
 if verbose
+    percentBad = sum(sum(outliers))/(size(sensorDataIn,2)*size(sensorDataIn,3))*100;
     figure; imagesc(outliers);
-    xlabel('channel number'); ylabel('epoch number'); title('Bad channels / epochs')
+    xlabel('channel number'); ylabel('epoch number'); title(sprintf('Bad channels / epochs: %5.2f%%',percentBad))
     fprintf('[%s]: %5.2f%% of epochs removed\n', mfilename, ...
-        sum(sum(outliers))/(size(sensorDataIn,2)*size(sensorDataIn,3))*100);
+        percentBad);
 end
 
 % Check how many sensors there are, if there are more than 192, it will be
